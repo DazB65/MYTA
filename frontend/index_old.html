@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CreatorMate - Content Dashboard</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
+  <style>
+    .animate-pulse-slow {
+      animation: pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+    }
+    @keyframes pulse {
+      0%, 100% {
+        opacity: 1;
+      }
+      50% {
+        opacity: 0.8;
+      }
+    }
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    }
+  </style>
+</head>
+
+<body class="font-inter selection:bg-purple-600 selection:text-white overflow-hidden bg-neutral-950 text-neutral-100">
+
+  <!-- HEADER -->
+  <header class="fixed top-0 inset-x-0 h-16 flex md:px-8 z-40 border-slate-800 border-b pr-4 pl-4 backdrop-blur items-center justify-between">
+    <div class="relative">
+      <h1 class="text-lg font-medium text-white flex items-center gap-2">
+        <span class="bg-gradient-to-r from-cyan-500 to-blue-500 text-white h-8 w-8 rounded flex items-center justify-center shadow-lg">
+          CM
+        </span>
+        CreatorMate
+      </h1>
+    </div>
+  </header>
+
+  <!-- LEFT NAV PLACEHOLDER -->
+  <nav class="fixed top-16 bottom-0 left-0 w-64 hidden md:flex flex-col backdrop-blur border-r z-30 bg-slate-900/60 border-slate-800">
+    <!-- Navigation content will go here -->
+    <div class="p-6 text-center">
+      <p>Left Navigation Panel</p>
+    </div>
+  </nav>
+
+  <!-- MAIN CONTENT AREA -->
+  <main class="fixed md:pl-64 pt-16 inset-0 overflow-y-auto bg-slate-900 text-slate-200">
+    <div class="min-h-screen p-6">
+      <h2 class="text-2xl font-bold text-white mb-6">Dashboard Content</h2>
+      <p class="text-slate-400">This is where your main content will go. The AI agent sidebar should appear on the right side.</p>
+      
+      <div class="mt-8 p-6 bg-slate-800/50 rounded-lg border border-slate-700/50">
+        <h3 class="text-xl font-semibold text-white mb-4">Connection to Backend</h3>
+        <p class="text-slate-300 mb-4">This dashboard will connect to your Python backend at:</p>
+        <div class="bg-slate-900 p-4 rounded text-indigo-300 font-mono">
+          http://localhost:8080/api/agent/status
+        </div>
+        <button id="testConnection" class="mt-4 px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-md transition-colors">
+          Test Connection
+        </button>
+        <div id="connectionResult" class="mt-4 hidden"></div>
+      </div>
+    </div>
+  </main>
+
+  <!-- Import AI Sidebar Component -->
+  <div id="sidebarContainer"></div>
+
+  <script>
+    // Load the sidebar component
+    fetch('./components/sidebar/sidebar.html')
+      .then(response => response.text())
+      .then(html => {
+        document.getElementById('sidebarContainer').innerHTML = html;
+        
+        // Execute any scripts that were in the sidebar component
+        const scripts = document.getElementById('sidebarContainer').getElementsByTagName('script');
+        for (let script of scripts) {
+          eval(script.innerHTML);
+        }
+      })
+      .catch(error => {
+        console.error('Error loading sidebar component:', error);
+      });
+
+    // Test backend connection
+    document.getElementById('testConnection').addEventListener('click', function() {
+      const resultDiv = document.getElementById('connectionResult');
+      resultDiv.classList.remove('hidden');
+      resultDiv.innerHTML = '<p class="text-amber-400">Testing connection...</p>';
+      
+      // Replace with actual API endpoint when backend is ready
+      fetch('http://localhost:8080/api/agent/status')
+        .then(response => {
+          if (response.ok) {
+            return response.json();
+          }
+          throw new Error('Network response was not ok');
+        })
+        .then(data => {
+          resultDiv.innerHTML = `
+            <p class="text-emerald-400">Connection successful!</p>
+            <pre class="mt-2 bg-slate-900 p-3 rounded text-slate-300 font-mono">${JSON.stringify(data, null, 2)}</pre>
+          `;
+        })
+        .catch(error => {
+          resultDiv.innerHTML = `
+            <p class="text-rose-400">Connection failed: ${error.message}</p>
+            <p class="mt-2 text-slate-400">Make sure your Python backend is running at localhost:5000</p>
+          `;
+        });
+    });
+  </script>
+
+</body>
+</html>

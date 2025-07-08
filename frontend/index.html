@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CreatorMate</title>
+    <style>
+        /* Reset and base styles */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background-color: #1a1b26;
+            color: #e0e0e0;
+            display: flex;
+            height: 100vh;
+            overflow: hidden;
+        }
+        
+        /* Mini Icon Sidebar */
+        .mini-sidebar {
+            width: 64px;
+            height: 100vh;
+            background-color: #13141f;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 16px 0;
+            transition: width 0.3s ease;
+            overflow: hidden;
+            z-index: 100;
+            box-shadow: 2px 0 5px rgba(0, 0, 0, 0.2);
+        }
+        
+        .mini-sidebar:hover {
+            width: 200px;
+        }
+        
+        .sidebar-logo {
+            display: flex;
+            align-items: center;
+            padding: 8px 0;
+            margin-bottom: 24px;
+            width: 100%;
+            justify-content: center;
+        }
+        
+        .sidebar-logo img {
+            width: 40px;
+            height: 40px;
+            border-radius: 8px;
+            margin-right: 16px;
+        }
+        
+        .sidebar-logo span {
+            white-space: nowrap;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            font-weight: bold;
+            font-size: 16px;
+        }
+        
+        .mini-sidebar:hover .sidebar-logo span {
+            opacity: 1;
+        }
+        
+        .nav-item {
+            display: flex;
+            align-items: center;
+            width: 100%;
+            padding: 12px 0;
+            color: #8f9bb3;
+            text-decoration: none;
+            transition: all 0.2s ease;
+            position: relative;
+        }
+        
+        .nav-item:hover, .nav-item.active {
+            color: white;
+            background-color: rgba(255, 255, 255, 0.05);
+        }
+        
+        .nav-item.active::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 3px;
+            background-color: #6366f1;
+        }
+        
+        .nav-icon {
+            min-width: 64px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 20px;
+        }
+        
+        .nav-text {
+            white-space: nowrap;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        
+        .mini-sidebar:hover .nav-text {
+            opacity: 1;
+        }
+        
+        /* Main container */
+        .main-container {
+            flex: 1;
+            display: flex;
+            overflow: hidden;
+        }
+        
+        /* Content area */
+        .content-area {
+            flex: 1;
+            overflow-y: auto;
+            padding: 24px;
+        }
+        
+        .dashboard-card {
+            background-color: rgba(30, 31, 48, 0.8);
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+        }
+        
+        h2 {
+            margin-bottom: 16px;
+        }
+        
+        p {
+            margin-bottom: 16px;
+            line-height: 1.5;
+        }
+        
+        button {
+            background-color: #6366f1;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: 500;
+            margin-top: 12px;
+        }
+        
+        button:hover {
+            background-color: #4f46e5;
+        }
+        
+        code {
+            background-color: rgba(0, 0, 0, 0.2);
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-family: monospace;
+        }
+        
+        /* Agent sidebar */
+        .agent-sidebar {
+            width: 480px;
+            background-color: #23243f;
+            border-left: 1px solid rgba(255, 255, 255, 0.1);
+            overflow-y: auto;
+        }
+        
+        .agent-header {
+            background: linear-gradient(to right, #6366f1, #8b5cf6);
+            border-radius: 12px;
+            padding: 1rem;
+            margin: 1rem;
+        }
+        
+        .insights-section {
+            padding: 0 1rem;
+        }
+        
+        .insight-card {
+            background-color: rgba(30, 31, 48, 0.8);
+            border-radius: 8px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+        }
+        
+        .quick-actions {
+            padding: 0 1rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        .actions-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+        }
+        
+        .action-button {
+            padding: 1rem;
+            background-color: rgba(30, 31, 48, 0.8);
+            border: none;
+            border-radius: 8px;
+            color: white;
+            cursor: pointer;
+            text-align: center;
+        }
+        
+        .agent-chat {
+            padding: 0 1rem 1rem;
+        }
+        
+        .chat-input-container {
+            position: relative;
+            margin-top: 1rem;
+        }
+        
+        .chat-input {
+            width: 100%;
+            padding: 0.75rem;
+            padding-right: 40px;
+            border-radius: 20px;
+            border: none;
+            background-color: rgba(255, 255, 255, 0.1);
+            color: white;
+        }
+        
+        .send-button {
+            position: absolute;
+            right: 8px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            color: #6366f1;
+            cursor: pointer;
+            padding: 0;
+            margin: 0;
+        }
+        
+        h3, h4, h5 {
+            margin-top: 0;
+            margin-bottom: 12px;
+        }
+        
+        .section-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: #8f9bb3;
+            margin: 1rem 0 0.5rem;
+        }
+    </style>
+</head>
+<body>
+    <!-- Mini Icon Sidebar -->
+    <nav class="mini-sidebar">
+        <div class="sidebar-logo">
+            <img src="https://placehold.co/40x40/6366f1/FFFFFF.png?text=CM" alt="CM">
+            <span>CreatorMate</span>
+        </div>
+        
+        <a href="#dashboard" class="nav-item active">
+            <div class="nav-icon">📊</div>
+            <div class="nav-text">Dashboard</div>
+        </a>
+        
+        <a href="#content" class="nav-item">
+            <div class="nav-icon">📝</div>
+            <div class="nav-text">Content</div>
+        </a>
+        
+        <a href="#analytics" class="nav-item">
+            <div class="nav-icon">📈</div>
+            <div class="nav-text">Analytics</div>
+        </a>
+        
+        <a href="#tools" class="nav-item">
+            <div class="nav-icon">🛠️</div>
+            <div class="nav-text">Tools</div>
+        </a>
+        
+        <a href="#settings" class="nav-item">
+            <div class="nav-icon">⚙️</div>
+            <div class="nav-text">Settings</div>
+        </a>
+    </nav>
+
+    <!-- Main Content Container -->
+    <div class="main-container">
+        <!-- Content Area -->
+        <main class="content-area">
+            <h2>Dashboard Content</h2>
+            <p>This is where your main content will go. The AI agent sidebar appears on the right.</p>
+            
+            <div class="dashboard-card">
+                <h3>Connection to Backend</h3>
+                <p>This dashboard will connect to your Python backend at:</p>
+                <code>http://localhost:8888/api/agent/status</code>
+                <button id="test-connection">Test Connection</button>
+                <div id="connection-result"></div>
+            </div>
+        </main>
+        
+        <!-- AI Agent Sidebar -->
+        <aside class="agent-sidebar">
+            <div class="agent-header">
+                <h3>Your Personal Agent</h3>
+                <p>AI-powered Insights</p>
+                <span>3 new insights</span>
+            </div>
+            
+            <div class="section-title">INSIGHTS</div>
+            <div class="insights-section">
+                <div class="insight-card">
+                    <h5>Trending topic detected</h5>
+                    <p>AI Gaming Tools is trending in your niche - create content now for maximum reach!</p>
+                </div>
+                
+                <div class="insight-card">
+                    <h5>Retention improved</h5>
+                    <p>Your audience retention increased by 15% this week. Keep using opening hooks!</p>
+                </div>
+                
+                <div class="insight-card">
+                    <h5>Revenue impact</h5>
+                    <p>My suggestions earned you +$200 in additional revenue this month!</p>
+                </div>
+            </div>
+            
+            <div class="section-title">QUICK ACTIONS</div>
+            <div class="quick-actions">
+                <div class="actions-grid">
+                    <button class="action-button">Generate Script</button>
+                    <button class="action-button">Improve Hooks</button>
+                    <button class="action-button">Optimize Title</button>
+                    <button class="action-button">Get Ideas</button>
+                </div>
+            </div>
+            
+            <div class="section-title">ASK YOUR AGENT</div>
+            <div class="agent-chat">
+                <div class="insight-card">
+                    <p>How can I help with your content creation today?</p>
+                </div>
+                
+                <div class="chat-input-container">
+                    <input type="text" class="chat-input" placeholder="Ask your AI agent anything...">
+                    <button class="send-button">➤</button>
+                </div>
+            </div>
+        </aside>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Handle navigation item clicks
+            document.querySelectorAll('.nav-item').forEach(item => {
+                item.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    
+                    // Remove active class from all items
+                    document.querySelectorAll('.nav-item').forEach(navItem => {
+                        navItem.classList.remove('active');
+                    });
+                    
+                    // Add active class to clicked item
+                    this.classList.add('active');
+                    
+                    // Update content based on the selected navigation item
+                    const section = this.getAttribute('href').substring(1);
+                    document.querySelector('.content-area h2').textContent = 
+                        section.charAt(0).toUpperCase() + section.slice(1) + ' Content';
+                });
+            });
+            
+            // Test connection functionality
+            const testButton = document.getElementById('test-connection');
+            if (testButton) {
+                testButton.addEventListener('click', async function() {
+                    const resultDiv = document.getElementById('connection-result');
+                    resultDiv.innerHTML = 'Connecting...';
+                    
+                    try {
+                        const response = await fetch('http://localhost:8888/api/agent/status');
+                        const data = await response.json();
+                        
+                        resultDiv.innerHTML = `
+                            <div style="color: #4ade80; margin-top: 10px;">Connection successful!</div>
+                            <pre style="background: rgba(0,0,0,0.2); padding: 10px; border-radius: 4px; overflow: auto;">${JSON.stringify(data, null, 2)}</pre>
+                        `;
+                    } catch (error) {
+                        resultDiv.innerHTML = `
+                            <div style="color: #f87171; margin-top: 10px;">Connection failed</div>
+                            <pre style="background: rgba(0,0,0,0.2); padding: 10px; border-radius: 4px; overflow: auto;">${error.message}</pre>
+                        `;
+                    }
+                });
+            }
+        });
+    </script>
+</body>
+</html>
