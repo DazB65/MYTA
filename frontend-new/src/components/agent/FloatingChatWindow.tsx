@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect, useCallback } from 'react'
-import { X, Minus, Maximize2, Move } from 'lucide-react'
+import { X, Minus, Maximize2, Move, Filter } from 'lucide-react'
 import { cn } from '@/utils'
 import { useChat } from '@/hooks/useChat'
 import { useAvatarStore } from '@/store/avatarStore'
@@ -20,6 +20,90 @@ interface FloatingChatWindowProps {
   isMinimized: boolean
 }
 
+interface Tool {
+  id: string
+  title: string
+  description: string
+  icon: string
+  category: 'content' | 'optimization' | 'analysis' | 'planning'
+  action: string
+}
+
+const creatorTools: Tool[] = [
+  {
+    id: 'script_generator',
+    title: 'Script Generator',
+    description: 'Generate engaging video scripts',
+    icon: '📝',
+    category: 'content',
+    action: 'generate_script'
+  },
+  {
+    id: 'title_optimizer',
+    title: 'Title Optimizer',
+    description: 'Create SEO-friendly titles',
+    icon: '🎯',
+    category: 'optimization',
+    action: 'optimize_title'
+  },
+  {
+    id: 'hook_improver',
+    title: 'Hook Improver',
+    description: 'Craft compelling video openings',
+    icon: '🎣',
+    category: 'content',
+    action: 'improve_hooks'
+  },
+  {
+    id: 'thumbnail_analyzer',
+    title: 'Thumbnail Analyzer',
+    description: 'Analyze thumbnail effectiveness',
+    icon: '🖼️',
+    category: 'analysis',
+    action: 'analyze_thumbnail'
+  },
+  {
+    id: 'trending_topics',
+    title: 'Trending Topics',
+    description: 'Discover trending topics',
+    icon: '🔥',
+    category: 'planning',
+    action: 'get_trending'
+  },
+  {
+    id: 'competitor_analysis',
+    title: 'Competitor Analysis',
+    description: 'Analyze competitor strategies',
+    icon: '🕵️',
+    category: 'analysis',
+    action: 'analyze_competitors'
+  },
+  {
+    id: 'content_calendar',
+    title: 'Content Calendar',
+    description: 'Plan your content strategy',
+    icon: '📅',
+    category: 'planning',
+    action: 'create_calendar'
+  },
+  {
+    id: 'engagement_booster',
+    title: 'Engagement Booster',
+    description: 'Increase viewer engagement',
+    icon: '❤️',
+    category: 'optimization',
+    action: 'boost_engagement'
+  }
+]
+
+const toolCategories = [
+  { id: 'all', name: 'All Tools', icon: '🛠️' },
+  { id: 'content', name: 'Content', icon: '📝' },
+  { id: 'optimization', name: 'Optimization', icon: '⚡' },
+  { id: 'analysis', name: 'Analytics', icon: '📊' },
+  { id: 'planning', name: 'Planning', icon: '📋' }
+]
+
 export default function FloatingChatWindow({ 
   isOpen, 
   onClose, 
@@ -32,6 +116,8 @@ export default function FloatingChatWindow({
   const [isDragging, setIsDragging] = useState(false)
   const [startDragPosition, setStartDragPosition] = useState<Position>({ x: 0, y: 0 })
   const [isAnimating, setIsAnimating] = useState(false)
+  const [selectedToolCategory, setSelectedToolCategory] = useState<string>('all')
+  const [showAllTools, setShowAllTools] = useState(false)
   const chatEndRef = useRef<HTMLDivElement>(null)
   const windowRef = useRef<HTMLDivElement>(null)
 
@@ -128,6 +214,14 @@ export default function FloatingChatWindow({
     return () => window.removeEventListener('resize', handleResize)
   }, [isMinimized])
 
+  // Filter tools based on selected category
+  const filteredTools = selectedToolCategory === 'all' 
+    ? creatorTools 
+    : creatorTools.filter(tool => tool.category === selectedToolCategory)
+
+  // Show quick actions (first 4) or all tools based on state
+  const displayedTools = showAllTools ? filteredTools : filteredTools.slice(0, 4)
+
   if (!isOpen) return null
 
   return (
@@ -170,7 +264,7 @@ export default function FloatingChatWindow({
             >
               <img
                 src={`/assets/images/Avatars/${customization.avatar}`}
-                alt="AI Agent"
+                alt={customization.name}
                 className="w-7 h-7 rounded-full object-cover"
                 onError={(e) => {
                   e.currentTarget.src = '/assets/images/CM Logo White.svg'
@@ -180,7 +274,7 @@ export default function FloatingChatWindow({
             {!isMinimized && (
               <div>
                 <h3 className="font-semibold text-white text-sm">{customization.name}</h3>
-                <p className="text-xs text-dark-400">AI Assistant</p>
+                <p className="text-xs text-dark-400">Your YouTube Personal Agent</p>
               </div>
             )}
             {isMinimized && (
@@ -258,105 +352,85 @@ export default function FloatingChatWindow({
               </div>
             </div>
 
-            {/* Right Sidebar - Quick Actions and Analytics */}
-            <div className="w-80 border-l border-white/10 bg-dark-800/20 flex flex-col">
-              {/* Quick Actions Section */}
-              <div className="p-6 border-b border-white/10">
-                <h4 className="text-sm font-semibold text-white mb-4 flex items-center gap-2">
-                  <span className="text-base">⚡</span>
-                  Quick Actions
-                </h4>
-                <div className="space-y-2">
-                  <button 
-                    onClick={() => sendMessage("Generate a YouTube video script")}
-                    disabled={isLoading}
-                    className="w-full text-left p-3 rounded-lg bg-dark-700/50 hover:bg-dark-600/50 transition-colors text-sm disabled:opacity-50 flex items-center gap-3"
+            {/* Right Sidebar - Creator Tools */}
+            <div className="w-80 border-l border-white/10 bg-gradient-to-b from-primary-600/10 to-purple-600/10 flex flex-col">
+              {/* Creator Tools Section */}
+              <div className="p-4 flex-1 flex flex-col">
+                <div className="flex items-center justify-between mb-4">
+                  <h4 className="text-sm font-semibold text-white flex items-center gap-2">
+                    <span className="text-base">🛠️</span>
+                    Creator Tools
+                  </h4>
+                  <button
+                    onClick={() => setShowAllTools(!showAllTools)}
+                    className="text-xs text-dark-400 hover:text-white transition-colors flex items-center gap-1"
                   >
-                    <span className="text-base">📝</span>
-                    <span>Generate Script</span>
-                  </button>
-                  <button 
-                    onClick={() => sendMessage("Help me optimize my video title")}
-                    disabled={isLoading}
-                    className="w-full text-left p-3 rounded-lg bg-dark-700/50 hover:bg-dark-600/50 transition-colors text-sm disabled:opacity-50 flex items-center gap-3"
-                  >
-                    <span className="text-base">🎯</span>
-                    <span>Optimize Title</span>
-                  </button>
-                  <button 
-                    onClick={() => sendMessage("Give me content ideas")}
-                    disabled={isLoading}
-                    className="w-full text-left p-3 rounded-lg bg-dark-700/50 hover:bg-dark-600/50 transition-colors text-sm disabled:opacity-50 flex items-center gap-3"
-                  >
-                    <span className="text-base">💡</span>
-                    <span>Content Ideas</span>
-                  </button>
-                  <button 
-                    onClick={() => sendMessage("Improve my video hooks")}
-                    disabled={isLoading}
-                    className="w-full text-left p-3 rounded-lg bg-dark-700/50 hover:bg-dark-600/50 transition-colors text-sm disabled:opacity-50 flex items-center gap-3"
-                  >
-                    <span className="text-base">🎣</span>
-                    <span>Improve Hooks</span>
+                    <Filter className="w-3 h-3" />
+                    {showAllTools ? 'Less' : 'More'}
                   </button>
                 </div>
+
+                {/* Category Filter - Only show when viewing all tools */}
+                {showAllTools && (
+                  <div className="mb-4">
+                    <div className="flex flex-wrap gap-1">
+                      {toolCategories.map((category) => (
+                        <button
+                          key={category.id}
+                          onClick={() => setSelectedToolCategory(category.id)}
+                          className={`text-xs px-2 py-1 rounded transition-colors ${
+                            selectedToolCategory === category.id
+                              ? 'bg-primary-600 text-white'
+                              : 'bg-dark-700/50 text-dark-400 hover:text-white hover:bg-dark-600/50'
+                          }`}
+                        >
+                          <span className="mr-1">{category.icon}</span>
+                          {category.name}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Tools Grid */}
+                <div className="flex-1 overflow-y-auto">
+                  <div className={`grid gap-2 ${showAllTools ? 'grid-cols-1' : 'grid-cols-2'}`}>
+                    {displayedTools.map((tool) => (
+                      <button
+                        key={tool.id}
+                        onClick={() => sendMessage(`Use the ${tool.title} tool: ${tool.description}`)}
+                        disabled={isLoading}
+                        className="text-left p-3 rounded-lg bg-dark-700/50 hover:bg-dark-600/50 transition-colors text-sm disabled:opacity-50 group"
+                      >
+                        <div className="flex items-start gap-2">
+                          <span className="text-base flex-shrink-0">{tool.icon}</span>
+                          <div className="min-w-0">
+                            <div className="font-medium text-white group-hover:text-primary-300 transition-colors">
+                              {tool.title}
+                            </div>
+                            {showAllTools && (
+                              <div className="text-xs text-dark-400 mt-1 leading-tight">
+                                {tool.description}
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Pro Tips - Only show when not viewing all tools */}
+                {!showAllTools && (
+                  <div className="mt-4 p-3 bg-dark-800/30 rounded-lg">
+                    <div className="text-xs font-medium text-primary-400 mb-2">💡 Pro Tip</div>
+                    <div className="text-xs text-dark-300 leading-tight">
+                      Be specific with your requests for better results. Example: "Generate a script for a 10-minute tutorial about React hooks"
+                    </div>
+                  </div>
+                )}
               </div>
 
-              {/* Chat Statistics */}
-              <div className="p-6 border-b border-white/10">
-                <h4 className="text-sm font-semibold text-white mb-4 flex items-center gap-2">
-                  <span className="text-base">📊</span>
-                  Chat Stats
-                </h4>
-                <div className="space-y-3">
-                  <div className="flex justify-between items-center">
-                    <span className="text-xs text-dark-400">Messages</span>
-                    <span className="text-sm font-medium text-white">{messages.length}</span>
-                  </div>
-                  <div className="flex justify-between items-center">
-                    <span className="text-xs text-dark-400">Agent</span>
-                    <span className="text-sm font-medium text-primary-400">{customization.name}</span>
-                  </div>
-                  <div className="flex justify-between items-center">
-                    <span className="text-xs text-dark-400">Status</span>
-                    <div className="flex items-center gap-1">
-                      <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
-                      <span className="text-sm font-medium text-green-400">Active</span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              {/* Recent Suggestions */}
-              <div className="flex-1 p-6">
-                <h4 className="text-sm font-semibold text-white mb-4 flex items-center gap-2">
-                  <span className="text-base">🔖</span>
-                  Recent Actions
-                </h4>
-                <div className="space-y-2">
-                  <div className="text-xs text-dark-400 bg-dark-800/50 p-3 rounded-lg">
-                    <div className="flex items-center gap-2 mb-1">
-                      <span className="text-green-400">✓</span>
-                      <span>Script saved</span>
-                    </div>
-                    <div className="text-dark-500">2 minutes ago</div>
-                  </div>
-                  <div className="text-xs text-dark-400 bg-dark-800/50 p-3 rounded-lg">
-                    <div className="flex items-center gap-2 mb-1">
-                      <span className="text-blue-400">💾</span>
-                      <span>Suggestion saved</span>
-                    </div>
-                    <div className="text-dark-500">5 minutes ago</div>
-                  </div>
-                  <div className="text-xs text-dark-400 bg-dark-800/50 p-3 rounded-lg">
-                    <div className="flex items-center gap-2 mb-1">
-                      <span className="text-yellow-400">👍</span>
-                      <span>Helpful feedback</span>
-                    </div>
-                    <div className="text-dark-500">8 minutes ago</div>
-                  </div>
-                </div>
-              </div>
             </div>
           </div>
         )}

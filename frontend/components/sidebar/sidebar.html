@@ -13,7 +13,10 @@
         </div>
       </div>
       <div class="">
-        <div class="text-lg font-medium text-white">Your Personal Agent</div>
+       <div class="flex items-center justify-between w-full">
+  <div id="agent-name-display" class="text-lg font-medium text-white">Your Personal Agent</div>
+  <button id="personalize-agent" class="bg-indigo-500/20 hover:bg-indigo-500/30 text-white text-xs rounded px-2 py-1 transition-colors">⚙️</button>
+</div>
         <div class="flex items-center gap-2">
           <div class="text-sm text-indigo-200">AI-powered insights</div>
           <div class="px-1.5 py-0.5 rounded-full bg-indigo-500/30 border border-indigo-400/30 text-xs text-white flex items-center gap-1">
@@ -22,6 +25,14 @@
               <span class="relative inline-flex rounded-full h-2 w-2 bg-indigo-500"></span>
             </span>
             <span>3 new insights</span>
+          </div>
+        </div>
+        
+        <!-- OAuth Status Section -->
+        <div class="mt-2">
+          <div id="oauth-status" class="oauth-status text-xs flex items-center gap-1 px-2 py-1 rounded-full bg-red-500/20 text-red-200 border border-red-400/30">
+            <span class="status-icon">⚠</span>
+            <span class="status-text">YouTube Not Connected</span>
           </div>
         </div>
       </div>
@@ -72,6 +83,24 @@
             <p class="text-sm text-indigo-200 mt-1">My suggestions earned you +$200 in additional revenue this month!</p>
           </div>
         </div>
+      </div>
+    </div>
+    
+    <!-- OAuth Connection Section -->
+    <div class="mt-4 space-y-2">
+      <div class="bg-white/10 backdrop-blur-sm border border-indigo-400/20 rounded-lg p-4 shadow-lg">
+        <div class="flex items-center justify-between mb-3">
+          <h4 class="font-medium text-white flex items-center gap-2">
+            <span class="text-red-500">🔑</span>
+            YouTube Connection
+          </h4>
+        </div>
+        <div id="oauth-token-info" class="text-xs text-indigo-200 mb-3">
+          Connect your YouTube account for detailed analytics
+        </div>
+        <button id="oauth-connect-btn" class="w-full bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white text-sm font-medium py-2 px-4 rounded-lg transition-all duration-200 shadow-lg hover:shadow-red-500/25">
+          Connect YouTube
+        </button>
       </div>
     </div>
     
@@ -322,3 +351,110 @@
     });
   });
 </script> src="/components/sidebar/chat.js"></script>
+<!-- Agent Personalization Modal -->
+<div id="personalization-modal" class="fixed inset-0 bg-black/70 z-50 flex items-center justify-center hidden">
+  <div class="bg-gradient-to-b from-purple-900/80 to-blue-900/80 border border-slate-700 rounded-lg p-5 w-[90%] max-w-md backdrop-blur-md">
+    <div class="flex justify-between items-center mb-4">
+      <h3 class="text-lg font-medium text-white">Personalize Your AI Agent</h3>
+      <button class="close-modal text-white/70 hover:text-white text-xl">&times;</button>
+    </div>
+    
+    <div class="mb-4">
+      <label for="agent-name" class="block text-white mb-2">Agent Name:</label>
+      <input type="text" id="agent-name" placeholder="Enter a name for your agent" class="w-full bg-purple-500/20 border border-purple-700/50 rounded p-2 text-white">
+    </div>
+    
+    <div class="mb-4">
+      <label class="block text-white mb-2">Select Avatar:</label>
+      <div class="grid grid-cols-4 gap-2">
+        <div class="avatar-option cursor-pointer border-2 border-transparent hover:border-purple-500 rounded-lg overflow-hidden transition-all hover:scale-105" data-avatar="avatar-1">
+          <img src="https://placehold.co/100x100/6366f1/FFFFFF.png?text=1" alt="Avatar 1" class="w-full">
+        </div>
+        <div class="avatar-option cursor-pointer border-2 border-transparent hover:border-purple-500 rounded-lg overflow-hidden transition-all hover:scale-105" data-avatar="avatar-2">
+          <img src="https://placehold.co/100x100/8b5cf6/FFFFFF.png?text=2" alt="Avatar 2" class="w-full">
+        </div>
+        <div class="avatar-option cursor-pointer border-2 border-transparent hover:border-purple-500 rounded-lg overflow-hidden transition-all hover:scale-105" data-avatar="avatar-3">
+          <img src="https://placehold.co/100x100/4f46e5/FFFFFF.png?text=3" alt="Avatar 3" class="w-full">
+        </div>
+        <div class="avatar-option cursor-pointer border-2 border-transparent hover:border-purple-500 rounded-lg overflow-hidden transition-all hover:scale-105" data-avatar="avatar-4">
+          <img src="https://placehold.co/100x100/3b82f6/FFFFFF.png?text=4" alt="Avatar 4" class="w-full">
+        </div>
+      </div>
+    </div>
+    
+    <div class="flex justify-end">
+      <button id="save-personalization" class="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded transition-colors">Save Changes</button>
+    </div>
+  </div>
+</div>
+<!-- Agent Personalization Modal -->
+<div id="personalization-modal" class="fixed inset-0 bg-black/70 z-50 flex items-center justify-center hidden">
+  <div class="bg-gradient-to-b from-purple-900/80 to-blue-900/80 border border-slate-700 rounded-lg p-5 w-[90%] max-w-md backdrop-blur-md">
+    <div class="flex justify-between items-center mb-4">
+      <h3 class="text-lg font-medium text-white">Personalize Your AI Agent</h3>
+      <button class="close-modal text-white/70 hover:text-white text-xl">&times;</button>
+    </div>
+    
+    <div class="mb-4">
+      <label for="agent-name" class="block text-white mb-2">Agent Name:</label>
+      <input type="text" id="agent-name" placeholder="Enter a name for your agent" class="w-full bg-purple-500/20 border border-purple-700/50 rounded p-2 text-white">
+    </div>
+    
+    <div class="mb-4">
+      <label class="block text-white mb-2">Select Avatar:</label>
+      <div class="grid grid-cols-4 gap-2">
+        <div class="avatar-option cursor-pointer border-2 border-transparent hover:border-purple-500 rounded-lg overflow-hidden transition-all hover:scale-105" data-avatar="avatar-1">
+          <img src="https://placehold.co/100x100/6366f1/FFFFFF.png?text=1" alt="Avatar 1" class="w-full">
+        </div>
+        <div class="avatar-option cursor-pointer border-2 border-transparent hover:border-purple-500 rounded-lg overflow-hidden transition-all hover:scale-105" data-avatar="avatar-2">
+          <img src="https://placehold.co/100x100/8b5cf6/FFFFFF.png?text=2" alt="Avatar 2" class="w-full">
+        </div>
+        <div class="avatar-option cursor-pointer border-2 border-transparent hover:border-purple-500 rounded-lg overflow-hidden transition-all hover:scale-105" data-avatar="avatar-3">
+          <img src="https://placehold.co/100x100/4f46e5/FFFFFF.png?text=3" alt="Avatar 3" class="w-full">
+        </div>
+        <div class="avatar-option cursor-pointer border-2 border-transparent hover:border-purple-500 rounded-lg overflow-hidden transition-all hover:scale-105" data-avatar="avatar-4">
+          <img src="https://placehold.co/100x100/3b82f6/FFFFFF.png?text=4" alt="Avatar 4" class="w-full">
+        </div>
+      </div>
+    </div>
+    
+    <div class="flex justify-end">
+      <button id="save-personalization" class="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded transition-colors">Save Changes</button>
+    </div>
+  </div>
+<!-- Agent Personalization Modal -->
+<div id="personalization-modal" class="fixed inset-0 bg-black/70 z-50 flex items-center justify-center hidden">
+  <div class="bg-gradient-to-b from-purple-900/80 to-blue-900/80 border border-slate-700 rounded-lg p-5 w-[90%] max-w-md backdrop-blur-md">
+    <div class="flex justify-between items-center mb-4">
+      <h3 class="text-lg font-medium text-white">Personalize Your AI Agent</h3>
+      <button class="close-modal text-white/70 hover:text-white text-xl">&times;</button>
+    </div>
+    
+    <div class="mb-4">
+      <label for="agent-name" class="block text-white mb-2">Agent Name:</label>
+      <input type="text" id="agent-name" placeholder="Enter a name for your agent" class="w-full bg-purple-500/20 border border-purple-700/50 rounded p-2 text-white">
+    </div>
+    
+    <div class="mb-4">
+      <label class="block text-white mb-2">Select Avatar:</label>
+      <div class="grid grid-cols-4 gap-2">
+        <div class="avatar-option cursor-pointer border-2 border-transparent hover:border-purple-500 rounded-lg overflow-hidden transition-all hover:scale-105" data-avatar="avatar-1">
+          <img src="https://placehold.co/100x100/6366f1/FFFFFF.png?text=1" alt="Avatar 1" class="w-full">
+        </div>
+        <div class="avatar-option cursor-pointer border-2 border-transparent hover:border-purple-500 rounded-lg overflow-hidden transition-all hover:scale-105" data-avatar="avatar-2">
+          <img src="https://placehold.co/100x100/8b5cf6/FFFFFF.png?text=2" alt="Avatar 2" class="w-full">
+        </div>
+        <div class="avatar-option cursor-pointer border-2 border-transparent hover:border-purple-500 rounded-lg overflow-hidden transition-all hover:scale-105" data-avatar="avatar-3">
+          <img src="https://placehold.co/100x100/4f46e5/FFFFFF.png?text=3" alt="Avatar 3" class="w-full">
+        </div>
+        <div class="avatar-option cursor-pointer border-2 border-transparent hover:border-purple-500 rounded-lg overflow-hidden transition-all hover:scale-105" data-avatar="avatar-4">
+          <img src="https://placehold.co/100x100/3b82f6/FFFFFF.png?text=4" alt="Avatar 4" class="w-full">
+        </div>
+      </div>
+    </div>
+    
+    <div class="flex justify-end">
+      <button id="save-personalization" class="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded transition-colors">Save Changes</button>
+    </div>
+  </div>
+</div>

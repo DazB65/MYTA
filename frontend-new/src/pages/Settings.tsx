@@ -6,6 +6,7 @@ import { useUserStore } from '@/store/userStore'
 import { api } from '@/services/api'
 import Card from '@/components/common/Card'
 import Button from '@/components/common/Button'
+import OAuthConnection from '@/components/oauth/OAuthConnection'
 
 const settingsSchema = z.object({
   channelName: z.string().min(1, 'Channel name is required'),
@@ -57,7 +58,7 @@ const primaryGoals = [
 export default function Settings() {
   const { userId, channelInfo, updateChannelInfo } = useUserStore()
   const [isSubmitting, setIsSubmitting] = useState(false)
-  const [activeTab, setActiveTab] = useState<'channel' | 'agent' | 'preferences'>('channel')
+  const [activeTab, setActiveTab] = useState<'channel' | 'oauth' | 'agent' | 'preferences'>('channel')
 
   const {
     register,
@@ -121,6 +122,7 @@ export default function Settings() {
 
   const tabs = [
     { id: 'channel', name: 'Channel Settings', icon: '📺' },
+    { id: 'oauth', name: 'YouTube Connection', icon: '🔑' },
     { id: 'agent', name: 'AI Agent', icon: '🤖' },
     { id: 'preferences', name: 'Preferences', icon: '⚙️' }
   ]
@@ -360,6 +362,13 @@ export default function Settings() {
             </div>
           </form>
         </Card>
+      )}
+
+      {/* OAuth Tab */}
+      {activeTab === 'oauth' && (
+        <div className="space-y-6">
+          <OAuthConnection variant="full" showBenefits={true} />
+        </div>
       )}
 
       {/* AI Agent Tab */}

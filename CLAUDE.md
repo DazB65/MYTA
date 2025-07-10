@@ -4,15 +4,101 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-CreatorMate is a web application for YouTube content creators with an AI-powered assistant. The application consists of a Python FastAPI backend and a modern React + TypeScript frontend.
+CreatorMate is a web application for YouTube content creators with an AI-powered hierarchical multi-agent system. The application consists of a Python FastAPI backend with specialized AI agents and a modern React + TypeScript frontend.
+
+### Multi-Agent Architecture
+
+CreatorMate implements a sophisticated hierarchical agent system with strict communication protocols:
+
+```
+                    ┌─────────────────────────────────┐
+                    │           USER INTERFACE       │
+                    └─────────────┬───────────────────┘
+                                  │
+                    ┌─────────────▼───────────────────┐
+                    │         BOSS AGENT             │
+                    │    (Claude 3.5 Sonnet)        │
+                    │   Central Orchestrator         │
+                    └─────────────┬───────────────────┘
+                                  │
+            ┌─────────────────────┼─────────────────────┐
+            │                     │                     │
+    ┌───────▼──────┐    ┌────────▼────────┐   ┌────────▼──────────┐
+    │   Content    │    │   Audience      │   │ SEO & Discover-   │
+    │   Analysis   │    │   Insights      │   │ ability Agent     │
+    │ (Gemini 2.5) │    │ (Claude Sonnet) │   │ (Claude Haiku)    │
+    └──────────────┘    └─────────────────┘   └───────────────────┘
+            │                     │                     │
+    ┌───────▼──────┐    ┌────────▼────────────────────────────────┐
+    │ Competitive  │    │      Monetization Strategy Agent       │
+    │   Analysis   │    │         (Claude Haiku)                 │
+    │ (Gemini 2.5) │    └─────────────────────────────────────────┘
+    └──────────────┘
+```
+
+#### Agent Communication Rules (CRITICAL)
+
+1. **HIERARCHY ENFORCEMENT**:
+   - Boss Agent is the ONLY agent that communicates with users
+   - Specialized agents NEVER communicate directly with users
+   - Communication flow: User → Boss Agent → Specialized Agents → Boss Agent → User
+
+2. **DOMAIN BOUNDARIES**:
+   - Each specialized agent has strict domain restrictions
+   - Agents must reject requests outside their domain expertise
+   - All responses must include `for_boss_agent_only: true`
+
+3. **AUTHENTICATION**:
+   - All specialized agent requests require Boss Agent JWT authentication
+   - Unauthorized requests must be rejected with proper error responses
 
 ## Architecture
 
 ### Backend (`/backend/`)
 - **FastAPI framework** with Python 3.9+
+- **Hierarchical Multi-Agent System**:
+  - `boss_agent.py`: Central orchestrator (Claude 3.5 Sonnet)
+  - `content_analysis_agent.py`: Video performance analysis (Gemini 2.5 Pro + Claude fallback)
+  - `audience_insights_agent.py`: Demographics & sentiment analysis (Claude 3.5 Sonnet + Haiku fallback)
+  - `seo_discoverability_agent.py`: Search optimization (Claude 3.5 Haiku)
+  - `competitive_analysis_agent.py`: Market positioning (Gemini 2.5 Pro + Claude fallback)
+  - `monetization_strategy_agent.py`: Revenue optimization (Claude 3.5 Haiku + Sonnet fallback)
+  - `boss_agent_auth.py`: JWT authentication system for agent communication
 - **main.py**: Core FastAPI application with API endpoints
-- **ai_services.py**: OpenAI GPT-4o integration for AI responses with context management
-- **Dependencies**: FastAPI, OpenAI, python-dotenv, pydantic
+- **ai_services.py**: Legacy AI integration (superseded by agent system)
+- **Dependencies**: FastAPI, OpenAI, Google Generative AI, PyJWT, python-dotenv, pydantic
+
+#### Agent Domain Definitions
+
+**Boss Agent (boss_agent.py)**:
+- **Model**: Claude 3.5 Sonnet (GPT-4o for intent classification)
+- **Domain**: User communication, agent orchestration, response synthesis
+- **Responsibilities**: Intent classification, agent delegation, multi-agent coordination
+
+**Content Analysis Agent (content_analysis_agent.py)**:
+- **Model**: Gemini 2.5 Pro (primary), Claude 3.5 Sonnet (fallback)
+- **Domain**: Video performance, hooks, titles, thumbnails, retention metrics
+- **Cache TTL**: 1-4 hours based on analysis depth
+
+**Audience Insights Agent (audience_insights_agent.py)**:
+- **Model**: Claude 3.5 Sonnet (primary), Claude 3.5 Haiku (fallback)
+- **Domain**: Demographics, behavior patterns, sentiment analysis, community health
+- **Cache TTL**: 30 minutes - 4 hours based on analysis depth
+
+**SEO & Discoverability Agent (seo_discoverability_agent.py)**:
+- **Model**: Claude 3.5 Haiku
+- **Domain**: Keyword research, search optimization, algorithm favorability
+- **Cache TTL**: 2-6 hours based on analysis depth
+
+**Competitive Analysis Agent (competitive_analysis_agent.py)**:
+- **Model**: Gemini 2.5 Pro (primary), Claude 3.5 Sonnet (fallback)
+- **Domain**: Competitor benchmarking, market positioning, cross-channel analysis
+- **Cache TTL**: 2-12 hours based on analysis depth
+
+**Monetization Strategy Agent (monetization_strategy_agent.py)**:
+- **Model**: Claude 3.5 Haiku (primary), Claude 3.5 Sonnet (fallback)
+- **Domain**: Revenue optimization, sponsorship opportunities, RPM/CPM analysis
+- **Cache TTL**: 2-8 hours based on analysis depth
 
 ### Frontend (`/frontend-new/`)
 - **React 18 + TypeScript + Vite** modern development stack
@@ -81,8 +167,131 @@ npm run type-check
 ## Environment Configuration
 
 - **Environment variables**: Create `.env` file in project root
-- **Required variables**: `OPENAI_API_KEY` for AI functionality
+- **Required variables**: 
+  - `OPENAI_API_KEY` for Claude models and Boss Agent
+  - `GOOGLE_API_KEY` for Gemini models (Content Analysis, Competitive Analysis)
+  - `YOUTUBE_API_KEY` for YouTube Data API integration
+  - `BOSS_AGENT_SECRET_KEY` for JWT authentication (optional, auto-generated if not set)
 - **Backend serves frontend**: React build files served from `/frontend-dist/`
+
+## Agent Communication Protocols
+
+### Standard Request Format (Boss Agent → Specialized Agents)
+
+```json
+{
+  "request_id": "uuid4_string",
+  "query_type": "content_analysis|audience_insights|seo_discoverability|competitive_analysis|monetization_strategy",
+  "context": {
+    "channel_id": "channel_identifier",
+    "time_period": "last_7d|last_30d|last_90d",
+    "specific_videos": ["video_id1", "video_id2"],
+    "competitors": ["channel_id1", "channel_id2"]
+  },
+  "token_budget": {
+    "input_tokens": 3000,
+    "output_tokens": 1500
+  },
+  "analysis_depth": "quick|standard|deep",
+  "boss_agent_token": "jwt_authentication_token",
+  "timestamp": "2024-07-10T10:30:00Z"
+}
+```
+
+### Standard Response Format (Specialized Agents → Boss Agent)
+
+```json
+{
+  "agent_type": "content_analysis|audience_insights|seo_discoverability|competitive_analysis|monetization_strategy",
+  "response_id": "unique_response_id",
+  "request_id": "original_request_id",
+  "timestamp": "2024-07-10T10:30:00Z",
+  "confidence_score": 0.88,
+  "domain_match": true,
+  "analysis": {
+    "summary": "Brief analysis summary",
+    "metrics": {"key_metric": 8.7},
+    "key_insights": [
+      {
+        "insight": "Key finding",
+        "evidence": "Supporting data",
+        "impact": "High|Medium|Low",
+        "confidence": 0.9
+      }
+    ],
+    "recommendations": [
+      {
+        "recommendation": "Specific action",
+        "expected_impact": "High|Medium|Low",
+        "implementation_difficulty": "Easy|Medium|Hard",
+        "reasoning": "Why this matters"
+      }
+    ]
+  },
+  "token_usage": {
+    "input_tokens": 3200,
+    "output_tokens": 1800,
+    "model": "claude-3-5-sonnet-20241022"
+  },
+  "cache_info": {
+    "cache_hit": false,
+    "cache_key": "agent_cache_key",
+    "ttl_remaining": 7200
+  },
+  "processing_time": 2.34,
+  "for_boss_agent_only": true
+}
+```
+
+### Error Response Format
+
+```json
+{
+  "agent_type": "agent_name",
+  "domain_match": false,
+  "analysis": {
+    "summary": "Error description",
+    "error_type": "authentication_error|domain_mismatch|api_error|processing_error",
+    "error_message": "Detailed error information"
+  },
+  "for_boss_agent_only": true,
+  "authentication_required": true
+}
+```
+
+## Cost Optimization Guidelines
+
+### Model Selection Logic
+
+1. **Primary Model Assignment**:
+   - Use specialized models for domain expertise (Gemini for visual analysis, Haiku for cost-effective text)
+   - Assign based on task complexity and cost considerations
+
+2. **Fallback Strategy**:
+   - Content Analysis: Gemini 2.5 Pro → Claude 3.5 Sonnet
+   - Audience Insights: Claude 3.5 Sonnet → Claude 3.5 Haiku
+   - Competitive Analysis: Gemini 2.5 Pro → Claude 3.5 Sonnet
+   - Monetization Strategy: Claude 3.5 Haiku → Claude 3.5 Sonnet
+
+3. **Token Budget Management**:
+   - Quick Analysis: ~1500 tokens (basic insights, fast response)
+   - Standard Analysis: ~3500 tokens (comprehensive analysis, balanced cost)
+   - Deep Analysis: ~6000 tokens (advanced insights, maximum value)
+
+### Caching Strategies
+
+1. **TTL by Data Volatility**:
+   - Content metrics: 1-4 hours (moderate change rate)
+   - Audience data: 30 minutes - 4 hours (gradual evolution)
+   - SEO data: 2-6 hours (slow change rate)
+   - Competitive data: 2-12 hours (stable landscape)
+   - Monetization data: 2-8 hours (infrequent updates)
+
+2. **Cache Key Components**:
+   - Agent type + Channel ID + Time period + Analysis depth + Parameters hash
+
+3. **Invalidation Triggers**:
+   - TTL expiration + Significant data changes + Manual clearing + Error conditions
 
 ## API Endpoints
 
@@ -105,9 +314,12 @@ npm run type-check
 ## Key Features
 
 ### AI Integration
-- OpenAI GPT-4o model for content creator assistance
-- Context-aware responses based on channel metrics
-- Specialized system prompts for YouTube content optimization
+- **Hierarchical Multi-Agent Architecture** with specialized domain expertise
+- **Boss Agent**: Claude 3.5 Sonnet for orchestration and user communication
+- **Specialized Agents**: Domain-specific models (Gemini 2.5 Pro, Claude variants)
+- **Context-aware responses** based on channel metrics and multi-agent synthesis
+- **JWT Authentication** ensuring secure inter-agent communication
+- **Intelligent caching** with domain-appropriate TTLs for cost optimization
 
 ### User Experience
 - **Modern React UI** with TypeScript type safety
@@ -156,3 +368,21 @@ To test the application:
 - **TypeScript**: Full type safety with zero compilation errors
 - **Hot reload**: Backend auto-reloads on changes, frontend requires rebuild
 - **Modern stack**: React 18, TypeScript, Vite, Tailwind CSS, Zustand
+
+### Agent System Development
+
+- **Hierarchical Architecture**: All agents must respect Boss Agent authority
+- **Domain Validation**: Agents reject out-of-scope requests with proper error responses
+- **Authentication**: JWT tokens required for all Boss Agent → Specialized Agent communication
+- **Testing**: Use `demo_all_agents.py` and `test_hierarchy_validation.py` for comprehensive testing
+- **Model Management**: Fallback strategies ensure system resilience
+- **Caching**: Domain-specific TTLs optimize cost and performance
+- **Security**: Strict communication protocols prevent unauthorized access
+
+### Critical Development Rules
+
+1. **NEVER allow specialized agents to communicate directly with users**
+2. **ALWAYS include `for_boss_agent_only: true` in specialized agent responses**
+3. **ALWAYS validate Boss Agent authentication in specialized agents**
+4. **ALWAYS respect domain boundaries and reject out-of-scope requests**
+5. **ALWAYS implement proper error handling and fallback mechanisms**

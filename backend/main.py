@@ -1,22 +1,52 @@
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Depends, Security
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from pydantic import BaseModel, ValidationError
 from fastapi.staticfiles import StaticFiles
-from fastapi.responses import JSONResponse
+from fastapi.responses import JSONResponse, FileResponse
 from datetime import datetime
 import logging
 import traceback
+import asyncio
+import jwt
+import os
+from typing import List, Optional
 # Import from the same directory
 from ai_services import get_ai_response, extract_channel_info, update_user_context, get_user_context
 from insights_engine import insights_engine
 from boss_agent import process_user_message
 from agent_cache import get_agent_cache
+from model_integrations import get_model_integration, generate_agent_response
+from youtube_api_integration import get_youtube_integration, get_channel_analytics
+from boss_agent_auth import get_boss_agent_authenticator, validate_specialized_agent_request
+from oauth_endpoints import oauth_router
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-app = FastAPI(title="CreatorMate API", version="1.0.0")
+app = FastAPI(
+    title="CreatorMate Multi-Agent API", 
+    version="2.0.0",
+    description="Hierarchical multi-agent system for YouTube analytics and optimization"
+)
+
+# Initialize system on startup
+@app.on_event("startup")
+async def startup_event():
+    """Initialize the CreatorMate multi-agent system"""
+    try:
+        from api_startup import initialize_creatormate_system
+        initialization_result = await initialize_creatormate_system()
+        
+        if initialization_result["overall_status"] == "success":
+            logger.info("🚀 CreatorMate Multi-Agent System started successfully")
+        else:
+            logger.warning(f"⚠️ CreatorMate started with warnings: {initialization_result['overall_status']}")
+            
+    except Exception as e:
+        logger.error(f"❌ Failed to initialize CreatorMate system: {e}")
+        # Don't crash the server, but log the error
 
 # Global exception handler
 @app.exception_handler(Exception)
@@ -43,6 +73,9 @@ async def validation_exception_handler(request, exc):
         }
     )
 
+# Security
+security = HTTPBearer(auto_error=False)
+
 # Add CORS middleware
 app.add_middleware(
     CORSMiddleware,
@@ -51,6 +84,24 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+# Include OAuth router
+app.include_router(oauth_router)
+
+# Internal agent authentication
+async def verify_agent_token(credentials: HTTPAuthorizationCredentials = Security(security)):
+    """Verify JWT token for internal agent communication"""
+    if not credentials:
+        raise HTTPException(status_code=401, detail="Authentication required")
+    
+    try:
+        # This would validate the boss agent JWT token
+        auth_result = validate_specialized_agent_request({"boss_agent_token": credentials.credentials})
+        if not auth_result.is_valid:
+            raise HTTPException(status_code=401, detail=auth_result.error_message)
+        return auth_result
+    except Exception as e:
+        raise HTTPException(status_code=401, detail=f"Invalid token: {e}")
 
 class ChatMessage(BaseModel):
     message: str
@@ -68,6 +119,46 @@ class QuickActionRequest(BaseModel):
     
     class Config:
         str_strip_whitespace = True
+
+class AgentTaskRequest(BaseModel):
+    """Request model for specialized agent tasks"""
+    request_id: str
+    agent_type: str
+    query_type: str
+    context: dict
+    token_budget: dict = {"input_tokens": 3000, "output_tokens": 1500}
+    analysis_depth: str = "standard"
+    boss_agent_token: str
+    timestamp: str = None
+    
+    class Config:
+        str_strip_whitespace = True
+
+class AgentCallbackRequest(BaseModel):
+    """Request model for agent callback responses"""
+    request_id: str
+    agent_type: str
+    response_data: dict
+    processing_time: float
+    success: bool
+    
+    class Config:
+        str_strip_whitespace = True
+
+class ModelStatusResponse(BaseModel):
+    """Response model for model integration status"""
+    available_models: dict
+    model_status: dict
+    active_integrations: List[str]
+    
+class YouTubeAnalyticsRequest(BaseModel):
+    """Request model for YouTube analytics"""
+    channel_id: str
+    user_id: str = "default_user"
+    analysis_type: str = "comprehensive"
+    time_period: str = "last_30d"
+    include_videos: bool = True
+    video_count: int = 20
 
 @app.post("/api/agent/chat")
 async def chat(message: ChatMessage):
@@ -120,14 +211,17 @@ async def chat(message: ChatMessage):
 
 @app.get("/api/agent/status")
 def agent_status():
-    """Endpoint to check if the AI agent is running"""
+    """Endpoint to check if the AI agent system is running"""
     try:
-        # You could add actual health checks here
-        # For example, test OpenAI API connectivity
+        from api_startup import get_system_status
+        system_status = get_system_status()
+        
         return {
-            "status": "online",
-            "version": "1.0.0",
-            "model": "gpt-4o",
+            "status": "online" if system_status["ready_for_requests"] else "initializing",
+            "version": "2.0.0",
+            "system_health": system_status,
+            "architecture": "hierarchical_multi_agent",
+            "agents": ["boss_agent", "content_analysis", "audience_insights", "seo_discoverability", "competitive_analysis", "monetization_strategy"],
             "timestamp": str(datetime.now())
         }
     except Exception as e:
@@ -496,6 +590,341 @@ async def clear_cache():
         logger.error(f"Error clearing cache: {e}")
         raise HTTPException(status_code=500, detail="Failed to clear cache")
 
+# Multi-Agent System Endpoints
+
+@app.post("/api/agents/{agent_type}/task")
+async def agent_task(
+    agent_type: str, 
+    request: AgentTaskRequest,
+    auth: dict = Depends(verify_agent_token)
+):
+    """Internal endpoint for specialized agent task delegation"""
+    try:
+        logger.info(f"Processing {agent_type} agent task: {request.request_id}")
+        
+        # Validate agent type
+        valid_agents = ["content_analysis", "audience_insights", "seo_discoverability", 
+                       "competitive_analysis", "monetization_strategy"]
+        if agent_type not in valid_agents:
+            raise HTTPException(status_code=400, detail=f"Invalid agent type: {agent_type}")
+        
+        # Import and execute the appropriate specialized agent
+        if agent_type == "content_analysis":
+            from content_analysis_agent import get_content_analysis_agent
+            agent = get_content_analysis_agent()
+        elif agent_type == "audience_insights":
+            from audience_insights_agent import get_audience_insights_agent
+            agent = get_audience_insights_agent()
+        elif agent_type == "seo_discoverability":
+            from seo_discoverability_agent import get_seo_discoverability_agent
+            agent = get_seo_discoverability_agent()
+        elif agent_type == "competitive_analysis":
+            from competitive_analysis_agent import get_competitive_analysis_agent
+            agent = get_competitive_analysis_agent()
+        elif agent_type == "monetization_strategy":
+            from monetization_strategy_agent import get_monetization_strategy_agent
+            agent = get_monetization_strategy_agent()
+        
+        # Process the request through the specialized agent
+        response = await agent.process_boss_agent_request(request.dict())
+        
+        return {
+            "agent_type": agent_type,
+            "request_id": request.request_id,
+            "response": response,
+            "status": "success"
+        }
+    
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error in {agent_type} agent task: {e}")
+        logger.error(traceback.format_exc())
+        raise HTTPException(status_code=500, detail=f"Agent task failed: {e}")
+
+@app.post("/api/agents/callback")
+async def agent_callback(
+    request: AgentCallbackRequest,
+    auth: dict = Depends(verify_agent_token)
+):
+    """Internal endpoint for agent callback responses"""
+    try:
+        logger.info(f"Received callback from {request.agent_type} agent")
+        
+        # Store callback data for monitoring/analytics
+        callback_data = {
+            "timestamp": datetime.now().isoformat(),
+            "request_id": request.request_id,
+            "agent_type": request.agent_type,
+            "processing_time": request.processing_time,
+            "success": request.success,
+            "response_size": len(str(request.response_data))
+        }
+        
+        # You could store this in a database for analytics
+        logger.info(f"Agent callback logged: {callback_data}")
+        
+        return {
+            "callback_received": True,
+            "status": "success"
+        }
+    
+    except Exception as e:
+        logger.error(f"Error processing agent callback: {e}")
+        raise HTTPException(status_code=500, detail="Callback processing failed")
+
+@app.get("/api/models/status")
+async def get_model_status() -> ModelStatusResponse:
+    """Get status of all model integrations"""
+    try:
+        integration = get_model_integration()
+        
+        available_models = integration.get_available_models()
+        model_status = integration.get_model_status()
+        
+        active_integrations = []
+        for provider, status in model_status.items():
+            if status["available"]:
+                active_integrations.append(provider)
+        
+        return ModelStatusResponse(
+            available_models=available_models,
+            model_status=model_status,
+            active_integrations=active_integrations
+        )
+    
+    except Exception as e:
+        logger.error(f"Error getting model status: {e}")
+        raise HTTPException(status_code=500, detail="Failed to get model status")
+
+@app.post("/api/models/test/{model_provider}")
+async def test_model_integration(model_provider: str):
+    """Test a specific model integration"""
+    try:
+        integration = get_model_integration()
+        
+        # Test with a simple prompt
+        test_messages = [
+            {"role": "system", "content": "You are a helpful assistant."},
+            {"role": "user", "content": "Say hello!"}
+        ]
+        
+        # Map provider to agent type for testing
+        agent_type_map = {
+            "openai": "boss_agent",
+            "anthropic": "audience_insights", 
+            "google": "content_analysis"
+        }
+        
+        agent_type = agent_type_map.get(model_provider, "boss_agent")
+        
+        response = await integration.generate_response(agent_type, test_messages, "quick")
+        
+        return {
+            "provider": model_provider,
+            "success": response.success,
+            "model": response.model,
+            "response_preview": response.content[:100] + "..." if len(response.content) > 100 else response.content,
+            "tokens_used": response.tokens_used,
+            "processing_time": response.processing_time,
+            "error": response.error_message
+        }
+    
+    except Exception as e:
+        logger.error(f"Error testing {model_provider} integration: {e}")
+        raise HTTPException(status_code=500, detail=f"Model test failed: {e}")
+
+@app.post("/api/youtube/analytics")
+async def get_youtube_analytics(request: YouTubeAnalyticsRequest):
+    """Get comprehensive YouTube analytics"""
+    try:
+        logger.info(f"Getting YouTube analytics for channel: {request.channel_id}")
+        
+        integration = get_youtube_integration()
+        
+        # Get channel analytics (with OAuth support)
+        channel_data = await integration.get_channel_data(
+            request.channel_id,
+            include_recent_videos=request.include_videos,
+            video_count=request.video_count,
+            user_id=request.user_id
+        )
+        
+        if not channel_data:
+            raise HTTPException(status_code=404, detail="Channel not found or API error")
+        
+        # Get API status
+        api_status = integration.get_api_status()
+        
+        return {
+            "channel_data": {
+                "basic_info": {
+                    "channel_id": channel_data.channel_id,
+                    "title": channel_data.title,
+                    "subscriber_count": channel_data.subscriber_count,
+                    "video_count": channel_data.video_count,
+                    "view_count": channel_data.view_count,
+                    "upload_frequency": channel_data.upload_frequency
+                },
+                "recent_performance": {
+                    "avg_views_last_30": channel_data.avg_views_last_30,
+                    "avg_engagement_last_30": channel_data.avg_engagement_last_30,
+                    "recent_video_count": len(channel_data.recent_videos)
+                },
+                "recent_videos": [
+                    {
+                        "video_id": video.video_id,
+                        "title": video.title,
+                        "view_count": video.view_count,
+                        "engagement_rate": video.engagement_rate,
+                        "published_at": video.published_at
+                    }
+                    for video in channel_data.recent_videos[:10]  # Return top 10
+                ]
+            },
+            "api_status": api_status,
+            "status": "success"
+        }
+    
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error getting YouTube analytics: {e}")
+        logger.error(traceback.format_exc())
+        raise HTTPException(status_code=500, detail=f"YouTube analytics failed: {e}")
+
+@app.get("/api/youtube/quota")
+async def get_youtube_quota():
+    """Get YouTube API quota status"""
+    try:
+        integration = get_youtube_integration()
+        quota_status = integration.quota_manager.get_quota_status()
+        
+        return {
+            "quota_status": quota_status,
+            "status": "success"
+        }
+    
+    except Exception as e:
+        logger.error(f"Error getting YouTube quota: {e}")
+        raise HTTPException(status_code=500, detail="Failed to get quota status")
+
+@app.post("/api/youtube/analytics/authenticated")
+async def get_authenticated_youtube_analytics(request: YouTubeAnalyticsRequest):
+    """Get YouTube analytics data using OAuth authentication"""
+    try:
+        logger.info(f"Getting authenticated YouTube analytics for user: {request.user_id}")
+        
+        integration = get_youtube_integration()
+        
+        # Get basic channel data with OAuth
+        channel_data = await integration.get_channel_data(
+            request.channel_id,
+            include_recent_videos=request.include_videos,
+            video_count=request.video_count,
+            user_id=request.user_id
+        )
+        
+        if not channel_data:
+            raise HTTPException(status_code=404, detail="Channel not found or access denied")
+        
+        # Get detailed analytics data (requires OAuth)
+        analytics_data = await integration.get_channel_analytics(
+            request.channel_id,
+            request.user_id,
+            start_date=None,  # Default to 30 days
+            end_date=None,
+            metrics=None  # Default metrics
+        )
+        
+        return {
+            "channel_data": {
+                "basic_info": {
+                    "channel_id": channel_data.channel_id,
+                    "title": channel_data.title,
+                    "subscriber_count": channel_data.subscriber_count,
+                    "video_count": channel_data.video_count,
+                    "view_count": channel_data.view_count,
+                    "upload_frequency": channel_data.upload_frequency
+                },
+                "engagement_metrics": {
+                    "avg_views_last_30": channel_data.avg_views_last_30,
+                    "avg_engagement_last_30": channel_data.avg_engagement_last_30,
+                    "growth_rate": channel_data.growth_rate
+                },
+                "recent_videos": [
+                    {
+                        "video_id": video.video_id,
+                        "title": video.title,
+                        "view_count": video.view_count,
+                        "like_count": video.like_count,
+                        "comment_count": video.comment_count,
+                        "published_at": video.published_at,
+                        "engagement_rate": video.engagement_rate
+                    }
+                    for video in channel_data.recent_videos
+                ]
+            },
+            "analytics_data": analytics_data,
+            "oauth_authenticated": True,
+            "status": "success"
+        }
+    
+    except Exception as e:
+        logger.error(f"Error getting authenticated YouTube analytics: {e}")
+        raise HTTPException(status_code=500, detail="Failed to get authenticated analytics data")
+
+@app.get("/api/system/health")
+async def system_health():
+    """Comprehensive system health check"""
+    try:
+        # Check model integrations
+        model_integration = get_model_integration()
+        model_status = model_integration.get_model_status()
+        
+        # Check YouTube API
+        youtube_integration = get_youtube_integration()
+        youtube_status = youtube_integration.get_api_status()
+        
+        # Check cache
+        cache = get_agent_cache()
+        cache_stats = cache.get_stats()
+        
+        # Overall health score
+        health_score = 0
+        total_checks = 0
+        
+        # Model integration health
+        for provider, status in model_status.items():
+            total_checks += 1
+            if status["available"]:
+                health_score += 1
+        
+        # YouTube API health
+        total_checks += 1
+        if youtube_status["api_available"]:
+            health_score += 1
+        
+        # Cache health
+        total_checks += 1
+        if cache_stats["total_size"] >= 0:  # Cache is working
+            health_score += 1
+        
+        overall_health = (health_score / total_checks) * 100 if total_checks > 0 else 0
+        
+        return {
+            "overall_health": overall_health,
+            "model_integrations": model_status,
+            "youtube_api": youtube_status,
+            "cache_system": cache_stats,
+            "timestamp": datetime.now().isoformat(),
+            "status": "healthy" if overall_health >= 70 else "degraded" if overall_health >= 40 else "unhealthy"
+        }
+    
+    except Exception as e:
+        logger.error(f"Error in system health check: {e}")
+        raise HTTPException(status_code=500, detail="System health check failed")
+
 @app.post("/api/content/generate")
 async def generate_content_endpoint(request: QuickActionRequest):
     """Generate content like scripts, calendars, topic research"""
@@ -839,16 +1268,38 @@ def health_check():
     except Exception as e:
         logger.error(f"Health check failed: {e}")
         raise HTTPException(status_code=503, detail="Service unhealthy")
-# Mount static files - serve React build files
+
+
+# Mount OAuth components specifically
 try:
-    app.mount("/", StaticFiles(directory="../frontend-dist", html=True), name="static")
-    logger.info("Successfully mounted React build files from ../frontend-dist")
+    app.mount("/components", StaticFiles(directory="../frontend/components"), name="oauth_components")
+    logger.info("Successfully mounted OAuth components from ../frontend/components")
 except Exception as e:
-    logger.error(f"Failed to mount static files: {e}")
-    # Fallback to old frontend if React build doesn't exist
-    try:
-        app.mount("/", StaticFiles(directory="../frontend", html=True), name="static")
-        logger.info("Fallback: serving old frontend from ../frontend")
-    except Exception as fallback_error:
-        logger.error(f"Fallback also failed: {fallback_error}")
-        raise
+    logger.error(f"Failed to mount OAuth components: {e}")
+
+# Mount static assets (JS, CSS, images) separately
+try:
+    app.mount("/assets", StaticFiles(directory="../frontend-dist/assets"), name="assets")
+    logger.info("Successfully mounted React assets from ../frontend-dist/assets")
+except Exception as e:
+    logger.error(f"Failed to mount assets: {e}")
+
+# Add catch-all route for SPA routing AFTER all API routes
+@app.get("/{path_name:path}")
+async def catch_all(path_name: str):
+    """Catch-all route to serve React app for SPA routing"""
+    # Don't handle API routes
+    if path_name.startswith(('api/', 'auth/', 'health', 'assets/', 'components/')):
+        raise HTTPException(status_code=404, detail="Not found")
+    
+    # Serve React app for all other routes
+    react_index = "../frontend-dist/index.html"
+    if os.path.exists(react_index):
+        return FileResponse(react_index)
+    else:
+        # Fallback to old frontend
+        old_index = "../frontend/index.html"
+        if os.path.exists(old_index):
+            return FileResponse(old_index)
+        else:
+            raise HTTPException(status_code=404, detail="Frontend not found")

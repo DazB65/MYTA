@@ -2,6 +2,7 @@ import ChatInterface from '@/components/chat/ChatInterface'
 import QuickActions from '@/components/agent/QuickActions'
 import AgentHeader from '@/components/agent/AgentHeader'
 import InsightsPanel from '@/components/agent/InsightsPanel'
+import OAuthConnection from '@/components/oauth/OAuthConnection'
 
 export default function AgentSidebar() {
   return (
@@ -19,6 +20,11 @@ export default function AgentSidebar() {
             Insights
           </div>
           <InsightsPanel />
+        </div>
+        
+        {/* OAuth Connection */}
+        <div className="px-4 mt-6 flex-shrink-0">
+          <OAuthConnection variant="sidebar" />
         </div>
         
         {/* Quick Actions */}

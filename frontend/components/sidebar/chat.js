@@ -91,3 +91,27 @@ function sendMessage() {
         addMessage('agent', 'Sorry, I encountered an error. Please try again.');
     });
 }
+// Add support for agent personalization
+
+// Listen for agent settings updates
+document.addEventListener('agentSettingsUpdated', function(event) {
+  updateChatAvatars(event.detail);
+});
+
+// Check for settings when the chat initializes
+document.addEventListener('DOMContentLoaded', function() {
+  if (window.agentSettings) {
+    updateChatAvatars(window.agentSettings);
+  }
+});
+
+// Update agent avatars in chat messages
+function updateChatAvatars(settings) {
+  // Get the avatar source based on settings
+  const avatarSrc = `https://placehold.co/100x100/6366f1/FFFFFF.png?text=${settings.avatar.split('-')[1]}`;
+  
+  // Find all agent avatars in chat and update them
+  document.querySelectorAll('.agent-avatar').forEach(img => {
+    img.src = avatarSrc;
+  });
+}

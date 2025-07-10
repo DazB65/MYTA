@@ -7,6 +7,7 @@ interface FloatingChatState {
   // Actions
   openChat: () => void
   closeChat: () => void
+  toggleChat: () => void
   toggleMinimize: () => void
   setMinimized: (minimized: boolean) => void
 }
@@ -18,6 +19,8 @@ export const useFloatingChatStore = create<FloatingChatState>((set) => ({
   openChat: () => set({ isOpen: true, isMinimized: false }),
   
   closeChat: () => set({ isOpen: false, isMinimized: false }),
+  
+  toggleChat: () => set((state) => ({ isOpen: !state.isOpen, isMinimized: false })),
   
   toggleMinimize: () => set((state) => ({ isMinimized: !state.isMinimized })),
   

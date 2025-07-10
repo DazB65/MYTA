@@ -170,7 +170,7 @@ export default function AvatarCustomizationPanel() {
               </div>
               <div>
                 <p className="font-semibold text-white">{tempName}</p>
-                <p className="text-sm text-dark-400">AI Assistant</p>
+                <p className="text-sm text-dark-400">Your YouTube Personal Agent</p>
               </div>
             </div>
           </div>

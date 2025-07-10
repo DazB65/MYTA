@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { useUserStore } from '@/store/userStore'
 import AvatarSelector from './AvatarSelector'
+import OAuthStatus from '@/components/oauth/OAuthStatus'
 
 export default function AgentHeader() {
   const { agentSettings } = useUserStore()
@@ -23,7 +24,7 @@ export default function AgentHeader() {
           >
             <img
               src={`/assets/images/Avatars/${agentSettings.avatar}`}
-              alt="AI Agent"
+              alt={agentSettings.name}
               className="w-10 h-10 rounded-full"
             />
           </div>
@@ -34,8 +35,11 @@ export default function AgentHeader() {
             </p>
           </div>
         </div>
-        <div className="text-sm text-white/90">
-          Ready to help!
+        <div className="flex items-center justify-between">
+          <div className="text-sm text-white/90">
+            Ready to help!
+          </div>
+          <OAuthStatus className="text-xs" />
         </div>
       </div>
 

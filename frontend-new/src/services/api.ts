@@ -130,6 +130,65 @@ export const api = {
     },
   },
 
+  // YouTube API endpoints
+  youtube: {
+    async getAnalytics(channelId: string, userId: string, includeVideos = true, videoCount = 10): Promise<any> {
+      return fetchAPI('/youtube/analytics', {
+        method: 'POST',
+        body: JSON.stringify({
+          channel_id: channelId,
+          user_id: userId,
+          include_videos: includeVideos,
+          video_count: videoCount,
+          analysis_type: 'comprehensive'
+        }),
+      })
+    },
+
+    async getAuthenticatedAnalytics(channelId: string, userId: string, includeVideos = true, videoCount = 10): Promise<any> {
+      return fetchAPI('/youtube/analytics/authenticated', {
+        method: 'POST',
+        body: JSON.stringify({
+          channel_id: channelId,
+          user_id: userId,
+          include_videos: includeVideos,
+          video_count: videoCount,
+          analysis_type: 'comprehensive'
+        }),
+      })
+    },
+
+    async getQuota(): Promise<{ quota_status: any; status: string }> {
+      return fetchAPI('/youtube/quota')
+    },
+  },
+
+  // OAuth endpoints
+  oauth: {
+    async getStatus(userId: string): Promise<any> {
+      return fetchAPI(`/auth/status/${userId}`, { method: 'GET' })
+    },
+
+    async initiate(userId: string, returnUrl?: string): Promise<any> {
+      return fetchAPI('/auth/initiate', {
+        method: 'POST',
+        body: JSON.stringify({ user_id: userId, return_url: returnUrl }),
+      })
+    },
+
+    async refresh(userId: string): Promise<any> {
+      return fetchAPI(`/auth/refresh/${userId}`, { method: 'POST' })
+    },
+
+    async revoke(userId: string): Promise<any> {
+      return fetchAPI(`/auth/revoke/${userId}`, { method: 'DELETE' })
+    },
+
+    async health(): Promise<any> {
+      return fetchAPI('/auth/health')
+    },
+  },
+
   // Health check
   async health(): Promise<{ status: string; timestamp: string; service: string; version: string }> {
     return fetchAPI('/health')

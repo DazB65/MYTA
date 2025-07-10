@@ -12,17 +12,16 @@ import {
   Users, 
   Mic, 
   Trophy,
-  ChevronDown,
-  ChevronUp,
   Lightbulb,
   Zap
 } from 'lucide-react'
-import Button from '@/components/common/Button'
 import AvatarCustomizationPanel from './AvatarCustomizationPanel'
 import SavedSuggestionsPanel from '@/components/suggestions/SavedSuggestionsPanel'
 
 interface TopAgentPanelProps {
   className?: string
+  onToggleChat?: () => void
+  isChatOpen?: boolean
 }
 
 const impactTools = [
@@ -76,15 +75,16 @@ const impactTools = [
   }
 ]
 
-export default function TopAgentPanel({ className }: TopAgentPanelProps) {
+export default function TopAgentPanel({ className, onToggleChat }: TopAgentPanelProps) {
   const { openChat } = useFloatingChatStore()
   const { customization, openCustomization } = useAvatarStore()
   const { } = useSuggestionStore()
   const { sendMessage } = useChat()
-  const [isCollapsed, setIsCollapsed] = useState(false)
   const [hasNewInsights] = useState(false)
   const [showSavedSuggestions, setShowSavedSuggestions] = useState(false)
   const [expandedTool, setExpandedTool] = useState<string | null>(null)
+  
+  const handleOpenChat = onToggleChat || openChat
 
   const handleToolClick = (toolId: string) => {
     setExpandedTool(expandedTool === toolId ? null : toolId)
@@ -112,7 +112,7 @@ export default function TopAgentPanel({ className }: TopAgentPanelProps) {
     }
     
     // Open chat window
-    openChat()
+    handleOpenChat()
   }
 
   const renderToolData = (tool: typeof impactTools[0]) => {
@@ -184,7 +184,7 @@ export default function TopAgentPanel({ className }: TopAgentPanelProps) {
         'bg-gradient-to-r from-indigo-600 via-purple-600 to-blue-600',
         'border-b border-white/20 backdrop-blur-sm',
         'transition-all duration-500 ease-in-out',
-        isCollapsed ? 'h-36' : 'h-60', // Increased by 50%
+        'h-60', // Fixed height - no collapse functionality
         className
       )}>
         {/* Animated background elements */}
@@ -200,7 +200,7 @@ export default function TopAgentPanel({ className }: TopAgentPanelProps) {
           <div className="flex items-center gap-12">
             <div className="relative">
               <button
-                onClick={openChat}
+                onClick={handleOpenChat}
                 className={cn(
                   'w-48 h-48 rounded-full flex items-center justify-center cursor-pointer transition-all duration-300',
                   'hover:scale-110 hover:shadow-xl hover:shadow-white/30',
@@ -213,7 +213,7 @@ export default function TopAgentPanel({ className }: TopAgentPanelProps) {
               >
                 <img
                   src={`/assets/images/Avatars/${customization.avatar}`}
-                  alt="AI Agent"
+                  alt={customization.name}
                   className="w-44 h-44 rounded-full object-cover"
                   onError={(e) => {
                     e.currentTarget.src = '/assets/images/CM Logo White.svg'
@@ -238,7 +238,7 @@ export default function TopAgentPanel({ className }: TopAgentPanelProps) {
               
               {/* Chat microphone button */}
               <button
-                onClick={openChat}
+                onClick={handleOpenChat}
                 className="absolute -bottom-6 -right-6 w-12 h-12 bg-white/20 rounded-full border-2 border-white/40 flex items-center justify-center hover:bg-white/30 transition-colors backdrop-blur-sm"
                 title="Start chat"
               >
@@ -305,24 +305,14 @@ export default function TopAgentPanel({ className }: TopAgentPanelProps) {
             </div>
           </div>
 
-          {/* Collapse toggle */}
-          <Button
-            onClick={() => setIsCollapsed(!isCollapsed)}
-            variant="ghost"
-            size="lg"
-            className={cn(
-              'p-4 rounded-full transition-all duration-200',
-              'bg-white/10 hover:bg-white/20 border border-white/20 hover:border-white/40',
-              'text-white hover:text-white backdrop-blur-sm',
-              'hover:scale-105 hover:shadow-lg hover:shadow-black/20'
-            )}
-          >
-            {isCollapsed ? (
-              <ChevronDown className="w-6 h-6" />
-            ) : (
-              <ChevronUp className="w-6 h-6" />
-            )}
-          </Button>
+          {/* CreatorMate Logo */}
+          <div className="flex items-center justify-center">
+            <img
+              src="/assets/images/CM Header White.svg"
+              alt="CreatorMate"
+              className="h-32 w-auto opacity-90 hover:opacity-100 transition-opacity duration-200"
+            />
+          </div>
         </div>
       </div>
 
