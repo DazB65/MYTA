@@ -1,7 +1,8 @@
 import { useUserStore } from '@/store/userStore'
 import Card from '@/components/common/Card'
 import TaskManager from '@/components/dashboard/TaskManager'
-import { Calendar, TrendingUp, Users, Video, Clock, Target } from 'lucide-react'
+import ChannelGoals from '@/components/dashboard/ChannelGoals'
+import { Calendar, TrendingUp, Users, Video, Clock } from 'lucide-react'
 
 export default function Dashboard() {
   const { channelInfo } = useUserStore()
@@ -83,65 +84,8 @@ export default function Dashboard() {
 
         {/* Right Sidebar - Quick Actions & Info */}
         <div className="space-y-6">
-
-          {/* Recent Activity Placeholder */}
-          <Card>
-            <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
-              <Clock className="w-5 h-5 text-primary-400" />
-              Recent Activity
-            </h3>
-            <div className="space-y-3 text-sm">
-              <div className="flex items-start gap-3 p-2 bg-dark-800 rounded">
-                <div className="w-2 h-2 bg-green-400 rounded-full mt-2 flex-shrink-0"></div>
-                <div>
-                  <p className="text-dark-200">Video "How to Code Better" published</p>
-                  <p className="text-dark-400 text-xs">2 hours ago</p>
-                </div>
-              </div>
-              <div className="flex items-start gap-3 p-2 bg-dark-800 rounded">
-                <div className="w-2 h-2 bg-blue-400 rounded-full mt-2 flex-shrink-0"></div>
-                <div>
-                  <p className="text-dark-200">New insight generated</p>
-                  <p className="text-dark-400 text-xs">5 hours ago</p>
-                </div>
-              </div>
-              <div className="flex items-start gap-3 p-2 bg-dark-800 rounded">
-                <div className="w-2 h-2 bg-purple-400 rounded-full mt-2 flex-shrink-0"></div>
-                <div>
-                  <p className="text-dark-200">Task "Edit intro" completed</p>
-                  <p className="text-dark-400 text-xs">1 day ago</p>
-                </div>
-              </div>
-            </div>
-          </Card>
-
-          {/* Channel Goals Placeholder */}
-          <Card>
-            <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
-              <Target className="w-5 h-5 text-primary-400" />
-              Channel Goals
-            </h3>
-            <div className="space-y-4">
-              <div>
-                <div className="flex justify-between text-sm mb-1">
-                  <span>Subscriber Goal</span>
-                  <span>45.2K / 50K</span>
-                </div>
-                <div className="w-full bg-dark-700 rounded-full h-2">
-                  <div className="bg-primary-500 h-2 rounded-full" style={{ width: '90.4%' }}></div>
-                </div>
-              </div>
-              <div>
-                <div className="flex justify-between text-sm mb-1">
-                  <span>Monthly Views</span>
-                  <span>380K / 500K</span>
-                </div>
-                <div className="w-full bg-dark-700 rounded-full h-2">
-                  <div className="bg-green-500 h-2 rounded-full" style={{ width: '76%' }}></div>
-                </div>
-              </div>
-            </div>
-          </Card>
+          {/* Channel Goals */}
+          <ChannelGoals />
         </div>
       </div>
 

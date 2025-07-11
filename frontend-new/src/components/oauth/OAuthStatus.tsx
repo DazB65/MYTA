@@ -10,9 +10,10 @@ import { useEffect } from 'react';
 interface OAuthStatusProps {
   showDetails?: boolean;
   className?: string;
+  onClick?: () => void;
 }
 
-export default function OAuthStatus({ showDetails = false, className = '' }: OAuthStatusProps) {
+export default function OAuthStatus({ showDetails = false, className = '', onClick }: OAuthStatusProps) {
   const {
     isAuthenticated,
     status,
@@ -80,7 +81,7 @@ export default function OAuthStatus({ showDetails = false, className = '' }: OAu
   }
 
   return (
-    <div className={`flex items-center gap-2 ${className}`}>
+    <div className={`flex items-center gap-2 ${className}`} onClick={onClick}>
       <AlertCircle className="w-4 h-4 text-red-500" />
       <span className="text-sm text-red-600">YouTube Not Connected</span>
       {showDetails && (
