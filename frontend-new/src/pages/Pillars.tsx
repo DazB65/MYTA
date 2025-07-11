@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { LineChart, Line, XAxis, YAxis, ResponsiveContainer } from 'recharts'
 import Card from '@/components/common/Card'
 import Button from '@/components/common/Button'
+import CreateContentModal from '@/components/pillars/CreateContentModal'
 import { MoreHorizontal, TrendingUp, TrendingDown } from 'lucide-react'
 
 interface PillarData {
@@ -122,7 +123,7 @@ const mockPillarsData: PillarData[] = [
   }
 ]
 
-function PillarCard({ pillar }: { pillar: PillarData }) {
+function PillarCard({ pillar, onCreateContent }: { pillar: PillarData; onCreateContent: (pillar: PillarData) => void }) {
   const formatViews = (views: number) => {
     if (views >= 1000000) return `${(views / 1000000).toFixed(1)}M`
     if (views >= 1000) return `${(views / 1000).toFixed(1)}K`
@@ -231,7 +232,7 @@ function PillarCard({ pillar }: { pillar: PillarData }) {
         <Button size="sm" className="flex-1">
           View Details
         </Button>
-        <Button size="sm" variant="secondary">
+        <Button size="sm" variant="secondary" onClick={() => onCreateContent(pillar)}>
           Create Content
         </Button>
       </div>
@@ -242,6 +243,18 @@ function PillarCard({ pillar }: { pillar: PillarData }) {
 export default function Pillars() {
   const [pillars] = useState<PillarData[]>(mockPillarsData)
   const [timeRange, setTimeRange] = useState('Last 30 days')
+  const [selectedPillar, setSelectedPillar] = useState<PillarData | null>(null)
+  const [isModalOpen, setIsModalOpen] = useState(false)
+
+  const handleCreateContent = (pillar: PillarData) => {
+    setSelectedPillar(pillar)
+    setIsModalOpen(true)
+  }
+
+  const handleCloseModal = () => {
+    setIsModalOpen(false)
+    setSelectedPillar(null)
+  }
 
   return (
     <div className="space-y-6">
@@ -270,7 +283,7 @@ export default function Pillars() {
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {pillars.map((pillar) => (
-          <PillarCard key={pillar.id} pillar={pillar} />
+          <PillarCard key={pillar.id} pillar={pillar} onCreateContent={handleCreateContent} />
         ))}
       </div>
 
@@ -291,6 +304,15 @@ export default function Pillars() {
           Explore Suggestion
         </Button>
       </Card>
+
+      {/* Create Content Modal */}
+      {selectedPillar && (
+        <CreateContentModal
+          isOpen={isModalOpen}
+          onClose={handleCloseModal}
+          pillar={selectedPillar}
+        />
+      )}
     </div>
   )
 }

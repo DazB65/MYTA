@@ -109,8 +109,8 @@ class ChatMessage(BaseModel):
     
     class Config:
         str_strip_whitespace = True
-        min_anystr_length = 1
-        max_anystr_length = 2000
+        str_min_length = 1
+        str_max_length = 2000
 
 class QuickActionRequest(BaseModel):
     action: str
@@ -192,7 +192,7 @@ async def chat(message: ChatMessage):
         else:
             # Fallback to original AI service if boss agent fails
             logger.warning("Boss agent failed, falling back to original AI service")
-            response = await get_ai_response(message.message, message.user_id)
+            response = await get_ai_response(message.message, message.user_id, skip_quick_action=True)
         
         if not response:
             raise HTTPException(status_code=500, detail="Failed to generate AI response")
@@ -430,8 +430,8 @@ async def quick_action(request: QuickActionRequest):
         if not prompt:
             raise HTTPException(status_code=400, detail=f"Unknown action: {request.action}")
         
-        # Get AI response
-        response = await get_ai_response(prompt, request.user_id)
+        # Get AI response (skip quick action detection to prevent recursion)
+        response = await get_ai_response(prompt, request.user_id, skip_quick_action=True)
         
         if not response:
             raise HTTPException(status_code=500, detail="Failed to generate response")
@@ -1010,8 +1010,8 @@ async def generate_content_endpoint(request: QuickActionRequest):
             # Fall back to quick action if not found
             return await quick_action(request)
         
-        # Get AI response
-        response = await get_ai_response(prompt, request.user_id)
+        # Get AI response (skip quick action detection to prevent recursion)
+        response = await get_ai_response(prompt, request.user_id, skip_quick_action=True)
         
         if not response:
             raise HTTPException(status_code=500, detail="Failed to generate content")
@@ -1109,7 +1109,7 @@ async def seo_analyze_endpoint(request: ChatMessage):
         Give specific, actionable recommendations.
         """
         
-        response = await get_ai_response(prompt, request.user_id)
+        response = await get_ai_response(prompt, request.user_id, skip_quick_action=True)
         
         return {
             "analysis": response,
@@ -1238,7 +1238,7 @@ async def generate_report(request: ChatMessage):
         Format the report professionally with clear sections and actionable insights.
         """
         
-        response = await get_ai_response(report_prompt, request.user_id)
+        response = await get_ai_response(report_prompt, request.user_id, skip_quick_action=True)
         
         return {
             "report": response,

@@ -7,6 +7,7 @@ import Channel from './pages/Channel'
 import Pillars from './pages/Pillars'
 import Videos from './pages/Videos'
 import Settings from './pages/Settings'
+import { SystemHealthCheck } from './components/SystemHealthCheck'
 import { useUserStore } from './store/userStore'
 
 function App() {
@@ -22,17 +23,24 @@ function App() {
   }
 
   return (
-    <Layout>
+    <>
       <Routes>
-        <Route path="/" element={<Navigate to="/dashboard" replace />} />
-        <Route path="/dashboard" element={<Dashboard />} />
-        <Route path="/channel" element={<Channel />} />
-        <Route path="/pillars" element={<Pillars />} />
-        <Route path="/videos" element={<Videos />} />
-        <Route path="/settings" element={<Settings />} />
-        <Route path="*" element={<Navigate to="/dashboard" replace />} />
+        <Route path="/health" element={<SystemHealthCheck />} />
+        <Route path="/*" element={
+          <Layout>
+            <Routes>
+              <Route path="/" element={<Navigate to="/dashboard" replace />} />
+              <Route path="/dashboard" element={<Dashboard />} />
+              <Route path="/channel" element={<Channel />} />
+              <Route path="/pillars" element={<Pillars />} />
+              <Route path="/videos" element={<Videos />} />
+              <Route path="/settings" element={<Settings />} />
+              <Route path="*" element={<Navigate to="/dashboard" replace />} />
+            </Routes>
+          </Layout>
+        } />
       </Routes>
-    </Layout>
+    </>
   )
 }
 

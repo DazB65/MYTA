@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { Plus, CheckCircle2, Circle, Calendar, Flag, Trash2, Edit3, Search } from 'lucide-react'
+import { Plus, CheckCircle2, Circle, Calendar, Flag, Trash2, Edit3, Search, ChevronDown, ChevronRight } from 'lucide-react'
 import Card from '@/components/common/Card'
 import Button from '@/components/common/Button'
 
@@ -22,6 +22,7 @@ export default function TaskManager() {
   // const [editingTask] = useState<Task | null>(null)
   const [filter, setFilter] = useState<'all' | 'pending' | 'completed'>('all')
   const [searchTerm, setSearchTerm] = useState('')
+  const [expandedTasks, setExpandedTasks] = useState<Set<string>>(new Set())
   const [newTask, setNewTask] = useState({
     title: '',
     description: '',
@@ -197,6 +198,25 @@ export default function TaskManager() {
   const completedCount = tasks.filter(t => t.completed).length
   const totalCount = tasks.length
 
+  const toggleTaskExpansion = (taskId: string) => {
+    setExpandedTasks(prev => {
+      const newSet = new Set(prev)
+      if (newSet.has(taskId)) {
+        newSet.delete(taskId)
+      } else {
+        newSet.add(taskId)
+      }
+      return newSet
+    })
+  }
+
+  const isTaskExpanded = (taskId: string) => expandedTasks.has(taskId)
+
+  const truncateText = (text: string, maxLength: number) => {
+    if (text.length <= maxLength) return text
+    return text.substring(0, maxLength) + '...'
+  }
+
   return (
     <Card>
       <div className="p-6">
@@ -364,12 +384,38 @@ export default function TaskManager() {
                           🤖 {task.agentName || 'AI'}
                         </span>
                       )}
+                      {/* Expand button for AI tasks with descriptions */}
+                      {task.source === 'agent' && task.description && task.description.length > 80 && (
+                        <button
+                          onClick={() => toggleTaskExpansion(task.id)}
+                          className="p-1 text-dark-400 hover:text-white rounded transition-colors"
+                          title={isTaskExpanded(task.id) ? 'Collapse details' : 'Show details'}
+                        >
+                          {isTaskExpanded(task.id) ? (
+                            <ChevronDown className="w-4 h-4" />
+                          ) : (
+                            <ChevronRight className="w-4 h-4" />
+                          )}
+                        </button>
+                      )}
                     </div>
                     
                     {task.description && (
-                      <p className={`text-sm mb-2 ${task.completed ? 'line-through text-dark-500' : 'text-dark-300'}`}>
-                        {task.description}
-                      </p>
+                      <div className={`text-sm mb-2 ${task.completed ? 'line-through text-dark-500' : 'text-dark-300'}`}>
+                        {task.source === 'agent' && task.description.length > 80 ? (
+                          <div>
+                            {!isTaskExpanded(task.id) ? (
+                              <p>{truncateText(task.description, 80)}</p>
+                            ) : (
+                              <div className="space-y-2">
+                                <p className="whitespace-pre-wrap">{task.description}</p>
+                              </div>
+                            )}
+                          </div>
+                        ) : (
+                          <p>{task.description}</p>
+                        )}
+                      </div>
                     )}
                     
                     <div className="flex items-center gap-4 text-xs text-dark-400">

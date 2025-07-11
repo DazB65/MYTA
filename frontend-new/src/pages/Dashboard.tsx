@@ -1,11 +1,10 @@
 import { useUserStore } from '@/store/userStore'
 import Card from '@/components/common/Card'
-import Button from '@/components/common/Button'
 import TaskManager from '@/components/dashboard/TaskManager'
 import { Calendar, TrendingUp, Users, Video, Clock, Target } from 'lucide-react'
 
 export default function Dashboard() {
-  const { channelInfo, agentSettings } = useUserStore()
+  const { channelInfo } = useUserStore()
 
   // Quick stats data - in real app this would come from API
   const quickStats = [
@@ -55,18 +54,6 @@ export default function Dashboard() {
             Here's what's happening with your channel today
           </p>
         </div>
-        <div className="flex items-center gap-3">
-          <div className="flex items-center gap-2 px-3 py-2 bg-dark-800 rounded-lg">
-            <div className="w-8 h-8 rounded-full bg-gradient-to-br from-primary-500 to-purple-500 flex items-center justify-center">
-              <img
-                src={`/assets/images/Avatars/${agentSettings.avatar}`}
-                alt={agentSettings.name}
-                className="w-6 h-6 rounded-full"
-              />
-            </div>
-            <span className="text-sm font-medium">{agentSettings.name}</span>
-          </div>
-        </div>
       </div>
 
       {/* Quick Stats */}
@@ -96,27 +83,6 @@ export default function Dashboard() {
 
         {/* Right Sidebar - Quick Actions & Info */}
         <div className="space-y-6">
-          {/* Quick Actions */}
-          <Card>
-            <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
-              <Target className="w-5 h-5 text-primary-400" />
-              Quick Actions
-            </h3>
-            <div className="space-y-3">
-              <Button size="sm" className="w-full justify-start">
-                <Video className="w-4 h-4 mr-2" />
-                Generate Script Idea
-              </Button>
-              <Button size="sm" variant="secondary" className="w-full justify-start">
-                <TrendingUp className="w-4 h-4 mr-2" />
-                Analyze Performance
-              </Button>
-              <Button size="sm" variant="secondary" className="w-full justify-start">
-                <Users className="w-4 h-4 mr-2" />
-                Check Audience Insights
-              </Button>
-            </div>
-          </Card>
 
           {/* Recent Activity Placeholder */}
           <Card>

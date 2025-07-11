@@ -983,7 +983,10 @@ def get_boss_agent():
     """Get or create boss agent instance"""
     global boss_agent
     if boss_agent is None:
-        api_key = os.getenv("OPENAI_API_KEY")
+        # Load from .env file first for security
+        from dotenv import dotenv_values
+        env_vars = dotenv_values()
+        api_key = env_vars.get("OPENAI_API_KEY") or os.getenv("OPENAI_API_KEY")
         if not api_key:
             raise ValueError("OPENAI_API_KEY environment variable is required")
         boss_agent = BossAgent(api_key)

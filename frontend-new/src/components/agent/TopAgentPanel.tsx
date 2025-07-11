@@ -2,8 +2,10 @@ import { useState } from 'react'
 import { useFloatingChatStore } from '@/store/floatingChatStore'
 import { useAvatarStore } from '@/store/avatarStore'
 import { useSuggestionStore } from '@/store/suggestionStore'
+import { useSavedMessagesStore } from '@/store/savedMessagesStore'
 import { useChat } from '@/hooks/useChat'
 import { cn } from '@/utils'
+import QuickActionModal from './QuickActionModal'
 import { 
   Sparkles, 
   Settings, 
@@ -13,10 +15,13 @@ import {
   Mic, 
   Trophy,
   Lightbulb,
-  Zap
+  Zap,
+  Bookmark
 } from 'lucide-react'
 import AvatarCustomizationPanel from './AvatarCustomizationPanel'
 import SavedSuggestionsPanel from '@/components/suggestions/SavedSuggestionsPanel'
+import { SavedMessagesPanel } from '@/components/SavedMessagesPanel'
+import OAuthStatus from '@/components/oauth/OAuthStatus'
 
 interface TopAgentPanelProps {
   className?: string
@@ -79,40 +84,54 @@ export default function TopAgentPanel({ className, onToggleChat }: TopAgentPanel
   const { openChat } = useFloatingChatStore()
   const { customization, openCustomization } = useAvatarStore()
   const { } = useSuggestionStore()
-  const { sendMessage } = useChat()
+  const { savedMessages } = useSavedMessagesStore()
+  const { sendQuickAction } = useChat()
   const [hasNewInsights] = useState(false)
   const [showSavedSuggestions, setShowSavedSuggestions] = useState(false)
+  const [showSavedMessages, setShowSavedMessages] = useState(false)
   const [expandedTool, setExpandedTool] = useState<string | null>(null)
+  const [selectedTool, setSelectedTool] = useState<{id: string, title: string, description: string, icon: string} | null>(null)
   
   const handleOpenChat = onToggleChat || openChat
 
   const handleToolClick = (toolId: string) => {
     setExpandedTool(expandedTool === toolId ? null : toolId)
     
-    // Send appropriate message based on tool
-    switch (toolId) {
-      case 'content_calendar':
-        sendMessage("Show me my content calendar and upcoming posts")
-        break
-      case 'performance_snapshot':
-        sendMessage("Give me a performance snapshot of my recent videos")
-        break
-      case 'ai_impact_counter':
-        sendMessage("Show me the impact of AI suggestions I've implemented")
-        break
-      case 'competitive_intelligence':
-        sendMessage("Analyze my performance against similar creators")
-        break
-      case 'voice_command':
-        sendMessage("Help me set up voice commands")
-        break
-      case 'creator_goals':
-        sendMessage("Review my creator goals and progress")
-        break
+    // Find the tool and open modal
+    const tool = impactTools.find(t => t.id === toolId)
+    if (tool) {
+      setSelectedTool({
+        id: toolId,
+        title: tool.title,
+        description: tool.description,
+        icon: '🔧' // Use a generic icon for now since the original is a component
+      })
     }
     
     // Open chat window
     handleOpenChat()
+  }
+
+  const handleToolModalSubmit = (context: string) => {
+    if (selectedTool) {
+      // Map tool ID to appropriate action
+      const actionMap: {[key: string]: string} = {
+        'content_calendar': 'get_content_calendar',
+        'performance_snapshot': 'get_performance_snapshot',
+        'ai_impact_counter': 'get_ai_impact',
+        'competitive_intelligence': 'get_competitive_analysis',
+        'voice_command': 'setup_voice_commands',
+        'creator_goals': 'review_goals'
+      }
+      
+      const action = actionMap[selectedTool.id] || selectedTool.id
+      sendQuickAction(action, context)
+    }
+    setSelectedTool(null)
+  }
+
+  const handleToolModalClose = () => {
+    setSelectedTool(null)
   }
 
   const renderToolData = (tool: typeof impactTools[0]) => {
@@ -181,7 +200,7 @@ export default function TopAgentPanel({ className, onToggleChat }: TopAgentPanel
     <>
       <div className={cn(
         'w-full relative overflow-hidden',
-        'bg-gradient-to-r from-indigo-600 via-purple-600 to-blue-600',
+        'bg-purple-900/95 backdrop-blur-md',
         'border-b border-white/20 backdrop-blur-sm',
         'transition-all duration-500 ease-in-out',
         'h-60', // Fixed height - no collapse functionality
@@ -244,6 +263,20 @@ export default function TopAgentPanel({ className, onToggleChat }: TopAgentPanel
               >
                 <Mic className="w-6 h-6 text-white" />
               </button>
+
+              {/* Saved Messages button */}
+              <button
+                onClick={() => setShowSavedMessages(true)}
+                className="absolute -top-6 -right-6 w-12 h-12 bg-white/20 rounded-full border-2 border-white/40 flex items-center justify-center hover:bg-white/30 transition-colors backdrop-blur-sm"
+                title="Saved chats"
+              >
+                <Bookmark className="w-6 h-6 text-white" />
+                {savedMessages.length > 0 && (
+                  <div className="absolute -top-2 -right-2 w-5 h-5 bg-yellow-500 rounded-full flex items-center justify-center">
+                    <span className="text-xs font-bold text-white">{savedMessages.length}</span>
+                  </div>
+                )}
+              </button>
             </div>
 
             {/* Agent identity - Clean and prominent */}
@@ -253,9 +286,7 @@ export default function TopAgentPanel({ className, onToggleChat }: TopAgentPanel
                   <h1 className="font-bold text-white text-4xl drop-shadow-sm tracking-tight">
                     {customization.name}
                   </h1>
-                  <p className="text-white/70 text-lg font-medium mt-1">
-                    Your YouTube Personal Agent
-                  </p>
+                  <p className="text-white/80 text-lg font-medium mt-1">Your Personal Agent Mate</p>
                 </div>
                 {hasNewInsights && (
                   <Zap className="w-8 h-8 text-yellow-400 animate-pulse drop-shadow-sm" />
@@ -305,13 +336,22 @@ export default function TopAgentPanel({ className, onToggleChat }: TopAgentPanel
             </div>
           </div>
 
-          {/* CreatorMate Logo */}
-          <div className="flex items-center justify-center">
-            <img
-              src="/assets/images/CM Header White.svg"
-              alt="CreatorMate"
-              className="h-32 w-auto opacity-90 hover:opacity-100 transition-opacity duration-200"
-            />
+          {/* CreatorMate Logo and YouTube Connection */}
+          <div className="flex flex-col items-center space-y-4">
+            {/* Logo section moved up */}
+            <div className="flex items-center">
+              <img
+                src="/assets/images/CM Text White.svg"
+                alt="CreatorMate"
+                className="h-24 w-auto opacity-90 hover:opacity-100 transition-opacity duration-200"
+              />
+              <div className="text-xs text-white/80 ml-2 font-medium tracking-wide">YOUR CREATOR AGENT</div>
+            </div>
+            
+            {/* YouTube connection section */}
+            <div className="bg-white/10 backdrop-blur-sm border border-white/20 rounded-lg p-3 min-w-[200px]">
+              <OAuthStatus showDetails={true} className="text-white" />
+            </div>
           </div>
         </div>
       </div>
@@ -324,6 +364,23 @@ export default function TopAgentPanel({ className, onToggleChat }: TopAgentPanel
         isOpen={showSavedSuggestions} 
         onClose={() => setShowSavedSuggestions(false)} 
       />
+
+      {/* Saved Messages Panel */}
+      <SavedMessagesPanel 
+        isOpen={showSavedMessages} 
+        onClose={() => setShowSavedMessages(false)} 
+      />
+
+      {/* Tool Modal */}
+      {selectedTool && (
+        <QuickActionModal
+          isOpen={!!selectedTool}
+          onClose={handleToolModalClose}
+          onSubmit={handleToolModalSubmit}
+          action={selectedTool}
+          isLoading={false}
+        />
+      )}
     </>
   )
 }

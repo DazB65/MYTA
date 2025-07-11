@@ -63,10 +63,20 @@ export const useUserStore = create<UserState>()(
 
       checkOnboardingStatus: () => {
         const state = get()
-        if (!state.userId) {
-          const newUserId = state.generateUserId()
-          set({ userId: newUserId })
+        
+        // Check if userId exists in localStorage first
+        const storedUserId = localStorage.getItem('creatormate_user_id')
+        let currentUserId = state.userId || storedUserId
+        
+        if (!currentUserId) {
+          currentUserId = state.generateUserId()
+          set({ userId: currentUserId })
+        } else if (currentUserId !== state.userId) {
+          // Update store with localStorage value
+          set({ userId: currentUserId })
         }
+        
+        console.log('User ID set to:', currentUserId)
         
         // Check if onboarding is complete
         const onboarded = localStorage.getItem('creatormate_onboarded') === 'true'

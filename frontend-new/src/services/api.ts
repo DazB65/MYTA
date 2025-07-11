@@ -75,10 +75,20 @@ export const api = {
     },
 
     async setChannelInfo(channelInfo: ChannelInfo & { user_id: string }): Promise<{ status: string; message: string }> {
-      return fetchAPI('/agent/set-channel-info', {
-        method: 'POST',
-        body: JSON.stringify(channelInfo),
-      })
+      console.log('Making API call to set channel info:', channelInfo)
+      
+      try {
+        const response = await fetchAPI('/agent/set-channel-info', {
+          method: 'POST',
+          body: JSON.stringify(channelInfo),
+        })
+        
+        console.log('API response received:', response)
+        return response as { status: string; message: string }
+      } catch (error) {
+        console.error('API call failed:', error)
+        throw error
+      }
     },
   },
 

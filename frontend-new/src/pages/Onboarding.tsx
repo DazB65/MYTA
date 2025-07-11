@@ -11,10 +11,6 @@ const onboardingSchema = z.object({
   channelName: z.string().min(1, 'Channel name is required'),
   niche: z.string().min(1, 'Please select a niche'),
   contentType: z.string().min(1, 'Please select content type'),
-  subscriberCount: z.number().min(0, 'Must be 0 or greater'),
-  avgViewCount: z.number().min(0, 'Must be 0 or greater'),
-  ctr: z.number().min(0).max(100, 'Must be between 0 and 100'),
-  retention: z.number().min(0).max(100, 'Must be between 0 and 100'),
   uploadFrequency: z.string().min(1, 'Please select upload frequency'),
   videoLength: z.string().min(1, 'Please select video length'),
   monetizationStatus: z.string().min(1, 'Please select monetization status'),
@@ -55,7 +51,7 @@ const primaryGoals = [
 ]
 
 export default function Onboarding() {
-  const { userId, updateChannelInfo, setOnboarded } = useUserStore()
+  const { userId, updateChannelInfo, setOnboarded, setUserId, generateUserId } = useUserStore()
   const [isSubmitting, setIsSubmitting] = useState(false)
 
   const {
@@ -64,34 +60,42 @@ export default function Onboarding() {
     formState: { errors },
   } = useForm<OnboardingForm>({
     resolver: zodResolver(onboardingSchema),
-    defaultValues: {
-      subscriberCount: 0,
-      avgViewCount: 0,
-      ctr: 0,
-      retention: 0,
-    },
   })
 
   const onSubmit = async (data: OnboardingForm) => {
     setIsSubmitting(true)
     try {
+      // Ensure userId is set - this is the most likely fix for the issue
+      let currentUserId = userId
+      if (!currentUserId || currentUserId.trim() === '') {
+        console.log('No userId found, generating new one...')
+        currentUserId = generateUserId()
+        setUserId(currentUserId)
+      }
+      
+      console.log('Submitting onboarding with userId:', currentUserId)
+      console.log('Form data:', data)
+      
       const channelInfo = {
         name: data.channelName,
         niche: data.niche,
         content_type: data.contentType,
-        subscriber_count: data.subscriberCount,
-        avg_view_count: data.avgViewCount,
-        ctr: data.ctr,
-        retention: data.retention,
+        subscriber_count: 0,  // Will be populated from YouTube connection
+        avg_view_count: 0,    // Will be populated from YouTube connection
+        ctr: 0,              // Will be populated from YouTube connection
+        retention: 0,        // Will be populated from YouTube connection
         upload_frequency: data.uploadFrequency,
         video_length: data.videoLength,
         monetization_status: data.monetizationStatus,
         primary_goal: data.primaryGoal,
         notes: data.notes || '',
-        user_id: userId,
+        user_id: currentUserId,
       }
 
-      await api.agent.setChannelInfo(channelInfo)
+      console.log('Channel info payload:', channelInfo)
+      
+      const response = await api.agent.setChannelInfo(channelInfo)
+      console.log('API response:', response)
       
       // Update local store
       updateChannelInfo(channelInfo)
@@ -101,7 +105,15 @@ export default function Onboarding() {
       setOnboarded(true)
     } catch (error) {
       console.error('Onboarding failed:', error)
-      alert('Failed to save channel information. Please try again.')
+      console.error('Error details:', error)
+      
+      // More specific error message
+      let errorMessage = 'Failed to save channel information. Please try again.'
+      if (error instanceof Error) {
+        errorMessage = `Failed to save channel information: ${error.message}`
+      }
+      
+      alert(errorMessage)
     } finally {
       setIsSubmitting(false)
     }
@@ -111,8 +123,8 @@ export default function Onboarding() {
     <div className="min-h-screen bg-gradient-to-br from-background-primary to-background-secondary flex items-center justify-center p-4">
       <Card className="w-full max-w-2xl">
         <div className="text-center mb-8">
-          <div className="w-20 h-20 bg-gradient-to-br from-primary-500 to-purple-500 rounded-2xl flex items-center justify-center mx-auto mb-4">
-            <img src="/assets/images/CM Logo White.svg" alt="CreatorMate" className="w-12 h-12" />
+          <div className="w-40 h-40 flex items-center justify-center mx-auto mb-6">
+            <img src="/assets/images/CM Text White.svg" alt="CreatorMate" className="w-full h-full object-contain" />
           </div>
           <h1 className="text-3xl font-bold bg-gradient-to-r from-primary-400 to-purple-400 bg-clip-text text-transparent">
             Welcome to CreatorMate
@@ -171,69 +183,6 @@ export default function Onboarding() {
               )}
             </div>
 
-            {/* Subscriber Count */}
-            <div>
-              <label className="block text-sm font-medium mb-2">Subscriber Count</label>
-              <input
-                {...register('subscriberCount', { valueAsNumber: true })}
-                type="number"
-                min="0"
-                className="w-full px-3 py-2 bg-dark-800 border border-dark-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
-                placeholder="0"
-              />
-              {errors.subscriberCount && (
-                <p className="text-red-400 text-sm mt-1">{errors.subscriberCount.message}</p>
-              )}
-            </div>
-
-            {/* Average View Count */}
-            <div>
-              <label className="block text-sm font-medium mb-2">Average View Count</label>
-              <input
-                {...register('avgViewCount', { valueAsNumber: true })}
-                type="number"
-                min="0"
-                className="w-full px-3 py-2 bg-dark-800 border border-dark-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
-                placeholder="0"
-              />
-              {errors.avgViewCount && (
-                <p className="text-red-400 text-sm mt-1">{errors.avgViewCount.message}</p>
-              )}
-            </div>
-
-            {/* CTR */}
-            <div>
-              <label className="block text-sm font-medium mb-2">Click-Through Rate (%)</label>
-              <input
-                {...register('ctr', { valueAsNumber: true })}
-                type="number"
-                min="0"
-                max="100"
-                step="0.1"
-                className="w-full px-3 py-2 bg-dark-800 border border-dark-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
-                placeholder="0.0"
-              />
-              {errors.ctr && (
-                <p className="text-red-400 text-sm mt-1">{errors.ctr.message}</p>
-              )}
-            </div>
-
-            {/* Retention */}
-            <div>
-              <label className="block text-sm font-medium mb-2">Average Retention (%)</label>
-              <input
-                {...register('retention', { valueAsNumber: true })}
-                type="number"
-                min="0"
-                max="100"
-                step="0.1"
-                className="w-full px-3 py-2 bg-dark-800 border border-dark-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
-                placeholder="0.0"
-              />
-              {errors.retention && (
-                <p className="text-red-400 text-sm mt-1">{errors.retention.message}</p>
-              )}
-            </div>
 
             {/* Upload Frequency */}
             <div>
@@ -313,6 +262,41 @@ export default function Onboarding() {
               className="w-full px-3 py-2 bg-dark-800 border border-dark-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
               placeholder="Any additional information about your channel..."
             />
+          </div>
+
+          {/* YouTube Connection */}
+          <div className="bg-dark-800 border border-dark-600 rounded-lg p-6 mb-6">
+            <div className="flex items-center justify-between mb-4">
+              <div>
+                <h3 className="text-lg font-semibold mb-1">Connect Your YouTube Channel</h3>
+                <p className="text-sm text-dark-400">
+                  Connect your YouTube account to automatically import your channel statistics
+                </p>
+              </div>
+              <div className="text-red-500">
+                <svg className="w-12 h-12" fill="currentColor" viewBox="0 0 24 24">
+                  <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/>
+                </svg>
+              </div>
+            </div>
+            <Button
+              type="button"
+              variant="secondary"
+              size="lg"
+              className="w-full border border-red-500 text-red-500 hover:bg-red-500 hover:text-white bg-transparent"
+              onClick={() => {
+                // TODO: Implement YouTube OAuth flow
+                window.location.href = '/api/oauth/youtube/authorize'
+              }}
+            >
+              <svg className="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/>
+              </svg>
+              Connect YouTube Account
+            </Button>
+            <p className="text-xs text-dark-500 text-center mt-3">
+              Optional: You can connect later from Settings
+            </p>
           </div>
 
           <Button

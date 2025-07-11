@@ -8,6 +8,7 @@ import ThinkingIndicator from '@/components/chat/ThinkingIndicator'
 import ChatInput from '@/components/chat/ChatInput'
 import Button from '@/components/common/Button'
 import Card from '@/components/common/Card'
+import QuickActionModal from './QuickActionModal'
 
 interface Tool {
   id: string
@@ -100,11 +101,12 @@ interface FullPageChatPanelProps {
 }
 
 export default function FullPageChatPanel({ isOpen, onClose, onConvertToTask }: FullPageChatPanelProps) {
-  const { messages, thinkingMessage, isLoading, sendMessage } = useChat()
+  const { messages, thinkingMessage, isLoading, sendMessage, sendQuickAction } = useChat()
   const { customization } = useAvatarStore()
   const [selectedToolCategory, setSelectedToolCategory] = useState<string>('all')
   const [convertedMessages, setConvertedMessages] = useState<Set<string>>(new Set())
   const [showScrollIndicator, setShowScrollIndicator] = useState(false)
+  const [selectedTool, setSelectedTool] = useState<Tool | null>(null)
   const chatEndRef = useRef<HTMLDivElement>(null)
   const messagesAreaRef = useRef<HTMLDivElement>(null)
 
@@ -147,6 +149,17 @@ export default function FullPageChatPanel({ isOpen, onClose, onConvertToTask }: 
   const handleConvertToTask = (message: any) => {
     setConvertedMessages(prev => new Set(prev).add(message.id))
     onConvertToTask(message)
+  }
+
+  const handleToolModalSubmit = (context: string) => {
+    if (selectedTool) {
+      sendQuickAction(selectedTool.action, context)
+    }
+    setSelectedTool(null)
+  }
+
+  const handleToolModalClose = () => {
+    setSelectedTool(null)
   }
 
   if (!isOpen) return null
@@ -364,7 +377,7 @@ export default function FullPageChatPanel({ isOpen, onClose, onConvertToTask }: 
                 {filteredTools.map((tool) => (
                   <button
                     key={tool.id}
-                    onClick={() => sendMessage(`Use the ${tool.title} tool: ${tool.description}`)}
+                    onClick={() => setSelectedTool(tool)}
                     disabled={isLoading}
                     className="text-left p-3 rounded-lg bg-dark-700/50 hover:bg-dark-600/50 transition-colors text-sm disabled:opacity-50 group"
                   >
@@ -394,6 +407,22 @@ export default function FullPageChatPanel({ isOpen, onClose, onConvertToTask }: 
           </div>
         </div>
       </div>
+
+      {/* Tool Modal */}
+      {selectedTool && (
+        <QuickActionModal
+          isOpen={!!selectedTool}
+          onClose={handleToolModalClose}
+          onSubmit={handleToolModalSubmit}
+          action={{
+            id: selectedTool.action,
+            title: selectedTool.title,
+            description: selectedTool.description,
+            icon: selectedTool.icon
+          }}
+          isLoading={isLoading}
+        />
+      )}
     </div>
   )
 }

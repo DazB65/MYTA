@@ -1,8 +1,11 @@
 import { useState } from 'react'
-import { ThumbsUp, ThumbsDown, Bookmark, Settings, Check, X, Copy } from 'lucide-react'
+import { ThumbsUp, ThumbsDown, Settings, Check, X, Copy } from 'lucide-react'
 import { cn } from '@/utils'
 import { useSuggestionStore, SuggestionType } from '@/store/suggestionStore'
+import { useAvatarStore } from '@/store/avatarStore'
+import { useSavedMessagesStore } from '@/store/savedMessagesStore'
 import Button from '@/components/common/Button'
+import TaskCreationModal from '@/components/dashboard/TaskCreationModal'
 
 interface SuggestionActionsProps {
   messageId: string
@@ -18,42 +21,38 @@ export default function SuggestionActions({
   className 
 }: SuggestionActionsProps) {
   const { 
-    saveSuggestion, 
     implementSuggestion, 
     provideFeedback, 
     getImplementationOptions 
   } = useSuggestionStore()
+  const { customization } = useAvatarStore()
+  const { saveMessage } = useSavedMessagesStore()
   
   const [showImplementOptions, setShowImplementOptions] = useState(false)
   const [isImplemented, setIsImplemented] = useState(false)
-  const [isSaved, setIsSaved] = useState(false)
   const [feedback, setFeedback] = useState<'helpful' | 'not_helpful' | null>(null)
   const [showConfirmation, setShowConfirmation] = useState<string | null>(null)
+  const [taskModalOpen, setTaskModalOpen] = useState(false)
 
   const implementationOptions = getImplementationOptions(type)
 
-  const handleSave = () => {
-    saveSuggestion({
-      type,
-      content,
-      category: getCategoryFromType(type),
-      isImplemented: false,
-      tags: extractTagsFromContent(content)
-    })
-    setIsSaved(true)
-    showTemporaryConfirmation('saved')
-  }
 
   const handleImplement = (optionId: string) => {
     const option = implementationOptions.find(o => o.id === optionId)
     if (option) {
-      implementSuggestion(messageId, { action: option.action, type })
-      setIsImplemented(true)
-      setShowImplementOptions(false)
-      showTemporaryConfirmation('implemented')
-      
-      // Execute specific implementation logic
-      executeImplementation(option.action, content)
+      // For "add_to_tasks", open the task creation modal instead
+      if (option.action === 'add_to_tasks') {
+        setTaskModalOpen(true)
+        setShowImplementOptions(false)
+      } else {
+        implementSuggestion(messageId, { action: option.action, type })
+        setIsImplemented(true)
+        setShowImplementOptions(false)
+        showTemporaryConfirmation('implemented')
+        
+        // Execute specific implementation logic
+        executeImplementation(option.action, content)
+      }
     }
   }
 
@@ -68,10 +67,36 @@ export default function SuggestionActions({
     setTimeout(() => setShowConfirmation(null), 2000)
   }
 
+  const handleCreateTask = (task: any) => {
+    // Store in localStorage
+    const existingTasks = JSON.parse(localStorage.getItem('creatormate_tasks') || '[]')
+    const updatedTasks = [task, ...existingTasks]
+    localStorage.setItem('creatormate_tasks', JSON.stringify(updatedTasks))
+    
+    // Dispatch event to update TaskManager
+    window.dispatchEvent(new Event('taskUpdate'))
+    
+    // Mark as implemented and show confirmation
+    implementSuggestion(messageId, { action: 'add_to_tasks', type })
+    setIsImplemented(true)
+    showTemporaryConfirmation('implemented')
+  }
+
   const executeImplementation = (action: string, content: string) => {
     switch (action) {
+      case 'add_to_tasks':
+        // This is now handled by the modal
+        break
       case 'copy_to_clipboard':
         navigator.clipboard.writeText(content)
+        break
+      case 'save_chat':
+        saveMessage({
+          content,
+          agentName: customization.name,
+          avatar: customization.avatar,
+          category: 'General'
+        })
         break
       case 'add_to_calendar':
         // Integration with calendar system
@@ -90,25 +115,6 @@ export default function SuggestionActions({
     }
   }
 
-  const getCategoryFromType = (type: SuggestionType): string => {
-    switch (type) {
-      case 'content_idea': return 'Content Ideas'
-      case 'title_optimization': return 'Title Optimization'
-      case 'script_suggestion': return 'Script Writing'
-      case 'hook_improvement': return 'Hook Improvement'
-      default: return 'General'
-    }
-  }
-
-  const extractTagsFromContent = (content: string): string[] => {
-    // Simple tag extraction - could be enhanced with NLP
-    const tags = []
-    if (content.toLowerCase().includes('youtube')) tags.push('youtube')
-    if (content.toLowerCase().includes('viral')) tags.push('viral')
-    if (content.toLowerCase().includes('seo')) tags.push('seo')
-    if (content.toLowerCase().includes('engagement')) tags.push('engagement')
-    return tags
-  }
 
   return (
     <div className={cn('mt-4 border-t border-white/10 pt-4', className)}>
@@ -117,7 +123,6 @@ export default function SuggestionActions({
         <div className="mb-3 p-3 rounded-lg bg-green-500/20 border border-green-500/30 flex items-center gap-2">
           <Check className="w-4 h-4 text-green-400" />
           <span className="text-sm text-green-300">
-            {showConfirmation === 'saved' && 'Suggestion saved successfully!'}
             {showConfirmation === 'implemented' && 'Suggestion implemented!'}
             {showConfirmation === 'feedback' && 'Thank you for your feedback!'}
           </span>
@@ -171,18 +176,6 @@ export default function SuggestionActions({
           </Button>
         )}
 
-        {/* Save for Later Button */}
-        {!isSaved && (
-          <Button
-            onClick={handleSave}
-            variant="secondary"
-            size="sm"
-            className="flex items-center gap-2 hover:bg-yellow-600/20"
-          >
-            <Bookmark className="w-4 h-4" />
-            <span className="text-sm">Save for Later</span>
-          </Button>
-        )}
 
         {/* Quick Actions */}
         <div className="flex items-center gap-1 ml-auto">
@@ -234,12 +227,15 @@ export default function SuggestionActions({
         </div>
       )}
 
-      {/* Saved Status */}
-      {isSaved && (
-        <div className="mt-3 p-3 bg-yellow-500/10 rounded-lg border border-yellow-500/20 flex items-center gap-2">
-          <Bookmark className="w-4 h-4 text-yellow-400" />
-          <span className="text-sm text-yellow-300">Saved to your suggestions</span>
-        </div>
+      {/* Task Creation Modal */}
+      {taskModalOpen && (
+        <TaskCreationModal
+          isOpen={taskModalOpen}
+          onClose={() => setTaskModalOpen(false)}
+          onCreateTask={handleCreateTask}
+          messageContent={content}
+          agentName={customization.name}
+        />
       )}
     </div>
   )

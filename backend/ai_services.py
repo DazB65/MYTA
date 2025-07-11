@@ -5,11 +5,12 @@ from typing import List, Dict
 import json
 from database import db_manager
 
-# Load environment variables
-load_dotenv()
+# Load environment variables from .env file (overriding system env vars for security)
+from dotenv import dotenv_values
+env_vars = dotenv_values()
 
-# Get API key from environment variables
-api_key = os.getenv("OPENAI_API_KEY")
+# Get API key from .env file first, fallback to system env if not found
+api_key = env_vars.get("OPENAI_API_KEY") or os.getenv("OPENAI_API_KEY")
 
 # Initialize OpenAI client
 client = OpenAI(api_key=api_key)
@@ -97,37 +98,39 @@ def create_messages_with_context(user_id: str, user_message: str) -> List[Dict]:
     
     return messages
 
-async def get_ai_response(user_message: str, user_id: str = "default_user"):
+async def get_ai_response(user_message: str, user_id: str = "default_user", skip_quick_action: bool = False):
     """
     Get a response from the OpenAI service with context
     
     Args:
         user_message: The message from the user
         user_id: Identifier for the user (to maintain context)
+        skip_quick_action: Skip quick action detection to prevent recursion
         
     Returns:
         str: The AI's response
     """
     try:
-        # Check if this is a quick action request
-        quick_action = detect_quick_action(user_message)
-        if quick_action:
-            # Route to quick action handler
-            from main import quick_action as handle_quick_action
-            from pydantic import BaseModel
-            
-            class QuickActionRequest(BaseModel):
-                action: str
-                user_id: str = "default_user"
-                context: str = ""
-            
-            request = QuickActionRequest(action=quick_action, user_id=user_id, context=user_message)
-            result = await handle_quick_action(request)
-            if result and result.get('response'):
-                # Store the conversation in history
-                add_to_conversation_history(user_id, "user", user_message)
-                add_to_conversation_history(user_id, "assistant", result['response'])
-                return result['response']
+        # Check if this is a quick action request (only if not skipping)
+        if not skip_quick_action:
+            quick_action = detect_quick_action(user_message)
+            if quick_action:
+                # Route to quick action handler
+                from main import quick_action as handle_quick_action
+                from pydantic import BaseModel
+                
+                class QuickActionRequest(BaseModel):
+                    action: str
+                    user_id: str = "default_user"
+                    context: str = ""
+                
+                request = QuickActionRequest(action=quick_action, user_id=user_id, context=user_message)
+                result = await handle_quick_action(request)
+                if result and result.get('response'):
+                    # Store the conversation in history
+                    add_to_conversation_history(user_id, "user", user_message)
+                    add_to_conversation_history(user_id, "assistant", result['response'])
+                    return result['response']
         
         # Create messages with context
         messages = create_messages_with_context(user_id, user_message)

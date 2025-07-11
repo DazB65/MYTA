@@ -45,29 +45,24 @@ export interface SuggestionState {
 
 const implementationOptionsMap: Record<SuggestionType, ImplementationOption[]> = {
   content_idea: [
-    { id: 'calendar', label: 'Add to Content Calendar', action: 'add_to_calendar', icon: '📅' },
-    { id: 'draft', label: 'Create Draft', action: 'create_draft', icon: '✏️' },
-    { id: 'research', label: 'Save for Research', action: 'save_research', icon: '🔍' }
+    { id: 'add_to_tasks', label: 'Convert to Task', action: 'add_to_tasks', icon: '📋' },
+    { id: 'save_chat', label: 'Save Chat', action: 'save_chat', icon: '💬' }
   ],
   title_optimization: [
-    { id: 'apply_video', label: 'Apply to Video', action: 'apply_to_video', icon: '🎬' },
-    { id: 'save_template', label: 'Save as Template', action: 'save_template', icon: '📋' },
-    { id: 'test_variations', label: 'Test Variations', action: 'test_variations', icon: '🧪' }
+    { id: 'add_to_tasks', label: 'Convert to Task', action: 'add_to_tasks', icon: '📋' },
+    { id: 'save_chat', label: 'Save Chat', action: 'save_chat', icon: '💬' }
   ],
   script_suggestion: [
-    { id: 'save_scripts', label: 'Save to Scripts', action: 'save_to_scripts', icon: '📝' },
-    { id: 'export_doc', label: 'Export as Document', action: 'export_document', icon: '📄' },
-    { id: 'schedule_review', label: 'Schedule Review', action: 'schedule_review', icon: '⏰' }
+    { id: 'add_to_tasks', label: 'Convert to Task', action: 'add_to_tasks', icon: '📋' },
+    { id: 'save_chat', label: 'Save Chat', action: 'save_chat', icon: '💬' }
   ],
   hook_improvement: [
-    { id: 'copy_clipboard', label: 'Copy to Clipboard', action: 'copy_to_clipboard', icon: '📋' },
-    { id: 'save_hooks', label: 'Save to Hook Library', action: 'save_to_hooks', icon: '🎣' },
-    { id: 'apply_current', label: 'Apply to Current Video', action: 'apply_current', icon: '🎯' }
+    { id: 'add_to_tasks', label: 'Convert to Task', action: 'add_to_tasks', icon: '📋' },
+    { id: 'save_chat', label: 'Save Chat', action: 'save_chat', icon: '💬' }
   ],
   general: [
-    { id: 'save_note', label: 'Save as Note', action: 'save_as_note', icon: '📝' },
-    { id: 'share', label: 'Share', action: 'share', icon: '🔗' },
-    { id: 'bookmark', label: 'Bookmark', action: 'bookmark', icon: '🔖' }
+    { id: 'add_to_tasks', label: 'Convert to Task', action: 'add_to_tasks', icon: '📋' },
+    { id: 'save_chat', label: 'Save Chat', action: 'save_chat', icon: '💬' }
   ]
 }
 
