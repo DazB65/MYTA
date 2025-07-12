@@ -41,23 +41,7 @@ interface GoalsState {
 export const useGoalsStore = create<GoalsState>()(
   persist(
     (set, get) => ({
-      goals: [
-        // Default example goal
-        {
-          id: 'default-1',
-          title: '100K Subscribers',
-          description: 'Reach 100,000 subscribers milestone',
-          type: 'subscribers',
-          targetValue: 100000,
-          currentValue: 67000,
-          targetDate: '2024-12-31',
-          isCompleted: false,
-          createdAt: new Date().toISOString(),
-          updatedAt: new Date().toISOString(),
-          priority: 'high',
-          category: 'growth'
-        }
-      ],
+      goals: [],
       isLoading: false,
       error: null,
 

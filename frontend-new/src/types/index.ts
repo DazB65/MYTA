@@ -1,9 +1,12 @@
 export interface ChannelInfo {
   name: string
+  channel_id?: string
   niche: string
   content_type: string
   subscriber_count: number
   avg_view_count: number
+  total_view_count?: number
+  video_count?: number
   ctr: number
   retention: number
   upload_frequency: string

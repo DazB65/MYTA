@@ -1,10 +1,12 @@
 import { useState } from 'react'
 import { useUserStore } from '@/store/userStore'
+import { useOAuthStore } from '@/store/oauthStore'
 import AvatarSelector from './AvatarSelector'
 import OAuthStatus from '@/components/oauth/OAuthStatus'
 
 export default function AgentHeader() {
   const { agentSettings } = useUserStore()
+  const { isAuthenticated, initiateOAuth, refreshToken, revokeToken, status } = useOAuthStore()
   const [showAvatarSelector, setShowAvatarSelector] = useState(false)
 
   const personalityMap = {
@@ -14,17 +16,30 @@ export default function AgentHeader() {
     analytical: 'Analytical Advisor',
   }
 
+  const handleYouTubeClick = () => {
+    if (!isAuthenticated) {
+      initiateOAuth()
+    } else if (status?.needs_refresh) {
+      refreshToken()
+    } else {
+      const action = confirm('YouTube is connected. Would you like to disconnect?')
+      if (action) {
+        revokeToken()
+      }
+    }
+  }
+
   return (
     <>
-      <div className="w-full bg-purple-900/95 backdrop-blur-md p-4 rounded-lg">
-        {/* DEBUG: Changes applied at ${new Date().toISOString()} */}
+      <div className="w-full bg-purple-900/95 backdrop-blur-md p-8 rounded-lg">
+        {/* DEBUG: Header updated at 2025-01-11T18:40:00 - increased padding and avatar size */}
         <div className="flex items-center justify-between">
           {/* Left side with Agent */}
           <div className="flex items-center gap-4">
             <div className="relative">
               <img 
                 src={`/assets/images/Avatars/${agentSettings.avatar}`}
-                className="h-16 w-16 rounded-full border-2 border-white/30 animate-pulse hover:animate-none transition-all duration-300 cursor-pointer hover:scale-105" 
+                className="h-20 w-20 rounded-full border-2 border-white/30 animate-pulse hover:animate-none transition-all duration-300 cursor-pointer hover:scale-105" 
                 alt={agentSettings.name}
                 onClick={() => setShowAvatarSelector(true)}
               />
@@ -73,8 +88,16 @@ export default function AgentHeader() {
             </div>
             
             {/* YouTube connection section */}
-            <div className="bg-white/10 backdrop-blur-sm border border-white/20 rounded-lg p-3 min-w-[200px]">
-              <OAuthStatus showDetails={true} className="text-white" />
+            <div 
+              className="bg-white/10 backdrop-blur-sm border border-white/20 rounded-lg p-3 min-w-[200px] cursor-pointer hover:bg-white/30 hover:border-white/40 transition-all duration-200 transform hover:scale-105 active:scale-95 shadow-lg hover:shadow-xl"
+              onClick={handleYouTubeClick}
+            >
+              <div className="flex items-center justify-between">
+                <OAuthStatus showDetails={true} className="text-white flex-1" onClick={handleYouTubeClick} />
+                <div className="ml-2 text-white/60 text-xs">
+                  {isAuthenticated ? '✓' : 'Click to connect'}
+                </div>
+              </div>
             </div>
           </div>
         </div>

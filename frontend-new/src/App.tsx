@@ -14,6 +14,7 @@ function App() {
   const { isOnboarded, checkOnboardingStatus } = useUserStore()
 
   useEffect(() => {
+    // checkOnboardingStatus now handles fetching real channel data internally
     checkOnboardingStatus()
   }, [checkOnboardingStatus])
 

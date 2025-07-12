@@ -4,18 +4,14 @@ import { useAvatarStore } from '@/store/avatarStore'
 import { useSuggestionStore } from '@/store/suggestionStore'
 import { useSavedMessagesStore } from '@/store/savedMessagesStore'
 import { useOAuthStore } from '@/store/oauthStore'
+import { useUserStore } from '@/store/userStore'
 import { useChat } from '@/hooks/useChat'
 import { cn } from '@/utils'
 import QuickActionModal from './QuickActionModal'
 import { 
   Sparkles, 
   Settings, 
-  Calendar, 
-  TrendingUp, 
-  Users, 
   Mic, 
-  Trophy,
-  Lightbulb,
   Zap,
   Bookmark
 } from 'lucide-react'
@@ -30,56 +26,6 @@ interface TopAgentPanelProps {
   isChatOpen?: boolean
 }
 
-const impactTools = [
-  {
-    id: 'content_calendar',
-    title: 'Content Calendar',
-    icon: Calendar,
-    description: 'Upcoming scheduled posts with color coding',
-    gradient: 'from-blue-500 to-cyan-500',
-    data: { scheduled: 12, thisWeek: 3 }
-  },
-  {
-    id: 'performance_snapshot',
-    title: 'Performance Snapshot',
-    icon: TrendingUp,
-    description: 'Key trends - views, CTR, growth',
-    gradient: 'from-green-500 to-emerald-500',
-    data: { views: '+24%', ctr: '3.2%', growth: '+12%' }
-  },
-  {
-    id: 'ai_impact_counter',
-    title: 'AI Impact Counter',
-    icon: Lightbulb,
-    description: 'Implemented AI suggestions and results',
-    gradient: 'from-yellow-500 to-orange-500',
-    data: { implemented: 8, success: '85%' }
-  },
-  {
-    id: 'competitive_intelligence',
-    title: 'Competitive Intelligence',
-    icon: Users,
-    description: 'Performance vs similar creators',
-    gradient: 'from-purple-500 to-pink-500',
-    data: { rank: '#3', category: 'Tech' }
-  },
-  {
-    id: 'voice_command',
-    title: 'Voice Command',
-    icon: Mic,
-    description: 'Voice interaction with AI assistant',
-    gradient: 'from-red-500 to-pink-500',
-    data: { active: false }
-  },
-  {
-    id: 'creator_goals',
-    title: 'Creator Goals',
-    icon: Trophy,
-    description: 'Progress toward custom objectives',
-    gradient: 'from-indigo-500 to-purple-500',
-    data: { progress: 67, target: '100K subs' }
-  }
-]
 
 export default function TopAgentPanel({ className, onToggleChat }: TopAgentPanelProps) {
   const { openChat } = useFloatingChatStore()
@@ -87,32 +33,15 @@ export default function TopAgentPanel({ className, onToggleChat }: TopAgentPanel
   const { } = useSuggestionStore()
   const { savedMessages } = useSavedMessagesStore()
   const { isAuthenticated, initiateOAuth, refreshToken, revokeToken, status } = useOAuthStore()
+  const { channelInfo } = useUserStore()
   const { sendQuickAction } = useChat()
   const [hasNewInsights] = useState(false)
   const [showSavedSuggestions, setShowSavedSuggestions] = useState(false)
   const [showSavedMessages, setShowSavedMessages] = useState(false)
-  const [expandedTool, setExpandedTool] = useState<string | null>(null)
   const [selectedTool, setSelectedTool] = useState<{id: string, title: string, description: string, icon: string} | null>(null)
   
   const handleOpenChat = onToggleChat || openChat
 
-  const handleToolClick = (toolId: string) => {
-    setExpandedTool(expandedTool === toolId ? null : toolId)
-    
-    // Find the tool and open modal
-    const tool = impactTools.find(t => t.id === toolId)
-    if (tool) {
-      setSelectedTool({
-        id: toolId,
-        title: tool.title,
-        description: tool.description,
-        icon: '🔧' // Use a generic icon for now since the original is a component
-      })
-    }
-    
-    // Open chat window
-    handleOpenChat()
-  }
 
   const handleToolModalSubmit = (context: string) => {
     if (selectedTool) {
@@ -137,17 +66,11 @@ export default function TopAgentPanel({ className, onToggleChat }: TopAgentPanel
   }
 
   const handleYouTubeClick = () => {
-    console.log('YouTube container clicked!', { isAuthenticated, status })
-    alert('YouTube container clicked! Check console for details.')
-    
     if (!isAuthenticated) {
-      console.log('Initiating OAuth flow...')
       initiateOAuth()
     } else if (status?.needs_refresh) {
-      console.log('Refreshing token...')
       refreshToken()
     } else {
-      console.log('Already connected, showing disconnect option')
       const action = confirm('YouTube is connected. Would you like to disconnect?')
       if (action) {
         revokeToken()
@@ -155,67 +78,6 @@ export default function TopAgentPanel({ className, onToggleChat }: TopAgentPanel
     }
   }
 
-  const renderToolData = (tool: typeof impactTools[0]) => {
-    switch (tool.id) {
-      case 'content_calendar':
-        return (
-          <div className="flex items-center gap-2 text-xs">
-            <span className="text-white/90">{tool.data.scheduled} posts</span>
-            <div className="w-1 h-1 bg-white/50 rounded-full" />
-            <span className="text-white/70">{tool.data.thisWeek} this week</span>
-          </div>
-        )
-      case 'performance_snapshot':
-        return (
-          <div className="flex items-center gap-3 text-xs">
-            <span className="text-green-300">{tool.data.views}</span>
-            <span className="text-blue-300">{tool.data.ctr}</span>
-            <span className="text-yellow-300">{tool.data.growth}</span>
-          </div>
-        )
-      case 'ai_impact_counter':
-        return (
-          <div className="flex items-center gap-2 text-xs">
-            <span className="text-orange-300">{tool.data.implemented}</span>
-            <span className="text-white/70">•</span>
-            <span className="text-green-300">{tool.data.success}</span>
-          </div>
-        )
-      case 'competitive_intelligence':
-        return (
-          <div className="flex items-center gap-2 text-xs">
-            <span className="text-purple-300">{tool.data.rank}</span>
-            <span className="text-white/70">in {tool.data.category}</span>
-          </div>
-        )
-      case 'voice_command':
-        return (
-          <div className="flex items-center gap-2 text-xs">
-            <div className={cn(
-              "w-2 h-2 rounded-full",
-              tool.data.active ? "bg-green-400 animate-pulse" : "bg-gray-500"
-            )} />
-            <span className="text-white/70">
-              {tool.data.active ? 'Listening' : 'Ready'}
-            </span>
-          </div>
-        )
-      case 'creator_goals':
-        return (
-          <div className="flex items-center gap-2 text-xs">
-            <div className="w-12 h-1 bg-white/20 rounded-full overflow-hidden">
-              <div 
-                className="h-full bg-gradient-to-r from-indigo-400 to-purple-400 transition-all duration-300"
-                style={{ width: `${tool.data.progress}%` }}
-              />
-            </div>
-            <span className="text-white/70">{tool.data.progress}%</span>
-          </div>
-        )
-      default:
-        return null
-    }
-  }
 
   return (
     <>
@@ -319,66 +181,75 @@ export default function TopAgentPanel({ className, onToggleChat }: TopAgentPanel
           {/* Right Section - Visual divider */}
           <div className="w-px h-24 bg-white/20" />
 
-          {/* Center/Right Section - High-Impact Tools Grid */}
-          <div className="flex-1 max-w-2xl">
-            <div className="grid grid-cols-3 gap-4 px-8">
-              {impactTools.map((tool) => (
-                <button
-                  key={tool.id}
-                  onClick={() => handleToolClick(tool.id)}
-                  className={cn(
-                    'group relative overflow-hidden',
-                    'bg-white/10 hover:bg-white/20 backdrop-blur-sm',
-                    'border border-white/20 hover:border-white/40',
-                    'rounded-xl p-4 h-20',
-                    'transition-all duration-200',
-                    'hover:scale-105 hover:shadow-lg hover:shadow-black/20',
-                    'flex flex-col items-center justify-center',
-                    expandedTool === tool.id && 'ring-2 ring-white/50 bg-white/20'
-                  )}
-                  title={tool.description}
-                >
-                  <div className={cn(
-                    'absolute inset-0 bg-gradient-to-r opacity-0 group-hover:opacity-20 transition-opacity duration-200',
-                    tool.gradient
-                  )} />
-                  
-                  <tool.icon className="w-5 h-5 text-white mb-2 relative z-10" />
-                  
-                  <span className="text-white text-xs font-medium text-center leading-tight relative z-10">
-                    {tool.title}
-                  </span>
-                  
-                  <div className="mt-1 relative z-10">
-                    {renderToolData(tool)}
-                  </div>
-                </button>
-              ))}
-            </div>
-          </div>
-
           {/* CreatorMate Logo and YouTube Connection */}
-          <div className="flex flex-col items-center space-y-4">
-            {/* Logo section moved up */}
-            <div className="flex items-center">
+          <div className="flex-1 flex justify-between items-center px-8">
+            {/* Logo positioned on the left - larger */}
+            <div className="flex items-center flex-1">
               <img
                 src="/assets/images/CM Text White.svg"
                 alt="CreatorMate"
                 className="h-24 w-auto opacity-90 hover:opacity-100 transition-opacity duration-200"
               />
-              <div className="text-xs text-white/80 ml-2 font-medium tracking-wide">YOUR CREATOR AGENT</div>
+              <div className="text-sm text-white/80 ml-3 font-medium tracking-wide">YOUR CREATOR AGENT</div>
             </div>
             
-            {/* YouTube connection section */}
+            {/* YouTube connection section moved to right */}
             <div 
-              className="bg-white/10 backdrop-blur-sm border border-white/20 rounded-lg p-3 min-w-[200px] cursor-pointer hover:bg-white/30 hover:border-white/40 transition-all duration-200 transform hover:scale-105 active:scale-95 shadow-lg hover:shadow-xl"
-              onClick={handleYouTubeClick}
+              className="bg-white/10 backdrop-blur-sm border border-white/20 rounded-lg p-4 w-[400px] hover:bg-white/20 hover:border-white/40 transition-all duration-200 shadow-lg hover:shadow-xl"
             >
-              <div className="flex items-center justify-between">
-                <OAuthStatus showDetails={true} className="text-white flex-1" onClick={handleYouTubeClick} />
-                <div className="ml-2 text-white/60 text-xs">
-                  {isAuthenticated ? '✓' : 'Click to connect'}
+              <div className="flex flex-col gap-3">
+                <div className="flex items-center justify-between">
+                  <OAuthStatus showDetails={true} className="text-white flex-1" />
+                  <div className="ml-2 text-white/60 text-xs">
+                    {isAuthenticated ? '✓' : 'Click to connect'}
+                  </div>
                 </div>
+                
+                {isAuthenticated && channelInfo.name !== 'Unknown' && (
+                  <div className="text-xs text-white/90 bg-white/15 px-3 py-2 rounded-lg border border-white/20">
+                    <div className="flex items-center gap-2">
+                      <span>📺</span>
+                      <span className="font-medium">{channelInfo.name}</span>
+                    </div>
+                  </div>
+                )}
+                
+                {!isAuthenticated && (
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleYouTubeClick();
+                    }}
+                    className="w-full bg-red-600 hover:bg-red-700 text-white text-xs font-medium py-2 px-3 rounded-lg transition-colors duration-200"
+                  >
+                    Connect YouTube
+                  </button>
+                )}
+                
+                {isAuthenticated && (
+                  <div className="flex gap-2">
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        refreshToken();
+                      }}
+                      className="flex-1 bg-blue-600 hover:bg-blue-700 text-white text-xs font-medium py-2 px-3 rounded-lg transition-colors duration-200"
+                    >
+                      🔄 Refresh
+                    </button>
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        if (confirm('Disconnect YouTube account?')) {
+                          revokeToken();
+                        }
+                      }}
+                      className="flex-1 bg-gray-600 hover:bg-gray-700 text-white text-xs font-medium py-2 px-3 rounded-lg transition-colors duration-200"
+                    >
+                      🔌 Disconnect
+                    </button>
+                  </div>
+                )}
               </div>
             </div>
           </div>
