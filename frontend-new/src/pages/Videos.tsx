@@ -180,7 +180,33 @@ export default function Videos() {
             duration: video.duration || '0:00'
           }))
           
-          setVideos(transformedVideos)
+          // Fetch existing pillar allocations for each video
+          const videosWithAllocations = await Promise.all(
+            transformedVideos.map(async (video) => {
+              try {
+                const allocationResponse = await fetch(`/api/videos/${video.id}/pillar?user_id=${userId}`)
+                if (allocationResponse.ok) {
+                  const allocation = await allocationResponse.json()
+                  if (allocation) {
+                    return {
+                      ...video,
+                      pillarAllocation: {
+                        pillar_id: allocation.pillar_id,
+                        pillar_name: allocation.pillar_name,
+                        pillar_icon: allocation.pillar_icon,
+                        pillar_color: allocation.pillar_color
+                      }
+                    }
+                  }
+                }
+              } catch (error) {
+                console.error(`Error fetching allocation for video ${video.id}:`, error)
+              }
+              return video
+            })
+          )
+          
+          setVideos(videosWithAllocations)
           setLoading(false)
           return
         }
