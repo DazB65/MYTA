@@ -16,6 +16,7 @@ from googleapiclient.discovery import build
 from googleapiclient.errors import HttpError
 import google.generativeai as genai
 from dataclasses import dataclass
+from youtube_api_integration import get_youtube_integration
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -31,6 +32,7 @@ class AnalysisRequest:
     analysis_depth: str = "standard"  # standard, deep, quick
     include_visual_analysis: bool = True
     token_budget: int = 4000
+    user_context: Dict = None
 
 @dataclass
 class ContentMetrics:
@@ -183,36 +185,42 @@ class GeminiAnalysisEngine:
         Content Performance Data:
         {json.dumps(content_data, indent=2)}
         
+        CRITICAL INSTRUCTIONS:
+        - You MUST reference SPECIFIC video titles from the data above
+        - You MUST quote EXACT view counts and metrics from the data
+        - You MUST identify the ACTUAL best performing video by title and views
+        - DO NOT make up generic titles or approximate numbers
+        - DO NOT provide general advice without specific examples from the data
+        
         Provide a comprehensive content analysis focusing on:
         
         1. ENGAGEMENT PATTERNS:
-           - Which videos significantly outperformed or underperformed
-           - Engagement rate trends and patterns
-           - Comment-to-view ratios and what they indicate
+           - Which SPECIFIC videos (by title) significantly outperformed or underperformed
+           - EXACT engagement rates for top videos
+           - Comment-to-view ratios with ACTUAL numbers
         
-        2. CONTENT QUALITY FACTORS:
-           - Title effectiveness patterns
-           - Optimal video length for this channel's content
-           - Topic performance relative to channel average
+        2. TOP PERFORMERS:
+           - The #1 best performing video by views (exact title and view count)
+           - The top 3 videos by engagement rate (exact titles and rates)
+           - Videos that exceeded the channel average and by how much
         
         3. PERFORMANCE INSIGHTS:
-           - Videos that exceeded channel average and why
-           - Content themes with highest engagement
-           - Publishing timing patterns if evident
+           - SPECIFIC content themes from actual video titles
+           - Publishing timing patterns based on the data
+           - Length patterns of successful videos
         
         4. ACTIONABLE RECOMMENDATIONS:
-           - Specific improvements for future content
-           - Title and thumbnail optimization suggestions
-           - Content format recommendations
-           - Optimal video length recommendations
+           - Based on SPECIFIC successful videos in the data
+           - Reference actual titles and their performance
+           - Data-driven suggestions, not generic advice
         
         Format your response as structured JSON with the following sections:
-        - summary: Brief overall assessment
-        - key_insights: Array of insight objects with evidence and confidence
-        - recommendations: Array of actionable recommendations with impact assessment
-        - performance_analysis: Detailed metrics analysis
+        - summary: Brief overall assessment mentioning specific top videos
+        - key_insights: Array of insight objects with specific video examples
+        - recommendations: Array based on actual performance data
+        - performance_analysis: Detailed metrics with specific video titles
         
-        Be specific, data-driven, and focus on actionable insights that can improve content performance.
+        Remember: Use ONLY the data provided. Quote exact titles and numbers.
         """
         
         try:
@@ -488,7 +496,8 @@ class ContentAnalysisAgent:
             time_period=context.get('time_period', 'last_30d'),
             analysis_depth=request_data.get('analysis_depth', 'standard'),
             include_visual_analysis=request_data.get('include_visual_analysis', True),
-            token_budget=request_data.get('token_budget', {}).get('input_tokens', 4000)
+            token_budget=request_data.get('token_budget', {}).get('input_tokens', 4000),
+            user_context=request_data.get('user_context')
         )
     
     def _is_content_analysis_request(self, request_data: Dict[str, Any]) -> bool:
@@ -513,22 +522,59 @@ class ContentAnalysisAgent:
     async def _perform_content_analysis(self, request: AnalysisRequest) -> Dict[str, Any]:
         """Perform comprehensive content analysis"""
         
+        # Get the proper YouTube integration service
+        youtube_service = get_youtube_integration()
+        
+        # Extract user_id from user_context if available
+        user_id = None
+        if request.user_context:
+            user_id = request.user_context.get('user_id')
+        
         # Get video metrics
         if request.video_ids:
-            # Analyze specific videos
-            video_metrics = await self.youtube_client.get_video_metrics(request.video_ids)
+            # Analyze specific videos - TODO: implement in youtube_api_integration
+            video_metrics = []
+            logger.warning("Specific video analysis not yet implemented with youtube_api_integration")
         else:
             # Get recent videos from channel for general analysis
-            channel_averages = await self.youtube_client.get_channel_averages(
-                request.channel_id, 
-                video_count=20
-            )
-            
-            # For demo purposes, create sample metrics
-            video_metrics = self._create_sample_metrics(request.channel_id)
+            try:
+                logger.info(f"Fetching recent videos for channel: {request.channel_id}")
+                
+                # Use the proper YouTube integration to get recent videos
+                recent_videos = await youtube_service.get_recent_videos(
+                    channel_id=request.channel_id,
+                    count=20,
+                    user_id=user_id
+                )
+                
+                # Convert to ContentMetrics format
+                video_metrics = []
+                for video in recent_videos:
+                    video_metrics.append(ContentMetrics(
+                        video_id=video.video_id,
+                        title=video.title,
+                        views=video.view_count,
+                        likes=video.like_count,
+                        comments=video.comment_count,
+                        duration=self._parse_duration(video.duration),
+                        published_at=video.published_at,
+                        engagement_rate=video.engagement_rate
+                    ))
+                
+                logger.info(f"Retrieved {len(video_metrics)} videos for analysis")
+                    
+            except Exception as e:
+                logger.error(f"Error getting real video data: {e}")
+                # Only fallback if we have a real error, not just no videos
+                if "quota" in str(e).lower():
+                    logger.error("YouTube API quota exceeded")
+                    video_metrics = []
+                else:
+                    # For other errors, log but try to continue with empty data
+                    video_metrics = []
         
         # Get channel context for benchmarking
-        channel_context = await self._get_channel_context(request.channel_id)
+        channel_context = await self._get_channel_context(request.channel_id, request.user_context)
         
         # Perform AI analysis using Gemini
         ai_analysis = await self.gemini_engine.analyze_content_performance(
@@ -538,6 +584,9 @@ class ContentAnalysisAgent:
         
         # Calculate performance scores
         performance_scores = self._calculate_performance_scores(video_metrics, channel_context)
+        
+        # Identify top performers
+        top_performers = self._identify_top_performers(video_metrics)
         
         # Combine all analysis results
         return {
@@ -551,6 +600,7 @@ class ContentAnalysisAgent:
                 }
                 for m in video_metrics
             ],
+            'top_performers': top_performers,
             'ai_analysis': ai_analysis,
             'performance_scores': performance_scores,
             'analysis_metadata': {
@@ -558,6 +608,60 @@ class ContentAnalysisAgent:
                 'analysis_depth': request.analysis_depth,
                 'channel_id': request.channel_id
             }
+        }
+    
+    def _identify_top_performers(self, video_metrics: List[ContentMetrics]) -> Dict[str, Any]:
+        """Identify top performing videos by different metrics"""
+        
+        if not video_metrics:
+            return {
+                'best_views': None,
+                'best_engagement': None,
+                'best_overall': None
+            }
+        
+        # Sort by views
+        by_views = sorted(video_metrics, key=lambda x: x.views, reverse=True)
+        
+        # Sort by engagement rate
+        by_engagement = sorted(video_metrics, key=lambda x: x.engagement_rate, reverse=True)
+        
+        # Calculate overall score (weighted combination of views and engagement)
+        def overall_score(video):
+            # Normalize views (0-1) and engagement (0-1), then combine
+            max_views = max(v.views for v in video_metrics) if video_metrics else 1
+            max_engagement = max(v.engagement_rate for v in video_metrics) if video_metrics else 1
+            
+            view_score = video.views / max_views if max_views > 0 else 0
+            engagement_score = video.engagement_rate / max_engagement if max_engagement > 0 else 0
+            
+            # Weight views 60%, engagement 40%
+            return (view_score * 0.6) + (engagement_score * 0.4)
+        
+        by_overall = sorted(video_metrics, key=overall_score, reverse=True)
+        
+        return {
+            'best_views': {
+                'video_id': by_views[0].video_id,
+                'title': by_views[0].title,
+                'views': by_views[0].views,
+                'metric': 'views'
+            } if by_views else None,
+            'best_engagement': {
+                'video_id': by_engagement[0].video_id,
+                'title': by_engagement[0].title,
+                'engagement_rate': by_engagement[0].engagement_rate,
+                'views': by_engagement[0].views,
+                'metric': 'engagement_rate'
+            } if by_engagement else None,
+            'best_overall': {
+                'video_id': by_overall[0].video_id,
+                'title': by_overall[0].title,
+                'views': by_overall[0].views,
+                'engagement_rate': by_overall[0].engagement_rate,
+                'overall_score': overall_score(by_overall[0]),
+                'metric': 'overall_performance'
+            } if by_overall else None
         }
     
     def _create_sample_metrics(self, channel_id: str) -> List[ContentMetrics]:
@@ -593,10 +697,41 @@ class ContentAnalysisAgent:
         
         return metrics
     
-    async def _get_channel_context(self, channel_id: str) -> Dict[str, Any]:
+    def _parse_duration(self, duration_str: str) -> int:
+        """Parse YouTube ISO 8601 duration to seconds"""
+        import re
+        
+        if not duration_str:
+            return 0
+            
+        # Parse ISO 8601 duration like "PT4M13S"
+        match = re.match(r'PT(?:(\d+)H)?(?:(\d+)M)?(?:(\d+)S)?', duration_str)
+        if not match:
+            return 0
+            
+        hours = int(match.group(1) or 0)
+        minutes = int(match.group(2) or 0)
+        seconds = int(match.group(3) or 0)
+        
+        return hours * 3600 + minutes * 60 + seconds
+    
+    async def _get_channel_context(self, channel_id: str, user_context: Dict = None) -> Dict[str, Any]:
         """Get channel context for analysis"""
         
-        # In production, this would fetch from database or API
+        # Use real user context if available
+        if user_context and user_context.get('channel_info'):
+            channel_info = user_context['channel_info']
+            return {
+                'name': channel_info.get('name', channel_id),
+                'niche': channel_info.get('niche', 'Unknown'),
+                'subscriber_count': channel_info.get('subscriber_count', 0),
+                'avg_view_count': channel_info.get('avg_view_count', 0),
+                'content_type': channel_info.get('content_type', 'Unknown'),
+                'upload_frequency': channel_info.get('upload_frequency', 'Unknown'),
+                'monetization_status': channel_info.get('monetization_status', 'Unknown')
+            }
+        
+        # Fallback to default values
         return {
             'name': channel_id,
             'niche': 'Education',
@@ -654,6 +789,7 @@ class ContentAnalysisAgent:
             'analysis': {
                 'summary': ai_analysis.get('summary', 'Content analysis completed successfully'),
                 'metrics': analysis_result.get('performance_scores', {}),
+                'top_performers': analysis_result.get('top_performers', {}),
                 'key_insights': [
                     {
                         'insight': insight.get('insight', ''),

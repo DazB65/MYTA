@@ -198,7 +198,11 @@ class OAuthManager:
             
             # Extract token information
             credentials = flow.credentials
-            expires_at = datetime.now() + timedelta(seconds=credentials.expiry.timestamp() - datetime.now().timestamp())
+            # Convert expiry to naive datetime if it has timezone info
+            if credentials.expiry.tzinfo is not None:
+                expires_at = credentials.expiry.replace(tzinfo=None)
+            else:
+                expires_at = credentials.expiry
             
             # Create token object
             oauth_token = OAuthToken(
@@ -214,6 +218,9 @@ class OAuthManager:
             
             # Store token in database
             await self._store_token(oauth_token)
+            
+            # Fetch and store the user's actual channel information
+            await self._fetch_and_store_channel_info(oauth_token)
             
             # Clean up state
             del self._oauth_states[state]
@@ -248,6 +255,75 @@ class OAuthManager:
         except Exception as e:
             logger.error(f"Failed to store OAuth token: {e}")
             raise
+    
+    async def _fetch_and_store_channel_info(self, token: OAuthToken):
+        """Fetch user's actual channel information and store it"""
+        try:
+            # Create credentials for YouTube API
+            credentials = Credentials(
+                token=token.access_token,
+                refresh_token=token.refresh_token,
+                token_uri="https://oauth2.googleapis.com/token",
+                client_id=self.client_id,
+                client_secret=self.client_secret,
+                scopes=self.scopes
+            )
+            
+            # Build YouTube service
+            youtube = build('youtube', 'v3', credentials=credentials)
+            
+            # Get user's channel information
+            channels_response = youtube.channels().list(
+                part='snippet,statistics,contentDetails',
+                mine=True
+            ).execute()
+            
+            if channels_response['items']:
+                channel = channels_response['items'][0]
+                channel_id = channel['id']
+                channel_title = channel['snippet']['title']
+                
+                # Get statistics
+                stats = channel['statistics']
+                subscriber_count = int(stats.get('subscriberCount', 0))
+                video_count = int(stats.get('videoCount', 0))
+                view_count = int(stats.get('viewCount', 0))
+                
+                # Calculate average views per video
+                avg_view_count = view_count // video_count if video_count > 0 else 0
+                
+                # Update channel info in database
+                from ai_services import update_user_context
+                
+                channel_info = {
+                    "name": channel_title,  # Real channel name
+                    "channel_id": channel_id,  # YouTube channel ID
+                    "niche": "Unknown",  # Keep existing or set default
+                    "content_type": "Unknown",
+                    "subscriber_count": subscriber_count,
+                    "avg_view_count": avg_view_count,
+                    "total_view_count": view_count,
+                    "video_count": video_count,
+                    "ctr": 0.0,
+                    "retention": 0.0,
+                    "upload_frequency": "Unknown",
+                    "video_length": "Unknown",
+                    "monetization_status": "Unknown",
+                    "primary_goal": "Unknown",
+                    "notes": f"Auto-fetched via OAuth on {datetime.now().strftime('%Y-%m-%d')}"
+                }
+                
+                # Store the real channel information
+                update_user_context(token.user_id, "channel_info", channel_info)
+                
+                logger.info(f"✅ Fetched and stored real channel info for {token.user_id}: {channel_title} (ID: {channel_id})")
+                
+            else:
+                logger.warning(f"No channel found for user {token.user_id}")
+                
+        except Exception as e:
+            logger.error(f"Failed to fetch channel info for user {token.user_id}: {e}")
+            # Don't raise - OAuth should still succeed even if channel fetch fails
     
     async def get_token(self, user_id: str) -> Optional[OAuthToken]:
         """Get OAuth token for user"""
@@ -304,7 +380,11 @@ class OAuthManager:
             token.access_token = credentials.token
             if credentials.refresh_token:
                 token.refresh_token = credentials.refresh_token
-            token.expires_at = credentials.expiry
+            # Convert expiry to naive datetime if it has timezone info
+            if credentials.expiry.tzinfo is not None:
+                token.expires_at = credentials.expiry.replace(tzinfo=None)
+            else:
+                token.expires_at = credentials.expiry
             token.updated_at = datetime.now()
             
             # Store updated token

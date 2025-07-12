@@ -67,6 +67,7 @@ class AgentRequest:
     context: Context
     cached_data: Optional[CachedData] = None
     token_budget: TokenBudget = None
+    user_context: Optional[Dict] = None
     
     def to_dict(self) -> Dict:
         return {
@@ -109,19 +110,22 @@ class IntentClassifier:
             Tuple of (QueryType, extracted parameters)
         """
         
+        channel_info = context.get('channel_info', {})
         classification_prompt = f"""
         Analyze this YouTube creator's message and classify the intent. Extract relevant parameters.
         
         Message: "{message}"
         
         Channel Context:
-        - Channel: {context.get('channel_name', 'Unknown')}
-        - Niche: {context.get('niche', 'Unknown')}
-        - Subscriber Count: {context.get('subscriber_count', 0):,}
+        - Channel: {channel_info.get('name', 'Unknown')}
+        - Niche: {channel_info.get('niche', 'Unknown')}
+        - Subscriber Count: {channel_info.get('subscriber_count', 0):,}
         
         Classify into ONE of these categories:
-        1. content_analysis - analyzing video performance, hooks, titles, thumbnails, retention
-        2. audience - audience demographics, behavior, sentiment, comments, subscribers, engagement patterns
+        1. content_analysis - analyzing video performance, best/worst performing videos, hooks, titles, thumbnails, retention, which video has most views/engagement, video rankings, content effectiveness, channel metrics (total views, total videos)
+           Examples: "what is my best performing video", "which video has the most views", "what's my top video", "which content performs best", "what is my total views", "how many videos do I have"
+        2. audience - audience demographics, behavior, sentiment, comments, subscribers, engagement patterns, subscriber count questions
+           Examples: "who is my audience", "what are the demographics", "how many subscribers do I have"
         3. seo - search optimization, keywords, rankings, discoverability
         4. competition - competitor analysis, benchmarking, market positioning
         5. monetization - revenue optimization, sponsorships, product placement
@@ -159,11 +163,33 @@ class IntentClassifier:
                 )
             )
             
-            result = json.loads(response.choices[0].message.content)
+            raw_content = response.choices[0].message.content
+            logger.info(f"GPT-4o classification response: {raw_content}")
+            
+            # Try to extract JSON from the response
+            if "```json" in raw_content:
+                # Extract JSON from code block
+                import re
+                json_match = re.search(r'```json\s*(.*?)\s*```', raw_content, re.DOTALL)
+                if json_match:
+                    json_content = json_match.group(1)
+                else:
+                    json_content = raw_content
+            else:
+                json_content = raw_content
+            
+            result = json.loads(json_content)
             intent = QueryType(result["intent"])
             
             return intent, result["parameters"]
             
+        except json.JSONDecodeError as e:
+            logger.error(f"Intent classification JSON parse failed: {e}")
+            logger.error(f"Raw response: {raw_content}")
+            # Fall back to manual parsing for content analysis
+            if any(keyword in message.lower() for keyword in ["best video", "top video", "performing", "views", "analytics"]):
+                return QueryType.CONTENT_ANALYSIS, {"time_period": "last_30d"}
+            return QueryType.GENERAL, {}
         except Exception as e:
             logger.error(f"Intent classification failed: {e}")
             return QueryType.GENERAL, {}
@@ -238,6 +264,7 @@ class ContentAnalysisAgent(SpecializedAgent):
                 'specific_videos': request.context.specific_videos or [],
                 'competitors': request.context.competitors or []
             },
+            'user_context': request.user_context,  # Pass full user context
             'token_budget': {
                 'input_tokens': request.token_budget.input_tokens if request.token_budget else 3000,
                 'output_tokens': request.token_budget.output_tokens if request.token_budget else 1500
@@ -789,6 +816,86 @@ class BossAgent:
         """
         
         try:
+            # Quick check for simple metric questions
+            channel_info = user_context.get("channel_info", {})
+            message_lower = message.lower()
+            
+            # Direct answers for simple metric questions
+            if "total views" in message_lower or "total view" in message_lower:
+                total_views = channel_info.get('total_view_count', 0)
+                if total_views > 0:
+                    return {
+                        "success": True,
+                        "response": f"Your channel has {total_views:,} total views.",
+                        "intent": "content_analysis",
+                        "agents_used": ["direct_answer"],
+                        "processing_time": 0.1,
+                        "confidence": 1.0
+                    }
+                else:
+                    # Need to fetch fresh data from YouTube API
+                    logger.info("Total views is 0 or not available, fetching fresh channel data")
+                    channel_id = channel_info.get('channel_id')
+                    user_id = user_context.get('user_id')
+                    
+                    if channel_id:
+                        try:
+                            # Import and use YouTube API integration to get fresh data
+                            from youtube_api_integration import get_youtube_integration
+                            youtube_service = get_youtube_integration()
+                            
+                            # Get fresh channel data
+                            fresh_channel_data = await youtube_service.get_channel_data(
+                                channel_id=channel_id,
+                                include_recent_videos=False,
+                                user_id=user_id
+                            )
+                            
+                            if fresh_channel_data and fresh_channel_data.view_count > 0:
+                                # Update database with fresh data
+                                from ai_services import update_user_context
+                                channel_info['total_view_count'] = fresh_channel_data.view_count
+                                channel_info['subscriber_count'] = fresh_channel_data.subscriber_count
+                                channel_info['video_count'] = fresh_channel_data.video_count
+                                update_user_context(user_id, "channel_info", channel_info)
+                                
+                                return {
+                                    "success": True,
+                                    "response": f"Your channel has {fresh_channel_data.view_count:,} total views.",
+                                    "intent": "content_analysis",
+                                    "agents_used": ["fresh_data_fetch"],
+                                    "processing_time": 0.5,
+                                    "confidence": 1.0
+                                }
+                            else:
+                                logger.warning(f"Could not fetch fresh data or channel has 0 views: {channel_id}")
+                        except Exception as e:
+                            logger.error(f"Error fetching fresh channel data: {e}")
+                    
+                    # If we still can't get data, let the normal flow handle it
+            
+            elif "how many subscribers" in message_lower or "subscriber count" in message_lower:
+                subscribers = channel_info.get('subscriber_count', 0)
+                return {
+                    "success": True,
+                    "response": f"You have {subscribers:,} subscribers.",
+                    "intent": "audience",
+                    "agents_used": ["direct_answer"],
+                    "processing_time": 0.1,
+                    "confidence": 1.0
+                }
+            
+            elif "how many videos" in message_lower or "video count" in message_lower:
+                video_count = channel_info.get('video_count', 0)
+                return {
+                    "success": True,
+                    "response": f"Your channel has {video_count} videos.",
+                    "intent": "content_analysis",
+                    "agents_used": ["direct_answer"],
+                    "processing_time": 0.1,
+                    "confidence": 1.0
+                }
+            
             # Step 1: Parse message and classify intent
             intent, parameters = await self.intent_classifier.classify_intent(message, user_context)
             
@@ -810,7 +917,7 @@ class BossAgent:
             agent_responses = await self._execute_agents(active_agents, requests)
             
             # Step 6: Synthesize final response
-            final_response = await self._synthesize_response(intent, agent_responses, user_context)
+            final_response = await self._synthesize_response(intent, agent_responses, user_context, message)
             
             # Step 7: Cache the response
             if final_response.get("success", False):
@@ -862,22 +969,26 @@ class BossAgent:
         elif "90" in str(parameters.get("time_period", "")):
             time_period = "last_90d"
         
-        # Create context
+        # Create context - properly access nested channel_info
+        channel_info = user_context.get("channel_info", {})
+        # Use channel_id if available, fallback to name
+        channel_identifier = channel_info.get("channel_id") or channel_info.get("name", "unknown")
         context = Context(
-            channel_id=user_context.get("channel_name", "unknown"),
+            channel_id=channel_identifier,
             time_period=time_period,
             specific_videos=parameters.get("specific_videos", []),
             competitors=parameters.get("competitors", [])
         )
         
-        # Create request
+        # Create request with full user context
         request = AgentRequest(
             request_id=str(uuid.uuid4()),
             timestamp=datetime.now().isoformat(),
             query_type=intent,
             priority=Priority.MEDIUM,
             context=context,
-            token_budget=TokenBudget(input_tokens=3000, output_tokens=1500)
+            token_budget=TokenBudget(input_tokens=3000, output_tokens=1500),
+            user_context=user_context  # Store full user context for specialized agents
         )
         
         return [request]
@@ -906,7 +1017,7 @@ class BossAgent:
         
         return valid_responses
     
-    async def _synthesize_response(self, intent: QueryType, agent_responses: List[AgentResponse], user_context: Dict) -> Dict[str, Any]:
+    async def _synthesize_response(self, intent: QueryType, agent_responses: List[AgentResponse], user_context: Dict, message: str) -> Dict[str, Any]:
         """Synthesize final response from agent outputs"""
         
         if not agent_responses:
@@ -928,24 +1039,59 @@ class BossAgent:
             if "recommendations" in data:
                 all_recommendations.extend(data.get("recommendations", []))
         
-        # Create synthesis prompt
-        synthesis_prompt = f"""
-        As CreatorMate, synthesize these YouTube analytics insights for the user.
+        # Extract top performers data if available
+        top_performers_info = ""
+        for response in agent_responses:
+            if response.data.get('top_performers'):
+                tp = response.data['top_performers']
+                if tp.get('best_overall'):
+                    best = tp['best_overall']
+                    top_performers_info = f"""
+                    
+                    BEST PERFORMING VIDEO:
+                    Title: "{best['title']}"
+                    Views: {best['views']:,}
+                    Engagement Rate: {best['engagement_rate']:.1f}%
+                    """
         
+        # Create synthesis prompt
+        channel_info = user_context.get("channel_info", {})
+        synthesis_prompt = f"""
+        As CreatorMate, answer the user's specific question using these YouTube analytics insights.
+        
+        User's Question: "{message}"
         User Intent: {intent.value.replace('_', ' ').title()}
-        Channel: {user_context.get('channel_name', 'Your channel')}
+        Channel: {channel_info.get('name', 'Your channel')}
+        
+        Channel Information Available:
+        - Total Views: {channel_info.get('total_view_count', 'Not available') if channel_info.get('total_view_count', 0) > 0 else 'Need to fetch from YouTube API'}
+        - Subscriber Count: {channel_info.get('subscriber_count', 0):,}
+        - Average Views per Video: {channel_info.get('avg_view_count', 0):,}
+        - Total Videos: {channel_info.get('video_count', 0)}
         
         Agent Insights:
         {chr(10).join(all_insights)}
+        {top_performers_info}
         
-        Create a cohesive, actionable response that:
-        1. Directly addresses the user's question
-        2. Prioritizes the most impactful insights
-        3. Provides clear next steps
-        4. Maintains a helpful, expert tone
-        5. Is concise but comprehensive
+        CRITICAL INSTRUCTIONS:
+        1. ALWAYS start with a DIRECT ANSWER to the user's exact question
+        2. If they ask "what is my total views":
+           - If total views data is available and > 0: "Your channel has X total views"
+           - If total views shows "Need to fetch from YouTube API": "I need to fetch your latest channel data from YouTube to get your current total view count. Let me get that information for you."
+        3. If they ask "how many subscribers" - start with "You have X subscribers"
+        4. If they ask about best video - start with the exact title and metrics
         
-        Format as a natural conversation response, not a list or bullet points.
+        Response Structure:
+        - FIRST SENTENCE: Direct answer to their question with specific numbers
+        - OPTIONAL: Brief additional context or insights (1-2 sentences max)
+        - OPTIONAL: Recommendations ONLY if truly relevant to their question
+        
+        Examples:
+        - Question: "What is my total views?" → "Your channel has 1,234,567 total views."
+        - Question: "What's my best video?" → "Your best performing video is 'Video Title' with 50,000 views."
+        
+        Do NOT provide generic advice unless specifically asked for it.
+        Keep the response concise and focused on answering their exact question.
         """
         
         try:

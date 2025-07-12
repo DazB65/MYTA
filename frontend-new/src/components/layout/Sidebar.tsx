@@ -1,5 +1,5 @@
 import { NavLink } from 'react-router-dom'
-import { LayoutDashboard, Tv, Building2, Clapperboard, Settings } from 'lucide-react'
+import { LayoutDashboard, Building2, Clapperboard, Settings } from 'lucide-react'
 import { cn } from '@/utils'
 
 const navigation = [
@@ -7,11 +7,6 @@ const navigation = [
     name: 'Dashboard',
     href: '/dashboard',
     icon: LayoutDashboard,
-  },
-  {
-    name: 'Channel',
-    href: '/channel',
-    icon: Tv,
   },
   {
     name: 'Pillars',

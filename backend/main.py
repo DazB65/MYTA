@@ -181,18 +181,23 @@ async def chat(message: ChatMessage):
         user_context = get_user_context(message.user_id)
         
         # Process through boss agent orchestration system
+        logger.info(f"Processing message through boss agent: '{message.message[:50]}...'")
         boss_response = await process_user_message(message.message, user_context)
+        
+        logger.info(f"Boss agent response success: {boss_response.get('success', False)}")
+        if not boss_response.get("success", False):
+            logger.error(f"Boss agent error: {boss_response.get('error', 'Unknown error')}")
         
         if boss_response.get("success", False):
             response = boss_response["response"]
             
             # Log boss agent usage for analytics
-            logger.info(f"Boss agent used: {boss_response.get('agents_used', [])} "
+            logger.info(f"✅ Boss agent used: {boss_response.get('agents_used', [])} "
                        f"Intent: {boss_response.get('intent', 'unknown')} "
                        f"Confidence: {boss_response.get('confidence', 0):.2f}")
         else:
             # Fallback to original AI service if boss agent fails
-            logger.warning("Boss agent failed, falling back to original AI service")
+            logger.warning("❌ Boss agent failed, falling back to original AI service")
             response = await get_ai_response(message.message, message.user_id, skip_quick_action=True)
         
         if not response:

@@ -9,6 +9,7 @@ import logging
 from datetime import datetime, timedelta
 from typing import Dict, Any, List, Optional, Tuple
 from dataclasses import dataclass, asdict
+import re
 import time
 import hashlib
 import json
@@ -117,13 +118,35 @@ class YouTubeQuotaManager:
             "usage_percentage": (self.used_quota / self.daily_quota) * 100
         }
 
+def parse_duration(duration_str: str) -> str:
+    """Convert YouTube duration format (PT4M47S) to readable format (4:47)"""
+    if not duration_str:
+        return "0:00"
+    
+    # Parse ISO 8601 duration
+    match = re.match(r'PT(?:(\d+)H)?(?:(\d+)M)?(?:(\d+)S)?', duration_str)
+    if not match:
+        return "0:00"
+    
+    hours, minutes, seconds = match.groups()
+    hours = int(hours) if hours else 0
+    minutes = int(minutes) if minutes else 0
+    seconds = int(seconds) if seconds else 0
+    
+    if hours > 0:
+        return f"{hours}:{minutes:02d}:{seconds:02d}"
+    else:
+        return f"{minutes}:{seconds:02d}"
+
+
 class YouTubeAPIIntegration:
     """Enhanced YouTube API integration with caching and quota management"""
     
     def __init__(self):
         self.api_key = os.getenv("YOUTUBE_API_KEY") or os.getenv("YT_API_KEY")
         self.youtube = None
-        self.cache = get_agent_cache()
+        self.simple_cache = {}  # Simple in-memory cache
+        self.cache_ttl = {}  # Track TTL for cache entries
         self.quota_manager = YouTubeQuotaManager()
         self.oauth_manager = get_oauth_manager()
         
@@ -136,6 +159,22 @@ class YouTubeAPIIntegration:
                 logger.error(f"Failed to initialize YouTube API client: {e}")
         else:
             logger.warning("YOUTUBE_API_KEY not found in environment variables")
+    
+    def _cache_get(self, key: str) -> Optional[Any]:
+        """Get from simple cache if not expired"""
+        if key in self.simple_cache and key in self.cache_ttl:
+            if time.time() < self.cache_ttl[key]:
+                return self.simple_cache[key]
+            else:
+                # Expired, remove from cache
+                del self.simple_cache[key]
+                del self.cache_ttl[key]
+        return None
+    
+    def _cache_set(self, key: str, value: Any, ttl: int = 3600):
+        """Set in simple cache with TTL"""
+        self.simple_cache[key] = value
+        self.cache_ttl[key] = time.time() + ttl
     
     async def get_authenticated_service(self, user_id: str, service_name: str = "youtube", version: str = "v3"):
         """Get authenticated YouTube service for a user"""
@@ -174,7 +213,7 @@ class YouTubeAPIIntegration:
         )
         
         # Check cache first
-        cached_data = self.cache.get(cache_key)
+        cached_data = self._cache_get(cache_key)
         if cached_data:
             logger.info(f"Cache hit for channel data: {channel_id}")
             return YouTubeChannelMetrics(**cached_data)
@@ -252,7 +291,7 @@ class YouTubeAPIIntegration:
             )
             
             # Cache the result (4 hours TTL for channel data)
-            self.cache.set(cache_key, asdict(channel_metrics), ttl=14400)
+            self._cache_set(cache_key, asdict(channel_metrics), ttl=14400)
             
             return channel_metrics
             
@@ -274,7 +313,7 @@ class YouTubeAPIIntegration:
         cache_key = self._generate_cache_key("recent_videos", channel_id=channel_id, count=count, user_id=user_id)
         
         # Check cache
-        cached_data = self.cache.get(cache_key)
+        cached_data = self._cache_get(cache_key)
         if cached_data:
             logger.info(f"Cache hit for recent videos: {channel_id}")
             return [YouTubeVideoMetrics(**video) for video in cached_data]
@@ -292,6 +331,7 @@ class YouTubeAPIIntegration:
                 return []
             
             # Search for recent videos
+            logger.info(f"Searching for videos from channel: {channel_id}, count: {min(count, 50)}")
             search_response = await asyncio.get_event_loop().run_in_executor(
                 None,
                 lambda: youtube_service.search().list(
@@ -308,6 +348,7 @@ class YouTubeAPIIntegration:
             video_ids = [item['id']['videoId'] for item in search_response.get('items', [])]
             
             if not video_ids:
+                logger.warning(f"No videos found for channel {channel_id}")
                 return []
             
             # Get detailed video information
@@ -315,7 +356,7 @@ class YouTubeAPIIntegration:
             
             # Cache the result (2 hours TTL for recent videos)
             videos_dict = [asdict(video) for video in videos]
-            self.cache.set(cache_key, videos_dict, ttl=7200)
+            self._cache_set(cache_key, videos_dict, ttl=7200)
             
             return videos
             
@@ -379,7 +420,7 @@ class YouTubeAPIIntegration:
                     tags=snippet.get('tags', []),
                     published_at=snippet.get('publishedAt', ''),
                     thumbnail_url=snippet.get('thumbnails', {}).get('high', {}).get('url', ''),
-                    duration=content_details.get('duration', ''),
+                    duration=parse_duration(content_details.get('duration', '')),
                     view_count=view_count,
                     like_count=like_count,
                     comment_count=comment_count,
@@ -434,7 +475,7 @@ class YouTubeAPIIntegration:
         )
         
         # Check cache
-        cached_data = self.cache.get(cache_key)
+        cached_data = self._cache_get(cache_key)
         if cached_data:
             logger.info(f"Cache hit for channel analytics: {channel_id}")
             return cached_data
@@ -480,7 +521,7 @@ class YouTubeAPIIntegration:
                         analytics_data["totals"][metric] = total
             
             # Cache the result (4 hours TTL for analytics)
-            self.cache.set(cache_key, analytics_data, ttl=14400)
+            self._cache_set(cache_key, analytics_data, ttl=14400)
             
             logger.info(f"Retrieved analytics data for channel {channel_id}")
             return analytics_data
@@ -499,7 +540,7 @@ class YouTubeAPIIntegration:
         cache_key = self._generate_cache_key("video_comments", video_id=video_id, max_results=max_results)
         
         # Check cache
-        cached_data = self.cache.get(cache_key)
+        cached_data = self._cache_get(cache_key)
         if cached_data:
             logger.info(f"Cache hit for video comments: {video_id}")
             return [YouTubeCommentData(**comment) for comment in cached_data]
@@ -559,7 +600,7 @@ class YouTubeAPIIntegration:
             
             # Cache comments (1 hour TTL)
             comments_dict = [asdict(comment) for comment in comments]
-            self.cache.set(cache_key, comments_dict, ttl=3600)
+            self._cache_set(cache_key, comments_dict, ttl=3600)
             
             return comments
             
@@ -624,7 +665,7 @@ class YouTubeAPIIntegration:
         cache_key = self._generate_cache_key("competitor_search", query=query, max_results=max_results)
         
         # Check cache
-        cached_data = self.cache.get(cache_key)
+        cached_data = self._cache_get(cache_key)
         if cached_data:
             logger.info(f"Cache hit for competitor search: {query}")
             return cached_data
@@ -655,7 +696,7 @@ class YouTubeAPIIntegration:
             channel_ids = [item['id']['channelId'] for item in search_response.get('items', [])]
             
             # Cache results (24 hours TTL for competitor searches)
-            self.cache.set(cache_key, channel_ids, ttl=86400)
+            self._cache_set(cache_key, channel_ids, ttl=86400)
             
             return channel_ids
             
@@ -672,7 +713,10 @@ class YouTubeAPIIntegration:
             "api_available": self.youtube is not None,
             "api_key_configured": self.api_key is not None,
             "quota_status": self.quota_manager.get_quota_status(),
-            "cache_stats": self.cache.get_stats()
+            "cache_stats": {
+                "size": len(self.simple_cache),
+                "keys": list(self.simple_cache.keys())[:5]  # Show first 5 keys
+            }
         }
 
 # Global YouTube API integration instance

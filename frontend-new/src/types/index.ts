@@ -14,6 +14,7 @@ export interface ChannelInfo {
   monetization_status: string
   primary_goal: string
   notes: string
+  created_date?: string
 }
 
 export interface ChatMessage {
