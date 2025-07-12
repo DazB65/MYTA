@@ -32,7 +32,6 @@ export default function AgentHeader() {
   return (
     <>
       <div className="w-full bg-purple-900/95 backdrop-blur-md p-8 rounded-lg">
-        {/* DEBUG: Header updated at 2025-01-11T18:40:00 - increased padding and avatar size */}
         <div className="flex items-center justify-between">
           {/* Left side with Agent */}
           <div className="flex items-center gap-4">

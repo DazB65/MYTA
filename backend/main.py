@@ -10,6 +10,7 @@ import traceback
 import asyncio
 import jwt
 import os
+import uuid
 from typing import List, Optional
 # Import from the same directory
 from ai_services import get_ai_response, extract_channel_info, update_user_context, get_user_context
@@ -504,13 +505,17 @@ async def generate_insights(request: ChatMessage):
 async def get_user_context_endpoint(user_id: str):
     """Get user context including channel information"""
     try:
-        logger.info(f"Getting context for user: {user_id}")
+        logger.info(f"📡 Getting context for user: {user_id}")
         
         # Get user context
         context = get_user_context(user_id)
         
+        # Log what we're returning so we can debug
+        channel_info = context["channel_info"]
+        logger.info(f"📊 Returning channel info for {user_id}: '{channel_info['name']}' with {channel_info['subscriber_count']} subscribers")
+        
         return {
-            "channel_info": context["channel_info"],
+            "channel_info": channel_info,
             "status": "success"
         }
     
@@ -738,23 +743,39 @@ async def test_model_integration(model_provider: str):
 async def get_youtube_analytics(request: YouTubeAnalyticsRequest):
     """Get comprehensive YouTube analytics"""
     try:
-        logger.info(f"Getting YouTube analytics for channel: {request.channel_id}")
+        logger.info(f"Getting YouTube analytics for channel: {request.channel_id}, user_id: {request.user_id}")
         
         integration = get_youtube_integration()
         
+        # If no channel_id provided, try to get it from the database
+        channel_id_to_use = request.channel_id
+        if not channel_id_to_use or channel_id_to_use == "Unknown":
+            # Get channel info from database
+            from ai_services import get_user_context
+            user_context = get_user_context(request.user_id)
+            if user_context and user_context.get('channel_info'):
+                channel_id_to_use = user_context['channel_info'].get('channel_id')
+                logger.info(f"Using channel_id from database: {channel_id_to_use}")
+        
+        if not channel_id_to_use:
+            raise HTTPException(status_code=400, detail="No channel ID available")
+        
         # Get channel analytics (with OAuth support)
         channel_data = await integration.get_channel_data(
-            request.channel_id,
+            channel_id_to_use,
             include_recent_videos=request.include_videos,
             video_count=request.video_count,
             user_id=request.user_id
         )
         
         if not channel_data:
+            logger.error(f"No channel data returned for channel_id: {channel_id_to_use}")
             raise HTTPException(status_code=404, detail="Channel not found or API error")
         
         # Get API status
         api_status = integration.get_api_status()
+        
+        logger.info(f"Channel data received - Title: {channel_data.title}, Videos found: {len(channel_data.recent_videos)}")
         
         return {
             "channel_data": {
@@ -773,13 +794,20 @@ async def get_youtube_analytics(request: YouTubeAnalyticsRequest):
                 },
                 "recent_videos": [
                     {
-                        "video_id": video.video_id,
-                        "title": video.title,
-                        "view_count": video.view_count,
-                        "engagement_rate": video.engagement_rate,
-                        "published_at": video.published_at
+                        "video_id": video.get("video_id") if isinstance(video, dict) else video.video_id,
+                        "title": video.get("title") if isinstance(video, dict) else video.title,
+                        "view_count": video.get("view_count") if isinstance(video, dict) else video.view_count,
+                        "like_count": video.get("like_count") if isinstance(video, dict) else video.like_count,
+                        "comment_count": video.get("comment_count") if isinstance(video, dict) else video.comment_count,
+                        "engagement_rate": video.get("engagement_rate") if isinstance(video, dict) else video.engagement_rate,
+                        "published_at": video.get("published_at") if isinstance(video, dict) else video.published_at,
+                        "thumbnail": video.get("thumbnail_url") if isinstance(video, dict) else video.thumbnail_url,
+                        "duration": video.get("duration") if isinstance(video, dict) else video.duration,
+                        "category_id": video.get("category_id") if isinstance(video, dict) else video.category_id,
+                        "ctr": video.get("ctr_estimate") if isinstance(video, dict) else video.ctr_estimate,
+                        "retention": video.get("retention_estimate") if isinstance(video, dict) else video.retention_estimate
                     }
-                    for video in channel_data.recent_videos[:10]  # Return top 10
+                    for video in channel_data.recent_videos[:request.video_count if request.video_count else 50]
                 ]
             },
             "api_status": api_status,
@@ -809,15 +837,279 @@ async def get_youtube_quota():
         logger.error(f"Error getting YouTube quota: {e}")
         raise HTTPException(status_code=500, detail="Failed to get quota status")
 
+@app.get("/api/debug/oauth/{user_id}")
+async def debug_oauth_status(user_id: str):
+    """Debug OAuth status for a user"""
+    try:
+        from oauth_manager import get_oauth_manager
+        
+        oauth_manager = get_oauth_manager()
+        token = await oauth_manager.get_token(user_id)
+        
+        if not token:
+            return {
+                "authenticated": False,
+                "error": "No OAuth token found for user",
+                "user_id": user_id
+            }
+        
+        return {
+            "authenticated": True,
+            "user_id": user_id,
+            "token_exists": True,
+            "token_expired": token.is_expired(),
+            "expires_at": token.expires_at.isoformat(),
+            "scopes": token.scope,
+            "created_at": token.created_at.isoformat()
+        }
+        
+    except Exception as e:
+        logger.error(f"Error checking OAuth status for {user_id}: {e}")
+        return {
+            "authenticated": False,
+            "error": str(e),
+            "user_id": user_id
+        }
+
+@app.get("/api/debug/oauth-test")
+async def test_oauth_setup():
+    """Test if OAuth is properly configured"""
+    try:
+        from oauth_manager import get_oauth_manager
+        
+        oauth_manager = get_oauth_manager()
+        
+        # Check OAuth configuration
+        config_status = {
+            "client_id_exists": bool(oauth_manager.client_id),
+            "client_secret_exists": bool(oauth_manager.client_secret),
+            "redirect_uri_exists": bool(oauth_manager.redirect_uri),
+            "redirect_uri": oauth_manager.redirect_uri,
+            "scopes": oauth_manager.scopes
+        }
+        
+        return {
+            "oauth_configured": all([
+                oauth_manager.client_id,
+                oauth_manager.client_secret, 
+                oauth_manager.redirect_uri
+            ]),
+            "config": config_status,
+            "status": "success"
+        }
+        
+    except Exception as e:
+        return {
+            "oauth_configured": False,
+            "error": str(e),
+            "status": "error"
+        }
+
+@app.get("/api/debug/test-oauth/{user_id}")
+async def test_oauth_flow(user_id: str):
+    """Test OAuth flow for a user"""
+    try:
+        from oauth_manager import get_oauth_manager
+        
+        oauth_manager = get_oauth_manager()
+        
+        # Generate authorization URL
+        auth_url, state = oauth_manager.generate_authorization_url(user_id)
+        
+        return {
+            "status": "success",
+            "user_id": user_id,
+            "auth_url": auth_url,
+            "state": state,
+            "message": "Click the auth_url to start OAuth flow"
+        }
+        
+    except Exception as e:
+        logger.error(f"Error testing OAuth flow for {user_id}: {e}")
+        return {
+            "status": "error",
+            "error": str(e),
+            "user_id": user_id
+        }
+
+@app.get("/api/debug/oauth-redirect/{user_id}")
+async def oauth_redirect(user_id: str):
+    """Redirect to OAuth flow"""
+    try:
+        from oauth_manager import get_oauth_manager
+        from fastapi.responses import RedirectResponse
+        
+        oauth_manager = get_oauth_manager()
+        auth_url, state = oauth_manager.generate_authorization_url(user_id)
+        
+        return RedirectResponse(url=auth_url)
+        
+    except Exception as e:
+        logger.error(f"Error redirecting to OAuth for {user_id}: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.get("/api/debug/fetch-channel-info/{user_id}")
+async def fetch_channel_info(user_id: str):
+    """Manually fetch and store channel info for a user"""
+    try:
+        from oauth_manager import get_oauth_manager
+        
+        oauth_manager = get_oauth_manager()
+        token = await oauth_manager.get_token(user_id)
+        
+        if not token:
+            raise HTTPException(status_code=404, detail="No OAuth token found")
+        
+        if token.is_expired():
+            # Try to refresh first
+            token = await oauth_manager.refresh_token(user_id)
+            if not token:
+                raise HTTPException(status_code=401, detail="Token expired and refresh failed")
+        
+        # Fetch channel info
+        await oauth_manager._fetch_and_store_channel_info(token)
+        
+        return {
+            "status": "success",
+            "message": "Channel info fetched and stored successfully",
+            "user_id": user_id
+        }
+        
+    except Exception as e:
+        logger.error(f"Error fetching channel info for {user_id}: {e}")
+        return {
+            "status": "error",
+            "error": str(e),
+            "user_id": user_id
+        }
+
+@app.get("/api/debug/refresh-token/{user_id}")
+async def debug_refresh_token(user_id: str):
+    """Debug token refresh for a user"""
+    try:
+        from oauth_manager import get_oauth_manager
+        
+        oauth_manager = get_oauth_manager()
+        
+        # Check current token
+        current_token = await oauth_manager.get_token(user_id)
+        if not current_token:
+            return {
+                "status": "error",
+                "error": "No token found to refresh",
+                "user_id": user_id
+            }
+        
+        # Try to refresh
+        refreshed_token = await oauth_manager.refresh_token(user_id)
+        
+        if refreshed_token:
+            return {
+                "status": "success",
+                "message": "Token refreshed successfully",
+                "user_id": user_id,
+                "old_expires": current_token.expires_at.isoformat(),
+                "new_expires": refreshed_token.expires_at.isoformat()
+            }
+        else:
+            return {
+                "status": "error",
+                "error": "Token refresh failed",
+                "user_id": user_id
+            }
+        
+    except Exception as e:
+        logger.error(f"Error refreshing token for {user_id}: {e}")
+        return {
+            "status": "error",
+            "error": str(e),
+            "user_id": user_id
+        }
+
+@app.get("/api/debug/refresh-and-fetch/{user_id}")
+async def refresh_and_fetch_data(user_id: str):
+    """Refresh token and fetch fresh YouTube data"""
+    try:
+        from oauth_manager import get_oauth_manager
+        
+        oauth_manager = get_oauth_manager()
+        
+        # Refresh token first
+        token = await oauth_manager.refresh_token(user_id)
+        if not token:
+            return {"status": "error", "error": "Token refresh failed"}
+        
+        # Get user context to see stored data
+        context = get_user_context(user_id)
+        
+        return {
+            "status": "success",
+            "token_refreshed": True,
+            "token_expires": token.expires_at.isoformat(),
+            "channel_info": context["channel_info"],
+            "user_id": user_id
+        }
+        
+    except Exception as e:
+        logger.error(f"Error refreshing and fetching for {user_id}: {e}")
+        return {
+            "status": "error",
+            "error": str(e),
+            "user_id": user_id
+        }
+
+@app.get("/api/fix-data/{user_id}")
+async def fix_user_data(user_id: str):
+    """Force sync all user data"""
+    try:
+        from oauth_manager import get_oauth_manager
+        
+        # Get stored channel info
+        context = get_user_context(user_id)
+        channel_info = context["channel_info"]
+        
+        return {
+            "status": "success", 
+            "user_id": user_id,
+            "real_channel_name": channel_info["name"],
+            "real_subscribers": channel_info["subscriber_count"],
+            "real_videos": channel_info.get("video_count", 9),
+            "message": f"Your real channel is: {channel_info['name']} with {channel_info['subscriber_count']} subscribers"
+        }
+        
+    except Exception as e:
+        return {"status": "error", "error": str(e)}
+
 @app.post("/api/youtube/analytics/authenticated")
 async def get_authenticated_youtube_analytics(request: YouTubeAnalyticsRequest):
     """Get YouTube analytics data using OAuth authentication"""
     try:
-        logger.info(f"Getting authenticated YouTube analytics for user: {request.user_id}")
+        logger.info(f"🔍 Getting authenticated YouTube analytics for user: {request.user_id}, channel: {request.channel_id}")
+        
+        # First check if user has OAuth token
+        from oauth_manager import get_oauth_manager
+        oauth_manager = get_oauth_manager()
+        token = await oauth_manager.get_token(request.user_id)
+        
+        if not token:
+            logger.error(f"❌ No OAuth token found for user: {request.user_id}")
+            raise HTTPException(status_code=401, detail="No OAuth token found. Please reconnect your YouTube account.")
+        
+        if token.is_expired():
+            logger.info(f"🔄 OAuth token expired for user: {request.user_id}, attempting refresh...")
+            # Try to refresh the token instead of failing
+            token = await oauth_manager.refresh_token(request.user_id)
+            if not token:
+                logger.error(f"❌ Token refresh failed for user: {request.user_id}")
+                raise HTTPException(status_code=401, detail="OAuth token expired and refresh failed. Please reconnect your YouTube account.")
+            logger.info(f"✅ Token refreshed successfully for user: {request.user_id}")
+        
+        logger.info(f"✅ Valid OAuth token found for user: {request.user_id}")
         
         integration = get_youtube_integration()
         
         # Get basic channel data with OAuth
+        logger.info(f"📡 Fetching channel data for: {request.channel_id}")
         channel_data = await integration.get_channel_data(
             request.channel_id,
             include_recent_videos=request.include_videos,
@@ -826,6 +1118,7 @@ async def get_authenticated_youtube_analytics(request: YouTubeAnalyticsRequest):
         )
         
         if not channel_data:
+            logger.error(f"❌ No channel data returned for: {request.channel_id}")
             raise HTTPException(status_code=404, detail="Channel not found or access denied")
         
         # Get detailed analytics data (requires OAuth)
@@ -1283,6 +1576,336 @@ try:
     logger.info("Successfully mounted React assets from ../frontend-dist/assets")
 except Exception as e:
     logger.error(f"Failed to mount assets: {e}")
+
+class ContentPillarsRequest(BaseModel):
+    """Request model for content pillars analysis"""
+    channel_id: str
+    user_id: str = "default_user"
+    video_count: int = 50
+    analysis_depth: str = "standard"
+
+class CreatePillarRequest(BaseModel):
+    """Request model for creating a content pillar"""
+    name: str
+    icon: str = "🎯"
+    color: str = "from-blue-500 to-cyan-400"
+    description: str = ""
+    user_id: str = "default_user"
+    
+    class Config:
+        str_strip_whitespace = True
+
+class UpdatePillarRequest(BaseModel):
+    """Request model for updating a content pillar"""
+    name: Optional[str] = None
+    icon: Optional[str] = None
+    color: Optional[str] = None
+    description: Optional[str] = None
+    
+    class Config:
+        str_strip_whitespace = True
+
+class PillarResponse(BaseModel):
+    """Response model for content pillar"""
+    id: str
+    name: str
+    icon: str
+    color: str
+    description: str
+    created_at: str
+    updated_at: str
+
+class VideoAllocationRequest(BaseModel):
+    """Request model for allocating video to pillar"""
+    video_id: str
+    pillar_id: str
+    user_id: str = "default_user"
+    allocation_type: str = "manual"
+    confidence_score: float = 1.0
+    
+    class Config:
+        str_strip_whitespace = True
+
+class VideoAllocationResponse(BaseModel):
+    """Response model for video allocation"""
+    video_id: str
+    pillar_id: str
+    pillar_name: str
+    pillar_icon: str
+    pillar_color: str
+    allocation_type: str
+    confidence_score: float
+
+@app.post("/api/youtube/content-pillars")
+async def analyze_content_pillars(request: ContentPillarsRequest):
+    """Analyze YouTube videos to generate content pillars"""
+    try:
+        logger.info(f"Analyzing content pillars for channel: {request.channel_id}")
+        
+        # Get YouTube data
+        integration = get_youtube_integration()
+        channel_data = await integration.get_channel_data(
+            request.channel_id,
+            include_recent_videos=True,
+            video_count=request.video_count,
+            user_id=request.user_id
+        )
+        
+        if not channel_data or not channel_data.recent_videos:
+            raise HTTPException(status_code=404, detail="No video data found for analysis")
+        
+        # Use Content Analysis Agent to analyze content pillars
+        from content_analysis_agent import ContentAnalysisAgent
+        content_agent = ContentAnalysisAgent()
+        
+        # Prepare request for content analysis agent
+        analysis_request = {
+            "request_id": str(uuid.uuid4()),
+            "query_type": "content_pillars",
+            "context": {
+                "channel_id": request.channel_id,
+                "video_data": [
+                    {
+                        "video_id": video.video_id,
+                        "title": video.title,
+                        "view_count": video.view_count,
+                        "engagement_rate": video.engagement_rate,
+                        "published_at": video.published_at
+                    }
+                    for video in channel_data.recent_videos
+                ]
+            },
+            "analysis_depth": request.analysis_depth,
+            "boss_agent_token": get_boss_agent_authenticator().generate_boss_agent_token(),
+            "timestamp": datetime.now().isoformat()
+        }
+        
+        # Get content pillar analysis
+        pillars_response = await content_agent.process_request(analysis_request)
+        
+        if not pillars_response.get("domain_match", False):
+            raise HTTPException(status_code=400, detail="Content pillar analysis failed")
+        
+        return {
+            "content_pillars": pillars_response.get("analysis", {}),
+            "channel_stats": {
+                "total_videos": len(channel_data.recent_videos),
+                "total_views": sum(video.view_count for video in channel_data.recent_videos),
+                "avg_engagement": sum(video.engagement_rate for video in channel_data.recent_videos) / len(channel_data.recent_videos)
+            },
+            "status": "success"
+        }
+    
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error analyzing content pillars: {e}")
+        logger.error(traceback.format_exc())
+        raise HTTPException(status_code=500, detail=f"Content pillar analysis failed: {e}")
+
+# Content Pillars CRUD Endpoints
+@app.post("/api/pillars", response_model=PillarResponse)
+async def create_pillar(request: CreatePillarRequest):
+    """Create a new content pillar"""
+    try:
+        from database import db_manager
+        
+        # Generate unique ID
+        pillar_id = f"pillar-{uuid.uuid4()}"
+        
+        # Create pillar in database
+        success = db_manager.create_content_pillar(
+            user_id=request.user_id,
+            pillar_id=pillar_id,
+            name=request.name,
+            icon=request.icon,
+            color=request.color,
+            description=request.description
+        )
+        
+        if not success:
+            raise HTTPException(status_code=500, detail="Failed to create pillar")
+        
+        # Return created pillar
+        pillars = db_manager.get_user_content_pillars(request.user_id)
+        created_pillar = next((p for p in pillars if p["id"] == pillar_id), None)
+        
+        if not created_pillar:
+            raise HTTPException(status_code=500, detail="Failed to retrieve created pillar")
+        
+        return PillarResponse(**created_pillar)
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error creating pillar: {e}")
+        logger.error(traceback.format_exc())
+        raise HTTPException(status_code=500, detail=f"Failed to create pillar: {e}")
+
+@app.get("/api/pillars/{user_id}", response_model=List[PillarResponse])
+async def get_user_pillars(user_id: str):
+    """Get all content pillars for a user"""
+    try:
+        from database import db_manager
+        
+        pillars = db_manager.get_user_content_pillars(user_id)
+        return [PillarResponse(**pillar) for pillar in pillars]
+        
+    except Exception as e:
+        logger.error(f"Error getting user pillars: {e}")
+        logger.error(traceback.format_exc())
+        raise HTTPException(status_code=500, detail=f"Failed to get pillars: {e}")
+
+@app.put("/api/pillars/{pillar_id}", response_model=PillarResponse)
+async def update_pillar(pillar_id: str, request: UpdatePillarRequest):
+    """Update a content pillar"""
+    try:
+        from database import db_manager
+        
+        # Update pillar in database
+        success = db_manager.update_content_pillar(
+            pillar_id=pillar_id,
+            name=request.name,
+            icon=request.icon,
+            color=request.color,
+            description=request.description
+        )
+        
+        if not success:
+            raise HTTPException(status_code=404, detail="Pillar not found or update failed")
+        
+        # Get updated pillar
+        updated_pillar = db_manager.get_content_pillar_by_id(pillar_id)
+        if not updated_pillar:
+            raise HTTPException(status_code=404, detail="Updated pillar not found")
+        
+        return PillarResponse(**updated_pillar)
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error updating pillar: {e}")
+        logger.error(traceback.format_exc())
+        raise HTTPException(status_code=500, detail=f"Failed to update pillar: {e}")
+
+@app.delete("/api/pillars/{pillar_id}")
+async def delete_pillar(pillar_id: str):
+    """Delete a content pillar"""
+    try:
+        from database import db_manager
+        
+        success = db_manager.delete_content_pillar(pillar_id)
+        
+        if not success:
+            raise HTTPException(status_code=404, detail="Pillar not found")
+        
+        return {"message": "Pillar deleted successfully"}
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error deleting pillar: {e}")
+        logger.error(traceback.format_exc())
+        raise HTTPException(status_code=500, detail=f"Failed to delete pillar: {e}")
+
+# Video Allocation Endpoints
+@app.post("/api/videos/allocate", response_model=VideoAllocationResponse)
+async def allocate_video_to_pillar(request: VideoAllocationRequest):
+    """Allocate a video to a content pillar"""
+    try:
+        from database import db_manager
+        
+        # Allocate video to pillar
+        success = db_manager.allocate_video_to_pillar(
+            user_id=request.user_id,
+            video_id=request.video_id,
+            pillar_id=request.pillar_id,
+            allocation_type=request.allocation_type,
+            confidence_score=request.confidence_score
+        )
+        
+        if not success:
+            raise HTTPException(status_code=500, detail="Failed to allocate video to pillar")
+        
+        # Get the allocation details
+        allocation = db_manager.get_pillar_for_video(request.user_id, request.video_id)
+        if not allocation:
+            raise HTTPException(status_code=500, detail="Failed to retrieve allocation details")
+        
+        return VideoAllocationResponse(
+            video_id=request.video_id,
+            pillar_id=allocation["pillar_id"],
+            pillar_name=allocation["pillar_name"],
+            pillar_icon=allocation["pillar_icon"],
+            pillar_color=allocation["pillar_color"],
+            allocation_type=allocation["allocation_type"],
+            confidence_score=allocation["confidence_score"]
+        )
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error allocating video to pillar: {e}")
+        logger.error(traceback.format_exc())
+        raise HTTPException(status_code=500, detail=f"Failed to allocate video: {e}")
+
+@app.get("/api/videos/{video_id}/pillar")
+async def get_video_pillar(video_id: str, user_id: str = "default_user"):
+    """Get the pillar allocation for a specific video"""
+    try:
+        from database import db_manager
+        
+        allocation = db_manager.get_pillar_for_video(user_id, video_id)
+        if not allocation:
+            return None
+        
+        return VideoAllocationResponse(
+            video_id=video_id,
+            pillar_id=allocation["pillar_id"],
+            pillar_name=allocation["pillar_name"],
+            pillar_icon=allocation["pillar_icon"],
+            pillar_color=allocation["pillar_color"],
+            allocation_type=allocation["allocation_type"],
+            confidence_score=allocation["confidence_score"]
+        )
+        
+    except Exception as e:
+        logger.error(f"Error getting video pillar: {e}")
+        logger.error(traceback.format_exc())
+        raise HTTPException(status_code=500, detail=f"Failed to get video pillar: {e}")
+
+@app.delete("/api/videos/{video_id}/pillar")
+async def remove_video_allocation(video_id: str, user_id: str = "default_user"):
+    """Remove video allocation from any pillar"""
+    try:
+        from database import db_manager
+        
+        success = db_manager.remove_video_allocation(user_id, video_id)
+        if not success:
+            raise HTTPException(status_code=404, detail="Video allocation not found")
+        
+        return {"message": "Video allocation removed successfully"}
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error removing video allocation: {e}")
+        logger.error(traceback.format_exc())
+        raise HTTPException(status_code=500, detail=f"Failed to remove video allocation: {e}")
+
+@app.get("/api/pillars/{pillar_id}/videos")
+async def get_pillar_videos(pillar_id: str, user_id: str = "default_user"):
+    """Get all videos allocated to a specific pillar"""
+    try:
+        from database import db_manager
+        
+        videos = db_manager.get_videos_for_pillar(user_id, pillar_id)
+        return videos
+        
+    except Exception as e:
+        logger.error(f"Error getting pillar videos: {e}")
+        logger.error(traceback.format_exc())
+        raise HTTPException(status_code=500, detail=f"Failed to get pillar videos: {e}")
 
 # Add catch-all route for SPA routing AFTER all API routes
 @app.get("/{path_name:path}")

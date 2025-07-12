@@ -45,20 +45,25 @@ function PillarCard({
   }
 
   const formatWatchTime = (hours: number) => {
+    if (hours === 0) return '--'
     if (hours >= 1000) return `${(hours / 1000).toFixed(1)}K hrs`
-    return `${hours}K hrs`
+    if (hours < 1) return `${Math.round(hours * 60)} min`
+    return `${hours} hrs`
   }
 
   const formatRevenue = (revenue: number) => {
+    if (revenue === 0) return '$0'
     return `$${revenue.toLocaleString()}`
   }
 
   const getChangeIcon = (change: number) => {
+    if (change === 0) return null
     if (change > 0) return <TrendingUp className="w-3 h-3 text-green-400" />
     return <TrendingDown className="w-3 h-3 text-red-400" />
   }
 
   const getChangeColor = (change: number) => {
+    if (change === 0) return 'text-dark-500'
     return change > 0 ? 'text-green-400' : 'text-red-400'
   }
 
@@ -85,7 +90,7 @@ function PillarCard({
           <div className="text-xl font-bold text-white">{formatViews(pillar.views)}</div>
           <div className={`text-xs flex items-center gap-1 ${getChangeColor(pillar.viewsChange)}`}>
             {getChangeIcon(pillar.viewsChange)}
-            {Math.abs(pillar.viewsChange).toFixed(1)}%
+            {pillar.viewsChange === 0 ? '--' : `${Math.abs(pillar.viewsChange).toFixed(1)}%`}
           </div>
         </div>
         <div>
@@ -93,7 +98,7 @@ function PillarCard({
           <div className="text-xl font-bold text-white">{formatWatchTime(pillar.watchTime)}</div>
           <div className={`text-xs flex items-center gap-1 ${getChangeColor(pillar.watchTimeChange)}`}>
             {getChangeIcon(pillar.watchTimeChange)}
-            {Math.abs(pillar.watchTimeChange).toFixed(1)}%
+            {pillar.watchTimeChange === 0 ? '--' : `${Math.abs(pillar.watchTimeChange).toFixed(1)}%`}
           </div>
         </div>
         <div>
@@ -101,33 +106,41 @@ function PillarCard({
           <div className="text-xl font-bold text-white">{formatRevenue(pillar.revenue)}</div>
           <div className={`text-xs flex items-center gap-1 ${getChangeColor(pillar.revenueChange)}`}>
             {getChangeIcon(pillar.revenueChange)}
-            {Math.abs(pillar.revenueChange).toFixed(1)}%
+            {pillar.revenueChange === 0 ? '--' : `${Math.abs(pillar.revenueChange).toFixed(1)}%`}
           </div>
         </div>
       </div>
 
-      <div className="mb-6">
-        <ResponsiveContainer width="100%" height={120}>
-          <LineChart data={pillar.chartData}>
-            <XAxis 
-              dataKey="month" 
-              axisLine={false}
-              tickLine={false}
-              tick={{ fontSize: 12, fill: '#6B7280' }}
-            />
-            <YAxis hide />
-            <Line 
-              type="monotone" 
-              dataKey="value" 
-              stroke={pillar.color.includes('blue') ? '#3B82F6' : 
-                     pillar.color.includes('purple') ? '#8B5CF6' :
-                     pillar.color.includes('orange') ? '#F59E0B' : '#EF4444'}
-              strokeWidth={2}
-              dot={false}
-            />
-          </LineChart>
-        </ResponsiveContainer>
-      </div>
+      {/* Chart section - hidden since no historical data available */}
+      {pillar.chartData && pillar.chartData.length > 0 ? (
+        <div className="mb-6">
+          <ResponsiveContainer width="100%" height={120}>
+            <LineChart data={pillar.chartData}>
+              <XAxis 
+                dataKey="month" 
+                axisLine={false}
+                tickLine={false}
+                tick={{ fontSize: 12, fill: '#6B7280' }}
+              />
+              <YAxis hide />
+              <Line 
+                type="monotone" 
+                dataKey="value" 
+                stroke={pillar.color.includes('blue') ? '#3B82F6' : 
+                       pillar.color.includes('purple') ? '#8B5CF6' :
+                       pillar.color.includes('orange') ? '#F59E0B' : '#EF4444'}
+                strokeWidth={2}
+                dot={false}
+              />
+            </LineChart>
+          </ResponsiveContainer>
+        </div>
+      ) : (
+        <div className="mb-6 p-4 bg-dark-800/30 rounded-lg border border-dashed border-dark-600">
+          <p className="text-sm text-dark-400 text-center">📈 Historical performance data not available</p>
+          <p className="text-xs text-dark-500 text-center mt-1">Charts require YouTube Analytics API access</p>
+        </div>
+      )}
 
       <div className="flex flex-wrap gap-1 mb-4">
         {pillar.tags.map((tag) => (
@@ -202,13 +215,10 @@ export default function Pillars() {
 
   const fetchSavedPillars = async () => {
     try {
-      console.log('🔍 Fetching saved pillars for user:', actualUserId)
       const response = await fetch(`/api/pillars/${actualUserId}`)
-      console.log('📥 Pillars API response status:', response.status)
       
       if (response.ok) {
         const savedPillars = await response.json()
-        console.log('📊 Retrieved saved pillars:', savedPillars)
         
         // Calculate real statistics for each pillar
         const transformedPillars: PillarData[] = await Promise.all(
@@ -235,7 +245,6 @@ export default function Pillars() {
           })
         )
         
-        console.log('✅ Setting pillars with real stats:', transformedPillars)
         setPillars(transformedPillars)
         
         // Clear error if we successfully loaded pillars
@@ -243,7 +252,6 @@ export default function Pillars() {
           setError(null)
         }
       } else {
-        console.log('❌ Failed to fetch pillars, status:', response.status)
       }
     } catch (error) {
       console.error('❌ Error fetching saved pillars:', error)
@@ -280,11 +288,17 @@ export default function Pillars() {
         })
       })
       
+      const channelData = await channelResponse.json()
+      
       if (!channelResponse.ok) {
+        console.error('❌ YouTube API failed for pillar', pillarId, ':', {
+          status: channelResponse.status,
+          error: channelData,
+          allocatedVideos: allocatedVideos.length,
+          videoIds: allocatedVideos.map((v: any) => v.video_id)
+        })
         return getDefaultStats()
       }
-      
-      const channelData = await channelResponse.json()
       
       if (!channelData.channel_data?.recent_videos) {
         return getDefaultStats()
@@ -304,21 +318,41 @@ export default function Pillars() {
       const totalViews = pillarVideos.reduce((sum: number, video: any) => sum + (video.view_count || 0), 0)
       const totalWatchTime = pillarVideos.reduce((sum: number, video: any) => {
         const duration = parseDuration(video.duration || '0:00')
-        return sum + (duration * (video.view_count || 0) * (video.retention || 0.5) / 100)
+        const views = video.view_count || 0
+        
+        // Calculate watch time using realistic retention for small channels
+        // API retention estimates are often inflated - use conservative approach
+        if (views > 0 && duration > 0) {
+          // Use 25% average retention - more realistic for smaller channels
+          const realisticWatchTime = (duration * views * 0.25)
+          console.log(`Video ${video.video_id}: ${duration}s × ${views} views × 25% realistic retention = ${Math.round(realisticWatchTime/3600)}h`)
+          return sum + realisticWatchTime
+        } else {
+          console.log(`Video ${video.video_id}: Missing data - duration: ${duration}s, views: ${views}`)
+        }
+        
+        // No retention data available
+        return sum
       }, 0)
       
       // Find top performing video
       const topVideo = pillarVideos.sort((a: any, b: any) => (b.view_count || 0) - (a.view_count || 0))[0]
       
+      // Calculate estimated revenue using conservative RPM for small channels
+      // Based on real view data with very conservative estimate
+      const estimatedRevenue = totalViews > 0 ? Math.round(totalViews * 0.0002) : 0 // $0.20 RPM (conservative for small channels)
+      
+      console.log(`Pillar stats calculated: ${pillarVideos.length} videos, ${formatNumber(totalViews)} views, ${Math.round(totalWatchTime / 3600)}h watch time, $${estimatedRevenue} estimated revenue`)
+      
       return {
         videos: pillarVideos.length,
         views: totalViews,
-        watchTime: Math.round(totalWatchTime / 3600), // Convert to hours
-        revenue: Math.round(totalViews * 0.001), // Estimate $1 RPM
-        viewsChange: Math.random() * 20 - 10, // TODO: Calculate from historical data
-        watchTimeChange: Math.random() * 20 - 10,
-        revenueChange: Math.random() * 20 - 10,
-        chartData: generateChartData(),
+        watchTime: totalWatchTime > 0 ? Math.round(totalWatchTime / 3600) : 0, // Convert to hours
+        revenue: estimatedRevenue, // Industry-standard estimate based on real views
+        viewsChange: 0, // Historical comparison requires time-series data - not available
+        watchTimeChange: 0, // Historical comparison requires time-series data - not available  
+        revenueChange: 0, // Historical comparison requires time-series data - not available
+        chartData: [], // No historical data available for charts
         topPerformingContent: topVideo ? `"${topVideo.title}" - ${formatNumber(topVideo.view_count)} views` : 'No content yet',
         insight: pillarVideos.length > 0 ? `${pillarVideos.length} videos generating ${formatNumber(totalViews)} total views` : 'Start creating content for this pillar'
       }
@@ -333,11 +367,11 @@ export default function Pillars() {
     videos: 0,
     views: 0,
     watchTime: 0,
-    revenue: 0,
-    viewsChange: 0,
-    watchTimeChange: 0,
-    revenueChange: 0,
-    chartData: generateChartData(),
+    revenue: 0, // No video data to calculate estimates from
+    viewsChange: 0, // Historical data not available
+    watchTimeChange: 0, // Historical data not available
+    revenueChange: 0, // Historical data not available
+    chartData: [], // No historical data for charts
     topPerformingContent: 'No content yet',
     insight: 'Start creating content for this pillar to see insights'
   })
@@ -482,11 +516,8 @@ export default function Pillars() {
   }
 
   const generateChartData = () => {
-    const months = ['Feb', 'Mar', 'Apr', 'May', 'Jun']
-    return months.map(month => ({
-      month,
-      value: Math.floor(Math.random() * 200000) + 50000
-    }))
+    // Return empty array since we don't have historical data
+    return []
   }
 
   const handleCreateContent = (pillar: PillarData) => {
@@ -513,7 +544,6 @@ export default function Pillars() {
       if (response.ok) {
         // Remove pillar from local state
         setPillars(prev => prev.filter(p => p.id !== pillarId))
-        console.log('✅ Pillar deleted successfully')
       } else {
         throw new Error('Failed to delete pillar')
       }
@@ -533,8 +563,6 @@ export default function Pillars() {
     if (!editingPillar) return
 
     try {
-      console.log('🔄 Updating pillar:', editingPillar.id)
-      console.log('📝 Updated pillar data:', pillarData)
       
       const response = await fetch(`/api/pillars/${editingPillar.id}`, {
         method: 'PUT',
@@ -561,7 +589,6 @@ export default function Pillars() {
         
         setIsModalOpen(false)
         setEditingPillar(null)
-        console.log('✅ Pillar updated successfully')
       } else {
         throw new Error('Failed to update pillar')
       }
@@ -573,8 +600,6 @@ export default function Pillars() {
 
   const handleCreatePillar = async (pillarData: { name: string; icon: string; color: string }) => {
     try {
-      console.log('🚀 Creating pillar for user:', actualUserId)
-      console.log('📝 Pillar data:', pillarData)
       
       const requestBody = {
         name: pillarData.name,
@@ -583,7 +608,6 @@ export default function Pillars() {
         description: '',
         user_id: actualUserId
       }
-      console.log('📤 Request body:', requestBody)
       
       const response = await fetch('/api/pillars', {
         method: 'POST',
@@ -628,13 +652,6 @@ export default function Pillars() {
     }
   }
 
-  console.log('🎨 RENDERING Pillars component:', {
-    loading,
-    error,
-    isAuthenticated,
-    'pillars.length': pillars.length,
-    pillars: pillars.map(p => p.name)
-  })
 
   return (
     <div className="space-y-6">
@@ -643,6 +660,9 @@ export default function Pillars() {
           <h1 className="text-3xl font-bold mb-2">Content Pillars</h1>
           <p className="text-dark-400">
             Analyze and optimize your content strategy
+          </p>
+          <p className="text-xs text-blue-400 mt-1">
+            📊 Revenue estimates based on real video views • Historical trends require Analytics API
           </p>
         </div>
         <div className="flex items-center gap-3">
@@ -661,10 +681,6 @@ export default function Pillars() {
         </div>
       </div>
 
-      {/* DEBUG: Show current state */}
-      <div style={{position: 'fixed', top: '10px', right: '10px', background: 'black', color: 'white', padding: '10px', zIndex: 1000, fontSize: '12px'}}>
-        DEBUG: loading={loading.toString()}, error={error || 'null'}, isAuthenticated={isAuthenticated.toString()}, pillars.length={pillars.length}
-      </div>
       
       {loading ? (
         <Card className="p-12 text-center">

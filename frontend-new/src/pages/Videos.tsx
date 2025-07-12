@@ -9,14 +9,14 @@ import { Loader, AlertCircle } from 'lucide-react'
 interface VideoData {
   id: string
   title: string
+  description: string
   views: number
   likes: number
   comments: number
-  ctr: number
-  retention: number
   publishedAt: string
   thumbnail: string
   duration: string
+  category_id: string
   pillarAllocation?: {
     pillar_id: string
     pillar_name: string
@@ -32,12 +32,37 @@ interface PillarOption {
   color: string
 }
 
+// YouTube category mapping
+const getCategoryName = (categoryId: string): string => {
+  const categories: { [key: string]: string } = {
+    '1': 'Film & Animation',
+    '2': 'Autos & Vehicles', 
+    '10': 'Music',
+    '15': 'Pets & Animals',
+    '17': 'Sports',
+    '19': 'Travel & Events',
+    '20': 'Gaming',
+    '22': 'People & Blogs',
+    '23': 'Comedy',
+    '24': 'Entertainment',
+    '25': 'News & Politics',
+    '26': 'Howto & Style',
+    '27': 'Education',
+    '28': 'Science & Technology',
+    '29': 'Nonprofits & Activism'
+  }
+  return categories[categoryId] || `Category ${categoryId}`
+}
+
 export default function Videos() {
-  const { channelInfo, userId } = useUserStore()
+  const { channelInfo } = useUserStore()
   const { isAuthenticated } = useOAuthStore()
+  
+  // TEMPORARY FIX: Force use default_user for consistency with Pillars page
+  const actualUserId = "default_user"
   const [videos, setVideos] = useState<VideoData[]>([])
   const [displayedVideos, setDisplayedVideos] = useState<VideoData[]>([])
-  const [sortBy, setSortBy] = useState<'views' | 'ctr' | 'retention' | 'date'>('date')
+  const [sortBy, setSortBy] = useState<'views' | 'likes' | 'comments' | 'date'>('date')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [videosPerPage] = useState(10)
@@ -54,7 +79,7 @@ export default function Videos() {
 
   const fetchPillars = async () => {
     try {
-      const response = await fetch(`/api/pillars/${userId}`)
+      const response = await fetch(`/api/pillars/${actualUserId}`)
       if (response.ok) {
         const pillars = await response.json()
         setAvailablePillars(pillars.map((p: any) => ({
@@ -63,6 +88,8 @@ export default function Videos() {
           icon: p.icon,
           color: p.color
         })))
+      } else {
+        console.error('Failed to fetch pillars, status:', response.status)
       }
     } catch (error) {
       console.error('Error fetching pillars:', error)
@@ -72,17 +99,19 @@ export default function Videos() {
   const allocateVideoToPillar = async (videoId: string, pillarId: string) => {
     setAllocatingVideo(videoId)
     try {
+      const payload = {
+        video_id: videoId,
+        pillar_id: pillarId,
+        user_id: actualUserId,
+        allocation_type: 'manual'
+      }
+      
       const response = await fetch('/api/videos/allocate', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({
-          video_id: videoId,
-          pillar_id: pillarId,
-          user_id: userId,
-          allocation_type: 'manual'
-        })
+        body: JSON.stringify(payload)
       })
 
       if (response.ok) {
@@ -103,7 +132,6 @@ export default function Videos() {
             : video
         ))
         
-        console.log('✅ Video allocated to pillar successfully')
       } else {
         throw new Error('Failed to allocate video to pillar')
       }
@@ -118,7 +146,7 @@ export default function Videos() {
   const removeVideoAllocation = async (videoId: string) => {
     setAllocatingVideo(videoId)
     try {
-      const response = await fetch(`/api/videos/${videoId}/pillar?user_id=${userId}`, {
+      const response = await fetch(`/api/videos/${videoId}/pillar?user_id=${actualUserId}`, {
         method: 'DELETE'
       })
 
@@ -130,7 +158,6 @@ export default function Videos() {
             : video
         ))
         
-        console.log('✅ Video allocation removed successfully')
       } else {
         throw new Error('Failed to remove video allocation')
       }
@@ -155,7 +182,7 @@ export default function Videos() {
         },
         body: JSON.stringify({
           channel_id: channelInfo.channel_id || channelInfo.name,
-          user_id: userId,
+          user_id: actualUserId,
           analysis_type: "comprehensive", 
           include_videos: true,
           video_count: 50
@@ -166,25 +193,25 @@ export default function Videos() {
         const data = await response.json()
         
         if (data.status === 'success' && data.channel_data?.recent_videos && data.channel_data.recent_videos.length > 0) {
-          // Transform API data to VideoData format
+          // Transform API data to VideoData format - only real data
           const transformedVideos: VideoData[] = data.channel_data.recent_videos.map((video: any) => ({
             id: video.video_id,
             title: video.title,
+            description: video.description || '',
             views: video.view_count || 0,
             likes: video.like_count || 0,
             comments: video.comment_count || 0,
-            ctr: video.ctr || Math.random() * 5 + 2, // Placeholder until we get real CTR data
-            retention: video.retention || Math.random() * 30 + 50, // Placeholder until we get real retention data
             publishedAt: video.published_at || new Date().toISOString(),
             thumbnail: video.thumbnail || '',
-            duration: video.duration || '0:00'
+            duration: video.duration || '0:00',
+            category_id: video.category_id || ''
           }))
           
           // Fetch existing pillar allocations for each video
           const videosWithAllocations = await Promise.all(
             transformedVideos.map(async (video) => {
               try {
-                const allocationResponse = await fetch(`/api/videos/${video.id}/pillar?user_id=${userId}`)
+                const allocationResponse = await fetch(`/api/videos/${video.id}/pillar?user_id=${actualUserId}`)
                 if (allocationResponse.ok) {
                   const allocation = await allocationResponse.json()
                   if (allocation) {
@@ -212,122 +239,8 @@ export default function Videos() {
         }
       }
       
-      // Fallback to placeholder data if API fails
-      console.log('Using placeholder data - API failed or no videos found')
-      console.log('💡 To see real video titles, connect your YouTube account for OAuth access')
-      const placeholderVideos: VideoData[] = [
-        {
-          id: '1',
-          title: 'Australian History Documentary - The Early Settlers',
-          views: 523,
-          likes: 45,
-          comments: 12,
-          ctr: 4.2,
-          retention: 68,
-          publishedAt: '2024-06-15',
-          thumbnail: '',
-          duration: '15:32'
-        },
-        {
-          id: '2', 
-          title: 'Legends of the Outback - Part 1',
-          views: 341,
-          likes: 28,
-          comments: 8,
-          ctr: 3.8,
-          retention: 72,
-          publishedAt: '2024-05-20',
-          thumbnail: '',
-          duration: '12:45'
-        },
-        {
-          id: '3',
-          title: 'The Land Down Under - Geographic Wonders',
-          views: 267,
-          likes: 22,
-          comments: 6,
-          ctr: 3.1,
-          retention: 65,
-          publishedAt: '2024-04-10',
-          thumbnail: '',
-          duration: '18:20'
-        },
-        {
-          id: '4',
-          title: 'Indigenous Culture and Heritage',
-          views: 189,
-          likes: 15,
-          comments: 4,
-          ctr: 2.9,
-          retention: 58,
-          publishedAt: '2024-03-15',
-          thumbnail: '',
-          duration: '22:15'
-        },
-        {
-          id: '5',
-          title: 'Gold Rush Stories - Australian Miners',
-          views: 412,
-          likes: 35,
-          comments: 9,
-          ctr: 4.7,
-          retention: 74,
-          publishedAt: '2024-02-28',
-          thumbnail: '',
-          duration: '16:40'
-        },
-        {
-          id: '6',
-          title: 'Legends of the Outback - Part 2',
-          views: 298,
-          likes: 26,
-          comments: 7,
-          ctr: 3.5,
-          retention: 69,
-          publishedAt: '2024-01-18',
-          thumbnail: '',
-          duration: '14:22'
-        },
-        {
-          id: '7',
-          title: 'Aboriginal Dreamtime Stories',
-          views: 156,
-          likes: 18,
-          comments: 5,
-          ctr: 2.8,
-          retention: 61,
-          publishedAt: '2023-12-10',
-          thumbnail: '',
-          duration: '19:55'
-        },
-        {
-          id: '8',
-          title: 'The Great Barrier Reef - Natural Wonder',
-          views: 445,
-          likes: 38,
-          comments: 11,
-          ctr: 4.1,
-          retention: 76,
-          publishedAt: '2023-11-05',
-          thumbnail: '',
-          duration: '13:30'
-        },
-        {
-          id: '9',
-          title: 'Convict Ships and Colonial Life',
-          views: 367,
-          likes: 31,
-          comments: 8,
-          ctr: 3.9,
-          retention: 64,
-          publishedAt: '2023-10-22',
-          thumbnail: '',
-          duration: '17:45'
-        }
-      ]
-      
-      console.log('📺 Videos: Using placeholder data for channel:', channelInfo.name)
-      setVideos(placeholderVideos)
+      // No fallback data - only show real YouTube videos
+      setVideos([])
       setCurrentPage(1) // Reset pagination when fetching new data
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to load videos')
@@ -345,10 +258,10 @@ export default function Videos() {
       switch (sortBy) {
         case 'views':
           return b.views - a.views
-        case 'ctr':
-          return b.ctr - a.ctr
-        case 'retention':
-          return b.retention - a.retention
+        case 'likes':
+          return b.likes - a.likes
+        case 'comments':
+          return b.comments - a.comments
         case 'date':
           return new Date(b.publishedAt).getTime() - new Date(a.publishedAt).getTime()
         default:
@@ -398,12 +311,7 @@ export default function Videos() {
   }
 
 
-  const getPerformanceColor = (value: number, type: 'ctr' | 'retention') => {
-    const thresholds = type === 'ctr' ? [3, 8] : [40, 60]
-    if (value >= thresholds[1]) return 'text-green-400'
-    if (value >= thresholds[0]) return 'text-yellow-400'
-    return 'text-red-400'
-  }
+  // Removed getPerformanceColor - no longer needed for real data only
 
   return (
     <div className="space-y-6">
@@ -413,13 +321,16 @@ export default function Videos() {
           <p className="text-dark-400">
             Track performance and optimize your content strategy.
           </p>
+          <p className="text-xs text-blue-400 mt-1">
+            📊 Showing real data from YouTube Data API • No estimates or calculations
+          </p>
         </div>
         <Button className="flex items-center gap-2">
           📊 Export Data
         </Button>
       </div>
 
-      {/* Overview Stats */}
+      {/* Real Video Stats */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
         <Card className="p-4">
           <div className="text-center">
@@ -439,18 +350,18 @@ export default function Videos() {
         </Card>
         <Card className="p-4">
           <div className="text-center">
-            <div className="text-2xl font-bold text-yellow-400">
-              {videos.length > 0 ? (videos.reduce((sum, v) => sum + v.ctr, 0) / videos.length).toFixed(1) : 0}%
+            <div className="text-2xl font-bold text-blue-400">
+              {formatNumber(videos.reduce((sum, v) => sum + v.likes, 0))}
             </div>
-            <div className="text-sm text-dark-400">Avg CTR</div>
+            <div className="text-sm text-dark-400">Total Likes</div>
           </div>
         </Card>
         <Card className="p-4">
           <div className="text-center">
             <div className="text-2xl font-bold text-purple-400">
-              {videos.length > 0 ? (videos.reduce((sum, v) => sum + v.retention, 0) / videos.length).toFixed(1) : 0}%
+              {formatNumber(videos.reduce((sum, v) => sum + v.comments, 0))}
             </div>
-            <div className="text-sm text-dark-400">Avg Retention</div>
+            <div className="text-sm text-dark-400">Total Comments</div>
           </div>
         </Card>
       </div>
@@ -473,8 +384,8 @@ export default function Videos() {
             >
               <option value="date">Date</option>
               <option value="views">Views</option>
-              <option value="ctr">CTR</option>
-              <option value="retention">Retention</option>
+              <option value="likes">Likes</option>
+              <option value="comments">Comments</option>
             </select>
           </div>
         </div>
@@ -520,8 +431,20 @@ export default function Videos() {
                 className="flex items-center gap-4 p-4 bg-dark-800/50 rounded-lg hover:bg-dark-800 transition-colors"
               >
                 {/* Thumbnail */}
-                <div className="w-32 h-18 bg-dark-700 rounded-lg flex items-center justify-center flex-shrink-0">
-                  <span className="text-2xl">🎬</span>
+                <div className="w-32 h-18 bg-dark-700 rounded-lg flex items-center justify-center flex-shrink-0 overflow-hidden">
+                  {video.thumbnail ? (
+                    <img 
+                      src={video.thumbnail} 
+                      alt={video.title}
+                      className="w-full h-full object-cover rounded-lg"
+                      onError={(e) => {
+                        e.currentTarget.style.display = 'none';
+                        e.currentTarget.parentElement!.innerHTML = '<span class="text-2xl">🎬</span>';
+                      }}
+                    />
+                  ) : (
+                    <span className="text-2xl">🎬</span>
+                  )}
                 </div>
 
                 {/* Video Info */}
@@ -532,11 +455,14 @@ export default function Videos() {
                   <div className="flex items-center gap-4 text-sm text-dark-400">
                     <span>📅 {new Date(video.publishedAt).toLocaleDateString()}</span>
                     <span>⏱️ {video.duration}</span>
+                    {video.category_id && (
+                      <span>🏷️ {getCategoryName(video.category_id)}</span>
+                    )}
                   </div>
                 </div>
 
-                {/* Performance Metrics */}
-                <div className="grid grid-cols-4 gap-4 text-center">
+                {/* Real Video Metrics */}
+                <div className="grid grid-cols-3 gap-4 text-center">
                   <div>
                     <div className="text-sm font-semibold">{formatNumber(video.views)}</div>
                     <div className="text-xs text-dark-400">Views</div>
@@ -546,16 +472,8 @@ export default function Videos() {
                     <div className="text-xs text-dark-400">Likes</div>
                   </div>
                   <div>
-                    <div className={`text-sm font-semibold ${getPerformanceColor(video.ctr, 'ctr')}`}>
-                      {Math.round(video.ctr)}%
-                    </div>
-                    <div className="text-xs text-dark-400">CTR</div>
-                  </div>
-                  <div>
-                    <div className={`text-sm font-semibold ${getPerformanceColor(video.retention, 'retention')}`}>
-                      {Math.round(video.retention)}%
-                    </div>
-                    <div className="text-xs text-dark-400">Retention</div>
+                    <div className="text-sm font-semibold">{formatNumber(video.comments)}</div>
+                    <div className="text-xs text-dark-400">Comments</div>
                   </div>
                 </div>
 
@@ -587,15 +505,22 @@ export default function Videos() {
                           allocateVideoToPillar(video.id, e.target.value)
                         }
                       }}
+                      onClick={() => {
+                      }}
                       disabled={allocatingVideo === video.id}
-                      className="w-full px-3 py-2 bg-dark-700 border border-dark-600 rounded-lg text-sm text-white focus:outline-none focus:ring-2 focus:ring-primary-500"
+                      className="w-full px-3 py-2 bg-dark-700 border border-dark-600 rounded-lg text-sm text-white focus:outline-none focus:ring-2 focus:ring-primary-500 cursor-pointer relative z-10"
+                      style={{ minHeight: '40px' }}
                     >
                       <option value="">Assign to Pillar</option>
-                      {availablePillars.map((pillar) => (
-                        <option key={pillar.id} value={pillar.id}>
-                          {pillar.icon} {pillar.name}
-                        </option>
-                      ))}
+                      {availablePillars.length > 0 ? (
+                        availablePillars.map((pillar) => (
+                          <option key={pillar.id} value={pillar.id}>
+                            {pillar.icon} {pillar.name}
+                          </option>
+                        ))
+                      ) : (
+                        <option value="" disabled>No pillars available</option>
+                      )}
                     </select>
                   )}
                   {allocatingVideo === video.id && (
@@ -603,12 +528,6 @@ export default function Videos() {
                   )}
                 </div>
 
-                {/* Actions */}
-                <div className="flex items-center gap-2">
-                  <Button variant="secondary" size="sm">
-                    📈 Details
-                  </Button>
-                </div>
               </div>
             ))}
             
@@ -676,15 +595,15 @@ export default function Videos() {
             <div className="p-4 bg-blue-900/20 rounded-lg border border-blue-500/30">
               <h4 className="font-semibold text-blue-400 mb-2">📊 Analytics Summary</h4>
               <p className="text-sm text-dark-300">
-                {videos.length} videos loaded. Average CTR: {videos.length > 0 ? (videos.reduce((sum, v) => sum + v.ctr, 0) / videos.length).toFixed(1) : 0}%
+                {videos.length} videos loaded from YouTube Data API with real view counts, likes, and comments
               </p>
             </div>
             <div className="p-4 bg-purple-900/20 rounded-lg border border-purple-500/30">
               <h4 className="font-semibold text-purple-400 mb-2">🎯 Top Performer</h4>
               <p className="text-sm text-dark-300">
                 {videos.length > 0 
-                  ? `"${displayedVideos[0]?.title.substring(0, 30)}..." has ${formatNumber(displayedVideos[0]?.views || 0)} views`
-                  : 'No data available yet'
+                  ? `"${videos.sort((a, b) => b.views - a.views)[0]?.title.substring(0, 30)}..." - ${formatNumber(videos.sort((a, b) => b.views - a.views)[0]?.views || 0)} views`
+                  : 'No videos found'
                 }
               </p>
             </div>

@@ -34,6 +34,7 @@ const defaultChannelInfo: ChannelInfo = {
   monetization_status: 'Unknown',
   primary_goal: 'Unknown',
   notes: '',
+  created_date: '',
 }
 
 const defaultAgentSettings: AgentSettings = {
@@ -132,7 +133,6 @@ export const useUserStore = create<UserState>()(
                   name: data.channel_info.name
                 }
               }))
-              console.log('✅ Updated channel info with real YouTube data:', data.channel_info.name)
             }
           }
         } catch (error) {
