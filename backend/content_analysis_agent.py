@@ -44,7 +44,7 @@ class ContentMetrics:
     comments: int
     duration: int
     published_at: str
-    engagement_rate: float
+    ctr: Optional[float] = None  # Real YouTube CTR when available
     retention_data: Dict[str, Any] = None
     traffic_sources: Dict[str, Any] = None
 
@@ -81,8 +81,6 @@ class YouTubeAPIClient:
                 likes = int(stats.get('likeCount', 0))
                 comments = int(stats.get('commentCount', 0))
                 
-                engagement_rate = ((likes + comments) / max(views, 1)) * 100 if views > 0 else 0
-                
                 metrics.append(ContentMetrics(
                     video_id=video_id,
                     title=snippet['title'],
@@ -90,8 +88,7 @@ class YouTubeAPIClient:
                     likes=likes,
                     comments=comments,
                     duration=duration_seconds,
-                    published_at=snippet['publishedAt'],
-                    engagement_rate=engagement_rate
+                    published_at=snippet['publishedAt']
                 ))
             
             return metrics

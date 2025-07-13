@@ -61,6 +61,8 @@ export const useOAuthStore = create<OAuthState>()(
 
         try {
           const status = await oauthService.checkOAuthStatus(userId);
+          
+          
           set({
             status,
             isAuthenticated: status.authenticated,

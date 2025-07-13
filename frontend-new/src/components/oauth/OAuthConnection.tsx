@@ -7,6 +7,7 @@ import { useState, useEffect } from 'react';
 import { useOAuthStore } from '../../store/oauthStore';
 import { Youtube, RefreshCw, LogOut, AlertCircle, CheckCircle, Loader } from 'lucide-react';
 import Button from '../common/Button';
+import oauthService from '../../services/oauth';
 
 interface OAuthConnectionProps {
   variant?: 'sidebar' | 'full' | 'compact';
@@ -31,10 +32,29 @@ export default function OAuthConnection({
     refreshToken,
     revokeToken,
     handleCallback,
-    clearError
+    clearError,
+    checkStatus
   } = useOAuthStore();
 
   const [showSuccess, setShowSuccess] = useState(false);
+  const [directStatus, setDirectStatus] = useState<any>(null);
+
+  // Check OAuth status on component mount
+  useEffect(() => {
+    checkStatus();
+    
+    // Also get direct status as fallback
+    const getDirectStatus = async () => {
+      try {
+        const result = await oauthService.checkOAuthStatus('default_user');
+        setDirectStatus(result);
+      } catch (err) {
+        console.error('Direct OAuth call failed:', err);
+      }
+    };
+    
+    getDirectStatus();
+  }, [checkStatus]);
 
   // Handle OAuth callback on component mount
   useEffect(() => {
@@ -185,15 +205,35 @@ export default function OAuthConnection({
           </div>
         )}
 
-        <div className="text-xs text-indigo-200 mb-3">
+        <div className="text-sm mb-3">
           {isAuthenticated ? (
             status?.needs_refresh ? (
-              <span className="text-yellow-200">Token expired - refresh needed</span>
+              <span className="text-yellow-200 font-medium">⚠ Token expired - refresh needed</span>
             ) : (
-              <span className="text-green-200">Connected - access to detailed analytics</span>
+              <div className="space-y-1">
+                <span className="text-green-200 font-medium">✅ Connected - access to detailed analytics</span>
+                {((status?.expires_in_seconds !== undefined) || (directStatus?.expires_in_seconds !== undefined)) && (
+                  <div 
+                    className="text-white font-bold bg-black/40 px-3 py-2 rounded-lg border border-white/20"
+                    style={{ 
+                      fontSize: '14px', 
+                      color: '#ffffff', 
+                      backgroundColor: 'rgba(0, 0, 0, 0.6)',
+                      border: '1px solid rgba(255, 255, 255, 0.3)'
+                    }}
+                  >
+                    {(() => {
+                      // TEMPORARY: Always use direct status since store is not working properly
+                      const effectiveStatus = directStatus || status;
+                      const hours = Math.floor((effectiveStatus?.expires_in_seconds || 0) / 3600);
+                      return `⏰ Expires in ${hours} hours`;
+                    })()}
+                  </div>
+                )}
+              </div>
             )
           ) : (
-            'Connect your YouTube account for detailed analytics'
+            <span className="text-indigo-200">Connect your YouTube account for detailed analytics</span>
           )}
         </div>
 
@@ -291,13 +331,24 @@ export default function OAuthConnection({
               </div>
               
               {status && (
-                <div className="space-y-1 text-sm text-green-700">
+                <div className="space-y-1 text-sm">
                   {status.needs_refresh ? (
-                    <p>⚠ Token expired - refresh needed</p>
+                    <p className="text-orange-700 font-medium">⚠ Token expired - refresh needed</p>
                   ) : (
-                    <p>Access expires in {Math.floor((status.expires_in_seconds || 0) / 3600)} hours</p>
+                    <p 
+                      className="text-gray-900 font-bold text-lg bg-gray-100 px-3 py-2 rounded-lg border"
+                      style={{ 
+                        fontSize: '18px', 
+                        color: '#111827', 
+                        backgroundColor: '#f3f4f6',
+                        border: '2px solid #e5e7eb',
+                        fontWeight: 'bold'
+                      }}
+                    >
+                      ⏰ Access expires in {Math.floor((status.expires_in_seconds || 0) / 3600)} hours
+                    </p>
                   )}
-                  <p>Permissions: {status.scopes?.join(', ') || 'YouTube Analytics, Read-only'}</p>
+                  <p className="text-gray-600">Permissions: {status.scopes?.join(', ') || 'YouTube Analytics, Read-only'}</p>
                 </div>
               )}
             </div>

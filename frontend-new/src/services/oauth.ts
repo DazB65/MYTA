@@ -57,7 +57,7 @@ export interface AuthenticatedChannelData {
 }
 
 class OAuthService {
-  private baseUrl = 'http://localhost:8888';
+  private baseUrl = ''; // Use relative URLs to avoid CORS and routing issues
   private isAuthenticating = false;
 
   /**
@@ -66,8 +66,24 @@ class OAuthService {
   async checkOAuthStatus(userId: string): Promise<OAuthStatus> {
     try {
       const response = await fetch(`${this.baseUrl}/auth/status/${userId}`);
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+      }
       const data = await response.json();
-      return data;
+      
+      // Transform backend response to match frontend interface
+      const transformedStatus = {
+        authenticated: data.authenticated,
+        user_id: data.user_id,
+        expires_at: data.expires_at,
+        expires_in_seconds: data.expires_in_seconds,
+        scopes: data.scopes,
+        needs_refresh: data.needs_refresh,
+        message: data.message
+      };
+      
+      
+      return transformedStatus;
     } catch (error) {
       console.error('Error checking OAuth status:', error);
       return {
@@ -100,9 +116,13 @@ class OAuthService {
         })
       });
 
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+      }
+
       const data: OAuthInitResponse = await response.json();
 
-      if (response.ok && data.authorization_url) {
+      if (data.authorization_url) {
         // Store state for validation
         localStorage.setItem('oauth_state', data.state);
         localStorage.setItem('oauth_return_url', request.return_url || window.location.href);
@@ -176,8 +196,8 @@ class OAuthService {
       if (response.ok) {
         return true;
       } else {
-        const data = await response.json();
-        throw new Error(data.detail || 'Failed to refresh token');
+        const data = await response.json().catch(() => ({}));
+        throw new Error(data.detail || data.message || 'Failed to refresh token');
       }
     } catch (error) {
       console.error('Error refreshing token:', error);
@@ -197,8 +217,8 @@ class OAuthService {
       if (response.ok) {
         return true;
       } else {
-        const data = await response.json();
-        throw new Error(data.detail || 'Failed to revoke token');
+        const data = await response.json().catch(() => ({}));
+        throw new Error(data.detail || data.message || 'Failed to revoke token');
       }
     } catch (error) {
       console.error('Error revoking token:', error);
@@ -243,6 +263,9 @@ class OAuthService {
   async checkOAuthHealth(): Promise<any> {
     try {
       const response = await fetch(`${this.baseUrl}/auth/health`);
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+      }
       return await response.json();
     } catch (error) {
       console.error('Error checking OAuth health:', error);

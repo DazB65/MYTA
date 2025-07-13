@@ -1,6 +1,7 @@
 import { NavLink } from 'react-router-dom'
-import { LayoutDashboard, Building2, Clapperboard, Settings } from 'lucide-react'
+import { LayoutDashboard, Building2, Clapperboard, Settings, LogOut } from 'lucide-react'
 import { cn } from '@/utils'
+import { useOAuthStore } from '@/store/oauthStore'
 
 const navigation = [
   {
@@ -26,6 +27,20 @@ const navigation = [
 ]
 
 export default function Sidebar() {
+  const { isAuthenticated, revokeToken } = useOAuthStore()
+
+  const handleLogout = async () => {
+    if (!isAuthenticated) return
+    
+    const confirmed = confirm('Are you sure you want to logout from YouTube? You will need to reconnect to access video analytics.')
+    if (confirmed) {
+      await revokeToken()
+      // Clear any other user data if needed
+      localStorage.removeItem('creatormate_user_id')
+      window.location.href = '/'
+    }
+  }
+
   return (
     <div className="h-16 bg-purple-900/95 backdrop-blur-md border border-purple-500/30 group rounded-2xl shadow-2xl relative z-40 animate-float-bottom">
       <div className="flex items-center h-full overflow-hidden px-4">
@@ -66,8 +81,8 @@ export default function Sidebar() {
         </nav>
         
         {/* Status section */}
-        <div className="border-l border-purple-400/20 pl-4 flex-shrink-0">
-          <div className="flex items-center justify-center">
+        <div className="border-l border-purple-400/20 pl-4 flex-shrink-0 flex items-center gap-3">
+          <div className="flex items-center">
             <div className="w-6 h-6 rounded-full bg-primary-600/20 flex items-center justify-center">
               <div className="w-2 h-2 bg-primary-400 rounded-full animate-pulse"></div>
             </div>
@@ -75,6 +90,18 @@ export default function Sidebar() {
               Online
             </span>
           </div>
+          
+          {/* Logout button */}
+          {isAuthenticated && (
+            <button
+              onClick={handleLogout}
+              className="flex items-center gap-2 px-2 py-1 rounded-lg transition-all duration-200 hover:bg-red-500/20 text-red-300 hover:text-red-200 border border-red-500/30 hover:border-red-400"
+              title="Logout from YouTube"
+            >
+              <LogOut className="w-4 h-4" />
+              <span className="text-xs font-medium">Logout</span>
+            </button>
+          )}
         </div>
       </div>
     </div>

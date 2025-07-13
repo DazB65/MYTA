@@ -1,11 +1,20 @@
 import { useUserStore } from '@/store/userStore'
+import { useAnalytics } from '@/hooks/useAnalytics'
 import Card from '@/components/common/Card'
 import TaskManager from '@/components/dashboard/TaskManager'
 import ChannelGoals from '@/components/dashboard/ChannelGoals'
-import { Calendar, Video } from 'lucide-react'
+import ChannelHealthWidget from '@/components/dashboard/widgets/ChannelHealthWidget'
+import RevenueDashboardWidget from '@/components/dashboard/widgets/RevenueDashboardWidget'
+import SubscriberGrowthWidget from '@/components/dashboard/widgets/SubscriberGrowthWidget'
+import ContentPerformanceWidget from '@/components/dashboard/widgets/ContentPerformanceWidget'
+import { AlertCircle } from 'lucide-react'
 
 export default function Dashboard() {
   const { channelInfo } = useUserStore()
+  
+  // TEMPORARY FIX: Force use default_user for consistency
+  const actualUserId = "default_user"
+  const { data: analyticsData, loading: analyticsLoading, error: analyticsError, refetch } = useAnalytics(actualUserId)
 
   return (
     <div className="space-y-6">
@@ -36,26 +45,52 @@ export default function Dashboard() {
         </div>
       </div>
 
-      {/* Bottom Section - Placeholder for future widgets */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <Card className="p-6">
-          <h3 className="text-lg font-semibold mb-4">Performance Overview</h3>
-          <div className="text-center py-8 text-dark-400">
-            <Calendar className="w-12 h-12 mx-auto mb-3 opacity-50" />
-            <p>Chart widget will go here</p>
-            <p className="text-sm">Integration with analytics coming soon</p>
+      {/* Analytics Error Display */}
+      {analyticsError && (
+        <Card className="p-4 border-red-500/30 bg-red-900/20">
+          <div className="flex items-center gap-3 text-red-400">
+            <AlertCircle className="w-5 h-5" />
+            <div>
+              <div className="font-medium">Analytics Unavailable</div>
+              <div className="text-sm text-red-300">{analyticsError}</div>
+            </div>
+            <button 
+              onClick={refetch}
+              className="ml-auto px-3 py-1 bg-red-600 hover:bg-red-700 rounded text-sm"
+            >
+              Retry
+            </button>
           </div>
         </Card>
+      )}
 
-        <Card className="p-6">
-          <h3 className="text-lg font-semibold mb-4">Content Calendar</h3>
-          <div className="text-center py-8 text-dark-400">
-            <Video className="w-12 h-12 mx-auto mb-3 opacity-50" />
-            <p>Content schedule will go here</p>
-            <p className="text-sm">Upload planning widget coming soon</p>
-          </div>
-        </Card>
+      {/* Performance Overview Section */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-4 gap-6">
+        {/* Channel Health Score */}
+        <ChannelHealthWidget 
+          data={analyticsData.channel_health} 
+          loading={analyticsLoading} 
+        />
+        
+        {/* Revenue Dashboard */}
+        <RevenueDashboardWidget 
+          data={analyticsData.revenue} 
+          loading={analyticsLoading} 
+        />
+        
+        {/* Subscriber Growth Tracker */}
+        <SubscriberGrowthWidget 
+          data={analyticsData.subscribers} 
+          loading={analyticsLoading} 
+        />
+        
+        {/* Content Performance Matrix */}
+        <ContentPerformanceWidget 
+          data={analyticsData.content_performance} 
+          loading={analyticsLoading} 
+        />
       </div>
+
     </div>
   )
 }

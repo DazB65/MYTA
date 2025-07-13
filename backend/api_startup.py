@@ -39,6 +39,7 @@ class CreatorMateStartup:
             "youtube_api": await self._initialize_youtube_api(),
             "agent_system": await self._initialize_agent_system(),
             "cache_system": await self._initialize_cache_system(),
+            "data_pipeline": await self._initialize_data_pipeline(),
             "authentication": await self._initialize_authentication(),
             "overall_status": "pending"
         }
@@ -263,6 +264,59 @@ class CreatorMateStartup:
                 "status": "error",
                 "error": str(e),
                 "recommendations": ["Check cache system configuration"]
+            }
+    
+    async def _initialize_data_pipeline(self) -> Dict[str, Any]:
+        """Initialize real-time data pipeline"""
+        logger.info("Initializing real-time data pipeline...")
+        
+        try:
+            from realtime_data_pipeline import get_data_pipeline
+            from enhanced_user_context import get_enhanced_context_manager
+            from analytics_service import get_analytics_service
+            
+            # Initialize data pipeline
+            data_pipeline = get_data_pipeline()
+            
+            # Initialize enhanced context manager
+            context_manager = get_enhanced_context_manager()
+            
+            # Initialize analytics service
+            analytics_service = get_analytics_service()
+            
+            # Start background monitoring if available
+            try:
+                # Start background monitoring tasks
+                await data_pipeline.start_background_monitoring()
+                monitoring_status = "active"
+            except Exception as e:
+                logger.warning(f"Background monitoring not started: {e}")
+                monitoring_status = "disabled"
+            
+            result = {
+                "status": "success",
+                "pipeline_status": "initialized",
+                "context_manager": "ready",
+                "analytics_service": "ready", 
+                "background_monitoring": monitoring_status,
+                "recommendations": []
+            }
+            
+            if monitoring_status == "disabled":
+                result["recommendations"].append("Background monitoring disabled - some real-time features may be limited")
+            
+            logger.info("✅ Real-time data pipeline initialized")
+            return result
+            
+        except Exception as e:
+            logger.error(f"❌ Data pipeline initialization failed: {e}")
+            return {
+                "status": "error",
+                "error": str(e),
+                "recommendations": [
+                    "Check data pipeline dependencies",
+                    "Verify OAuth and analytics service configuration"
+                ]
             }
     
     async def _initialize_authentication(self) -> Dict[str, Any]:

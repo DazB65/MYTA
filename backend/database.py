@@ -190,6 +190,7 @@ class DatabaseManager:
                 ]
                 
                 return {
+                    "user_id": user_id,  # Include user_id in context
                     "conversation_history": conversation_history,
                     "channel_info": channel_info
                 }
@@ -198,6 +199,7 @@ class DatabaseManager:
             logger.error(f"Error getting user context for {user_id}: {e}")
             # Return default context on error
             return {
+                "user_id": user_id,  # Include user_id in error fallback too
                 "conversation_history": [],
                 "channel_info": {
                     "name": "Unknown",
@@ -212,7 +214,8 @@ class DatabaseManager:
                     "monetization_status": "Unknown",
                     "primary_goal": "Unknown",
                     "notes": "",
-                    "last_message": ""
+                    "last_message": "",
+                    "channel_id": ""
                 }
             }
     

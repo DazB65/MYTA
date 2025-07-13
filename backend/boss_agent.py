@@ -14,6 +14,8 @@ import logging
 from openai import OpenAI
 import os
 from agent_cache import get_agent_cache
+from enhanced_user_context import get_enhanced_context_manager
+from realtime_data_pipeline import get_data_pipeline
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -816,27 +818,134 @@ class BossAgent:
         """
         
         try:
-            # Quick check for simple metric questions
-            channel_info = user_context.get("channel_info", {})
+            # Get enhanced real-time context
+            user_id = user_context.get('user_id')
+            if user_id:
+                # Register user activity for data pipeline
+                await get_data_pipeline().register_user_activity(user_id, "chat")
+                
+                # Check OAuth status before attempting enhanced context
+                from oauth_manager import get_oauth_manager
+                oauth_manager = get_oauth_manager()
+                oauth_status = oauth_manager.get_oauth_status(user_id)
+                
+                # Enhanced OAuth status logging
+                is_auth = oauth_status.get('authenticated', False)
+                expires_in = oauth_status.get('expires_in_seconds', 0)
+                needs_refresh = oauth_status.get('needs_refresh', False)
+                logger.info(f"📊 OAuth Status for {user_id}: authenticated={is_auth}, expires_in={expires_in}s, needs_refresh={needs_refresh}")
+                
+                if is_auth:
+                    logger.info(f"✅ OAuth connected - proceeding with real-time data access")
+                else:
+                    logger.warning(f"❌ OAuth not connected - will use basic context only")
+                
+                # Get enhanced context with real-time data
+                try:
+                    enhanced_context = await get_enhanced_context_manager().get_enhanced_context(user_id)
+                    channel_info = enhanced_context.get("channel_info", {})
+                    realtime_data = enhanced_context.get("realtime_data", {})
+                    
+                    # Add OAuth status to context for debugging
+                    enhanced_context['oauth_status'] = oauth_status
+                    
+                    # Enhanced context logging
+                    total_views = channel_info.get('total_view_count', 0)
+                    recent_views = channel_info.get('recent_views', 0)
+                    has_realtime = bool(realtime_data)
+                    data_quality = enhanced_context.get('data_quality', 'unknown')
+                    
+                    logger.info(f"📈 Enhanced context for {user_id}: total_views={total_views}, recent_views={recent_views}, realtime_data={has_realtime}, quality={data_quality}")
+                    
+                    if total_views > 0:
+                        logger.info(f"✅ Real-time channel data available - agents can provide specific insights")
+                    else:
+                        logger.warning(f"⚠️ No view data available - may need fresh YouTube API call")
+                    
+                except Exception as e:
+                    logger.warning(f"Failed to get enhanced context for {user_id}: {e}")
+                    enhanced_context = user_context
+                    channel_info = user_context.get("channel_info", {})
+                    realtime_data = {}
+                    enhanced_context['oauth_status'] = oauth_status
+            else:
+                enhanced_context = user_context
+                channel_info = user_context.get("channel_info", {})
+                realtime_data = {}
+            
             message_lower = message.lower()
             
-            # Direct answers for simple metric questions
+            # Enhanced direct answers with real-time data
             if "total views" in message_lower or "total view" in message_lower:
                 total_views = channel_info.get('total_view_count', 0)
+                recent_views = channel_info.get('recent_views', 0)
+                views_trend = channel_info.get('views_trend', 'stable')
+                
                 if total_views > 0:
+                    # Create enhanced response with real-time insights
+                    response_parts = [f"Your channel has {total_views:,} total views."]
+                    
+                    if recent_views > 0:
+                        response_parts.append(f"In the last 7 days, you got {recent_views:,} views")
+                        if views_trend == 'up':
+                            response_parts.append("📈 (trending upward!)")
+                        elif views_trend == 'down':
+                            response_parts.append("📉 (down from previous week)")
+                        else:
+                            response_parts.append("(stable performance)")
+                    
+                    # Add key insights if available
+                    key_insights = channel_info.get('key_insights', [])
+                    if key_insights:
+                        response_parts.append(f"\n💡 {key_insights[0]}")
+                    
+                    # Add data freshness indicator for real-time data
+                    data_quality = enhanced_context.get('data_quality', 'unknown')
+                    if data_quality == 'real-time':
+                        response_parts.append("\n📊 (Real-time data from YouTube Analytics)")
+                    
                     return {
                         "success": True,
-                        "response": f"Your channel has {total_views:,} total views.",
+                        "response": " ".join(response_parts),
                         "intent": "content_analysis",
-                        "agents_used": ["direct_answer"],
+                        "agents_used": ["enhanced_direct_answer"],
                         "processing_time": 0.1,
-                        "confidence": 1.0
+                        "confidence": 1.0,
+                        "real_time_data": True,
+                        "oauth_status": "connected"
                     }
                 else:
                     # Need to fetch fresh data from YouTube API
                     logger.info("Total views is 0 or not available, fetching fresh channel data")
                     channel_id = channel_info.get('channel_id')
                     user_id = user_context.get('user_id')
+                    oauth_status = enhanced_context.get('oauth_status', {}) if 'enhanced_context' in locals() else {}
+                    
+                    # Provide helpful feedback about OAuth status
+                    if not oauth_status.get('authenticated', False):
+                        error_msg = oauth_status.get('error', '')
+                        
+                        if 'No OAuth token found' in error_msg:
+                            oauth_response = "I need to access your YouTube Analytics to get your current total view count, but I don't see a connected YouTube account. " \
+                                           "Please connect your YouTube account using the OAuth connection button in the app settings to enable real-time analytics."
+                        elif oauth_status.get('needs_refresh', False):
+                            oauth_response = "I need to fetch your latest channel data from YouTube, but your authentication has expired. " \
+                                           "Please refresh your YouTube connection in the app settings, and I'll be able to get your current analytics data."
+                        else:
+                            oauth_response = "I need to fetch your latest channel data from YouTube to get your current total view count. " \
+                                           "However, there seems to be an issue with your YouTube connection. Please check your OAuth connection in the app settings."
+                        
+                        logger.info(f"OAuth not available for {user_id}: {oauth_status}")
+                        return {
+                            "success": True,
+                            "response": oauth_response,
+                            "intent": "content_analysis", 
+                            "agents_used": ["oauth_status_check"],
+                            "processing_time": 0.1,
+                            "confidence": 0.9,
+                            "real_time_data": False,
+                            "oauth_required": True
+                        }
                     
                     if channel_id:
                         try:
@@ -876,13 +985,35 @@ class BossAgent:
             
             elif "how many subscribers" in message_lower or "subscriber count" in message_lower:
                 subscribers = channel_info.get('subscriber_count', 0)
+                recent_sub_change = channel_info.get('recent_subscriber_change', 0)
+                sub_trend = channel_info.get('subscriber_trend', 'stable')
+                
+                response_parts = [f"You have {subscribers:,} subscribers."]
+                
+                if recent_sub_change != 0:
+                    if recent_sub_change > 0:
+                        response_parts.append(f"You gained {recent_sub_change:,} subscribers this week")
+                        if sub_trend == 'up':
+                            response_parts.append("🚀 (growing fast!)")
+                    else:
+                        response_parts.append(f"You lost {abs(recent_sub_change):,} subscribers this week")
+                        response_parts.append("📉 (consider reviewing content strategy)")
+                
+                # Add performance insights
+                performance_alerts = channel_info.get('performance_alerts', [])
+                if performance_alerts:
+                    subscriber_alert = next((alert for alert in performance_alerts if 'subscriber' in alert.lower()), None)
+                    if subscriber_alert:
+                        response_parts.append(f"\n💡 {subscriber_alert}")
+                
                 return {
                     "success": True,
-                    "response": f"You have {subscribers:,} subscribers.",
+                    "response": " ".join(response_parts),
                     "intent": "audience",
-                    "agents_used": ["direct_answer"],
+                    "agents_used": ["enhanced_direct_answer"],
                     "processing_time": 0.1,
-                    "confidence": 1.0
+                    "confidence": 1.0,
+                    "real_time_data": True
                 }
             
             elif "how many videos" in message_lower or "video count" in message_lower:
@@ -895,6 +1026,199 @@ class BossAgent:
                     "processing_time": 0.1,
                     "confidence": 1.0
                 }
+            
+            # CTR (Click-through rate) questions
+            elif any(keyword in message_lower for keyword in ["ctr", "click through rate", "click-through rate", "thumbnail performance"]):
+                ctr = channel_info.get('recent_ctr', 0)
+                ctr_trend = channel_info.get('ctr_trend', 'stable')
+                
+                if ctr > 0:
+                    response_parts = [f"Your CTR is {ctr:.1f}%."]
+                else:
+                    response_parts = ["I don't have your current CTR data. CTR (click-through rate) measures how often people click your thumbnails when they see them. You can check this in YouTube Studio > Analytics > Reach tab."]
+                
+                if ctr >= 8:
+                    response_parts.append("🎯 Excellent CTR! Your thumbnails are performing very well.")
+                elif ctr >= 5:
+                    response_parts.append("👍 Good CTR - above average performance.")
+                elif ctr >= 3:
+                    response_parts.append("📊 Average CTR - consider testing new thumbnail styles.")
+                else:
+                    response_parts.append("📸 Low CTR - focus on more compelling thumbnails and titles.")
+                
+                if ctr_trend == 'up':
+                    response_parts.append("📈 (trending upward!)")
+                elif ctr_trend == 'down':
+                    response_parts.append("📉 (declining recently)")
+                
+                return {
+                    "success": True,
+                    "response": " ".join(response_parts),
+                    "intent": "content_analysis",
+                    "agents_used": ["enhanced_direct_answer"],
+                    "processing_time": 0.1,
+                    "confidence": 1.0,
+                    "real_time_data": True
+                }
+            
+            # Retention rate questions
+            elif any(keyword in message_lower for keyword in ["retention", "retention rate", "audience retention", "how long do people watch"]):
+                retention = channel_info.get('recent_retention', 0)
+                retention_trend = channel_info.get('retention_trend', 'stable')
+                
+                if retention > 0:
+                    response_parts = [f"Your average retention rate is {retention:.1f}%."]
+                else:
+                    response_parts = ["I don't have your current retention data. Retention rate shows what percentage of your video people actually watch. You can check this in YouTube Studio > Analytics > Engagement tab."]
+                
+                if retention >= 70:
+                    response_parts.append("🎉 Excellent retention! Your content keeps viewers highly engaged.")
+                elif retention >= 50:
+                    response_parts.append("👍 Good retention - your content structure is working well.")
+                elif retention >= 30:
+                    response_parts.append("📊 Average retention - consider shorter intros and pattern interrupts.")
+                else:
+                    response_parts.append("⏱️ Low retention - focus on engaging openings and content pacing.")
+                
+                if retention_trend == 'up':
+                    response_parts.append("📈 (improving recently!)")
+                elif retention_trend == 'down':
+                    response_parts.append("📉 (declining - analyze drop-off points)")
+                
+                return {
+                    "success": True,
+                    "response": " ".join(response_parts),
+                    "intent": "content_analysis",
+                    "agents_used": ["enhanced_direct_answer"],
+                    "processing_time": 0.1,
+                    "confidence": 1.0,
+                    "real_time_data": True
+                }
+            
+            # Engagement rate questions
+            elif any(keyword in message_lower for keyword in ["engagement", "engagement rate", "likes", "comments", "interaction"]):
+                engagement = channel_info.get('recent_engagement_rate', 0)
+                recent_views = channel_info.get('recent_views', 0)
+                
+                if engagement > 0:
+                    response_parts = [f"Your engagement rate is {engagement:.1f}%."]
+                else:
+                    response_parts = ["I don't have your current engagement data. Engagement rate measures likes, comments, and shares relative to views. You can check this in YouTube Studio > Analytics > Engagement tab."]
+                
+                if engagement >= 5:
+                    response_parts.append("🚀 Outstanding engagement! Your audience is highly interactive.")
+                elif engagement >= 3:
+                    response_parts.append("👍 Good engagement - your content resonates with viewers.")
+                elif engagement >= 1.5:
+                    response_parts.append("📊 Average engagement - consider more calls-to-action.")
+                else:
+                    response_parts.append("💬 Low engagement - try asking questions and encouraging interaction.")
+                
+                if recent_views > 0:
+                    response_parts.append(f"(Based on {recent_views:,} recent views)")
+                
+                return {
+                    "success": True,
+                    "response": " ".join(response_parts),
+                    "intent": "audience",
+                    "agents_used": ["enhanced_direct_answer"],
+                    "processing_time": 0.1,
+                    "confidence": 1.0,
+                    "real_time_data": True
+                }
+            
+            # Traffic source questions
+            elif any(keyword in message_lower for keyword in ["traffic source", "where do views come from", "discovery", "how do people find"]):
+                traffic_breakdown = channel_info.get('traffic_source_breakdown', {})
+                top_source = channel_info.get('top_traffic_source', 'Unknown')
+                
+                if traffic_breakdown:
+                    youtube_search = traffic_breakdown.get('YouTube Search', 0)
+                    suggested = traffic_breakdown.get('Suggested Videos', 0)
+                    external = traffic_breakdown.get('External', 0)
+                    
+                    response_parts = [f"Your top traffic source is {top_source}."]
+                    response_parts.append(f"Breakdown: YouTube Search ({youtube_search:.1f}%), Suggested Videos ({suggested:.1f}%), External ({external:.1f}%)")
+                    
+                    if youtube_search > 40:
+                        response_parts.append("🔍 Strong search performance - your SEO is working well!")
+                    elif suggested > 40:
+                        response_parts.append("📺 Algorithm loves your content - great for viral growth!")
+                    elif external > 20:
+                        response_parts.append("🌐 Good external promotion - social media is paying off!")
+                else:
+                    # Graceful degradation - provide general guidance
+                    response_parts = ["I don't have access to your traffic source data right now. To see where your views come from, you can check YouTube Studio > Analytics > Reach tab. Common sources include YouTube Search, Suggested Videos, and External traffic."]
+                
+                return {
+                    "success": True,
+                    "response": " ".join(response_parts),
+                    "intent": "seo",
+                    "agents_used": ["enhanced_direct_answer"],
+                    "processing_time": 0.1,
+                    "confidence": 1.0,
+                    "real_time_data": bool(traffic_breakdown)
+                }
+            
+            # Growth and trends questions
+            elif any(keyword in message_lower for keyword in ["growth", "trend", "trending", "growing", "decline", "performance trend"]):
+                views_trend = channel_info.get('views_trend', 'stable')
+                subscriber_trend = channel_info.get('subscriber_trend', 'stable')
+                recent_sub_change = channel_info.get('recent_subscriber_change', 0)
+                recent_views = channel_info.get('recent_views', 0)
+                
+                response_parts = []
+                
+                # Views trend
+                if views_trend == 'up':
+                    response_parts.append(f"📈 Your views are trending upward! ({recent_views:,} recent views)")
+                elif views_trend == 'down':
+                    response_parts.append(f"📉 Your views are declining ({recent_views:,} recent views)")
+                else:
+                    response_parts.append(f"📊 Your views are stable ({recent_views:,} recent views)")
+                
+                # Subscriber trend
+                if recent_sub_change > 0:
+                    response_parts.append(f"You gained {recent_sub_change:,} subscribers recently.")
+                elif recent_sub_change < 0:
+                    response_parts.append(f"You lost {abs(recent_sub_change):,} subscribers recently.")
+                
+                # Performance alerts
+                alerts = channel_info.get('performance_alerts', [])
+                if alerts:
+                    response_parts.append(f"💡 {alerts[0]}")
+                
+                return {
+                    "success": True,
+                    "response": " ".join(response_parts),
+                    "intent": "content_analysis",
+                    "agents_used": ["enhanced_direct_answer"],
+                    "processing_time": 0.1,
+                    "confidence": 1.0,
+                    "real_time_data": True
+                }
+            
+            # Best/Top performing content questions
+            elif any(keyword in message_lower for keyword in ["best video", "top video", "best performing", "most views", "most popular", "highest performing"]):
+                # Check if we have enhanced context with video performance data
+                realtime_data = enhanced_context.get("realtime_data", {}) if 'enhanced_context' in locals() else {}
+                
+                if realtime_data and realtime_data.get('top_video'):
+                    top_video = realtime_data['top_video']
+                    response = f"Your best performing video is \"{top_video['title']}\" with {top_video['views']:,} views and {top_video.get('engagement_rate', 0):.1f}% engagement rate."
+                    
+                    return {
+                        "success": True,
+                        "response": response,
+                        "intent": "content_analysis",
+                        "agents_used": ["enhanced_direct_answer"],
+                        "processing_time": 0.1,
+                        "confidence": 1.0,
+                        "real_time_data": True
+                    }
+                else:
+                    # Delegate to content analysis agent for detailed video analysis
+                    logger.info("No top video data in enhanced context - delegating to content analysis agent")
             
             # Step 1: Parse message and classify intent
             intent, parameters = await self.intent_classifier.classify_intent(message, user_context)
@@ -910,14 +1234,14 @@ class BossAgent:
             # Step 3: Determine which agents to activate
             active_agents = self._determine_agents(intent, parameters)
             
-            # Step 4: Create agent requests
-            requests = self._create_agent_requests(intent, parameters, user_context)
+            # Step 4: Create agent requests with enhanced context
+            requests = self._create_agent_requests(intent, parameters, enhanced_context if user_id else user_context)
             
             # Step 5: Execute agents (parallel where possible)
             agent_responses = await self._execute_agents(active_agents, requests)
             
-            # Step 6: Synthesize final response
-            final_response = await self._synthesize_response(intent, agent_responses, user_context, message)
+            # Step 6: Synthesize final response with enhanced context
+            final_response = await self._synthesize_response(intent, agent_responses, enhanced_context if user_id else user_context, message)
             
             # Step 7: Cache the response
             if final_response.get("success", False):
@@ -939,7 +1263,7 @@ class BossAgent:
         # Primary agent based on intent
         active_agents = [intent] if intent != QueryType.GENERAL else []
         
-        # Add complementary agents based on parameters
+        # Enhanced multi-agent coordination based on query complexity
         if parameters.get("competitors"):
             if QueryType.COMPETITIVE_ANALYSIS not in active_agents:
                 active_agents.append(QueryType.COMPETITIVE_ANALYSIS)
@@ -948,9 +1272,36 @@ class BossAgent:
             if QueryType.MONETIZATION not in active_agents:
                 active_agents.append(QueryType.MONETIZATION)
         
-        # For content analysis, often include SEO insights
+        # Smart agent combinations based on intent
         if intent == QueryType.CONTENT_ANALYSIS:
-            active_agents.append(QueryType.SEO_OPTIMIZATION)
+            # Content analysis benefits from SEO insights
+            if QueryType.SEO_OPTIMIZATION not in active_agents:
+                active_agents.append(QueryType.SEO_OPTIMIZATION)
+            # Also add audience insights for engagement context
+            if QueryType.AUDIENCE_INSIGHTS not in active_agents:
+                active_agents.append(QueryType.AUDIENCE_INSIGHTS)
+        
+        elif intent == QueryType.AUDIENCE_INSIGHTS:
+            # Audience analysis benefits from content performance context
+            if QueryType.CONTENT_ANALYSIS not in active_agents:
+                active_agents.append(QueryType.CONTENT_ANALYSIS)
+        
+        elif intent == QueryType.SEO_OPTIMIZATION:
+            # SEO benefits from content performance data
+            if QueryType.CONTENT_ANALYSIS not in active_agents:
+                active_agents.append(QueryType.CONTENT_ANALYSIS)
+        
+        elif intent == QueryType.MONETIZATION:
+            # Monetization needs audience and content insights
+            if QueryType.AUDIENCE_INSIGHTS not in active_agents:
+                active_agents.append(QueryType.AUDIENCE_INSIGHTS)
+            if QueryType.CONTENT_ANALYSIS not in active_agents:
+                active_agents.append(QueryType.CONTENT_ANALYSIS)
+        
+        # For comprehensive analysis questions, activate multiple agents
+        if intent == QueryType.GENERAL or len(active_agents) == 0:
+            # Default to content analysis for general questions
+            active_agents = [QueryType.CONTENT_ANALYSIS, QueryType.AUDIENCE_INSIGHTS]
         
         # Remove duplicates and ensure we have at least one agent
         active_agents = list(set(active_agents))
@@ -1064,22 +1415,25 @@ class BossAgent:
         Channel: {channel_info.get('name', 'Your channel')}
         
         Channel Information Available:
-        - Total Views: {channel_info.get('total_view_count', 'Not available') if channel_info.get('total_view_count', 0) > 0 else 'Need to fetch from YouTube API'}
+        - Total Views: {channel_info.get('total_view_count', 0):,} ({channel_info.get('total_view_count', 0) and 'real-time data' or 'basic data'})
         - Subscriber Count: {channel_info.get('subscriber_count', 0):,}
         - Average Views per Video: {channel_info.get('avg_view_count', 0):,}
         - Total Videos: {channel_info.get('video_count', 0)}
+        - Recent CTR: {channel_info.get('recent_ctr', 0):.1f}%
+        - Recent Retention: {channel_info.get('recent_retention', 0):.1f}%
+        - Recent Engagement: {channel_info.get('recent_engagement_rate', 0):.1f}%
         
         Agent Insights:
         {chr(10).join(all_insights)}
         {top_performers_info}
         
         CRITICAL INSTRUCTIONS:
-        1. ALWAYS start with a DIRECT ANSWER to the user's exact question
-        2. If they ask "what is my total views":
-           - If total views data is available and > 0: "Your channel has X total views"
-           - If total views shows "Need to fetch from YouTube API": "I need to fetch your latest channel data from YouTube to get your current total view count. Let me get that information for you."
-        3. If they ask "how many subscribers" - start with "You have X subscribers"
-        4. If they ask about best video - start with the exact title and metrics
+        1. ALWAYS start with a DIRECT ANSWER to the user's exact question using the specific data above
+        2. For "total views" questions: "Your channel has X total views" (use the exact number)
+        3. For "subscribers" questions: "You have X subscribers" (use the exact number)
+        4. For "best video" questions: Use the BEST PERFORMING VIDEO data above if available
+        5. For performance metrics: Use the Recent CTR, Retention, Engagement data above
+        6. If no specific data is available for their question, say "I don't have that specific data available" instead of generic responses
         
         Response Structure:
         - FIRST SENTENCE: Direct answer to their question with specific numbers

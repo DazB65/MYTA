@@ -1,13 +1,13 @@
 import { useState } from 'react'
 import { NavLink } from 'react-router-dom'
-import { Tv, Building2, Clapperboard, Wrench, Settings, Menu, X } from 'lucide-react'
+import { LayoutDashboard, Building2, Clapperboard, Menu, X } from 'lucide-react'
 import { cn } from '@/utils'
 
 const navigation = [
   {
-    name: 'Channel',
-    href: '/channel',
-    icon: Tv,
+    name: 'Dashboard',
+    href: '/dashboard',
+    icon: LayoutDashboard,
   },
   {
     name: 'Pillars',
@@ -18,16 +18,6 @@ const navigation = [
     name: 'Videos',
     href: '/videos',
     icon: Clapperboard,
-  },
-  {
-    name: 'Tools',
-    href: '/tools',
-    icon: Wrench,
-  },
-  {
-    name: 'Settings',
-    href: '/settings',
-    icon: Settings,
   },
 ]
 

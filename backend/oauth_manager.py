@@ -38,7 +38,14 @@ class OAuthToken:
     
     def is_expired(self) -> bool:
         """Check if token is expired with 5-minute buffer"""
-        return datetime.now() >= (self.expires_at - timedelta(minutes=5))
+        # Always use UTC for comparison to avoid timezone issues
+        from datetime import timezone
+        now_utc = datetime.now(timezone.utc).replace(tzinfo=None)
+        # If expires_at has no timezone info, assume it's UTC
+        expires_at = self.expires_at
+        if hasattr(expires_at, 'tzinfo') and expires_at.tzinfo is not None:
+            expires_at = expires_at.replace(tzinfo=None)
+        return now_utc >= (expires_at - timedelta(minutes=5))
     
     def to_dict(self) -> Dict[str, Any]:
         """Convert to dictionary for JSON serialization"""
@@ -380,12 +387,15 @@ class OAuthManager:
             token.access_token = credentials.token
             if credentials.refresh_token:
                 token.refresh_token = credentials.refresh_token
-            # Convert expiry to naive datetime if it has timezone info
+            # Convert expiry to UTC naive datetime
+            from datetime import timezone
             if credentials.expiry.tzinfo is not None:
-                token.expires_at = credentials.expiry.replace(tzinfo=None)
+                # Convert timezone-aware to UTC naive
+                token.expires_at = credentials.expiry.astimezone(timezone.utc).replace(tzinfo=None)
             else:
+                # Assume naive datetime is already UTC
                 token.expires_at = credentials.expiry
-            token.updated_at = datetime.now()
+            token.updated_at = datetime.now(timezone.utc).replace(tzinfo=None)
             
             # Store updated token
             await self._store_token(token)
@@ -489,12 +499,20 @@ class OAuthManager:
                 expires_at = datetime.fromisoformat(row[0])
                 scope = row[1]
                 
+                # Use UTC for consistent timezone handling
+                from datetime import timezone
+                now_utc = datetime.now(timezone.utc).replace(tzinfo=None)
+                
+                # If expires_at has timezone info, convert to UTC naive
+                if hasattr(expires_at, 'tzinfo') and expires_at.tzinfo is not None:
+                    expires_at = expires_at.astimezone(timezone.utc).replace(tzinfo=None)
+                
                 return {
                     "authenticated": True,
                     "expires_at": expires_at.isoformat(),
-                    "expires_in_seconds": (expires_at - datetime.now()).total_seconds(),
+                    "expires_in_seconds": (expires_at - now_utc).total_seconds(),
                     "scopes": scope.split(),
-                    "needs_refresh": expires_at <= datetime.now()
+                    "needs_refresh": expires_at <= now_utc
                 }
                 
         except Exception as e:

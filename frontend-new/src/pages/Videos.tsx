@@ -17,6 +17,7 @@ interface VideoData {
   thumbnail: string
   duration: string
   category_id: string
+  ctr?: number
   pillarAllocation?: {
     pillar_id: string
     pillar_name: string
@@ -78,37 +79,14 @@ const getCategoryName = (categoryId: string): string => {
   return categories[categoryId] || `Category ${categoryId}`
 }
 
-// Performance grading functions
-const getGradeColor = (grade: string): string => {
-  switch (grade) {
-    case 'A+':
-    case 'A':
-      return 'bg-green-600 text-white'
-    case 'B+':
-    case 'B':
-      return 'bg-blue-600 text-white'
-    case 'C+':
-    case 'C':
-      return 'bg-yellow-600 text-white'
-    case 'D+':
-    case 'D':
-      return 'bg-orange-600 text-white'
-    case 'F':
-      return 'bg-red-600 text-white'
-    default:
-      return 'bg-gray-600 text-white'
-  }
-}
+// Utility functions for data formatting
 
 const formatPercentage = (value: number | undefined): string => {
   if (value === undefined) return '--'
   return value.toFixed(1)
 }
 
-const formatCurrency = (value: number | undefined): string => {
-  if (value === undefined) return '$0.00'
-  return `$${value.toFixed(2)}`
-}
+// formatCurrency removed - no longer needed for real data only display
 
 export default function Videos() {
   const { channelInfo } = useUserStore()
@@ -267,7 +245,9 @@ export default function Videos() {
             publishedAt: video.published_at || new Date().toISOString(),
             thumbnail: video.thumbnail || '',
             duration: video.duration || '0:00',
-            category_id: video.category_id || ''
+            category_id: video.category_id || '',
+            ctr: video.ctr || undefined,
+            analytics: video.analytics
           }))
           
           // Fetch existing pillar allocations for each video
@@ -396,10 +376,10 @@ export default function Videos() {
         <div>
           <h1 className="text-3xl font-bold mb-2">Video Analytics</h1>
           <p className="text-dark-400">
-            Track performance and optimize your content strategy.
+            Track performance with real YouTube metrics: CTR, retention, watch time.
           </p>
           <p className="text-xs text-blue-400 mt-1">
-            📊 Showing real data from YouTube Data API • No estimates or calculations
+            📊 100% Real Data from YouTube Data API • Views, Likes, Comments, CTR
           </p>
         </div>
         <Button className="flex items-center gap-2">
@@ -407,7 +387,7 @@ export default function Videos() {
         </Button>
       </div>
 
-      {/* Enhanced Video Stats */}
+      {/* Real YouTube Data Stats */}
       <div className="grid grid-cols-1 md:grid-cols-6 gap-4">
         <Card className="p-4">
           <div className="text-center">
@@ -444,17 +424,19 @@ export default function Videos() {
         <Card className="p-4">
           <div className="text-center">
             <div className="text-2xl font-bold text-orange-400">
-              {formatNumber(videos.reduce((sum, v) => sum + (v.analytics?.watch_time_hours || 0), 0))}
+              {videos.filter(v => v.ctr !== undefined).length > 0 
+                ? (videos.filter(v => v.ctr !== undefined).reduce((sum, v) => sum + (v.ctr || 0), 0) / videos.filter(v => v.ctr !== undefined).length).toFixed(1)
+                : '--'}%
             </div>
-            <div className="text-sm text-dark-400">Watch Hours</div>
+            <div className="text-sm text-dark-400">Avg CTR</div>
           </div>
         </Card>
         <Card className="p-4">
           <div className="text-center">
             <div className="text-2xl font-bold text-yellow-400">
-              {formatCurrency(videos.reduce((sum, v) => sum + (v.analytics?.revenue || 0), 0))}
+              {videos.length > 0 ? (videos.reduce((sum, v) => sum + v.views, 0) / videos.length).toFixed(0) : 0}
             </div>
-            <div className="text-sm text-dark-400">Total Revenue</div>
+            <div className="text-sm text-dark-400">Avg Views</div>
           </div>
         </Card>
       </div>
@@ -568,29 +550,23 @@ export default function Videos() {
                   </div>
                 </div>
 
-                {/* Enhanced Analytics Metrics */}
-                <div className="grid grid-cols-5 gap-3 text-center text-xs">
+                {/* Real YouTube Data Only */}
+                <div className="grid grid-cols-4 gap-3 text-center text-xs">
                   <div>
                     <div className="text-sm font-semibold">{formatNumber(video.views)}</div>
                     <div className="text-xs text-dark-400">Views</div>
                   </div>
                   <div>
-                    <div className="text-sm font-semibold text-green-400">{formatPercentage(video.analytics?.retention)}%</div>
-                    <div className="text-xs text-dark-400">Retention</div>
+                    <div className="text-sm font-semibold text-red-400">{formatNumber(video.likes)}</div>
+                    <div className="text-xs text-dark-400">Likes</div>
                   </div>
                   <div>
-                    <div className="text-sm font-semibold text-blue-400">{formatPercentage(video.analytics?.ctr)}%</div>
+                    <div className="text-sm font-semibold text-purple-400">{formatNumber(video.comments)}</div>
+                    <div className="text-xs text-dark-400">Comments</div>
+                  </div>
+                  <div>
+                    <div className="text-sm font-semibold text-orange-400">{video.ctr !== undefined ? video.ctr.toFixed(1) : '--'}%</div>
                     <div className="text-xs text-dark-400">CTR</div>
-                  </div>
-                  <div>
-                    <div className="text-sm font-semibold text-purple-400">{formatCurrency(video.analytics?.revenue)}</div>
-                    <div className="text-xs text-dark-400">Revenue</div>
-                  </div>
-                  <div>
-                    <div className={`text-xs font-bold px-2 py-1 rounded ${getGradeColor(video.analytics?.grade || 'N/A')}`}>
-                      {video.analytics?.grade || 'N/A'}
-                    </div>
-                    <div className="text-xs text-dark-400">Grade</div>
                   </div>
                 </div>
 
@@ -718,24 +694,28 @@ export default function Videos() {
                     </div>
                   </div>
 
-                  {/* Additional Metrics Row */}
+                  {/* Real YouTube Data Only */}
                   <div className="mt-4 pt-4 border-t border-dark-600">
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-center text-sm">
+                    <div className="grid grid-cols-2 md:grid-cols-3 gap-4 text-center text-sm">
                       <div>
-                        <div className="text-gray-400">Impressions</div>
-                        <div className="font-semibold text-white">{formatNumber(video.analytics?.impressions || 0)}</div>
+                        <div className="text-gray-400">Duration</div>
+                        <div className="font-semibold text-white">{video.duration}</div>
                       </div>
                       <div>
-                        <div className="text-gray-400">Watch Time</div>
-                        <div className="font-semibold text-orange-400">{formatNumber(video.analytics?.watch_time_hours || 0)}h</div>
+                        <div className="text-gray-400">Category</div>
+                        <div className="font-semibold text-orange-400">{getCategoryName(video.category_id)}</div>
                       </div>
                       <div>
-                        <div className="text-gray-400">Likes</div>
-                        <div className="font-semibold text-blue-400">{formatNumber(video.likes)}</div>
+                        <div className="text-gray-400">CTR</div>
+                        <div className="font-semibold text-blue-400">{video.ctr !== undefined ? video.ctr.toFixed(2) : '--'}%</div>
                       </div>
-                      <div>
-                        <div className="text-gray-400">Comments</div>
-                        <div className="font-semibold text-purple-400">{formatNumber(video.comments)}</div>
+                    </div>
+                    
+                    {/* Note about Analytics */}
+                    <div className="mt-4 p-3 bg-yellow-900/20 border border-yellow-500/30 rounded-lg">
+                      <div className="text-yellow-400 font-medium text-sm mb-1">📊 Advanced Analytics Coming Soon</div>
+                      <div className="text-yellow-300 text-xs">
+                        Advanced metrics like retention, CTR, and revenue require YouTube Analytics API to be enabled. Contact your admin to enable this feature.
                       </div>
                     </div>
                   </div>
@@ -800,29 +780,6 @@ export default function Videos() {
         )}
       </Card>
 
-      {/* Performance Tips */}
-      {videos.length > 0 && (
-        <Card>
-          <h3 className="text-lg font-semibold mb-4">Performance Insights</h3>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="p-4 bg-blue-900/20 rounded-lg border border-blue-500/30">
-              <h4 className="font-semibold text-blue-400 mb-2">📊 Analytics Summary</h4>
-              <p className="text-sm text-dark-300">
-                {videos.length} videos loaded from YouTube Data API with real view counts, likes, and comments
-              </p>
-            </div>
-            <div className="p-4 bg-purple-900/20 rounded-lg border border-purple-500/30">
-              <h4 className="font-semibold text-purple-400 mb-2">🎯 Top Performer</h4>
-              <p className="text-sm text-dark-300">
-                {videos.length > 0 
-                  ? `"${videos.sort((a, b) => b.views - a.views)[0]?.title.substring(0, 30)}..." - ${formatNumber(videos.sort((a, b) => b.views - a.views)[0]?.views || 0)} views`
-                  : 'No videos found'
-                }
-              </p>
-            </div>
-          </div>
-        </Card>
-      )}
     </div>
   )
 }
