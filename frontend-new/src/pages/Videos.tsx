@@ -23,6 +23,30 @@ interface VideoData {
     pillar_icon: string
     pillar_color: string
   }
+  analytics?: {
+    retention: number
+    ctr: number
+    revenue: number
+    watch_time_hours: number
+    impressions: number
+    traffic_sources?: {
+      search: number
+      suggested: number
+      external: number
+      browse: number
+    }
+    demographics?: {
+      age_groups: Record<string, number>
+      gender: Record<string, number>
+    }
+    grade: string
+  }
+  insights?: string[]
+  recommendations?: Array<{
+    type: string
+    action: string
+    reason: string
+  }>
 }
 
 interface PillarOption {
@@ -54,9 +78,41 @@ const getCategoryName = (categoryId: string): string => {
   return categories[categoryId] || `Category ${categoryId}`
 }
 
+// Performance grading functions
+const getGradeColor = (grade: string): string => {
+  switch (grade) {
+    case 'A+':
+    case 'A':
+      return 'bg-green-600 text-white'
+    case 'B+':
+    case 'B':
+      return 'bg-blue-600 text-white'
+    case 'C+':
+    case 'C':
+      return 'bg-yellow-600 text-white'
+    case 'D+':
+    case 'D':
+      return 'bg-orange-600 text-white'
+    case 'F':
+      return 'bg-red-600 text-white'
+    default:
+      return 'bg-gray-600 text-white'
+  }
+}
+
+const formatPercentage = (value: number | undefined): string => {
+  if (value === undefined) return '--'
+  return value.toFixed(1)
+}
+
+const formatCurrency = (value: number | undefined): string => {
+  if (value === undefined) return '$0.00'
+  return `$${value.toFixed(2)}`
+}
+
 export default function Videos() {
   const { channelInfo } = useUserStore()
-  const { isAuthenticated } = useOAuthStore()
+  const { isAuthenticated, checkStatus } = useOAuthStore()
   
   // TEMPORARY FIX: Force use default_user for consistency with Pillars page
   const actualUserId = "default_user"
@@ -69,8 +125,15 @@ export default function Videos() {
   const [currentPage, setCurrentPage] = useState(1)
   const [availablePillars, setAvailablePillars] = useState<PillarOption[]>([])
   const [allocatingVideo, setAllocatingVideo] = useState<string | null>(null)
+  const [expandedVideo, setExpandedVideo] = useState<string | null>(null)
 
   useEffect(() => {
+    // Check OAuth status when component mounts
+    checkStatus()
+  }, [])
+
+  useEffect(() => {
+    // Fetch videos when authenticated and channel is configured
     if (isAuthenticated && channelInfo.name !== 'Unknown') {
       fetchVideos()
       fetchPillars()
@@ -174,27 +237,27 @@ export default function Videos() {
     setError(null)
     
     try {
-      // Fetch real video data from YouTube API
-      const response = await fetch('/api/youtube/analytics', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          channel_id: channelInfo.channel_id || channelInfo.name,
-          user_id: actualUserId,
-          analysis_type: "comprehensive", 
-          include_videos: true,
-          video_count: 50
-        })
-      })
+      // First check if user has a valid channel configured
+      const statusResponse = await fetch(`/api/youtube/channel-status/${actualUserId}`)
+      if (statusResponse.ok) {
+        const statusData = await statusResponse.json()
+        if (!statusData.data?.has_channel) {
+          setError(`No YouTube channel connected. ${statusData.data?.suggestions?.[0] || 'Please connect your YouTube channel first.'}`)
+          setVideos([])
+          setLoading(false)
+          return
+        }
+      }
+
+      // Use the simpler my-videos endpoint 
+      const response = await fetch(`/api/youtube/my-videos/${actualUserId}?count=50`)
 
       if (response.ok) {
         const data = await response.json()
         
-        if (data.status === 'success' && data.channel_data?.recent_videos && data.channel_data.recent_videos.length > 0) {
-          // Transform API data to VideoData format - only real data
-          const transformedVideos: VideoData[] = data.channel_data.recent_videos.map((video: any) => ({
+        if (data.status === 'success' && data.data?.videos && data.data.videos.length > 0) {
+          // Transform API data to VideoData format - using simpler endpoint structure
+          const transformedVideos: VideoData[] = data.data.videos.map((video: any) => ({
             id: video.video_id,
             title: video.title,
             description: video.description || '',
@@ -237,6 +300,20 @@ export default function Videos() {
           setLoading(false)
           return
         }
+      } else {
+        // Handle API error responses
+        const errorData = await response.json().catch(() => null)
+        if (errorData?.detail && typeof errorData.detail === 'object') {
+          // Enhanced error response from backend
+          setError(`${errorData.detail.error}: ${errorData.detail.details}`)
+        } else if (errorData?.detail) {
+          setError(errorData.detail)
+        } else {
+          setError('Failed to fetch videos from YouTube API')
+        }
+        setVideos([])
+        setLoading(false)
+        return
       }
       
       // No fallback data - only show real YouTube videos
@@ -330,8 +407,8 @@ export default function Videos() {
         </Button>
       </div>
 
-      {/* Real Video Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+      {/* Enhanced Video Stats */}
+      <div className="grid grid-cols-1 md:grid-cols-6 gap-4">
         <Card className="p-4">
           <div className="text-center">
             <div className="text-2xl font-bold text-primary-400">
@@ -364,6 +441,22 @@ export default function Videos() {
             <div className="text-sm text-dark-400">Total Comments</div>
           </div>
         </Card>
+        <Card className="p-4">
+          <div className="text-center">
+            <div className="text-2xl font-bold text-orange-400">
+              {formatNumber(videos.reduce((sum, v) => sum + (v.analytics?.watch_time_hours || 0), 0))}
+            </div>
+            <div className="text-sm text-dark-400">Watch Hours</div>
+          </div>
+        </Card>
+        <Card className="p-4">
+          <div className="text-center">
+            <div className="text-2xl font-bold text-yellow-400">
+              {formatCurrency(videos.reduce((sum, v) => sum + (v.analytics?.revenue || 0), 0))}
+            </div>
+            <div className="text-sm text-dark-400">Total Revenue</div>
+          </div>
+        </Card>
       </div>
 
       {/* Video List */}
@@ -392,17 +485,23 @@ export default function Videos() {
 
         {!isAuthenticated ? (
           <div className="text-center py-12">
-            <div className="text-6xl mb-4">📺</div>
-            <h3 className="text-lg font-semibold mb-2">Connect YouTube to View Videos</h3>
-            <p className="text-dark-400">
-              Connect your YouTube account to see detailed video analytics.
+            <div className="text-6xl mb-4">🔐</div>
+            <h3 className="text-lg font-semibold mb-2 text-white">Connect YouTube to View Videos</h3>
+            <p className="text-gray-300 mb-6">
+              Connect your YouTube account to access detailed video analytics and data.
             </p>
+            <Button 
+              onClick={() => window.open(`/api/youtube/debug/oauth-redirect/${actualUserId}`, '_blank')}
+              variant="primary"
+            >
+              Connect YouTube Account
+            </Button>
           </div>
         ) : loading ? (
           <div className="text-center py-12">
             <Loader className="w-8 h-8 animate-spin mx-auto mb-4 text-primary-400" />
-            <h3 className="text-lg font-semibold mb-2">Loading Videos...</h3>
-            <p className="text-dark-400">
+            <h3 className="text-lg font-semibold mb-2 text-white">Loading Videos...</h3>
+            <p className="text-gray-300">
               Fetching your video data from YouTube.
             </p>
           </div>
@@ -410,26 +509,34 @@ export default function Videos() {
           <div className="text-center py-12">
             <AlertCircle className="w-8 h-8 mx-auto mb-4 text-red-400" />
             <h3 className="text-lg font-semibold mb-2 text-red-400">Failed to Load Videos</h3>
-            <p className="text-dark-400 mb-4">{error}</p>
-            <Button onClick={fetchVideos} variant="secondary">
-              Try Again
-            </Button>
+            <p className="text-gray-300 mb-4 font-medium">{error}</p>
+            <div className="flex justify-center gap-3">
+              <Button onClick={fetchVideos} variant="secondary">
+                Try Again
+              </Button>
+              {error.includes('No YouTube channel connected') && (
+                <Button 
+                  onClick={() => window.open(`/api/youtube/debug/oauth-redirect/${actualUserId}`, '_blank')}
+                  variant="primary"
+                >
+                  Connect YouTube Channel
+                </Button>
+              )}
+            </div>
           </div>
         ) : videos.length === 0 ? (
           <div className="text-center py-12">
             <div className="text-6xl mb-4">📺</div>
-            <h3 className="text-lg font-semibold mb-2">No Videos Found</h3>
-            <p className="text-dark-400">
+            <h3 className="text-lg font-semibold mb-2 text-white">No Videos Found</h3>
+            <p className="text-gray-300">
               Your channel doesn't have any videos yet, or they couldn't be loaded.
             </p>
           </div>
         ) : (
           <div className="space-y-4">
             {displayedVideos.map((video) => (
-              <div
-                key={video.id}
-                className="flex items-center gap-4 p-4 bg-dark-800/50 rounded-lg hover:bg-dark-800 transition-colors"
-              >
+              <div key={video.id}>
+                <div className="flex items-center gap-4 p-4 bg-dark-800/50 rounded-lg hover:bg-dark-800 transition-colors">
                 {/* Thumbnail */}
                 <div className="w-32 h-18 bg-dark-700 rounded-lg flex items-center justify-center flex-shrink-0 overflow-hidden">
                   {video.thumbnail ? (
@@ -461,19 +568,29 @@ export default function Videos() {
                   </div>
                 </div>
 
-                {/* Real Video Metrics */}
-                <div className="grid grid-cols-3 gap-4 text-center">
+                {/* Enhanced Analytics Metrics */}
+                <div className="grid grid-cols-5 gap-3 text-center text-xs">
                   <div>
                     <div className="text-sm font-semibold">{formatNumber(video.views)}</div>
                     <div className="text-xs text-dark-400">Views</div>
                   </div>
                   <div>
-                    <div className="text-sm font-semibold">{formatNumber(video.likes)}</div>
-                    <div className="text-xs text-dark-400">Likes</div>
+                    <div className="text-sm font-semibold text-green-400">{formatPercentage(video.analytics?.retention)}%</div>
+                    <div className="text-xs text-dark-400">Retention</div>
                   </div>
                   <div>
-                    <div className="text-sm font-semibold">{formatNumber(video.comments)}</div>
-                    <div className="text-xs text-dark-400">Comments</div>
+                    <div className="text-sm font-semibold text-blue-400">{formatPercentage(video.analytics?.ctr)}%</div>
+                    <div className="text-xs text-dark-400">CTR</div>
+                  </div>
+                  <div>
+                    <div className="text-sm font-semibold text-purple-400">{formatCurrency(video.analytics?.revenue)}</div>
+                    <div className="text-xs text-dark-400">Revenue</div>
+                  </div>
+                  <div>
+                    <div className={`text-xs font-bold px-2 py-1 rounded ${getGradeColor(video.analytics?.grade || 'N/A')}`}>
+                      {video.analytics?.grade || 'N/A'}
+                    </div>
+                    <div className="text-xs text-dark-400">Grade</div>
                   </div>
                 </div>
 
@@ -528,6 +645,102 @@ export default function Videos() {
                   )}
                 </div>
 
+                {/* Expand Button */}
+                <button 
+                  onClick={() => setExpandedVideo(expandedVideo === video.id ? null : video.id)}
+                  className="w-8 h-8 text-gray-400 hover:text-white transition-colors flex items-center justify-center"
+                  title={expandedVideo === video.id ? "Hide details" : "Show details"}
+                >
+                  {expandedVideo === video.id ? '−' : '+'}
+                </button>
+
+                </div>
+
+              {/* Expandable Analytics Details */}
+              {expandedVideo === video.id && (
+                <div className="ml-36 mr-4 mb-4 p-4 bg-dark-700 rounded-lg">
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    {/* Traffic Sources */}
+                    <div>
+                      <h5 className="font-medium mb-2 text-white">Traffic Sources</h5>
+                      <div className="space-y-1 text-sm">
+                        <div className="flex justify-between">
+                          <span className="text-gray-300">Search</span>
+                          <span className="text-blue-400">{formatPercentage(video.analytics?.traffic_sources?.search)}%</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span className="text-gray-300">Suggested</span>
+                          <span className="text-green-400">{formatPercentage(video.analytics?.traffic_sources?.suggested)}%</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span className="text-gray-300">External</span>
+                          <span className="text-purple-400">{formatPercentage(video.analytics?.traffic_sources?.external)}%</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span className="text-gray-300">Browse</span>
+                          <span className="text-orange-400">{formatPercentage(video.analytics?.traffic_sources?.browse)}%</span>
+                        </div>
+                      </div>
+                    </div>
+                    
+                    {/* Quick Insights */}
+                    <div>
+                      <h5 className="font-medium mb-2 text-white">Quick Insights</h5>
+                      <div className="space-y-1 text-sm">
+                        {video.insights && video.insights.length > 0 ? (
+                          video.insights.slice(0, 3).map((insight, i) => (
+                            <div key={i} className="text-blue-300 flex items-start gap-1">
+                              <span className="text-yellow-400 mt-0.5">•</span>
+                              <span>{insight}</span>
+                            </div>
+                          ))
+                        ) : (
+                          <div className="text-gray-400 italic">No insights available</div>
+                        )}
+                      </div>
+                    </div>
+                    
+                    {/* Recommendations */}
+                    <div>
+                      <h5 className="font-medium mb-2 text-white">Recommendations</h5>
+                      <div className="space-y-2">
+                        {video.recommendations && video.recommendations.length > 0 ? (
+                          video.recommendations.slice(0, 2).map((rec, i) => (
+                            <div key={i} className="p-2 bg-dark-600 rounded text-sm">
+                              <div className="font-medium text-white text-xs mb-1">{rec.action}</div>
+                              <div className="text-gray-400 text-xs">{rec.reason}</div>
+                            </div>
+                          ))
+                        ) : (
+                          <div className="text-gray-400 italic text-sm">No recommendations available</div>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Additional Metrics Row */}
+                  <div className="mt-4 pt-4 border-t border-dark-600">
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-center text-sm">
+                      <div>
+                        <div className="text-gray-400">Impressions</div>
+                        <div className="font-semibold text-white">{formatNumber(video.analytics?.impressions || 0)}</div>
+                      </div>
+                      <div>
+                        <div className="text-gray-400">Watch Time</div>
+                        <div className="font-semibold text-orange-400">{formatNumber(video.analytics?.watch_time_hours || 0)}h</div>
+                      </div>
+                      <div>
+                        <div className="text-gray-400">Likes</div>
+                        <div className="font-semibold text-blue-400">{formatNumber(video.likes)}</div>
+                      </div>
+                      <div>
+                        <div className="text-gray-400">Comments</div>
+                        <div className="font-semibold text-purple-400">{formatNumber(video.comments)}</div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
               </div>
             ))}
             
