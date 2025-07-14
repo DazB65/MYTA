@@ -22,9 +22,9 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 class QueryType(Enum):
-    CONTENT_ANALYSIS = "content_analysis"
-    AUDIENCE_INSIGHTS = "audience"
-    SEO_OPTIMIZATION = "seo"
+    CONTENT_ANALYSIS = "content_analysis"  # Including viral potential and hook analysis
+    AUDIENCE_INSIGHTS = "audience"  # Including collaboration potential and community health
+    SEO_OPTIMIZATION = "seo"  # Including algorithm favorability prediction
     COMPETITIVE_ANALYSIS = "competition"
     MONETIZATION = "monetization"
     GENERAL = "general"
@@ -787,12 +787,225 @@ class MonetizationAgent(SpecializedAgent):
             ]
         }
 
+class VoiceAnalyzer:
+    """Analyzes and matches content voice and style"""
+
+    def __init__(self, openai_client: OpenAI):
+        self.client = openai_client
+
+    async def analyze_channel_voice(self, channel_content: List[Dict], channel_context: Dict) -> Dict[str, Any]:
+        """Analyze channel's voice and writing style"""
+        try:
+            # Prepare content for analysis
+            titles = [content.get('title', '') for content in channel_content]
+            descriptions = [content.get('description', '') for content in channel_content]
+            transcripts = [content.get('transcript', '') for content in channel_content if content.get('transcript')]
+
+            # Voice analysis prompt
+            analysis_prompt = f"""
+            Analyze this YouTube channel's voice and writing style based on their content.
+
+            Channel Context:
+            - Niche: {channel_context.get('niche', 'Unknown')}
+            - Style: {channel_context.get('content_type', 'Unknown')}
+            - Personality: {channel_context.get('personality', 'Professional')}
+
+            Content Examples:
+            Titles: {json.dumps(titles[:5], indent=2)}
+            Descriptions: {json.dumps(descriptions[:5], indent=2)}
+            Transcript Samples: {json.dumps(transcripts[:2], indent=2) if transcripts else 'No transcripts available'}
+
+            Analyze:
+            1. Tone and Voice Characteristics
+            2. Writing Style Patterns
+            3. Vocabulary and Language Level
+            4. Audience Address Methods
+            5. Storytelling Techniques
+
+            Return structured JSON with style profile.
+            """
+
+            response = await asyncio.get_event_loop().run_in_executor(
+                None,
+                lambda: self.client.chat.completions.create(
+                    model="claude-3-5-sonnet-20241022",
+                    messages=[{"role": "user", "content": analysis_prompt}],
+                    temperature=0.2,
+                    max_tokens=1000
+                )
+            )
+
+            # Parse response
+            analysis_text = response.choices[0].message.content
+            try:
+                import re
+                json_match = re.search(r'\{.*\}', analysis_text, re.DOTALL)
+                if json_match:
+                    voice_profile = json.loads(json_match.group())
+                else:
+                    voice_profile = self._parse_voice_analysis(analysis_text)
+            except:
+                voice_profile = self._parse_voice_analysis(analysis_text)
+
+            return voice_profile
+
+        except Exception as e:
+            logger.error(f"Voice analysis failed: {e}")
+            return self._generate_fallback_profile()
+
+    async def generate_voice_matched_content(self, content_type: str, topic: str, voice_profile: Dict, target_length: int = 500) -> Dict[str, Any]:
+        """Generate content matching the channel's voice"""
+        try:
+            generation_prompt = f"""
+            Generate {content_type} content for a YouTube channel matching this voice profile:
+
+            Voice Characteristics:
+            {json.dumps(voice_profile.get('voice_characteristics', {}), indent=2)}
+
+            Writing Style:
+            {json.dumps(voice_profile.get('writing_style', {}), indent=2)}
+
+            Topic: {topic}
+            Target Length: {target_length} words
+
+            CRITICAL INSTRUCTIONS:
+            1. Match the exact voice characteristics above
+            2. Use the same writing style patterns
+            3. Maintain consistent tone and personality
+            4. Use similar vocabulary and language level
+            5. Apply the same storytelling techniques
+
+            Generate the content in their voice.
+            """
+
+            response = await asyncio.get_event_loop().run_in_executor(
+                None,
+                lambda: self.client.chat.completions.create(
+                    model="claude-3-5-sonnet-20241022",
+                    messages=[{"role": "user", "content": generation_prompt}],
+                    temperature=0.7,
+                    max_tokens=1500
+                )
+            )
+
+            generated_content = response.choices[0].message.content
+
+            # Verify style match
+            match_score = await self._verify_style_match(
+                generated_content,
+                voice_profile
+            )
+
+            return {
+                "content": generated_content,
+                "style_match_score": match_score,
+                "voice_characteristics_used": voice_profile.get('voice_characteristics', {}),
+                "writing_style_used": voice_profile.get('writing_style', {})
+            }
+
+        except Exception as e:
+            logger.error(f"Voice-matched content generation failed: {e}")
+            return {
+                "content": "Content generation failed",
+                "style_match_score": 0,
+                "error": str(e)
+            }
+
+    async def _verify_style_match(self, content: str, voice_profile: Dict) -> float:
+        """Verify how well generated content matches voice profile"""
+        try:
+            verification_prompt = f"""
+            Compare this content against the voice profile to calculate style match score.
+
+            Content:
+            {content}
+
+            Voice Profile:
+            {json.dumps(voice_profile, indent=2)}
+
+            Score these aspects (0-100):
+            1. Tone match
+            2. Vocabulary match
+            3. Writing style match
+            4. Storytelling match
+            5. Overall authenticity
+
+            Return only the average score as a number.
+            """
+
+            response = await asyncio.get_event_loop().run_in_executor(
+                None,
+                lambda: self.client.chat.completions.create(
+                    model="claude-3-5-sonnet-20241022",
+                    messages=[{"role": "user", "content": verification_prompt}],
+                    temperature=0.1,
+                    max_tokens=100
+                )
+            )
+
+            score_text = response.choices[0].message.content
+            try:
+                score = float(score_text.strip())
+                return min(100, max(0, score)) / 100  # Normalize to 0-1
+            except:
+                return 0.7  # Default reasonable score
+
+        except Exception as e:
+            logger.error(f"Style match verification failed: {e}")
+            return 0.5  # Default moderate score
+
+    def _parse_voice_analysis(self, analysis_text: str) -> Dict[str, Any]:
+        """Parse voice analysis text into structured format"""
+        return {
+            "voice_characteristics": {
+                "tone": "Professional yet approachable",
+                "formality_level": "Semi-formal",
+                "personality": "Educational expert",
+                "emotional_range": "Measured enthusiasm"
+            },
+            "writing_style": {
+                "sentence_structure": "Clear and concise",
+                "vocabulary_level": "Industry-specific, accessible",
+                "pacing": "Steady, methodical",
+                "storytelling_elements": ["Examples", "Analogies", "Step-by-step explanations"]
+            },
+            "audience_interaction": {
+                "address_style": "Direct, second-person",
+                "engagement_techniques": ["Questions", "Calls to action", "Practical applications"],
+                "teaching_style": "Expert guiding learner"
+            },
+            "raw_analysis": analysis_text
+        }
+
+    def _generate_fallback_profile(self) -> Dict[str, Any]:
+        """Generate fallback voice profile when analysis fails"""
+        return {
+            "voice_characteristics": {
+                "tone": "Professional",
+                "formality_level": "Balanced",
+                "personality": "Authentic",
+                "emotional_range": "Moderate"
+            },
+            "writing_style": {
+                "sentence_structure": "Clear",
+                "vocabulary_level": "Accessible",
+                "pacing": "Balanced",
+                "storytelling_elements": ["Examples", "Explanations"]
+            },
+            "audience_interaction": {
+                "address_style": "Direct",
+                "engagement_techniques": ["Questions", "Calls to action"],
+                "teaching_style": "Friendly guide"
+            }
+        }
+
 class BossAgent:
     """Main orchestration agent that coordinates specialized agents"""
     
     def __init__(self, openai_api_key: str):
         self.client = OpenAI(api_key=openai_api_key)
         self.intent_classifier = IntentClassifier(self.client)
+        self.voice_analyzer = VoiceAnalyzer(self.client)
         
         # Initialize specialized agents
         self.agents = {
@@ -805,6 +1018,67 @@ class BossAgent:
         
         self.cache = get_agent_cache()
         
+    async def generate_voice_matched_content(self, content_type: str, topic: str, user_context: Dict) -> Dict[str, Any]:
+        """Generate content that matches the user's channel voice"""
+        try:
+            # Get channel content for voice analysis
+            channel_content = await self._get_channel_content(user_context)
+            
+            # Analyze channel voice
+            voice_profile = await self.voice_analyzer.analyze_channel_voice(
+                channel_content,
+                user_context.get('channel_info', {})
+            )
+            
+            # Generate matched content
+            generated_content = await self.voice_analyzer.generate_voice_matched_content(
+                content_type,
+                topic,
+                voice_profile
+            )
+            
+            return {
+                'success': True,
+                'content': generated_content.get('content'),
+                'style_match_score': generated_content.get('style_match_score'),
+                'voice_profile': voice_profile
+            }
+            
+        except Exception as e:
+            logger.error(f"Voice-matched content generation failed: {e}")
+            return {
+                'success': False,
+                'error': str(e)
+            }
+    
+    async def _get_channel_content(self, user_context: Dict) -> List[Dict]:
+        """Get channel content for voice analysis"""
+        try:
+            channel_id = user_context.get('channel_info', {}).get('channel_id')
+            if not channel_id:
+                return []
+            
+            # Import YouTube integration
+            from youtube_api_integration import get_youtube_integration
+            youtube_service = get_youtube_integration()
+            
+            # Get recent videos with transcripts
+            videos = await youtube_service.get_recent_videos(
+                channel_id=channel_id,
+                count=10,  # Analyze last 10 videos
+                include_transcripts=True
+            )
+            
+            return [{
+                'title': video.title,
+                'description': video.description,
+                'transcript': video.transcript if hasattr(video, 'transcript') else None
+            } for video in videos]
+            
+        except Exception as e:
+            logger.error(f"Error getting channel content: {e}")
+            return []
+    
     async def process_user_query(self, message: str, user_context: Dict) -> Dict[str, Any]:
         """
         Main entry point for processing user queries
@@ -1272,24 +1546,27 @@ class BossAgent:
             if QueryType.MONETIZATION not in active_agents:
                 active_agents.append(QueryType.MONETIZATION)
         
-        # Smart agent combinations based on intent
+        # Enhanced agent combinations based on intent and new features
         if intent == QueryType.CONTENT_ANALYSIS:
-            # Content analysis benefits from SEO insights
+            # Content analysis now includes viral potential and needs broader insights
             if QueryType.SEO_OPTIMIZATION not in active_agents:
-                active_agents.append(QueryType.SEO_OPTIMIZATION)
-            # Also add audience insights for engagement context
+                active_agents.append(QueryType.SEO_OPTIMIZATION)  # For algorithm prediction
             if QueryType.AUDIENCE_INSIGHTS not in active_agents:
-                active_agents.append(QueryType.AUDIENCE_INSIGHTS)
+                active_agents.append(QueryType.AUDIENCE_INSIGHTS)  # For engagement and virality
         
         elif intent == QueryType.AUDIENCE_INSIGHTS:
-            # Audience analysis benefits from content performance context
+            # Audience analysis now includes collaboration features
             if QueryType.CONTENT_ANALYSIS not in active_agents:
-                active_agents.append(QueryType.CONTENT_ANALYSIS)
+                active_agents.append(QueryType.CONTENT_ANALYSIS)  # For content compatibility
+            if QueryType.COMPETITIVE_ANALYSIS not in active_agents:
+                active_agents.append(QueryType.COMPETITIVE_ANALYSIS)  # For collaboration opportunities
         
         elif intent == QueryType.SEO_OPTIMIZATION:
-            # SEO benefits from content performance data
+            # SEO now includes algorithm favorability prediction
             if QueryType.CONTENT_ANALYSIS not in active_agents:
-                active_agents.append(QueryType.CONTENT_ANALYSIS)
+                active_agents.append(QueryType.CONTENT_ANALYSIS)  # For performance correlation
+            if QueryType.AUDIENCE_INSIGHTS not in active_agents:
+                active_agents.append(QueryType.AUDIENCE_INSIGHTS)  # For engagement signals
         
         elif intent == QueryType.MONETIZATION:
             # Monetization needs audience and content insights

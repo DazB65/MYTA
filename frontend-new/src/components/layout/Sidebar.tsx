@@ -1,5 +1,5 @@
 import { NavLink } from 'react-router-dom'
-import { LayoutDashboard, Building2, Clapperboard, Settings, LogOut } from 'lucide-react'
+import { LayoutDashboard, Building2, Clapperboard, Settings, LogOut, BarChart3 } from 'lucide-react'
 import { cn } from '@/utils'
 import { useOAuthStore } from '@/store/oauthStore'
 
@@ -8,6 +8,11 @@ const navigation = [
     name: 'Dashboard',
     href: '/dashboard',
     icon: LayoutDashboard,
+  },
+  {
+    name: 'Analytics',
+    href: '/analytics',
+    icon: BarChart3,
   },
   {
     name: 'Pillars',

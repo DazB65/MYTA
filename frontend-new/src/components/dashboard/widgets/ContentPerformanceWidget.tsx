@@ -1,5 +1,5 @@
 import { Play, Eye, ThumbsUp, MessageCircle, TrendingUp, Clock } from 'lucide-react'
-import Card from '@/components/common/Card'
+import BaseWidget from './BaseWidget'
 
 interface VideoPerformance {
   id: string
@@ -32,63 +32,20 @@ interface ContentPerformanceWidgetProps {
   loading?: boolean
 }
 
-const formatNumber = (num: number): string => {
-  if (num >= 1000000) {
-    return `${(num / 1000000).toFixed(1)}M`
-  } else if (num >= 1000) {
-    return `${(num / 1000).toFixed(1)}K`
-  }
-  return num.toLocaleString()
-}
-
-const getPerformanceColor = (score: number): string => {
-  if (score >= 90) return 'text-green-400'
-  if (score >= 80) return 'text-blue-400'
-  if (score >= 70) return 'text-yellow-400'
-  if (score >= 60) return 'text-orange-400'
-  return 'text-red-400'
-}
+import { formatNumber } from '@/utils/format'
+import { getScoreColor } from '@/utils/colors'
 
 export default function ContentPerformanceWidget({ data, loading }: ContentPerformanceWidgetProps) {
-  if (!data && !loading) {
-    return (
-      <Card className="p-6">
-        <div className="text-center py-8 text-gray-400">
-          <Play className="w-12 h-12 mx-auto mb-3 opacity-50" />
-          <h3 className="text-xl font-semibold text-white mb-2">Content Performance</h3>
-          <p>No content data available</p>
-          <p className="text-sm">Upload videos to view performance metrics</p>
-        </div>
-      </Card>
-    )
-  }
-
   const contentData = data
 
-  if (loading) {
-    return (
-      <Card className="p-6">
-        <div className="animate-pulse">
-          <div className="h-6 bg-gray-700 rounded mb-4"></div>
-          <div className="space-y-3 mb-6">
-            {[1, 2, 3].map(i => (
-              <div key={i} className="flex gap-3">
-                <div className="w-20 h-12 bg-gray-700 rounded"></div>
-                <div className="flex-1">
-                  <div className="h-4 bg-gray-700 rounded mb-2"></div>
-                  <div className="h-3 bg-gray-700 rounded w-3/4"></div>
-                </div>
-              </div>
-            ))}
-          </div>
-          <div className="h-32 bg-gray-700 rounded"></div>
-        </div>
-      </Card>
-    )
-  }
-
   return (
-    <Card className="p-6">
+    <BaseWidget
+      title="Content Performance"
+      loading={loading}
+      error={!data && !loading ? "Upload videos to view performance metrics" : undefined}
+      height="h-[720px]"
+      className="p-6"
+    >
       <div className="flex items-center gap-3 mb-6">
         <Play className="w-6 h-6 text-red-400" />
         <h3 className="text-xl font-semibold text-white">Content Performance</h3>
@@ -137,7 +94,7 @@ export default function ContentPerformanceWidget({ data, loading }: ContentPerfo
 
               {/* Performance score */}
               <div className="text-right">
-                <div className={`text-lg font-bold ${getPerformanceColor(video.performance_score)}`}>
+                <div className={`text-lg font-bold ${getScoreColor(video.performance_score)}`}>
                   {video.performance_score}
                 </div>
                 <div className="text-xs text-gray-400">{video.retention}% retention</div>
@@ -208,6 +165,6 @@ export default function ContentPerformanceWidget({ data, loading }: ContentPerfo
           Updated {contentData?.last_updated ? new Date(contentData.last_updated).toLocaleDateString() : 'Never'}
         </span>
       </div>
-    </Card>
+    </BaseWidget>
   )
 }

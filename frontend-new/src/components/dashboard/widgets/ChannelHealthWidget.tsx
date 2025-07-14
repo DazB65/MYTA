@@ -1,5 +1,5 @@
 import { TrendingUp, TrendingDown, Minus } from 'lucide-react'
-import Card from '@/components/common/Card'
+import BaseWidget from './BaseWidget'
 
 interface ChannelHealthData {
   overall_score: number // 0-100
@@ -17,48 +17,9 @@ interface ChannelHealthWidgetProps {
   loading?: boolean
 }
 
-const getGradeColor = (grade: string): string => {
-  switch (grade) {
-    case 'A+':
-    case 'A':
-      return 'text-green-400'
-    case 'B+':
-    case 'B':
-      return 'text-blue-400'
-    case 'C+':
-    case 'C':
-      return 'text-yellow-400'
-    case 'D+':
-    case 'D':
-      return 'text-orange-400'
-    case 'F':
-      return 'text-red-400'
-    default:
-      return 'text-gray-400'
-  }
-}
-
-const getScoreColor = (score: number): string => {
-  if (score >= 90) return 'text-green-400'
-  if (score >= 80) return 'text-blue-400'
-  if (score >= 70) return 'text-yellow-400'
-  if (score >= 60) return 'text-orange-400'
-  return 'text-red-400'
-}
+import { getGradeColor, getScoreColor } from '@/utils/colors'
 
 export default function ChannelHealthWidget({ data, loading }: ChannelHealthWidgetProps) {
-  if (!data && !loading) {
-    return (
-      <Card className="p-6">
-        <div className="text-center py-8 text-gray-400">
-          <h3 className="text-xl font-semibold text-white mb-4">Channel Health Score</h3>
-          <p>No data available</p>
-          <p className="text-sm">Connect your YouTube account to view analytics</p>
-        </div>
-      </Card>
-    )
-  }
-
   const healthData = data
 
   const getTrendIcon = () => {
@@ -74,25 +35,14 @@ export default function ChannelHealthWidget({ data, loading }: ChannelHealthWidg
     }
   }
 
-  if (loading) {
-    return (
-      <Card className="p-6">
-        <div className="animate-pulse">
-          <div className="h-6 bg-gray-700 rounded mb-4"></div>
-          <div className="flex items-center justify-center mb-6">
-            <div className="w-32 h-32 bg-gray-700 rounded-full"></div>
-          </div>
-          <div className="space-y-2">
-            <div className="h-4 bg-gray-700 rounded"></div>
-            <div className="h-4 bg-gray-700 rounded w-3/4"></div>
-          </div>
-        </div>
-      </Card>
-    )
-  }
-
   return (
-    <Card className="p-6">
+    <BaseWidget
+      title="Channel Health Score"
+      loading={loading}
+      error={!data && !loading ? "Connect your YouTube account to view analytics" : undefined}
+      height="h-[520px]"
+      className="p-6"
+    >
       <div className="flex items-center justify-between mb-6">
         <h3 className="text-xl font-semibold text-white">Channel Health Score</h3>
         {getTrendIcon()}
@@ -171,6 +121,6 @@ export default function ChannelHealthWidget({ data, loading }: ChannelHealthWidg
           Updated {healthData?.last_updated ? new Date(healthData.last_updated).toLocaleDateString() : 'Never'}
         </span>
       </div>
-    </Card>
+    </BaseWidget>
   )
 }

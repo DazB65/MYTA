@@ -3,10 +3,7 @@ import { useAnalytics } from '@/hooks/useAnalytics'
 import Card from '@/components/common/Card'
 import TaskManager from '@/components/dashboard/TaskManager'
 import ChannelGoals from '@/components/dashboard/ChannelGoals'
-import ChannelHealthWidget from '@/components/dashboard/widgets/ChannelHealthWidget'
-import RevenueDashboardWidget from '@/components/dashboard/widgets/RevenueDashboardWidget'
-import SubscriberGrowthWidget from '@/components/dashboard/widgets/SubscriberGrowthWidget'
-import ContentPerformanceWidget from '@/components/dashboard/widgets/ContentPerformanceWidget'
+import { ChannelHealthWidget, RevenueDashboardWidget, SubscriberGrowthWidget, ContentPerformanceWidget, AlgorithmPerformanceWidget, CommunityHealthWidget } from '@/components/dashboard/widgets'
 import { AlertCircle } from 'lucide-react'
 
 export default function Dashboard() {
@@ -65,30 +62,18 @@ export default function Dashboard() {
       )}
 
       {/* Performance Overview Section */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-4 gap-6">
-        {/* Channel Health Score */}
-        <ChannelHealthWidget 
-          data={analyticsData.channel_health} 
-          loading={analyticsLoading} 
-        />
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {/* Algorithm Performance - Channel Overview */}
+        <div className="p-4 bg-white rounded-lg shadow">
+          <h3 className="text-lg font-semibold mb-4">Algorithm Performance</h3>
+          <AlgorithmPerformanceWidget userId={actualUserId} />
+        </div>
         
-        {/* Revenue Dashboard */}
-        <RevenueDashboardWidget 
-          data={analyticsData.revenue} 
-          loading={analyticsLoading} 
-        />
-        
-        {/* Subscriber Growth Tracker */}
-        <SubscriberGrowthWidget 
-          data={analyticsData.subscribers} 
-          loading={analyticsLoading} 
-        />
-        
-        {/* Content Performance Matrix */}
-        <ContentPerformanceWidget 
-          data={analyticsData.content_performance} 
-          loading={analyticsLoading} 
-        />
+        {/* Community Health - Channel Overview */}
+        <div className="p-4 bg-white rounded-lg shadow">
+          <h3 className="text-lg font-semibold mb-4">Community Health</h3>
+          <CommunityHealthWidget userId={actualUserId} />
+        </div>
       </div>
 
     </div>
