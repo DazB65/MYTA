@@ -28,6 +28,36 @@ const quickActions = [
     description: 'Content suggestions',
     icon: '💡',
   },
+  {
+    id: 'analyze_viral',
+    title: 'Viral Potential',
+    description: 'Score content virality',
+    icon: '🚀',
+  },
+  {
+    id: 'find_collabs',
+    title: 'Find Collabs',
+    description: 'Creator partnerships',
+    icon: '🤝',
+  },
+  {
+    id: 'check_algorithm',
+    title: 'Algo Check',
+    description: 'Algorithm performance',
+    icon: '📊',
+  },
+  {
+    id: 'repurpose_content',
+    title: 'Repurpose',
+    description: 'Content reuse ideas',
+    icon: '♻️',
+  },
+  {
+    id: 'trending_ideas',
+    title: 'Trending',
+    description: 'Hot topics now',
+    icon: '📈',
+  },
 ]
 
 export default function QuickActions() {
@@ -51,7 +81,7 @@ export default function QuickActions() {
 
   return (
     <>
-      <div className="grid grid-cols-2 gap-3">
+      <div className="grid grid-cols-3 gap-3">
         {quickActions.map((action) => (
           <Button
             key={action.id}

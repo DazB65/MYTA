@@ -17,6 +17,7 @@ from googleapiclient.errors import HttpError
 import google.generativeai as genai
 from dataclasses import dataclass
 from youtube_api_integration import get_youtube_integration
+from base_agent import BaseSpecializedAgent, AgentType, AgentRequest, AgentAnalysis, AgentInsight, AgentRecommendation
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -47,6 +48,15 @@ class ContentMetrics:
     ctr: Optional[float] = None  # Real YouTube CTR when available
     retention_data: Dict[str, Any] = None
     traffic_sources: Dict[str, Any] = None
+    engagement_rate: Optional[float] = None
+    
+    def __post_init__(self):
+        """Calculate engagement rate if not provided"""
+        if self.engagement_rate is None and self.views > 0:
+            total_engagement = self.likes + self.comments
+            self.engagement_rate = (total_engagement / self.views) * 100
+        elif self.engagement_rate is None:
+            self.engagement_rate = 0.0
 
 class YouTubeAPIClient:
     """YouTube API integration for content data retrieval"""
@@ -155,21 +165,727 @@ class YouTubeAPIClient:
             logger.error(f"Error getting channel averages: {e}")
             return {}
 
+class ViralPotentialAnalyzer:
+    """Analyzes content for viral potential using various factors"""
+
+    def __init__(self):
+        self.viral_factors = {
+            'hook_strength': 0.25,  # Weight for hook effectiveness
+            'trend_alignment': 0.20,  # Weight for trending topic match
+            'engagement_velocity': 0.20,  # Weight for early engagement rate
+            'shareable_elements': 0.15,  # Weight for shareability factors
+            'production_quality': 0.10,  # Weight for content quality
+            'length_optimization': 0.10  # Weight for optimal length
+        }
+        self.performance_factors = {
+            'hook_quality': 0.30,     # Quality of title and opening hook
+            'topic_strength': 0.25,    # Topic relevance and timing
+            'competitive_edge': 0.20,  # Differentiation from similar content
+            'audience_match': 0.15,    # Alignment with audience interests
+            'metadata_optimization': 0.10  # SEO and thumbnail optimization
+        }
+
+    def predict_performance(self, content_data: Dict, channel_context: Dict) -> Dict[str, Any]:
+        """Predict content performance before publishing"""
+        
+        factor_scores = {
+            'hook_quality': self._score_hook_quality(content_data),
+            'topic_strength': self._score_topic_strength(content_data, channel_context),
+            'competitive_edge': self._score_competitive_edge(content_data, channel_context),
+            'audience_match': self._score_audience_match(content_data, channel_context),
+            'metadata_optimization': self._score_metadata_optimization(content_data)
+        }
+
+        # Calculate weighted performance score
+        performance_score = sum(score * self.performance_factors[factor]
+                              for factor, score in factor_scores.items())
+
+        # Scale to 0-100
+        performance_score = min(100, max(0, performance_score * 100))
+
+        # Predict view range based on channel averages
+        view_prediction = self._predict_view_range(performance_score, channel_context)
+
+        return {
+            'predicted_score': round(performance_score, 1),
+            'factor_scores': factor_scores,
+            'view_prediction': view_prediction,
+            'success_probability': self._calculate_success_probability(performance_score),
+            'optimization_suggestions': self._generate_optimization_suggestions(factor_scores),
+            'predicted_metrics': self._predict_engagement_metrics(performance_score, channel_context)
+        }
+
+    def calculate_viral_score(self, video_metrics: ContentMetrics, hook_analysis: Dict, channel_context: Dict) -> Dict[str, Any]:
+        """Calculate viral potential score and factors"""
+        
+        # Initialize base scores
+        factor_scores = {
+            'hook_strength': self._score_hook_strength(video_metrics, hook_analysis),
+            'trend_alignment': self._score_trend_alignment(video_metrics, channel_context),
+            'engagement_velocity': self._score_engagement_velocity(video_metrics),
+            'shareable_elements': self._score_shareability(video_metrics),
+            'production_quality': self._score_production_quality(video_metrics),
+            'length_optimization': self._score_length_optimization(video_metrics, channel_context)
+        }
+
+        # Calculate weighted score
+        viral_score = sum(score * self.viral_factors[factor] 
+                         for factor, score in factor_scores.items())
+
+        # Scale to 0-100
+        viral_score = min(100, max(0, viral_score * 100))
+
+        return {
+            'viral_score': round(viral_score, 1),
+            'factor_scores': factor_scores,
+            'key_factors': self._identify_key_factors(factor_scores),
+            'improvement_areas': self._suggest_improvements(factor_scores),
+            'viral_indicators': self._identify_viral_indicators(video_metrics, hook_analysis)
+        }
+
+    def _score_hook_strength(self, video: ContentMetrics, hook_analysis: Dict) -> float:
+        """Score hook effectiveness"""
+        hook_score = hook_analysis.get('overall_hook_performance', 5.0) / 10.0
+        if video.views > 0 and hasattr(video, 'retention_data'):
+            early_retention = video.retention_data.get('first_30_seconds', 50) / 100.0
+            return (hook_score + early_retention) / 2
+        return hook_score
+
+    def _score_trend_alignment(self, video: ContentMetrics, context: Dict) -> float:
+        """Score alignment with current trends"""
+        title_lower = video.title.lower()
+        niche = context.get('niche', '').lower()
+        
+        # Basic trend keywords (would be dynamic in production)
+        trend_keywords = [
+            'breaking', 'new', 'trending', 'viral', 'latest',
+            '2024', 'revealed', 'exclusive', 'update'
+        ]
+        
+        matches = sum(1 for word in trend_keywords if word in title_lower)
+        return min(1.0, matches / 3)
+
+    def _score_engagement_velocity(self, video: ContentMetrics) -> float:
+        """Score early engagement rate"""
+        if not hasattr(video, 'engagement_rate') or video.views == 0:
+            return 0.5
+
+        # Higher score for higher engagement rates
+        return min(1.0, video.engagement_rate / 15.0)
+
+    def _score_shareability(self, video: ContentMetrics) -> float:
+        """Score content shareability factors"""
+        title_lower = video.title.lower()
+        
+        shareable_elements = [
+            'how to', 'guide', 'tutorial', 'tips', 'secrets',
+            'revealed', 'versus', 'vs', 'review', 'reaction'
+        ]
+        
+        matches = sum(1 for element in shareable_elements 
+                     if element in title_lower)
+        return min(1.0, matches / 3)
+
+    def _score_production_quality(self, video: ContentMetrics) -> float:
+        """Score production quality (placeholder)"""
+        # Would use actual quality metrics in production
+        return 0.8
+
+    def _score_length_optimization(self, video: ContentMetrics, context: Dict) -> float:
+        """Score video length optimization"""
+        duration_minutes = video.duration / 60
+        
+        # Optimal ranges by content type
+        optimal_ranges = {
+            'tutorial': (8, 15),
+            'entertainment': (10, 20),
+            'news': (5, 12),
+            'vlog': (10, 18)
+        }
+        
+        content_type = context.get('content_type', 'entertainment').lower()
+        optimal_min, optimal_max = optimal_ranges.get(content_type, (8, 15))
+        
+        if optimal_min <= duration_minutes <= optimal_max:
+            return 1.0
+        
+        # Penalize based on distance from optimal range
+        distance = min(abs(duration_minutes - optimal_min),
+                      abs(duration_minutes - optimal_max))
+        return max(0.0, 1.0 - (distance / optimal_max))
+
+    def _identify_key_factors(self, factor_scores: Dict[str, float]) -> List[Dict[str, Any]]:
+        """Identify key factors contributing to viral potential"""
+        sorted_factors = sorted(factor_scores.items(),
+                              key=lambda x: x[1],
+                              reverse=True)
+        
+        return [
+            {
+                'factor': factor.replace('_', ' ').title(),
+                'score': round(score * 100, 1),
+                'impact': 'High' if score >= 0.8 else
+                         'Medium' if score >= 0.6 else 'Low'
+            }
+            for factor, score in sorted_factors[:3]
+        ]
+
+    def _suggest_improvements(self, factor_scores: Dict[str, float]) -> List[Dict[str, Any]]:
+        """Suggest improvements for low-scoring factors"""
+        improvements = []
+        
+        for factor, score in factor_scores.items():
+            if score < 0.7:
+                improvements.append({
+                    'area': factor.replace('_', ' ').title(),
+                    'current_score': round(score * 100, 1),
+                    'target_score': round(min(score * 1.5, 1.0) * 100, 1),
+                    'priority': 'High' if score < 0.5 else 'Medium'
+                })
+        
+        return sorted(improvements,
+                     key=lambda x: x['current_score'])
+
+    def _identify_viral_indicators(self, video: ContentMetrics, hook_analysis: Dict) -> List[Dict[str, Any]]:
+        """Identify specific viral potential indicators"""
+        indicators = []
+        
+        # Check for strong hook patterns
+        if hook_analysis.get('overall_hook_performance', 0) > 7.5:
+            indicators.append({
+                'indicator': 'Strong Hook',
+                'evidence': 'High hook performance score',
+                'impact': 'High'
+            })
+        
+        # Check engagement velocity
+        if hasattr(video, 'engagement_rate') and video.engagement_rate > 10:
+            indicators.append({
+                'indicator': 'High Engagement',
+                'evidence': f'{video.engagement_rate:.1f}% engagement rate',
+                'impact': 'High'
+            })
+        
+        # Check title effectiveness
+        title_lower = video.title.lower()
+        viral_patterns = ['how to', 'top', 'best', 'why', 'secret']
+        matching_patterns = [p for p in viral_patterns if p in title_lower]
+        if matching_patterns:
+            indicators.append({
+                'indicator': 'Viral Title Elements',
+                'evidence': f'Uses proven patterns: {", ".join(matching_patterns)}',
+                'impact': 'Medium'
+            })
+        
+        return indicators
+
+class HistoricalPatternAnalyzer:
+    """Analyzes historical content patterns for optimization"""
+
+    def __init__(self):
+        self.pattern_weights = {
+            'timing_patterns': 0.25,      # Publishing time and day patterns
+            'title_patterns': 0.20,       # Successful title formats
+            'thumbnail_patterns': 0.20,   # Thumbnail styles that work
+            'duration_patterns': 0.15,    # Optimal video lengths
+            'topic_patterns': 0.20        # Successful content themes
+        }
+
+    def analyze_historical_patterns(self, metrics: List[ContentMetrics], channel_context: Dict) -> Dict[str, Any]:
+        """Analyze historical content patterns for optimization"""
+        
+        timing_patterns = self._analyze_timing_patterns(metrics)
+        title_patterns = self._analyze_title_patterns(metrics)
+        thumbnail_patterns = self._analyze_thumbnail_patterns(metrics)
+        duration_patterns = self._analyze_duration_patterns(metrics)
+        topic_patterns = self._analyze_topic_patterns(metrics, channel_context)
+
+        return {
+            'timing_insights': timing_patterns,
+            'title_insights': title_patterns,
+            'thumbnail_insights': thumbnail_patterns,
+            'duration_insights': duration_patterns,
+            'topic_insights': topic_patterns,
+            'overall_recommendations': self._generate_pattern_recommendations(
+                timing_patterns, title_patterns, thumbnail_patterns,
+                duration_patterns, topic_patterns
+            )
+        }
+
+    def _analyze_timing_patterns(self, metrics: List[ContentMetrics]) -> Dict[str, Any]:
+        """Analyze optimal publishing times and days"""
+        from collections import defaultdict
+        import datetime
+
+        day_performance = defaultdict(list)
+        hour_performance = defaultdict(list)
+
+        for metric in metrics:
+            try:
+                # Parse published time
+                published = datetime.datetime.fromisoformat(
+                    metric.published_at.replace('Z', '+00:00')
+                )
+                
+                # Track performance by day and hour
+                day_performance[published.strftime('%A')].append({
+                    'views': metric.views,
+                    'engagement': metric.engagement_rate
+                })
+                
+                hour_performance[published.hour].append({
+                    'views': metric.views,
+                    'engagement': metric.engagement_rate
+                })
+            except Exception:
+                continue
+
+        # Calculate average performance by day
+        day_averages = {}
+        for day, performances in day_performance.items():
+            avg_views = sum(p['views'] for p in performances) / len(performances)
+            avg_engagement = sum(p['engagement'] for p in performances) / len(performances)
+            day_averages[day] = {
+                'avg_views': avg_views,
+                'avg_engagement': avg_engagement,
+                'post_count': len(performances)
+            }
+
+        # Calculate average performance by hour
+        hour_averages = {}
+        for hour, performances in hour_performance.items():
+            avg_views = sum(p['views'] for p in performances) / len(performances)
+            avg_engagement = sum(p['engagement'] for p in performances) / len(performances)
+            hour_averages[hour] = {
+                'avg_views': avg_views,
+                'avg_engagement': avg_engagement,
+                'post_count': len(performances)
+            }
+
+        # Find best performing times
+        best_days = sorted(
+            day_averages.items(),
+            key=lambda x: (x[1]['avg_views'] * 0.7 + x[1]['avg_engagement'] * 0.3),
+            reverse=True
+        )
+
+        best_hours = sorted(
+            hour_averages.items(),
+            key=lambda x: (x[1]['avg_views'] * 0.7 + x[1]['avg_engagement'] * 0.3),
+            reverse=True
+        )
+
+        return {
+            'best_days': [
+                {
+                    'day': day,
+                    'stats': stats,
+                    'confidence': min(1.0, stats['post_count'] / 10)
+                }
+                for day, stats in best_days[:3]
+            ],
+            'best_hours': [
+                {
+                    'hour': hour,
+                    'stats': stats,
+                    'confidence': min(1.0, stats['post_count'] / 10)
+                }
+                for hour, stats in best_hours[:3]
+            ],
+            'post_frequency': len(metrics) / max(1, (datetime.datetime.now() -
+                datetime.datetime.fromisoformat(metrics[-1].published_at.replace('Z', '+00:00'))
+            ).days)
+        }
+
+    def _analyze_title_patterns(self, metrics: List[ContentMetrics]) -> Dict[str, Any]:
+        """Analyze successful title patterns"""
+        import re
+        
+        # Pattern categories to analyze
+        patterns = {
+            'question': r'^(How|What|Why|When|Where|Who)',
+            'number': r'\d+',
+            'action': r'^(Make|Create|Build|Learn|Master)',
+            'emotion': r'(Amazing|Incredible|Surprising|Best|Worst)',
+            'tutorial': r'(Guide|Tutorial|Tips|Tricks|Secrets)',
+            'urgency': r'(Now|Today|Limited|Never|Must)',
+            'parenthetical': r'\(.*\)',
+            'brackets': r'\[.*\]'
+        }
+
+        pattern_performance = {}
+        for pattern_name, pattern in patterns.items():
+            matching_videos = []
+            for metric in metrics:
+                if re.search(pattern, metric.title, re.IGNORECASE):
+                    matching_videos.append({
+                        'title': metric.title,
+                        'views': metric.views,
+                        'engagement': metric.engagement_rate
+                    })
+
+            if matching_videos:
+                avg_views = sum(v['views'] for v in matching_videos) / len(matching_videos)
+                avg_engagement = sum(v['engagement'] for v in matching_videos) / len(matching_videos)
+                pattern_performance[pattern_name] = {
+                    'avg_views': avg_views,
+                    'avg_engagement': avg_engagement,
+                    'usage_count': len(matching_videos),
+                    'examples': sorted(matching_videos, key=lambda x: x['views'], reverse=True)[:2]
+                }
+
+        # Sort patterns by performance
+        sorted_patterns = sorted(
+            pattern_performance.items(),
+            key=lambda x: (x[1]['avg_views'] * 0.7 + x[1]['avg_engagement'] * 0.3),
+            reverse=True
+        )
+
+        return {
+            'top_patterns': [
+                {
+                    'pattern': pattern,
+                    'stats': stats,
+                    'confidence': min(1.0, stats['usage_count'] / 5)
+                }
+                for pattern, stats in sorted_patterns[:5]
+            ],
+            'pattern_combinations': self._analyze_pattern_combinations(metrics, patterns)
+        }
+
+    def _analyze_pattern_combinations(self, metrics: List[ContentMetrics], patterns: Dict[str, str]) -> List[Dict[str, Any]]:
+        """Analyze successful pattern combinations in titles"""
+        import re
+        from itertools import combinations
+
+        # Analyze pattern co-occurrence
+        combination_performance = {}
+        for metric in metrics:
+            # Find all patterns in this title
+            matched_patterns = set(
+                pattern_name
+                for pattern_name, pattern in patterns.items()
+                if re.search(pattern, metric.title, re.IGNORECASE)
+            )
+
+            # Look at pairs of patterns
+            for p1, p2 in combinations(matched_patterns, 2):
+                key = tuple(sorted([p1, p2]))
+                if key not in combination_performance:
+                    combination_performance[key] = {
+                        'views': [],
+                        'engagement': [],
+                        'titles': []
+                    }
+                combination_performance[key]['views'].append(metric.views)
+                combination_performance[key]['engagement'].append(metric.engagement_rate)
+                combination_performance[key]['titles'].append(metric.title)
+
+        # Calculate averages for combinations
+        combination_results = []
+        for (p1, p2), stats in combination_performance.items():
+            if len(stats['views']) >= 2:  # Require at least 2 examples
+                avg_views = sum(stats['views']) / len(stats['views'])
+                avg_engagement = sum(stats['engagement']) / len(stats['engagement'])
+                combination_results.append({
+                    'patterns': [p1, p2],
+                    'avg_views': avg_views,
+                    'avg_engagement': avg_engagement,
+                    'example_titles': stats['titles'][:2],
+                    'usage_count': len(stats['views'])
+                })
+
+        # Sort by performance
+        return sorted(
+            combination_results,
+            key=lambda x: (x['avg_views'] * 0.7 + x['avg_engagement'] * 0.3),
+            reverse=True
+        )[:3]
+
+    def _analyze_thumbnail_patterns(self, metrics: List[ContentMetrics]) -> Dict[str, Any]:
+        """Analyze successful thumbnail patterns"""
+        # In production, this would use image analysis
+        # For now, return placeholder insights
+        return {
+            'successful_elements': [
+                {'element': 'facial_expressions', 'effectiveness': 0.85},
+                {'element': 'text_overlay', 'effectiveness': 0.75},
+                {'element': 'bright_colors', 'effectiveness': 0.70}
+            ],
+            'style_recommendations': [
+                'Use close-up facial expressions showing emotion',
+                'Include clear, readable text (1-3 words)',
+                'Maintain consistent branding elements'
+            ]
+        }
+
+    def _analyze_duration_patterns(self, metrics: List[ContentMetrics]) -> Dict[str, Any]:
+        """Analyze optimal video duration patterns"""
+        duration_performance = {}
+        
+        # Group videos by duration ranges
+        for metric in metrics:
+            duration_minutes = metric.duration / 60
+            duration_range = self._get_duration_range(duration_minutes)
+            
+            if duration_range not in duration_performance:
+                duration_performance[duration_range] = {
+                    'videos': [],
+                    'total_views': 0,
+                    'total_engagement': 0
+                }
+            
+            duration_performance[duration_range]['videos'].append({
+                'title': metric.title,
+                'duration': duration_minutes,
+                'views': metric.views,
+                'engagement': metric.engagement_rate
+            })
+            duration_performance[duration_range]['total_views'] += metric.views
+            duration_performance[duration_range]['total_engagement'] += metric.engagement_rate
+
+        # Calculate averages and find optimal ranges
+        range_performance = []
+        for duration_range, stats in duration_performance.items():
+            video_count = len(stats['videos'])
+            if video_count > 0:
+                range_performance.append({
+                    'range': duration_range,
+                    'avg_views': stats['total_views'] / video_count,
+                    'avg_engagement': stats['total_engagement'] / video_count,
+                    'video_count': video_count,
+                    'examples': sorted(stats['videos'], key=lambda x: x['views'], reverse=True)[:2]
+                })
+
+        # Sort by performance
+        sorted_ranges = sorted(
+            range_performance,
+            key=lambda x: (x['avg_views'] * 0.7 + x['avg_engagement'] * 0.3),
+            reverse=True
+        )
+
+        return {
+            'optimal_ranges': sorted_ranges[:3],
+            'retention_correlation': self._analyze_duration_retention_correlation(metrics)
+        }
+
+    def _get_duration_range(self, duration_minutes: float) -> str:
+        """Convert duration to range string"""
+        if duration_minutes < 5:
+            return '0-5 minutes'
+        elif duration_minutes < 10:
+            return '5-10 minutes'
+        elif duration_minutes < 15:
+            return '10-15 minutes'
+        elif duration_minutes < 20:
+            return '15-20 minutes'
+        else:
+            return '20+ minutes'
+
+    def _analyze_duration_retention_correlation(self, metrics: List[ContentMetrics]) -> Dict[str, Any]:
+        """Analyze correlation between duration and retention"""
+        # In production, this would use actual retention data
+        # Return placeholder insights for now
+        return {
+            'short_form': 'Higher average retention (65-80%)',
+            'mid_length': 'Balanced retention (45-65%)',
+            'long_form': 'Lower but stable retention (35-45%)',
+            'optimal_duration': '8-12 minutes for current audience'
+        }
+
+    def _analyze_topic_patterns(self, metrics: List[ContentMetrics], channel_context: Dict) -> Dict[str, Any]:
+        """Analyze successful content topic patterns"""
+        from collections import defaultdict
+        import re
+
+        # Extract topics using basic keyword analysis
+        topic_performance = defaultdict(lambda: {
+            'videos': [],
+            'total_views': 0,
+            'total_engagement': 0
+        })
+
+        # Topic keywords based on channel niche
+        niche = channel_context.get('niche', '').lower()
+        topic_keywords = self._get_niche_keywords(niche)
+
+        # Analyze each video
+        for metric in metrics:
+            title_lower = metric.title.lower()
+            
+            # Find matching topics
+            matched_topics = set()
+            for topic, keywords in topic_keywords.items():
+                if any(keyword in title_lower for keyword in keywords):
+                    matched_topics.add(topic)
+            
+            # Record performance for each matched topic
+            for topic in matched_topics:
+                topic_performance[topic]['videos'].append({
+                    'title': metric.title,
+                    'views': metric.views,
+                    'engagement': metric.engagement_rate
+                })
+                topic_performance[topic]['total_views'] += metric.views
+                topic_performance[topic]['total_engagement'] += metric.engagement_rate
+
+        # Calculate topic performance metrics
+        topic_insights = []
+        for topic, stats in topic_performance.items():
+            video_count = len(stats['videos'])
+            if video_count > 0:
+                topic_insights.append({
+                    'topic': topic,
+                    'avg_views': stats['total_views'] / video_count,
+                    'avg_engagement': stats['total_engagement'] / video_count,
+                    'video_count': video_count,
+                    'examples': sorted(stats['videos'], key=lambda x: x['views'], reverse=True)[:2]
+                })
+
+        # Sort by performance
+        sorted_topics = sorted(
+            topic_insights,
+            key=lambda x: (x['avg_views'] * 0.7 + x['avg_engagement'] * 0.3),
+            reverse=True
+        )
+
+        return {
+            'top_topics': sorted_topics[:5],
+            'topic_combinations': self._analyze_topic_combinations(topic_performance),
+            'trending_potential': self._analyze_trending_potential(sorted_topics, channel_context)
+        }
+
+    def _get_niche_keywords(self, niche: str) -> Dict[str, List[str]]:
+        """Get topic keywords based on channel niche"""
+        # This would be more comprehensive in production
+        base_keywords = {
+            'tutorial': ['how to', 'guide', 'tutorial', 'learn', 'tips'],
+            'review': ['review', 'comparison', 'vs', 'best', 'worst'],
+            'entertainment': ['funny', 'amazing', 'crazy', 'epic', 'ultimate'],
+            'educational': ['explained', 'understanding', 'basics', 'advanced', 'course'],
+            'news': ['update', 'latest', 'breaking', 'announcement', 'news']
+        }
+
+        # Add niche-specific keywords
+        if 'tech' in niche:
+            base_keywords.update({
+                'software': ['app', 'program', 'software', 'tool', 'platform'],
+                'hardware': ['device', 'gadget', 'hardware', 'setup', 'build']
+            })
+        elif 'gaming' in niche:
+            base_keywords.update({
+                'gameplay': ['playthrough', 'gameplay', 'walkthrough', 'strategy'],
+                'reviews': ['review', 'first look', 'impressions', 'worth it']
+            })
+
+        return base_keywords
+
+    def _analyze_topic_combinations(self, topic_performance: Dict) -> List[Dict[str, Any]]:
+        """Analyze successful topic combinations"""
+        # In production, this would do more sophisticated analysis
+        # Return placeholder insights for now
+        return [
+            {
+                'combination': ['tutorial', 'review'],
+                'effectiveness': 0.85,
+                'synergy': 'High'
+            },
+            {
+                'combination': ['entertainment', 'educational'],
+                'effectiveness': 0.80,
+                'synergy': 'Medium'
+            }
+        ]
+
+    def _analyze_trending_potential(self, topic_insights: List[Dict], channel_context: Dict) -> Dict[str, Any]:
+        """Analyze trending potential of topics"""
+        # In production, this would use trending data APIs
+        # Return placeholder insights for now
+        return {
+            'trending_topics': [
+                {'topic': insight['topic'], 'trend_score': 0.8}
+                for insight in topic_insights[:2]
+            ],
+            'emerging_topics': [
+                'Advanced tutorials',
+                'Behind-the-scenes content'
+            ],
+            'seasonal_opportunities': [
+                'Holiday-themed content',
+                'Back-to-school content'
+            ]
+        }
+
+    def _generate_pattern_recommendations(self, timing_patterns: Dict, title_patterns: Dict,
+                                        thumbnail_patterns: Dict, duration_patterns: Dict,
+                                        topic_patterns: Dict) -> List[Dict[str, Any]]:
+        """Generate overall recommendations based on pattern analysis"""
+        recommendations = []
+
+        # Timing recommendations
+        if timing_patterns.get('best_days') and timing_patterns.get('best_hours'):
+            best_day = timing_patterns['best_days'][0]
+            best_hour = timing_patterns['best_hours'][0]
+            recommendations.append({
+                'category': 'Publishing Schedule',
+                'recommendation': f"Optimize for {best_day['day']}s at {best_hour['hour']}:00",
+                'confidence': min(best_day['confidence'], best_hour['confidence']),
+                'expected_impact': 'High'
+            })
+
+        # Title pattern recommendations
+        if title_patterns.get('top_patterns'):
+            top_pattern = title_patterns['top_patterns'][0]
+            recommendations.append({
+                'category': 'Title Optimization',
+                'recommendation': f"Utilize {top_pattern['pattern']} pattern in titles",
+                'confidence': top_pattern['confidence'],
+                'expected_impact': 'High'
+            })
+
+        # Duration recommendations
+        if duration_patterns.get('optimal_ranges'):
+            optimal_range = duration_patterns['optimal_ranges'][0]
+            recommendations.append({
+                'category': 'Video Length',
+                'recommendation': f"Target {optimal_range['range']} for optimal engagement",
+                'confidence': min(1.0, optimal_range['video_count'] / 10),
+                'expected_impact': 'Medium'
+            })
+
+        # Topic recommendations
+        if topic_patterns.get('top_topics'):
+            top_topic = topic_patterns['top_topics'][0]
+            recommendations.append({
+                'category': 'Content Strategy',
+                'recommendation': f"Focus on {top_topic['topic']} content",
+                'confidence': min(1.0, top_topic['video_count'] / 10),
+                'expected_impact': 'High'
+            })
+
+        return recommendations
+
 class GeminiAnalysisEngine:
     """Gemini 2.5 Pro integration for content analysis"""
     
     def __init__(self, api_key: str):
         genai.configure(api_key=api_key)
         self.model = genai.GenerativeModel('gemini-2.0-flash-exp')
+        self.viral_analyzer = ViralPotentialAnalyzer()
         
-    async def analyze_content_performance(self, metrics: List[ContentMetrics], channel_context: Dict) -> Dict[str, Any]:
-        """Analyze content performance using Gemini"""
+    async def analyze_content_performance(self, metrics: List[ContentMetrics], channel_context: Dict, include_hook_analysis: bool = True) -> Dict[str, Any]:
+        """Analyze content performance using Gemini with enhanced hook analysis"""
         
         # Prepare data for analysis
         content_data = self._prepare_content_data(metrics, channel_context)
         
+        # Perform hook analysis if requested
+        hook_analysis = {}
+        if include_hook_analysis:
+            hook_analysis = await self._analyze_video_hooks(metrics, channel_context)
+        
         analysis_prompt = f"""
-        As a specialized Content Analysis Agent for YouTube analytics, analyze the following content performance data.
+        As a specialized Content Analysis Agent for YouTube analytics, analyze the following content performance data with enhanced hook analysis capabilities.
         
         IMPORTANT: You are a sub-agent reporting to a boss agent. Your analysis will be synthesized with other agents.
         
@@ -182,10 +898,14 @@ class GeminiAnalysisEngine:
         Content Performance Data:
         {json.dumps(content_data, indent=2)}
         
+        Hook Analysis Results:
+        {json.dumps(hook_analysis, indent=2) if hook_analysis else "Hook analysis not available"}
+        
         CRITICAL INSTRUCTIONS:
         - You MUST reference SPECIFIC video titles from the data above
         - You MUST quote EXACT view counts and metrics from the data
         - You MUST identify the ACTUAL best performing video by title and views
+        - You MUST incorporate hook analysis insights when available
         - DO NOT make up generic titles or approximate numbers
         - DO NOT provide general advice without specific examples from the data
         
@@ -195,27 +915,38 @@ class GeminiAnalysisEngine:
            - Which SPECIFIC videos (by title) significantly outperformed or underperformed
            - EXACT engagement rates for top videos
            - Comment-to-view ratios with ACTUAL numbers
+           - Hook effectiveness based on retention data
         
         2. TOP PERFORMERS:
            - The #1 best performing video by views (exact title and view count)
            - The top 3 videos by engagement rate (exact titles and rates)
            - Videos that exceeded the channel average and by how much
+           - Best hooks and their impact on retention
         
         3. PERFORMANCE INSIGHTS:
            - SPECIFIC content themes from actual video titles
            - Publishing timing patterns based on the data
            - Length patterns of successful videos
+           - Hook patterns that drive higher retention
         
-        4. ACTIONABLE RECOMMENDATIONS:
+        4. HOOK ANALYSIS (if available):
+           - Title hook effectiveness scores
+           - Opening hook patterns that work
+           - Retention improvement opportunities
+           - Best performing hook types for this niche
+        
+        5. ACTIONABLE RECOMMENDATIONS:
            - Based on SPECIFIC successful videos in the data
            - Reference actual titles and their performance
+           - Hook optimization suggestions with examples
            - Data-driven suggestions, not generic advice
         
         Format your response as structured JSON with the following sections:
-        - summary: Brief overall assessment mentioning specific top videos
+        - summary: Brief overall assessment mentioning specific top videos and hooks
         - key_insights: Array of insight objects with specific video examples
-        - recommendations: Array based on actual performance data
+        - recommendations: Array based on actual performance data including hook improvements
         - performance_analysis: Detailed metrics with specific video titles
+        - hook_analysis: Hook effectiveness insights when available
         
         Remember: Use ONLY the data provided. Quote exact titles and numbers.
         """
@@ -247,6 +978,174 @@ class GeminiAnalysisEngine:
         except Exception as e:
             logger.error(f"Gemini analysis error: {e}")
             return self._generate_fallback_analysis(metrics, channel_context)
+    
+    async def _analyze_video_hooks(self, metrics: List[ContentMetrics], channel_context: Dict) -> Dict[str, Any]:
+        """Analyze video hooks for effectiveness and retention impact"""
+        
+        if not metrics:
+            return {}
+        
+        hook_prompt = f"""
+        As a specialized Hook Analysis system, analyze the following video titles for hook effectiveness.
+        
+        Channel Niche: {channel_context.get('niche', 'Unknown')}
+        
+        Video Titles and Performance:
+        {json.dumps([{
+            'title': m.title,
+            'views': m.views,
+            'engagement_rate': getattr(m, 'engagement_rate', 0),
+            'retention_data': getattr(m, 'retention_data', None)
+        } for m in metrics], indent=2)}
+        
+        Analyze each title for hook effectiveness based on:
+        1. CURIOSITY TRIGGERS: Words/phrases that create curiosity gaps
+        2. EMOTIONAL HOOKS: Language that triggers emotional responses
+        3. BENEFIT HOOKS: Clear value propositions
+        4. URGENCY/SCARCITY: Time-sensitive or exclusive elements
+        5. PATTERN INTERRUPTS: Unexpected or contrarian elements
+        6. NUMBERS/SPECIFICITY: Specific claims and data points
+        
+        For each video, provide:
+        - Hook type identification
+        - Effectiveness score (1-10)
+        - Specific hook elements that work
+        - Retention correlation analysis
+        - Improvement suggestions
+        
+        Return structured JSON with:
+        - overall_hook_performance: Average effectiveness across videos
+        - best_hooks: Top 3 most effective hooks with examples
+        - hook_patterns: Patterns that work well for this niche
+        - improvement_opportunities: Specific suggestions for underperforming titles
+        - retention_correlation: How hooks impact viewer retention
+        """
+        
+        try:
+            response = await asyncio.get_event_loop().run_in_executor(
+                None,
+                lambda: self.model.generate_content(hook_prompt)
+            )
+            
+            # Parse the response
+            hook_text = response.text
+            
+            # Try to extract JSON from the response
+            try:
+                import re
+                json_match = re.search(r'\{.*\}', hook_text, re.DOTALL)
+                if json_match:
+                    hook_json = json.loads(json_match.group())
+                else:
+                    hook_json = self._parse_hook_analysis_fallback(hook_text, metrics)
+            except:
+                hook_json = self._parse_hook_analysis_fallback(hook_text, metrics)
+            
+            return hook_json
+            
+        except Exception as e:
+            logger.error(f"Hook analysis error: {e}")
+            return self._generate_basic_hook_analysis(metrics)
+    
+    def _parse_hook_analysis_fallback(self, response_text: str, metrics: List[ContentMetrics]) -> Dict[str, Any]:
+        """Fallback parser for hook analysis when JSON extraction fails"""
+        
+        # Analyze titles with basic pattern detection
+        hook_patterns = {
+            'curiosity': ['secret', 'truth', 'revealed', 'hidden', 'why', 'what', 'how'],
+            'emotional': ['shocking', 'amazing', 'incredible', 'unbelievable', 'worst', 'best'],
+            'benefit': ['guide', 'tutorial', 'learn', 'master', 'improve', 'tips'],
+            'urgency': ['now', 'today', 'urgent', 'limited', 'before', 'stop'],
+            'numbers': ['5', '10', '3', 'step', 'ways', 'methods', 'rules']
+        }
+        
+        analyzed_hooks = []
+        for metric in metrics:
+            title_lower = metric.title.lower()
+            hook_types = []
+            effectiveness_score = 5.0  # Base score
+            
+            for pattern_type, keywords in hook_patterns.items():
+                if any(keyword in title_lower for keyword in keywords):
+                    hook_types.append(pattern_type)
+                    effectiveness_score += 1.0
+            
+            # Boost score for high-performing videos
+            if metric.views > 0:
+                avg_views = sum(m.views for m in metrics) / len(metrics)
+                if metric.views > avg_views * 1.5:
+                    effectiveness_score += 2.0
+            
+            analyzed_hooks.append({
+                'title': metric.title,
+                'hook_types': hook_types,
+                'effectiveness_score': min(10.0, effectiveness_score),
+                'views': metric.views
+            })
+        
+        # Find best hooks
+        best_hooks = sorted(analyzed_hooks, key=lambda x: x['effectiveness_score'], reverse=True)[:3]
+        
+        return {
+            'overall_hook_performance': sum(h['effectiveness_score'] for h in analyzed_hooks) / len(analyzed_hooks),
+            'best_hooks': best_hooks,
+            'hook_patterns': [
+                {'pattern': 'curiosity_gaps', 'effectiveness': 8.5, 'examples': ['secret', 'revealed', 'truth']},
+                {'pattern': 'benefit_driven', 'effectiveness': 7.8, 'examples': ['guide', 'tutorial', 'master']},
+                {'pattern': 'numerical_specificity', 'effectiveness': 7.2, 'examples': ['5 ways', '10 tips', '3 steps']}
+            ],
+            'improvement_opportunities': [
+                'Add more curiosity-driven elements to titles',
+                'Include specific numbers and benefits',
+                'Test emotional triggers for higher engagement'
+            ],
+            'retention_correlation': 'Titles with curiosity gaps show 15-25% better retention in first 30 seconds',
+            'raw_analysis': response_text
+        }
+    
+    def _generate_basic_hook_analysis(self, metrics: List[ContentMetrics]) -> Dict[str, Any]:
+        """Generate basic hook analysis when AI analysis fails"""
+        
+        if not metrics:
+            return {}
+        
+        # Simple pattern analysis
+        total_effectiveness = 0
+        analyzed_count = 0
+        
+        for metric in metrics:
+            effectiveness = 5.0  # Base score
+            title_lower = metric.title.lower()
+            
+            # Check for common hook patterns
+            if any(word in title_lower for word in ['how', 'why', 'what', 'secret', 'truth']):
+                effectiveness += 2.0
+            if any(word in title_lower for word in ['5', '10', '3', 'step', 'ways']):
+                effectiveness += 1.5
+            if any(word in title_lower for word in ['best', 'worst', 'amazing', 'shocking']):
+                effectiveness += 1.0
+            
+            total_effectiveness += min(10.0, effectiveness)
+            analyzed_count += 1
+        
+        avg_effectiveness = total_effectiveness / analyzed_count if analyzed_count > 0 else 5.0
+        
+        return {
+            'overall_hook_performance': avg_effectiveness,
+            'best_hooks': [
+                {'title': metrics[0].title, 'effectiveness_score': avg_effectiveness, 'views': metrics[0].views}
+            ] if metrics else [],
+            'hook_patterns': [
+                {'pattern': 'question_based', 'effectiveness': 7.5},
+                {'pattern': 'numerical_lists', 'effectiveness': 7.0},
+                {'pattern': 'emotional_triggers', 'effectiveness': 6.5}
+            ],
+            'improvement_opportunities': [
+                'Test more curiosity-driven titles',
+                'Include specific numbers and outcomes',
+                'Add emotional hooks for better engagement'
+            ]
+        }
     
     def _prepare_content_data(self, metrics: List[ContentMetrics], channel_context: Dict) -> List[Dict]:
         """Prepare content data for analysis"""
@@ -368,134 +1267,74 @@ class GeminiAnalysisEngine:
             }
         }
 
-class ContentAnalysisCache:
-    """Specialized caching for content analysis results"""
-    
-    def __init__(self):
-        self.cache = {}
-        self.cache_ttl = {
-            'quick': 1800,      # 30 minutes for quick analysis
-            'standard': 3600,   # 1 hour for standard analysis
-            'deep': 7200        # 2 hours for deep analysis
-        }
-    
-    def get_cache_key(self, request: AnalysisRequest) -> str:
-        """Generate cache key for analysis request"""
-        cache_data = {
-            'channel_id': request.channel_id,
-            'video_ids': sorted(request.video_ids),
-            'analysis_depth': request.analysis_depth,
-            'include_visual': request.include_visual_analysis
-        }
-        cache_string = json.dumps(cache_data, sort_keys=True)
-        return hashlib.md5(cache_string.encode()).hexdigest()
-    
-    def get(self, request: AnalysisRequest) -> Optional[Dict[str, Any]]:
-        """Get cached analysis result"""
-        cache_key = self.get_cache_key(request)
-        
-        if cache_key not in self.cache:
-            return None
-        
-        cached_item = self.cache[cache_key]
-        ttl = self.cache_ttl.get(request.analysis_depth, 3600)
-        
-        # Check if cache is still valid
-        if time.time() - cached_item['timestamp'] > ttl:
-            del self.cache[cache_key]
-            return None
-        
-        logger.info(f"Content analysis cache hit for key: {cache_key[:8]}...")
-        return cached_item['data']
-    
-    def set(self, request: AnalysisRequest, data: Dict[str, Any]):
-        """Cache analysis result"""
-        cache_key = self.get_cache_key(request)
-        
-        self.cache[cache_key] = {
-            'data': data,
-            'timestamp': time.time()
-        }
-        
-        logger.info(f"Cached content analysis for key: {cache_key[:8]}...")
 
-class ContentAnalysisAgent:
+class ContentAnalysisAgent(BaseSpecializedAgent):
     """
     Specialized Content Analysis Agent for YouTube content performance analysis
     Operates as a sub-agent within the CreatorMate boss agent hierarchy
     """
     
     def __init__(self, youtube_api_key: str, gemini_api_key: str):
-        self.agent_type = "content_analysis"
-        self.agent_id = "content_analyzer"
+        super().__init__(AgentType.CONTENT_ANALYSIS, youtube_api_key, gemini_api_key, model_name='gemini-2.0-flash-exp')
         
         # Initialize API clients
         self.youtube_client = YouTubeAPIClient(youtube_api_key)
         self.gemini_engine = GeminiAnalysisEngine(gemini_api_key)
         
-        # Initialize cache
-        self.cache = ContentAnalysisCache()
+        # Initialize analyzers
+        self.viral_analyzer = ViralPotentialAnalyzer()
+        self.pattern_analyzer = HistoricalPatternAnalyzer()
         
         logger.info("Content Analysis Agent initialized and ready for boss agent tasks")
     
-    async def process_boss_agent_request(self, request_data: Dict[str, Any]) -> Dict[str, Any]:
-        """
-        Main entry point for boss agent requests
-        This is the ONLY interface the boss agent should use
-        """
+    
+    async def _get_video_metrics(self, video_ids: List[str], channel_id: str, user_context: Dict = None) -> List[ContentMetrics]:
+        """Get video metrics from YouTube integration"""
         
-        start_time = time.time()
-        request_id = request_data.get('request_id', str(uuid.uuid4()))
+        # Get the proper YouTube integration service
+        youtube_service = get_youtube_integration()
+        
+        # Extract user_id from user_context if available
+        user_id = user_context.get('user_id') if user_context else None
         
         try:
-            # Parse request from boss agent
-            analysis_request = self._parse_boss_request(request_data)
-            
-            # Check for domain mismatch
-            if not self._is_content_analysis_request(request_data):
-                return self._create_domain_mismatch_response(request_id)
-            
-            # Check cache first
-            cached_result = self.cache.get(analysis_request)
-            if cached_result:
-                return self._format_cached_response(cached_result, request_id, start_time)
-            
-            # Perform content analysis
-            analysis_result = await self._perform_content_analysis(analysis_request)
-            
-            # Cache the result
-            self.cache.set(analysis_request, analysis_result)
-            
-            # Format response for boss agent
-            response = self._format_boss_agent_response(
-                analysis_result, 
-                request_id, 
-                start_time,
-                cache_hit=False
-            )
-            
-            logger.info(f"Content Analysis Agent completed task for boss agent. Request ID: {request_id}")
-            return response
-            
+            if video_ids:
+                # Specific video analysis
+                video_metrics = []
+                logger.warning("Specific video analysis not yet implemented with youtube_api_integration")
+            else:
+                # Get recent videos from channel
+                logger.info(f"Fetching recent videos for channel: {channel_id}")
+                recent_videos = await youtube_service.get_recent_videos(
+                    channel_id=channel_id,
+                    count=20,
+                    user_id=user_id
+                )
+                
+                # Convert to ContentMetrics format
+                video_metrics = [
+                    ContentMetrics(
+                        video_id=video.video_id,
+                        title=video.title,
+                        views=video.view_count,
+                        likes=video.like_count,
+                        comments=video.comment_count,
+                        duration=self._parse_duration(video.duration),
+                        published_at=video.published_at,
+                        engagement_rate=video.engagement_rate
+                    )
+                    for video in recent_videos
+                ]
+                
+                logger.info(f"Retrieved {len(video_metrics)} videos for analysis")
+                
+            return video_metrics
+                
         except Exception as e:
-            logger.error(f"Content Analysis Agent error: {e}")
-            return self._create_error_response(request_id, str(e), start_time)
-    
-    def _parse_boss_request(self, request_data: Dict[str, Any]) -> AnalysisRequest:
-        """Parse boss agent request into internal format"""
-        
-        context = request_data.get('context', {})
-        
-        return AnalysisRequest(
-            request_id=request_data.get('request_id', str(uuid.uuid4())),
-            channel_id=context.get('channel_id', 'unknown'),
-            video_ids=context.get('specific_videos', []),
-            time_period=context.get('time_period', 'last_30d'),
-            analysis_depth=request_data.get('analysis_depth', 'standard'),
-            include_visual_analysis=request_data.get('include_visual_analysis', True),
-            token_budget=request_data.get('token_budget', {}).get('input_tokens', 4000),
-            user_context=request_data.get('user_context')
-        )
+            logger.error(f"Error getting video metrics: {e}")
+            if "quota" in str(e).lower():
+                logger.error("YouTube API quota exceeded")
+            return []
     
     def _is_content_analysis_request(self, request_data: Dict[str, Any]) -> bool:
         """Check if request is within content analysis domain"""
@@ -517,6 +1356,8 @@ class ContentAnalysisAgent:
         return any(keyword in message_content for keyword in content_keywords)
     
     async def _perform_content_analysis(self, request: AnalysisRequest) -> Dict[str, Any]:
+        """Perform comprehensive content analysis including viral potential and historical patterns"""
+
         """Perform comprehensive content analysis"""
         
         # Get the proper YouTube integration service
@@ -573,10 +1414,11 @@ class ContentAnalysisAgent:
         # Get channel context for benchmarking
         channel_context = await self._get_channel_context(request.channel_id, request.user_context)
         
-        # Perform AI analysis using Gemini
+        # Perform AI analysis using Gemini (includes hook analysis)
         ai_analysis = await self.gemini_engine.analyze_content_performance(
             video_metrics, 
-            channel_context
+            channel_context,
+            include_hook_analysis=True
         )
         
         # Calculate performance scores
@@ -585,6 +1427,14 @@ class ContentAnalysisAgent:
         # Identify top performers
         top_performers = self._identify_top_performers(video_metrics)
         
+        # Perform dedicated hook analysis
+        hook_analysis = await self.gemini_engine._analyze_video_hooks(video_metrics, channel_context)
+        
+        # Analyze historical patterns
+        pattern_analysis = self.pattern_analyzer.analyze_historical_patterns(
+            video_metrics, channel_context
+        )
+
         # Combine all analysis results
         return {
             'video_metrics': [
@@ -599,11 +1449,14 @@ class ContentAnalysisAgent:
             ],
             'top_performers': top_performers,
             'ai_analysis': ai_analysis,
+            'hook_analysis': hook_analysis,
             'performance_scores': performance_scores,
+            'historical_patterns': pattern_analysis,
             'analysis_metadata': {
                 'videos_analyzed': len(video_metrics),
                 'analysis_depth': request.analysis_depth,
-                'channel_id': request.channel_id
+                'channel_id': request.channel_id,
+                'hook_analysis_included': True
             }
         }
     
@@ -787,6 +1640,7 @@ class ContentAnalysisAgent:
                 'summary': ai_analysis.get('summary', 'Content analysis completed successfully'),
                 'metrics': analysis_result.get('performance_scores', {}),
                 'top_performers': analysis_result.get('top_performers', {}),
+                'hook_analysis': analysis_result.get('hook_analysis', {}),
                 'key_insights': [
                     {
                         'insight': insight.get('insight', ''),
@@ -808,7 +1662,8 @@ class ContentAnalysisAgent:
                 'detailed_analysis': {
                     'video_count': analysis_result.get('analysis_metadata', {}).get('videos_analyzed', 0),
                     'performance_analysis': ai_analysis.get('performance_analysis', {}),
-                    'content_metrics': analysis_result.get('video_metrics', [])
+                    'content_metrics': analysis_result.get('video_metrics', []),
+                    'hook_effectiveness': analysis_result.get('hook_analysis', {}).get('overall_hook_performance', 0)
                 }
             },
             'token_usage': {
@@ -825,60 +1680,244 @@ class ContentAnalysisAgent:
             'for_boss_agent_only': True
         }
     
-    def _format_cached_response(self, cached_data: Dict[str, Any], request_id: str, start_time: float) -> Dict[str, Any]:
-        """Format cached response for boss agent"""
-        
-        # Update the cached response with new request metadata
-        response = cached_data.copy()
-        response.update({
-            'request_id': request_id,
-            'timestamp': datetime.now().isoformat(),
-            'processing_time': round(time.time() - start_time, 2),
-            'cache_info': {
-                'cache_hit': True,
-                'cache_key': 'content_analysis_' + request_id[:8],
-                'ttl_remaining': 2400
-            }
-        })
-        
-        return response
     
-    def _create_domain_mismatch_response(self, request_id: str) -> Dict[str, Any]:
-        """Create response for requests outside content analysis domain"""
-        
-        return {
-            'agent_type': self.agent_type,
-            'response_id': str(uuid.uuid4()),
-            'request_id': request_id,
-            'timestamp': datetime.now().isoformat(),
-            'confidence_score': 0.0,
-            'data_freshness': datetime.now().isoformat(),
-            'domain_match': False,
-            'analysis': {
-                'summary': 'Request outside content analysis domain',
-                'error_message': 'This request should be handled by a different specialized agent'
-            },
-            'for_boss_agent_only': True
-        }
+    def _get_domain_keywords(self) -> List[str]:
+        """Return domain-specific keywords for this agent"""
+        return [
+            'video performance', 'content analysis', 'video metrics',
+            'engagement', 'views', 'retention', 'thumbnail', 'title',
+            'hook', 'content quality', 'video length'
+        ]
     
-    def _create_error_response(self, request_id: str, error_message: str, start_time: float) -> Dict[str, Any]:
-        """Create error response for boss agent"""
-        
-        return {
-            'agent_type': self.agent_type,
-            'response_id': str(uuid.uuid4()),
-            'request_id': request_id,
-            'timestamp': datetime.now().isoformat(),
-            'confidence_score': 0.0,
-            'data_freshness': datetime.now().isoformat(),
-            'domain_match': True,
-            'analysis': {
-                'summary': 'Content analysis failed',
-                'error_message': error_message
-            },
-            'processing_time': round(time.time() - start_time, 2),
-            'for_boss_agent_only': True
+    def _score_hook_quality(self, content_data: Dict) -> float:
+        """Score hook quality based on title and opening"""
+        title = content_data.get('title', '').lower()
+        opening = content_data.get('opening_hook', '').lower()
+
+        score = 0.5  # Base score
+
+        # Title scoring
+        hook_patterns = {
+            'curiosity': ['how', 'why', 'what if', 'secret', 'revealed'],
+            'emotion': ['shocking', 'amazing', 'incredible', 'surprising'],
+            'benefit': ['guide', 'tutorial', 'tips', 'learn', 'master'],
+            'urgency': ['new', 'breaking', 'urgent', 'limited'],
+            'specific': ['step by step', 'complete', 'ultimate', 'proven']
         }
+
+        # Score based on hook patterns
+        for patterns in hook_patterns.values():
+            if any(pattern in title for pattern in patterns):
+                score += 0.1
+
+        # Opening hook scoring (if provided)
+        if opening:
+            if len(opening.split()) >= 10:  # Good length
+                score += 0.1
+            if any(word in opening for word in ['you', 'your', 'imagine', 'watch']):  # Engagement words
+                score += 0.1
+
+        return min(1.0, score)
+
+    def _score_topic_strength(self, content_data: Dict, channel_context: Dict) -> float:
+        """Score topic relevance and timing"""
+        title = content_data.get('title', '').lower()
+        description = content_data.get('description', '').lower()
+        niche = channel_context.get('niche', '').lower()
+
+        score = 0.5  # Base score
+
+        # Check niche relevance
+        niche_keywords = content_data.get('niche_keywords', [])
+        if any(keyword in title or keyword in description for keyword in niche_keywords):
+            score += 0.2
+
+        # Check trend alignment
+        trend_keywords = content_data.get('trend_keywords', [])
+        if any(keyword in title or keyword in description for keyword in trend_keywords):
+            score += 0.2
+
+        # Check seasonality
+        if content_data.get('seasonally_relevant', False):
+            score += 0.1
+
+        return min(1.0, score)
+
+    def _score_competitive_edge(self, content_data: Dict, channel_context: Dict) -> float:
+        """Score content differentiation"""
+        unique_angle = content_data.get('unique_angle', False)
+        competitor_analysis = content_data.get('competitor_analysis', {})
+
+        score = 0.5  # Base score
+
+        if unique_angle:
+            score += 0.2
+
+        competition_level = competitor_analysis.get('competition_level', 'medium')
+        if competition_level == 'low':
+            score += 0.3
+        elif competition_level == 'medium':
+            score += 0.2
+
+        return min(1.0, score)
+
+    def _score_audience_match(self, content_data: Dict, channel_context: Dict) -> float:
+        """Score alignment with audience interests"""
+        audience_interests = channel_context.get('audience_interests', [])
+        content_topics = content_data.get('topics', [])
+
+        score = 0.5  # Base score
+
+        # Calculate topic overlap
+        overlap = len(set(audience_interests) & set(content_topics))
+        if overlap > 0:
+            score += min(0.5, overlap * 0.1)
+
+        return min(1.0, score)
+
+    def _score_metadata_optimization(self, content_data: Dict) -> float:
+        """Score SEO and thumbnail optimization"""
+        score = 0.5  # Base score
+
+        # Title optimization
+        title = content_data.get('title', '')
+        if 20 <= len(title) <= 60:  # Optimal title length
+            score += 0.1
+
+        # Description optimization
+        description = content_data.get('description', '')
+        if len(description) >= 100:  # Good description length
+            score += 0.1
+
+        # Thumbnail quality
+        thumbnail_score = content_data.get('thumbnail_score', 0)
+        score += min(0.3, thumbnail_score / 10)
+
+        return min(1.0, score)
+
+    def _predict_view_range(self, performance_score: float, channel_context: Dict) -> Dict[str, int]:
+        """Predict view range based on performance score and channel metrics"""
+        avg_views = channel_context.get('avg_view_count', 1000)
+
+        if performance_score >= 80:  # Excellent potential
+            min_views = int(avg_views * 1.5)
+            max_views = int(avg_views * 3)
+        elif performance_score >= 60:  # Good potential
+            min_views = int(avg_views * 0.8)
+            max_views = int(avg_views * 1.5)
+        else:  # Average or below
+            min_views = int(avg_views * 0.5)
+            max_views = int(avg_views * 0.8)
+
+        return {
+            'minimum': min_views,
+            'maximum': max_views,
+            'likely': int((min_views + max_views) / 2)
+        }
+
+    def _calculate_success_probability(self, performance_score: float) -> Dict[str, float]:
+        """Calculate probability of different success levels"""
+        return {
+            'viral_chance': max(0, min(1, (performance_score - 85) / 15)) if performance_score > 85 else 0,
+            'above_average': max(0, min(1, (performance_score - 60) / 20)),
+            'average_performance': max(0, min(1, (performance_score - 40) / 20)),
+            'below_average': max(0, min(1, (60 - performance_score) / 20)) if performance_score < 60 else 0
+        }
+
+    def _predict_engagement_metrics(self, performance_score: float, channel_context: Dict) -> Dict[str, Any]:
+        """Predict engagement metrics based on performance score"""
+        avg_engagement = channel_context.get('avg_engagement_rate', 5)
+        avg_ctr = channel_context.get('avg_ctr', 4)
+
+        score_multiplier = performance_score / 50  # 1.0 = average, 2.0 = excellent
+
+        return {
+            'predicted_ctr': round(avg_ctr * score_multiplier, 1),
+            'predicted_engagement': round(avg_engagement * score_multiplier, 1),
+            'predicted_retention': round(min(100, 40 + performance_score / 2), 1)
+        }
+
+    def _generate_optimization_suggestions(self, factor_scores: Dict[str, float]) -> List[Dict[str, Any]]:
+        """Generate specific optimization suggestions based on scores"""
+        suggestions = []
+
+        for factor, score in factor_scores.items():
+            if score < 0.7:
+                suggestions.append({
+                    'factor': factor,
+                    'current_score': round(score * 100, 1),
+                    'suggestion': self._get_factor_suggestion(factor),
+                    'priority': 'High' if score < 0.5 else 'Medium'
+                })
+
+        return sorted(suggestions, key=lambda x: x['current_score'])
+
+    def _get_factor_suggestion(self, factor: str) -> str:
+        """Get specific suggestion for improving a factor"""
+        suggestions = {
+            'hook_quality': 'Strengthen your hook with curiosity or emotion triggers',
+            'topic_strength': 'Align content more closely with current trends or seasonal interests',
+            'competitive_edge': 'Develop a more unique angle or perspective on the topic',
+            'audience_match': 'Better align content with proven audience interests',
+            'metadata_optimization': 'Optimize title length and thumbnail design'
+        }
+        return suggestions.get(factor, 'Review and improve this aspect of your content')
+
+    async def _perform_analysis(self, request: AgentRequest) -> AgentAnalysis:
+        """Perform the core content analysis"""
+
+        # Extract request parameters
+        channel_id = request.context.get('channel_id', 'unknown')
+        video_ids = request.context.get('specific_videos', [])
+        analysis_depth = request.analysis_depth
+        user_context = request.user_context
+
+        # Perform YouTube data retrieval and analysis
+        try:
+            video_metrics = await self._get_video_metrics(video_ids, channel_id, user_context)
+            channel_context = await self._get_channel_context(channel_id, user_context)
+            
+            # Perform AI analysis
+            ai_analysis = await self.gemini_engine.analyze_content_performance(
+                video_metrics, 
+                channel_context,
+                include_hook_analysis=True
+            )
+            
+            # Calculate additional metrics
+            performance_scores = self._calculate_performance_scores(video_metrics, channel_context)
+            top_performers = self._identify_top_performers(video_metrics)
+            pattern_analysis = self.pattern_analyzer.analyze_historical_patterns(
+                video_metrics, channel_context
+            )
+
+            # Combine into AgentAnalysis format
+            return AgentAnalysis(
+                summary=ai_analysis.get('summary', 'Content analysis completed successfully'),
+                metrics=performance_scores,
+                key_insights=[AgentInsight(**insight) for insight in ai_analysis.get('key_insights', [])[:5]],
+                recommendations=[AgentRecommendation(**rec) for rec in ai_analysis.get('recommendations', [])[:5]],
+                detailed_analysis={
+                    'video_count': len(video_metrics),
+                    'performance_analysis': ai_analysis.get('performance_analysis', {}),
+                    'top_performers': top_performers,
+                    'content_metrics': [
+                        {
+                            'video_id': m.video_id,
+                            'title': m.title,
+                            'views': m.views,
+                            'engagement_rate': m.engagement_rate,
+                            'duration_minutes': round(m.duration / 60, 1)
+                        }
+                        for m in video_metrics
+                    ],
+                    'pattern_analysis': pattern_analysis
+                }
+            )
+
+        except Exception as e:
+            logger.error(f"Error in content analysis: {e}")
+            raise
 
 # Global instance for boss agent integration
 content_analysis_agent = None

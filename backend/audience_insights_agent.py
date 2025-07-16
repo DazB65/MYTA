@@ -17,6 +17,7 @@ from googleapiclient.errors import HttpError
 from openai import OpenAI
 from dataclasses import dataclass
 import statistics
+from base_agent import BaseSpecializedAgent, AgentType, AgentRequest, AgentAnalysis, AgentInsight, AgentRecommendation
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -32,6 +33,8 @@ class AudienceAnalysisRequest:
     include_sentiment_analysis: bool = True
     include_demographics: bool = True
     include_behavior_analysis: bool = True
+    include_collaboration_analysis: bool = True
+    include_posting_time_analysis: bool = True
     token_budget: int = 4000
 
 @dataclass
@@ -47,6 +50,422 @@ class AudienceMetrics:
     peak_activity_times: List[str]
     comment_volume: int
     sentiment_breakdown: Dict[str, float]
+
+class PostingTimeAnalyzer:
+    """Analyzes optimal posting times for maximum engagement"""
+
+    def __init__(self):
+        self.time_weights = {
+            'view_performance': 0.4,      # Weight for view count performance
+            'engagement_rate': 0.3,       # Weight for engagement metrics
+            'subscriber_gain': 0.2,       # Weight for subscriber growth
+            'retention_rate': 0.1         # Weight for viewer retention
+        }
+
+    async def analyze_posting_times(self, video_data: List[Dict], timezone: str = 'UTC') -> Dict[str, Any]:
+        """Analyze optimal posting times for maximum engagement"""
+        try:
+            # Group performance by day and hour
+            day_stats = self._analyze_daily_performance(video_data)
+            hour_stats = self._analyze_hourly_performance(video_data)
+            timezone_impact = self._analyze_timezone_impact(video_data, timezone)
+
+            # Find optimal posting windows
+            posting_windows = self._identify_optimal_windows(day_stats, hour_stats)
+
+            # Calculate posting consistency score
+            consistency_metrics = self._analyze_posting_consistency(video_data)
+
+            return {
+                'optimal_posting_times': posting_windows,
+                'day_performance': day_stats,
+                'hour_performance': hour_stats,
+                'timezone_analysis': timezone_impact,
+                'posting_consistency': consistency_metrics,
+                'recommendations': self._generate_posting_recommendations(
+                    posting_windows, consistency_metrics, timezone_impact
+                )
+            }
+
+        except Exception as e:
+            logger.error(f"Error in posting time analysis: {e}")
+            return self._generate_fallback_analysis()
+
+    def _analyze_daily_performance(self, videos: List[Dict]) -> Dict[str, Any]:
+        """Analyze performance by day of week"""
+        from collections import defaultdict
+        import datetime
+
+        daily_stats = defaultdict(lambda: {
+            'videos': [],
+            'total_views': 0,
+            'total_engagement': 0,
+            'subscriber_gain': 0
+        })
+
+        for video in videos:
+            try:
+                published = datetime.datetime.fromisoformat(
+                    video['published_at'].replace('Z', '+00:00')
+                )
+                day_name = published.strftime('%A')
+
+                daily_stats[day_name]['videos'].append(video)
+                daily_stats[day_name]['total_views'] += video.get('views', 0)
+                daily_stats[day_name]['total_engagement'] += (
+                    video.get('likes', 0) + video.get('comments', 0)
+                )
+                daily_stats[day_name]['subscriber_gain'] += video.get('subscriber_gain', 0)
+
+            except Exception as e:
+                logger.warning(f"Error processing video for daily stats: {e}")
+                continue
+
+        # Calculate averages and scores
+        day_performance = {}
+        for day, stats in daily_stats.items():
+            video_count = len(stats['videos'])
+            if video_count > 0:
+                avg_views = stats['total_views'] / video_count
+                avg_engagement = stats['total_engagement'] / video_count
+                avg_sub_gain = stats['subscriber_gain'] / video_count
+
+                # Calculate weighted performance score
+                performance_score = (
+                    avg_views * self.time_weights['view_performance'] +
+                    avg_engagement * self.time_weights['engagement_rate'] +
+                    avg_sub_gain * self.time_weights['subscriber_gain']
+                )
+
+                day_performance[day] = {
+                    'performance_score': round(performance_score, 2),
+                    'avg_views': round(avg_views, 2),
+                    'avg_engagement': round(avg_engagement, 2),
+                    'avg_sub_gain': round(avg_sub_gain, 2),
+                    'video_count': video_count,
+                    'confidence': min(1.0, video_count / 10)
+                }
+
+        return day_performance
+
+    def _analyze_hourly_performance(self, videos: List[Dict]) -> Dict[str, Any]:
+        """Analyze performance by hour of day"""
+        from collections import defaultdict
+        import datetime
+
+        hourly_stats = defaultdict(lambda: {
+            'videos': [],
+            'total_views': 0,
+            'total_engagement': 0,
+            'avg_retention': 0
+        })
+
+        for video in videos:
+            try:
+                published = datetime.datetime.fromisoformat(
+                    video['published_at'].replace('Z', '+00:00')
+                )
+                hour = published.hour
+
+                hourly_stats[hour]['videos'].append(video)
+                hourly_stats[hour]['total_views'] += video.get('views', 0)
+                hourly_stats[hour]['total_engagement'] += (
+                    video.get('likes', 0) + video.get('comments', 0)
+                )
+                hourly_stats[hour]['avg_retention'] += video.get('retention_rate', 0)
+
+            except Exception as e:
+                logger.warning(f"Error processing video for hourly stats: {e}")
+                continue
+
+        # Calculate hourly performance scores
+        hour_performance = {}
+        for hour, stats in hourly_stats.items():
+            video_count = len(stats['videos'])
+            if video_count > 0:
+                avg_views = stats['total_views'] / video_count
+                avg_engagement = stats['total_engagement'] / video_count
+                avg_retention = stats['avg_retention'] / video_count
+
+                # Calculate weighted performance score
+                performance_score = (
+                    avg_views * self.time_weights['view_performance'] +
+                    avg_engagement * self.time_weights['engagement_rate'] +
+                    avg_retention * self.time_weights['retention_rate']
+                )
+
+                hour_performance[hour] = {
+                    'performance_score': round(performance_score, 2),
+                    'avg_views': round(avg_views, 2),
+                    'avg_engagement': round(avg_engagement, 2),
+                    'avg_retention': round(avg_retention, 2),
+                    'video_count': video_count,
+                    'confidence': min(1.0, video_count / 10)
+                }
+
+        return hour_performance
+
+    def _analyze_timezone_impact(self, videos: List[Dict], timezone: str) -> Dict[str, Any]:
+        """Analyze impact of timezone on video performance"""
+        try:
+            from datetime import datetime, timedelta
+            import pytz
+
+            tz = pytz.timezone(timezone)
+            utc = pytz.UTC
+
+            # Analyze performance in different timezone segments
+            timezone_segments = {
+                'early_morning': (4, 8),    # 4 AM - 8 AM
+                'morning': (8, 12),         # 8 AM - 12 PM
+                'afternoon': (12, 16),       # 12 PM - 4 PM
+                'evening': (16, 20),         # 4 PM - 8 PM
+                'night': (20, 24),           # 8 PM - 12 AM
+                'late_night': (0, 4)         # 12 AM - 4 AM
+            }
+
+            segment_performance = {}
+            for segment, (start_hour, end_hour) in timezone_segments.items():
+                segment_videos = []
+                for video in videos:
+                    try:
+                        # Convert UTC to local timezone
+                        published = datetime.fromisoformat(
+                            video['published_at'].replace('Z', '+00:00')
+                        )
+                        local_time = published.astimezone(tz)
+                        
+                        if start_hour <= local_time.hour < end_hour:
+                            segment_videos.append(video)
+                    except Exception:
+                        continue
+
+                if segment_videos:
+                    avg_views = sum(v.get('views', 0) for v in segment_videos) / len(segment_videos)
+                    avg_engagement = sum(
+                        v.get('likes', 0) + v.get('comments', 0)
+                        for v in segment_videos
+                    ) / len(segment_videos)
+
+                    segment_performance[segment] = {
+                        'avg_views': round(avg_views, 2),
+                        'avg_engagement': round(avg_engagement, 2),
+                        'video_count': len(segment_videos),
+                        'performance_score': round(
+                            (avg_views * 0.7 + avg_engagement * 0.3) / 1000, 2
+                        )
+                    }
+
+            return {
+                'timezone': timezone,
+                'segment_performance': segment_performance,
+                'optimal_segments': sorted(
+                    segment_performance.items(),
+                    key=lambda x: x[1]['performance_score'],
+                    reverse=True
+                )[:3]
+            }
+
+        except Exception as e:
+            logger.error(f"Error in timezone analysis: {e}")
+            return {
+                'timezone': timezone,
+                'segment_performance': {},
+                'optimal_segments': []
+            }
+
+    def _identify_optimal_windows(self, day_stats: Dict, hour_stats: Dict) -> List[Dict[str, Any]]:
+        """Identify optimal posting windows based on performance"""
+        # Sort days and hours by performance
+        sorted_days = sorted(
+            day_stats.items(),
+            key=lambda x: x[1]['performance_score'],
+            reverse=True
+        )
+
+        sorted_hours = sorted(
+            hour_stats.items(),
+            key=lambda x: x[1]['performance_score'],
+            reverse=True
+        )
+
+        # Generate posting windows
+        posting_windows = []
+        for day, day_data in sorted_days[:3]:  # Top 3 days
+            for hour, hour_data in sorted_hours[:2]:  # Top 2 hours
+                window_score = (
+                    day_data['performance_score'] * 0.6 +
+                    hour_data['performance_score'] * 0.4
+                )
+
+                posting_windows.append({
+                    'day': day,
+                    'hour': hour,
+                    'window_score': round(window_score, 2),
+                    'metrics': {
+                        'avg_views': round(
+                            (day_data['avg_views'] + hour_data['avg_views']) / 2, 2
+                        ),
+                        'avg_engagement': round(
+                            (day_data['avg_engagement'] + hour_data['avg_engagement']) / 2, 2
+                        )
+                    },
+                    'confidence': round(
+                        (day_data['confidence'] + hour_data['confidence']) / 2, 2
+                    )
+                })
+
+        return sorted(posting_windows, key=lambda x: x['window_score'], reverse=True)
+
+    def _analyze_posting_consistency(self, videos: List[Dict]) -> Dict[str, Any]:
+        """Analyze posting schedule consistency"""
+        try:
+            from datetime import datetime, timedelta
+            from collections import defaultdict
+            import statistics
+
+            if not videos:
+                return self._get_default_consistency_metrics()
+
+            # Sort videos by publish date
+            sorted_videos = sorted(
+                videos,
+                key=lambda x: datetime.fromisoformat(x['published_at'].replace('Z', '+00:00'))
+            )
+
+            # Calculate gaps between posts
+            gaps = []
+            for i in range(1, len(sorted_videos)):
+                current = datetime.fromisoformat(
+                    sorted_videos[i]['published_at'].replace('Z', '+00:00')
+                )
+                previous = datetime.fromisoformat(
+                    sorted_videos[i-1]['published_at'].replace('Z', '+00:00')
+                )
+                gap_days = (current - previous).days
+                gaps.append(gap_days)
+
+            if not gaps:
+                return self._get_default_consistency_metrics()
+
+            # Calculate statistics
+            avg_gap = statistics.mean(gaps)
+            consistency_score = max(0, min(100, 100 - (statistics.stdev(gaps) if len(gaps) > 1 else 0)))
+
+            # Determine posting frequency
+            if avg_gap <= 1:
+                frequency = "daily"
+            elif avg_gap <= 3:
+                frequency = "semi-weekly"
+            elif avg_gap <= 7:
+                frequency = "weekly"
+            elif avg_gap <= 14:
+                frequency = "bi-weekly"
+            else:
+                frequency = "monthly"
+
+            return {
+                'posting_frequency': frequency,
+                'avg_gap_days': round(avg_gap, 1),
+                'consistency_score': round(consistency_score, 1),
+                'total_videos': len(videos),
+                'analysis_period_days': (datetime.fromisoformat(
+                    sorted_videos[-1]['published_at'].replace('Z', '+00:00')
+                ) - datetime.fromisoformat(
+                    sorted_videos[0]['published_at'].replace('Z', '+00:00')
+                )).days
+            }
+
+        except Exception as e:
+            logger.error(f"Error in consistency analysis: {e}")
+            return self._get_default_consistency_metrics()
+
+    def _get_default_consistency_metrics(self) -> Dict[str, Any]:
+        """Return default consistency metrics"""
+        return {
+            'posting_frequency': 'unknown',
+            'avg_gap_days': 7,
+            'consistency_score': 50,
+            'total_videos': 0,
+            'analysis_period_days': 0
+        }
+
+    def _generate_posting_recommendations(self, windows: List[Dict], 
+                                        consistency: Dict,
+                                        timezone_data: Dict) -> List[Dict[str, Any]]:
+        """Generate actionable posting schedule recommendations"""
+        recommendations = []
+
+        # Recommend optimal posting windows
+        if windows:
+            top_window = windows[0]
+            recommendations.append({
+                'type': 'optimal_time',
+                'recommendation': f"Post on {top_window['day']}s at {top_window['hour']}:00",
+                'reasoning': 'Based on highest historical performance',
+                'confidence': top_window['confidence']
+            })
+
+        # Recommend consistency improvements
+        if consistency['consistency_score'] < 70:
+            recommendations.append({
+                'type': 'consistency',
+                'recommendation': f"Maintain a consistent {consistency['posting_frequency']} schedule",
+                'reasoning': 'Improve audience retention with regular content',
+                'confidence': 0.85
+            })
+
+        # Timezone-based recommendations
+        if timezone_data.get('optimal_segments'):
+            best_segment = timezone_data['optimal_segments'][0]
+            recommendations.append({
+                'type': 'timezone',
+                'recommendation': f"Optimize for {best_segment[0]} in {timezone_data['timezone']}",
+                'reasoning': 'Highest engagement in this time segment',
+                'confidence': 0.8
+            })
+
+        return recommendations
+
+    def _generate_fallback_analysis(self) -> Dict[str, Any]:
+        """Generate fallback analysis when processing fails"""
+        return {
+            'optimal_posting_times': [
+                {
+                    'day': 'Wednesday',
+                    'hour': 18,
+                    'window_score': 75.0,
+                    'metrics': {'avg_views': 1000, 'avg_engagement': 100},
+                    'confidence': 0.5
+                }
+            ],
+            'day_performance': {
+                'Wednesday': {
+                    'performance_score': 75.0,
+                    'avg_views': 1000,
+                    'avg_engagement': 100,
+                    'video_count': 5,
+                    'confidence': 0.5
+                }
+            },
+            'hour_performance': {
+                18: {
+                    'performance_score': 75.0,
+                    'avg_views': 1000,
+                    'avg_engagement': 100,
+                    'video_count': 5,
+                    'confidence': 0.5
+                }
+            },
+            'posting_consistency': self._get_default_consistency_metrics(),
+            'recommendations': [
+                {
+                    'type': 'optimal_time',
+                    'recommendation': 'Post on Wednesdays at 18:00',
+                    'confidence': 0.5
+                }
+            ]
+        }
 
 class YouTubeAudienceAPIClient:
     """YouTube API integration for audience data retrieval"""
@@ -205,20 +624,478 @@ class YouTubeAudienceAPIClient:
             logger.error(f"Error retrieving comments: {e}")
             return []
 
+class CollaborationAnalyzer:
+    """Analyzes audience and channel data to identify collaboration opportunities"""
+
+    def __init__(self):
+        self.collaboration_factors = {
+            'audience_overlap': 0.25,  # Shared audience demographics
+            'content_synergy': 0.20,  # Content style and topic fit
+            'size_compatibility': 0.15,  # Channel size match
+            'engagement_potential': 0.15,  # Combined engagement potential
+            'growth_opportunity': 0.15,  # Mutual growth potential
+            'brand_alignment': 0.10   # Values and style alignment
+        }
+
+    def analyze_collaboration_potential(self, channel_metrics: Dict, audience_data: Dict) -> Dict[str, Any]:
+        """Analyze collaboration potential based on channel and audience data"""
+        
+        # Calculate factor scores
+        factor_scores = {
+            'audience_overlap': self._score_audience_overlap(audience_data),
+            'content_synergy': self._score_content_synergy(channel_metrics),
+            'size_compatibility': self._score_size_compatibility(channel_metrics),
+            'engagement_potential': self._score_engagement_potential(channel_metrics),
+            'growth_opportunity': self._score_growth_opportunity(channel_metrics),
+            'brand_alignment': self._score_brand_alignment(channel_metrics)
+        }
+
+        # Calculate weighted score
+        collab_score = sum(score * self.collaboration_factors[factor] 
+                          for factor, score in factor_scores.items())
+
+        # Scale to 0-100
+        collab_score = min(100, max(0, collab_score * 100))
+
+        return {
+            'collaboration_score': round(collab_score, 1),
+            'factor_scores': factor_scores,
+            'key_factors': self._identify_key_factors(factor_scores),
+            'collaboration_types': self._suggest_collaboration_types(factor_scores),
+            'ideal_partner_profile': self._create_partner_profile(channel_metrics)
+        }
+
+    def _score_audience_overlap(self, audience_data: Dict) -> float:
+        """Score potential audience overlap"""
+        demographics = audience_data.get('demographics', {})
+        
+        if not demographics:
+            return 0.5
+
+        # Calculate demographic overlap potential
+        age_groups = demographics.get('age_groups', {})
+        gender_split = demographics.get('gender', {})
+        countries = demographics.get('top_countries', {})
+
+        # More diverse audience = more overlap potential
+        age_spread = len([v for v in age_groups.values() if v > 10])
+        country_spread = len([v for v in countries.values() if v > 5])
+
+        return min(1.0, (age_spread * 0.15 + country_spread * 0.1))
+
+    def _score_content_synergy(self, metrics: Dict) -> float:
+        """Score content style compatibility"""
+        content_type = metrics.get('content_type', '').lower()
+        niche = metrics.get('niche', '').lower()
+
+        # Content types with high collaboration potential
+        high_collab_types = ['tutorial', 'education', 'entertainment', 'vlog']
+        medium_collab_types = ['review', 'gaming', 'tech', 'lifestyle']
+
+        if content_type in high_collab_types:
+            return 0.9
+        elif content_type in medium_collab_types:
+            return 0.7
+        return 0.5
+
+    def _score_size_compatibility(self, metrics: Dict) -> float:
+        """Score channel size compatibility"""
+        subs = metrics.get('subscriber_count', 0)
+
+        # Size tiers for collaboration
+        if subs < 1000:
+            return 0.3  # Micro
+        elif subs < 10000:
+            return 0.5  # Small
+        elif subs < 100000:
+            return 0.8  # Medium
+        elif subs < 1000000:
+            return 1.0  # Large
+        else:
+            return 0.6  # Mega
+
+    def _score_engagement_potential(self, metrics: Dict) -> float:
+        """Score potential engagement from collaboration"""
+        engagement_rate = metrics.get('engagement_rate', 0)
+        avg_views = metrics.get('avg_view_count', 0)
+        subscribers = metrics.get('subscriber_count', 0)
+
+        if subscribers == 0:
+            return 0.5
+
+        # Calculate view-to-sub ratio
+        view_ratio = avg_views / subscribers
+        
+        # Normalize engagement rate (0-100%)
+        normalized_engagement = min(engagement_rate / 15.0, 1.0)
+
+        return (normalized_engagement * 0.6 + view_ratio * 0.4)
+
+    def _score_growth_opportunity(self, metrics: Dict) -> float:
+        """Score mutual growth potential"""
+        growth_rate = metrics.get('subscriber_growth', 0)
+        consistency = metrics.get('upload_frequency', 'unknown').lower()
+
+        # Base score on growth rate
+        growth_score = min(growth_rate / 10.0, 1.0)
+
+        # Adjust for consistency
+        consistency_multiplier = {
+            'daily': 1.0,
+            'weekly': 0.9,
+            'biweekly': 0.8,
+            'monthly': 0.7,
+            'unknown': 0.6
+        }.get(consistency, 0.6)
+
+        return growth_score * consistency_multiplier
+
+    def _score_brand_alignment(self, metrics: Dict) -> float:
+        """Score brand and style alignment potential"""
+        # This would use more sophisticated brand analysis in production
+        content_type = metrics.get('content_type', '').lower()
+        family_friendly = metrics.get('family_friendly', True)
+
+        # Higher score for family-friendly content
+        base_score = 0.8 if family_friendly else 0.6
+
+        # Adjust for content type
+        type_multiplier = {
+            'educational': 1.0,
+            'entertainment': 0.9,
+            'tutorial': 1.0,
+            'vlog': 0.8,
+            'gaming': 0.8
+        }.get(content_type, 0.7)
+
+        return base_score * type_multiplier
+
+    def _identify_key_factors(self, scores: Dict[str, float]) -> List[Dict[str, Any]]:
+        """Identify key collaboration factors"""
+        sorted_factors = sorted(scores.items(),
+                              key=lambda x: x[1],
+                              reverse=True)
+
+        return [
+            {
+                'factor': factor.replace('_', ' ').title(),
+                'score': round(score * 100, 1),
+                'impact': 'High' if score >= 0.8 else
+                         'Medium' if score >= 0.6 else 'Low'
+            }
+            for factor, score in sorted_factors[:3]
+        ]
+
+    def _suggest_collaboration_types(self, scores: Dict[str, float]) -> List[Dict[str, Any]]:
+        """Suggest collaboration formats based on scores"""
+        suggestions = []
+
+        # High engagement potential collaborations
+        if scores['engagement_potential'] >= 0.7:
+            suggestions.append({
+                'type': 'Cross-Channel Series',
+                'format': 'Multi-part collaboration series',
+                'effort': 'High',
+                'impact': 'High',
+                'success_probability': round(scores['engagement_potential'] * 100, 1)
+            })
+
+        # Content synergy collaborations
+        if scores['content_synergy'] >= 0.7:
+            suggestions.append({
+                'type': 'Co-Created Content',
+                'format': 'Joint video production',
+                'effort': 'Medium',
+                'impact': 'High',
+                'success_probability': round(scores['content_synergy'] * 100, 1)
+            })
+
+        # Growth-focused collaborations
+        if scores['growth_opportunity'] >= 0.6:
+            suggestions.append({
+                'type': 'Promotional Exchange',
+                'format': 'Cross-promotion and shoutouts',
+                'effort': 'Low',
+                'impact': 'Medium',
+                'success_probability': round(scores['growth_opportunity'] * 100, 1)
+            })
+
+        # Audience overlap collaborations
+        if scores['audience_overlap'] >= 0.6:
+            suggestions.append({
+                'type': 'Community Event',
+                'format': 'Joint livestream or Q&A',
+                'effort': 'Medium',
+                'impact': 'High',
+                'success_probability': round(scores['audience_overlap'] * 100, 1)
+            })
+
+        return sorted(suggestions,
+                     key=lambda x: x['success_probability'],
+                     reverse=True)
+
+    def _create_partner_profile(self, metrics: Dict) -> Dict[str, Any]:
+        """Create ideal collaboration partner profile"""
+        subs = metrics.get('subscriber_count', 0)
+
+        # Calculate ideal partner size range
+        min_size = max(1000, subs * 0.3)  # At least 1k, or 30% of current size
+        max_size = subs * 3  # Up to 3x current size
+
+        return {
+            'size_range': {
+                'min_subscribers': int(min_size),
+                'max_subscribers': int(max_size),
+                'ideal_range': f'{int(min_size):,} - {int(max_size):,} subscribers'
+            },
+            'content_characteristics': {
+                'primary_niche': metrics.get('niche', 'any'),
+                'content_style': metrics.get('content_type', 'any'),
+                'ideal_frequency': metrics.get('upload_frequency', 'weekly')
+            },
+            'audience_requirements': {
+                'engagement_rate': 'Above 5%',
+                'demographics': 'Similar to current audience',
+                'location': 'Same primary markets'
+            },
+            'brand_alignment': {
+                'content_quality': 'High',
+                'professionalism': 'Professional',
+                'values': 'Aligned with channel values'
+            }
+        }
+
 class ClaudeSentimentEngine:
     """Claude 3.5 Sonnet integration for sentiment analysis and audience insights"""
     
     def __init__(self, api_key: str):
         self.client = OpenAI(api_key=api_key)
+        self.collaboration_analyzer = CollaborationAnalyzer()
         
     async def analyze_audience_sentiment(self, comments: List[Dict[str, Any]], audience_context: Dict) -> Dict[str, Any]:
-        """Analyze comment sentiment and extract audience insights"""
+        """Enhanced sentiment analysis with community health metrics"""
         
         if not comments:
             return self._generate_fallback_sentiment()
         
         # Prepare comments for analysis
         comment_texts = [comment['text'] for comment in comments[:50]]  # Limit for token management
+        
+        # Calculate community health metrics
+        community_health = await self._calculate_community_health_metrics(comments)
+        
+        # Perform advanced sentiment analysis
+        sentiment_analysis = await self._perform_advanced_sentiment_analysis(comment_texts, audience_context)
+        
+        # Combine results
+        enhanced_analysis = {
+            **sentiment_analysis,
+            'community_health': community_health,
+            'timestamp': datetime.now().isoformat()
+        }
+        
+        return enhanced_analysis
+    
+    async def _calculate_community_health_metrics(self, comments: List[Dict[str, Any]]) -> Dict[str, Any]:
+        """Calculate CreatorBuddy-style community health metrics"""
+        try:
+            if not comments:
+                return self._get_default_community_health()
+            
+            # Calculate engagement metrics
+            total_comments = len(comments)
+            total_likes = sum(comment.get('like_count', 0) for comment in comments)
+            avg_likes_per_comment = total_likes / total_comments if total_comments > 0 else 0
+            
+            # Calculate response rate (replies from creator)
+            creator_responses = sum(1 for comment in comments if comment.get('reply_count', 0) > 0)
+            response_rate = (creator_responses / total_comments * 100) if total_comments > 0 else 0
+            
+            # Calculate spam/negativity indicators
+            spam_indicators = self._detect_spam_and_negativity(comments)
+            
+            # Calculate community growth indicators
+            recent_comments = [c for c in comments if self._is_recent_comment(c)]
+            growth_rate = len(recent_comments) / len(comments) * 100 if comments else 0
+            
+            # Calculate overall health score (0-100)
+            health_score = self._calculate_overall_health_score({
+                'engagement': min(100, avg_likes_per_comment * 20),  # Scale engagement
+                'response_rate': response_rate,
+                'spam_score': 100 - spam_indicators['spam_percentage'],
+                'growth_rate': min(100, growth_rate),
+                'activity_level': min(100, total_comments * 2)  # Scale activity
+            })
+            
+            return {
+                'overall_health_score': health_score,
+                'engagement_metrics': {
+                    'total_comments': total_comments,
+                    'avg_likes_per_comment': round(avg_likes_per_comment, 2),
+                    'total_engagement': total_likes,
+                    'engagement_rate': round(avg_likes_per_comment / max(total_comments, 1) * 100, 2)
+                },
+                'community_responsiveness': {
+                    'creator_response_rate': round(response_rate, 2),
+                    'avg_response_time': 'N/A',  # Would need timestamp analysis
+                    'community_self_moderation': self._assess_self_moderation(comments)
+                },
+                'content_quality_indicators': {
+                    'spam_percentage': spam_indicators['spam_percentage'],
+                    'negativity_percentage': spam_indicators['negativity_percentage'],
+                    'constructive_feedback_rate': spam_indicators['constructive_percentage']
+                },
+                'growth_indicators': {
+                    'recent_activity_rate': round(growth_rate, 2),
+                    'new_commenter_rate': self._calculate_new_commenter_rate(comments),
+                    'returning_viewer_engagement': self._assess_returning_viewers(comments)
+                },
+                'health_rating': self._get_health_rating(health_score),
+                'improvement_areas': self._identify_improvement_areas(health_score, spam_indicators, response_rate),
+                'strengths': self._identify_community_strengths(health_score, avg_likes_per_comment, response_rate)
+            }
+            
+        except Exception as e:
+            logger.error(f"Failed to calculate community health metrics: {e}")
+            return self._get_default_community_health()
+    
+    def _detect_spam_and_negativity(self, comments: List[Dict[str, Any]]) -> Dict[str, float]:
+        """Detect spam and negativity in comments using basic pattern matching"""
+        total = len(comments)
+        if total == 0:
+            return {'spam_percentage': 0, 'negativity_percentage': 0, 'constructive_percentage': 80}
+        
+        spam_count = 0
+        negative_count = 0
+        constructive_count = 0
+        
+        spam_patterns = ['subscribe', 'check out my', 'follow me', 'click here', 'free money', '💰', 'link in bio']
+        negative_patterns = ['hate', 'stupid', 'worst', 'terrible', 'awful', 'boring', 'sucks']
+        constructive_patterns = ['great', 'helpful', 'thanks', 'learned', 'useful', 'amazing', 'love', 'good']
+        
+        for comment in comments:
+            text = comment.get('text', '').lower()
+            
+            if any(pattern in text for pattern in spam_patterns):
+                spam_count += 1
+            elif any(pattern in text for pattern in negative_patterns):
+                negative_count += 1
+            elif any(pattern in text for pattern in constructive_patterns):
+                constructive_count += 1
+        
+        return {
+            'spam_percentage': round(spam_count / total * 100, 2),
+            'negativity_percentage': round(negative_count / total * 100, 2),
+            'constructive_percentage': round(constructive_count / total * 100, 2)
+        }
+    
+    def _calculate_overall_health_score(self, metrics: Dict[str, float]) -> float:
+        """Calculate weighted overall health score"""
+        weights = {
+            'engagement': 0.25,
+            'response_rate': 0.20,
+            'spam_score': 0.20,
+            'growth_rate': 0.15,
+            'activity_level': 0.20
+        }
+        
+        weighted_score = sum(metrics[key] * weights[key] for key in weights.keys())
+        return round(min(100, max(0, weighted_score)), 1)
+    
+    def _get_health_rating(self, score: float) -> str:
+        """Get health rating based on score"""
+        if score >= 80:
+            return "Excellent"
+        elif score >= 70:
+            return "Very Good"
+        elif score >= 60:
+            return "Good"
+        elif score >= 50:
+            return "Fair"
+        else:
+            return "Needs Improvement"
+    
+    def _identify_improvement_areas(self, health_score: float, spam_indicators: Dict, response_rate: float) -> List[str]:
+        """Identify areas needing improvement"""
+        areas = []
+        
+        if health_score < 60:
+            areas.append("Overall community engagement needs attention")
+        
+        if spam_indicators['spam_percentage'] > 15:
+            areas.append("Spam moderation and comment filtering")
+        
+        if spam_indicators['negativity_percentage'] > 20:
+            areas.append("Community tone and positive engagement")
+        
+        if response_rate < 20:
+            areas.append("Creator-audience interaction and responsiveness")
+        
+        if spam_indicators['constructive_percentage'] < 40:
+            areas.append("Encouraging more meaningful discussions")
+        
+        return areas
+    
+    def _identify_community_strengths(self, health_score: float, engagement: float, response_rate: float) -> List[str]:
+        """Identify community strengths"""
+        strengths = []
+        
+        if health_score >= 75:
+            strengths.append("Strong overall community health")
+        
+        if engagement > 2:
+            strengths.append("High engagement per comment")
+        
+        if response_rate > 30:
+            strengths.append("Excellent creator-audience interaction")
+        
+        if health_score >= 60:
+            strengths.append("Positive community environment")
+        
+        return strengths
+    
+    def _assess_self_moderation(self, comments: List[Dict[str, Any]]) -> str:
+        """Assess how well community self-moderates"""
+        # This would require more complex analysis in production
+        return "Moderate"
+    
+    def _calculate_new_commenter_rate(self, comments: List[Dict[str, Any]]) -> float:
+        """Calculate percentage of new commenters (simplified)"""
+        # In production, this would track unique commenters over time
+        return 25.0  # Placeholder
+    
+    def _assess_returning_viewers(self, comments: List[Dict[str, Any]]) -> str:
+        """Assess returning viewer engagement"""
+        # Would analyze commenter patterns in production
+        return "Good"
+    
+    def _is_recent_comment(self, comment: Dict[str, Any]) -> bool:
+        """Check if comment is recent (last 7 days)"""
+        try:
+            published_at = comment.get('published_at', '')
+            if published_at:
+                comment_date = datetime.fromisoformat(published_at.replace('Z', '+00:00'))
+                cutoff_date = datetime.now(comment_date.tzinfo) - timedelta(days=7)
+                return comment_date > cutoff_date
+        except:
+            pass
+        return True  # Default to considering it recent
+    
+    def _get_default_community_health(self) -> Dict[str, Any]:
+        """Default community health metrics when analysis fails"""
+        return {
+            'overall_health_score': 65.0,
+            'engagement_metrics': {'total_comments': 0, 'avg_likes_per_comment': 0},
+            'community_responsiveness': {'creator_response_rate': 0},
+            'content_quality_indicators': {'spam_percentage': 5, 'negativity_percentage': 10},
+            'growth_indicators': {'recent_activity_rate': 50},
+            'health_rating': 'Good',
+            'improvement_areas': ['Increase community engagement'],
+            'strengths': ['Potential for growth']
+        }
+    
+    async def _perform_advanced_sentiment_analysis(self, comment_texts: List[str], audience_context: Dict) -> Dict[str, Any]:
+        """Perform advanced sentiment analysis with enhanced prompts"""
         
         sentiment_prompt = f"""
         As a specialized Audience Insights Agent for YouTube analytics, analyze the following comments from a YouTube channel to understand audience sentiment and behavior patterns.
@@ -485,160 +1362,215 @@ class ClaudeSentimentEngine:
             ]
         }
 
-class AudienceInsightsCache:
-    """Specialized caching for audience insights results"""
-    
-    def __init__(self):
-        self.cache = {}
-        self.cache_ttl = {
-            'quick': 1800,      # 30 minutes for quick analysis
-            'standard': 7200,   # 2 hours for standard analysis (audience data changes slower)
-            'deep': 14400       # 4 hours for deep analysis
-        }
-    
-    def get_cache_key(self, request: AudienceAnalysisRequest) -> str:
-        """Generate cache key for audience analysis request"""
-        cache_data = {
-            'channel_id': request.channel_id,
-            'time_period': request.time_period,
-            'analysis_depth': request.analysis_depth,
-            'include_sentiment': request.include_sentiment_analysis,
-            'include_demographics': request.include_demographics,
-            'include_behavior': request.include_behavior_analysis
-        }
-        cache_string = json.dumps(cache_data, sort_keys=True)
-        return hashlib.md5(cache_string.encode()).hexdigest()
-    
-    def get(self, request: AudienceAnalysisRequest) -> Optional[Dict[str, Any]]:
-        """Get cached audience analysis result"""
-        cache_key = self.get_cache_key(request)
-        
-        if cache_key not in self.cache:
-            return None
-        
-        cached_item = self.cache[cache_key]
-        ttl = self.cache_ttl.get(request.analysis_depth, 7200)
-        
-        # Check if cache is still valid
-        if time.time() - cached_item['timestamp'] > ttl:
-            del self.cache[cache_key]
-            return None
-        
-        logger.info(f"Audience insights cache hit for key: {cache_key[:8]}...")
-        return cached_item['data']
-    
-    def set(self, request: AudienceAnalysisRequest, data: Dict[str, Any]):
-        """Cache audience analysis result"""
-        cache_key = self.get_cache_key(request)
-        
-        self.cache[cache_key] = {
-            'data': data,
-            'timestamp': time.time()
-        }
-        
-        logger.info(f"Cached audience insights for key: {cache_key[:8]}...")
 
-class AudienceInsightsAgent:
+class AudienceInsightsAgent(BaseSpecializedAgent):
     """
     Specialized Audience Insights Agent for YouTube audience analysis
     Operates as a sub-agent within the CreatorMate boss agent hierarchy
     """
     
     def __init__(self, youtube_api_key: str, openai_api_key: str):
-        self.agent_type = "audience_insights"
-        self.agent_id = "audience_analyzer"
+        super().__init__(AgentType.AUDIENCE_INSIGHTS, youtube_api_key, openai_api_key, model_name='claude-3-5-sonnet-20241022')
         
         # Initialize API clients
         self.youtube_client = YouTubeAudienceAPIClient(youtube_api_key)
         self.sentiment_engine = ClaudeSentimentEngine(openai_api_key)
         
-        # Initialize cache
-        self.cache = AudienceInsightsCache()
+        # Initialize analyzers
+        self.posting_time_analyzer = PostingTimeAnalyzer()
         
         logger.info("Audience Insights Agent initialized and ready for boss agent tasks")
     
-    async def process_boss_agent_request(self, request_data: Dict[str, Any]) -> Dict[str, Any]:
-        """
-        Main entry point for boss agent requests
-        This is the ONLY interface the boss agent should use
-        """
+    async def _perform_analysis(self, request: AgentRequest) -> AgentAnalysis:
+        """Perform the core audience analysis"""
         
-        start_time = time.time()
-        request_id = request_data.get('request_id', str(uuid.uuid4()))
+        # Extract request parameters
+        channel_id = request.context.get('channel_id', 'unknown')
+        time_period = request.context.get('time_period', 'last_30d')
+        include_sentiment = request.context.get('include_sentiment_analysis', True)
+        include_demographics = request.context.get('include_demographics', True)
+        include_behavior = request.context.get('include_behavior_analysis', True)
+        include_posting_time = request.context.get('include_posting_time_analysis', True)
         
-        try:
-            # Parse request from boss agent
-            analysis_request = self._parse_boss_request(request_data)
-            
-            # Check for domain mismatch
-            if not self._is_audience_insights_request(request_data):
-                return self._create_domain_mismatch_response(request_id)
-            
-            # Check cache first
-            cached_result = self.cache.get(analysis_request)
-            if cached_result:
-                return self._format_cached_response(cached_result, request_id, start_time)
-            
-            # Perform audience analysis
-            analysis_result = await self._perform_audience_analysis(analysis_request)
-            
-            # Cache the result
-            self.cache.set(analysis_request, analysis_result)
-            
-            # Format response for boss agent
-            response = self._format_boss_agent_response(
-                analysis_result, 
-                request_id, 
-                start_time,
-                cache_hit=False
+        # Perform the analysis
+        analysis_results = {}
+        
+        # Gather video data for posting time analysis
+        video_data = await self._gather_video_data(channel_id, time_period)
+        
+        # Get demographic data
+        if include_demographics:
+            demographics = await self.youtube_client.get_channel_demographics(
+                channel_id, 
+                time_period
             )
-            
-            logger.info(f"Audience Insights Agent completed task for boss agent. Request ID: {request_id}")
-            return response
-            
-        except Exception as e:
-            logger.error(f"Audience Insights Agent error: {e}")
-            return self._create_error_response(request_id, str(e), start_time)
-    
-    def _parse_boss_request(self, request_data: Dict[str, Any]) -> AudienceAnalysisRequest:
-        """Parse boss agent request into internal format"""
+            analysis_results['demographics'] = demographics
         
-        context = request_data.get('context', {})
+        # Get behavior data
+        if include_behavior:
+            behavior_data = await self.youtube_client.get_audience_behavior(
+                channel_id, 
+                time_period
+            )
+            analysis_results['behavior'] = behavior_data
         
-        return AudienceAnalysisRequest(
-            request_id=request_data.get('request_id', str(uuid.uuid4())),
-            channel_id=context.get('channel_id', 'unknown'),
-            time_period=context.get('time_period', 'last_30d'),
-            analysis_depth=request_data.get('analysis_depth', 'standard'),
-            include_sentiment_analysis=request_data.get('include_sentiment_analysis', True),
-            include_demographics=request_data.get('include_demographics', True),
-            include_behavior_analysis=request_data.get('include_behavior_analysis', True),
-            token_budget=request_data.get('token_budget', {}).get('input_tokens', 4000)
+        # Get comments for sentiment analysis
+        comments_data = []
+        if include_sentiment:
+            comments_data = await self.youtube_client.get_comments_for_analysis(
+                channel_id, 
+                video_count=15
+            )
+            analysis_results['comments_volume'] = len(comments_data)
+        
+        # Get channel context for analysis
+        channel_context = await self._get_channel_context(channel_id)
+        
+        # Perform posting time analysis if requested
+        if include_posting_time and video_data:
+            posting_time_analysis = await self.posting_time_analyzer.analyze_posting_times(
+                video_data,
+                timezone=channel_context.get('timezone', 'UTC')
+            )
+            analysis_results['posting_time_analysis'] = posting_time_analysis
+        
+        # Perform AI analysis
+        ai_insights = {}
+        
+        # Sentiment analysis
+        if include_sentiment and comments_data:
+            sentiment_analysis = await self.sentiment_engine.analyze_audience_sentiment(
+                comments_data, 
+                channel_context
+            )
+            ai_insights['sentiment'] = sentiment_analysis
+            
+        # Analyze collaboration potential
+        channel_metrics = {
+            'subscriber_count': channel_context.get('subscriber_count', 0),
+            'engagement_rate': analysis_results.get('behavior', {}).get('engagement_patterns', {}).get('like_rate', 0),
+            'avg_view_count': channel_context.get('avg_view_count', 0),
+            'content_type': channel_context.get('content_type', 'unknown'),
+            'niche': channel_context.get('niche', 'unknown'),
+            'upload_frequency': channel_context.get('upload_frequency', 'unknown'),
+            'subscriber_growth': 5.0  # Placeholder growth rate
+        }
+        
+        collaboration_analysis = self.sentiment_engine.collaboration_analyzer.analyze_collaboration_potential(
+            channel_metrics,
+            analysis_results
+        )
+        ai_insights['collaboration'] = collaboration_analysis
+        
+        # Demographics analysis
+        if include_demographics and analysis_results.get('demographics'):
+            demographics_analysis = await self.sentiment_engine.analyze_audience_demographics(
+                analysis_results['demographics'],
+                analysis_results.get('behavior', {})
+            )
+            ai_insights['demographics_insights'] = demographics_analysis
+        
+        # Calculate audience scores
+        audience_scores = self._calculate_audience_scores(analysis_results, ai_insights)
+        
+        # Create AgentAnalysis object
+        return AgentAnalysis(
+            summary=self._create_audience_summary(audience_scores, len(comments_data)),
+            metrics=audience_scores,
+            key_insights=self._create_key_insights(ai_insights),
+            recommendations=self._create_recommendations(ai_insights),
+            detailed_analysis={
+                'demographics': analysis_results.get('demographics', {}),
+                'behavior_patterns': analysis_results.get('behavior', {}),
+                'sentiment_analysis': ai_insights.get('sentiment', {}),
+                'audience_insights': ai_insights.get('demographics_insights', {}),
+                'collaboration_insights': ai_insights.get('collaboration', {})
+            }
         )
     
-    def _is_audience_insights_request(self, request_data: Dict[str, Any]) -> bool:
-        """Check if request is within audience insights domain"""
+    def _create_key_insights(self, ai_insights: Dict[str, Any]) -> List[AgentInsight]:
+        """Create key insights from AI analysis"""
+        insights = []
         
-        query_type = request_data.get('query_type', '')
+        # Sentiment insights
+        sentiment_data = ai_insights.get('sentiment', {})
+        if sentiment_data.get('sentiment_summary'):
+            insights.append(create_insight(
+                sentiment_data['sentiment_summary'],
+                'Based on sentiment analysis of audience comments',
+                'High',
+                0.9
+            ))
         
-        # This agent handles audience insights requests
-        if query_type in ['audience_insights', 'audience']:
-            return True
+        # Demographics insights
+        demographics_data = ai_insights.get('demographics_insights', {})
+        if demographics_data.get('audience_composition'):
+            comp = demographics_data['audience_composition']
+            insights.append(create_insight(
+                f"Primary audience: {comp.get('primary_segment', 'Mixed demographics')}",
+                'Based on demographic analysis',
+                'Medium',
+                0.85
+            ))
         
-        # Also handle requests that mention audience keywords
-        message_content = request_data.get('message', '').lower()
-        audience_keywords = [
+        return insights
+    
+    def _create_recommendations(self, ai_insights: Dict[str, Any]) -> List[AgentRecommendation]:
+        """Create recommendations from AI analysis"""
+        recommendations = []
+        
+        # Add sentiment-based recommendations
+        sentiment_data = ai_insights.get('sentiment', {})
+        for rec in sentiment_data.get('engagement_opportunities', [])[:3]:
+            recommendations.append(create_recommendation(
+                rec,
+                'Medium',
+                'Easy',
+                'Based on audience sentiment analysis'
+            ))
+        
+        # Add demographics-based recommendations
+        demographics_data = ai_insights.get('demographics_insights', {})
+        for rec in demographics_data.get('growth_strategies', [])[:3]:
+            recommendations.append(create_recommendation(
+                rec,
+                'Medium',
+                'Medium',
+                'Based on demographic analysis'
+            ))
+        
+        return recommendations
+    
+    def _create_audience_summary(self, scores: Dict[str, float], comments_count: int) -> str:
+        """Create a concise summary of audience analysis"""
+        overall_health = scores.get('overall_audience_health', 0)
+        
+        if overall_health >= 8:
+            health_desc = "excellent"
+        elif overall_health >= 6:
+            health_desc = "good"
+        elif overall_health >= 4:
+            health_desc = "moderate"
+        else:
+            health_desc = "needs improvement"
+        
+        return f"Audience analysis shows {health_desc} overall audience health (score: {overall_health}/10). Analysis based on demographic data, behavior patterns, and {comments_count} comments for sentiment analysis."
+    
+    def _get_domain_keywords(self) -> List[str]:
+        """Return domain-specific keywords for this agent"""
+        return [
             'audience', 'demographics', 'viewers', 'subscribers', 'comments',
             'sentiment', 'engagement', 'community', 'fans', 'followers',
             'age groups', 'gender', 'location', 'behavior', 'activity'
         ]
-        
-        return any(keyword in message_content for keyword in audience_keywords)
     
     async def _perform_audience_analysis(self, request: AudienceAnalysisRequest) -> Dict[str, Any]:
         """Perform comprehensive audience analysis"""
         
         analysis_results = {}
+        
+        # Gather video data for posting time analysis
+        video_data = await self._gather_video_data(request.channel_id, request.time_period)
         
         # Get demographic data
         if request.include_demographics:
@@ -668,6 +1600,14 @@ class AudienceInsightsAgent:
         # Get channel context for analysis
         channel_context = await self._get_channel_context(request.channel_id)
         
+        # Perform posting time analysis if requested
+        if request.include_posting_time_analysis and video_data:
+            posting_time_analysis = await self.posting_time_analyzer.analyze_posting_times(
+                video_data,
+                timezone=channel_context.get('timezone', 'UTC')
+            )
+            analysis_results['posting_time_analysis'] = posting_time_analysis
+        
         # Perform AI analysis
         ai_insights = {}
         
@@ -678,6 +1618,23 @@ class AudienceInsightsAgent:
                 channel_context
             )
             ai_insights['sentiment'] = sentiment_analysis
+            
+        # Analyze collaboration potential
+        channel_metrics = {
+            'subscriber_count': channel_context.get('subscriber_count', 0),
+            'engagement_rate': analysis_results.get('behavior', {}).get('engagement_patterns', {}).get('like_rate', 0),
+            'avg_view_count': channel_context.get('avg_view_count', 0),
+            'content_type': channel_context.get('content_type', 'unknown'),
+            'niche': channel_context.get('niche', 'unknown'),
+            'upload_frequency': channel_context.get('upload_frequency', 'unknown'),
+            'subscriber_growth': 5.0  # Placeholder growth rate
+        }
+        
+        collaboration_analysis = self.sentiment_engine.collaboration_analyzer.analyze_collaboration_potential(
+            channel_metrics,
+            analysis_results
+        )
+        ai_insights['collaboration'] = collaboration_analysis
         
         # Demographics analysis
         if request.include_demographics and analysis_results.get('demographics'):
@@ -703,6 +1660,49 @@ class AudienceInsightsAgent:
             }
         }
     
+    async def _gather_video_data(self, channel_id: str, time_period: str) -> List[Dict]:
+        """Gather video data for analysis"""
+        try:
+            # Get recent videos using YouTube API client
+            search_response = await self.youtube_client.youtube.search().list(
+                part='id',
+                channelId=channel_id,
+                type='video',
+                order='date',
+                maxResults=50  # Get more videos for better analysis
+            ).execute()
+            
+            video_ids = [item['id']['videoId'] for item in search_response.get('items', [])]
+            
+            if not video_ids:
+                return []
+            
+            # Get detailed video data
+            videos_response = await self.youtube_client.youtube.videos().list(
+                part='snippet,statistics,contentDetails',
+                id=','.join(video_ids)
+            ).execute()
+            
+            video_data = []
+            for video in videos_response.get('items', []):
+                stats = video['statistics']
+                video_data.append({
+                    'video_id': video['id'],
+                    'title': video['snippet']['title'],
+                    'published_at': video['snippet']['publishedAt'],
+                    'views': int(stats.get('viewCount', 0)),
+                    'likes': int(stats.get('likeCount', 0)),
+                    'comments': int(stats.get('commentCount', 0)),
+                    'retention_rate': 65.0,  # Placeholder - would come from Analytics API
+                    'subscriber_gain': 10  # Placeholder - would come from Analytics API
+                })
+            
+            return video_data
+            
+        except Exception as e:
+            logger.error(f"Error gathering video data: {e}")
+            return []
+    
     async def _get_channel_context(self, channel_id: str) -> Dict[str, Any]:
         """Get channel context for analysis"""
         
@@ -712,7 +1712,8 @@ class AudienceInsightsAgent:
             'niche': 'Education',
             'subscriber_count': 25000,
             'avg_view_count': 8500,
-            'content_type': 'Educational'
+            'content_type': 'Educational',
+            'timezone': 'UTC'  # Would be user's actual timezone
         }
     
     def _calculate_audience_scores(self, raw_data: Dict[str, Any], ai_insights: Dict[str, Any]) -> Dict[str, float]:
@@ -771,6 +1772,7 @@ class AudienceInsightsAgent:
         ai_insights = analysis_result.get('ai_insights', {})
         sentiment_data = ai_insights.get('sentiment', {})
         demographics_data = ai_insights.get('demographics_insights', {})
+        collaboration_data = ai_insights.get('collaboration', {})
         
         # Create summary
         summary = self._create_audience_summary(analysis_result)
@@ -833,7 +1835,13 @@ class AudienceInsightsAgent:
                     'demographics': analysis_result.get('raw_data', {}).get('demographics', {}),
                     'behavior_patterns': analysis_result.get('raw_data', {}).get('behavior', {}),
                     'sentiment_analysis': sentiment_data,
-                    'audience_insights': demographics_data
+                    'audience_insights': demographics_data,
+                    'collaboration_insights': {
+                        'score': collaboration_data.get('collaboration_score', 0),
+                        'key_factors': collaboration_data.get('key_factors', []),
+                        'suggested_formats': collaboration_data.get('collaboration_types', []),
+                        'ideal_partner': collaboration_data.get('ideal_partner_profile', {})
+                    }
                 }
             },
             'token_usage': {

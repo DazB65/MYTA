@@ -14,6 +14,10 @@ import os
 from pydantic import ValidationError
 from slowapi.errors import RateLimitExceeded
 
+# Import security middleware
+from security_middleware import add_security_middleware
+from security_config import get_security_config
+
 # Import API models
 from api_models import (
     ChannelInfo, StandardResponse, HealthResponse, SystemHealthResponse,
@@ -114,14 +118,18 @@ async def validation_exception_handler(request, exc):
 # Middleware Configuration
 # =============================================================================
 
-# Security headers will be added to individual responses
+# Add security middleware first (order matters)
+add_security_middleware(app)
 
 # Add CORS middleware
+security_config = get_security_config()
+allowed_origins = ["http://localhost:3000", "http://localhost:8888"] if not security_config.is_production() else ["https://your-domain.com"]
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # For development only
+    allow_origins=allowed_origins,
     allow_credentials=True,
-    allow_methods=["*"],
+    allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     allow_headers=["*"],
 )
 

@@ -309,6 +309,9 @@ class AnalyticsService:
                     return float('inf') if current > 0 else 0
                 return ((current - previous) / previous) * 100
             
+            # Calculate algorithm performance score
+            algorithm_score = self.calculate_algorithm_performance_score(current_week)
+            
             summary = {
                 'current_period': current_week.to_dict(),
                 'performance_changes': {
@@ -318,6 +321,7 @@ class AnalyticsService:
                     'ctr_change': calc_change(current_week.ctr, previous_metrics.get('ctr', 0)),
                     'retention_change': calc_change(current_week.average_view_percentage, previous_metrics.get('average_view_percentage', 0))
                 },
+                'algorithm_performance': algorithm_score,
                 'top_insights': self._generate_performance_insights(current_week, previous_metrics)
             }
             
@@ -361,6 +365,174 @@ class AnalyticsService:
             insights.append("📺 Most traffic from suggested videos - algorithm loves your content!")
         
         return insights[:3]  # Return top 3 insights
+    
+    def calculate_algorithm_performance_score(self, analytics: ChannelAnalytics) -> Dict[str, Any]:
+        """
+        Calculate YouTube Algorithm Performance Score (0-100)
+        Based on key metrics that influence algorithm recommendations
+        """
+        try:
+            score_components = {}
+            total_score = 0
+            max_possible_score = 100
+            
+            # 1. Click-Through Rate (CTR) Score - 25 points max
+            ctr_score = 0
+            if analytics.ctr >= 10:
+                ctr_score = 25  # Exceptional CTR
+            elif analytics.ctr >= 8:
+                ctr_score = 22  # Excellent CTR
+            elif analytics.ctr >= 6:
+                ctr_score = 18  # Very good CTR
+            elif analytics.ctr >= 4:
+                ctr_score = 14  # Good CTR
+            elif analytics.ctr >= 2:
+                ctr_score = 8   # Below average CTR
+            else:
+                ctr_score = 2   # Poor CTR
+            
+            score_components['ctr_score'] = ctr_score
+            total_score += ctr_score
+            
+            # 2. Average View Percentage (Retention) Score - 25 points max
+            retention_score = 0
+            if analytics.average_view_percentage >= 70:
+                retention_score = 25  # Exceptional retention
+            elif analytics.average_view_percentage >= 60:
+                retention_score = 22  # Excellent retention
+            elif analytics.average_view_percentage >= 50:
+                retention_score = 18  # Very good retention
+            elif analytics.average_view_percentage >= 40:
+                retention_score = 14  # Good retention
+            elif analytics.average_view_percentage >= 30:
+                retention_score = 8   # Below average retention
+            else:
+                retention_score = 2   # Poor retention
+            
+            score_components['retention_score'] = retention_score
+            total_score += retention_score
+            
+            # 3. Engagement Rate Score - 20 points max
+            # Calculate engagement rate from likes, comments, shares
+            total_engagement = analytics.likes + analytics.comments + analytics.shares
+            engagement_rate = (total_engagement / max(analytics.views, 1)) * 100
+            
+            engagement_score = 0
+            if engagement_rate >= 8:
+                engagement_score = 20  # Exceptional engagement
+            elif engagement_rate >= 6:
+                engagement_score = 17  # Excellent engagement
+            elif engagement_rate >= 4:
+                engagement_score = 14  # Very good engagement
+            elif engagement_rate >= 2:
+                engagement_score = 10  # Good engagement
+            elif engagement_rate >= 1:
+                engagement_score = 6   # Below average engagement
+            else:
+                engagement_score = 2   # Poor engagement
+            
+            score_components['engagement_score'] = engagement_score
+            total_score += engagement_score
+            
+            # 4. Watch Time Score - 15 points max
+            # Based on average view duration vs typical video length
+            avg_duration_minutes = analytics.average_view_duration / 60
+            watch_time_score = 0
+            
+            if avg_duration_minutes >= 8:
+                watch_time_score = 15  # Exceptional watch time
+            elif avg_duration_minutes >= 6:
+                watch_time_score = 13  # Excellent watch time
+            elif avg_duration_minutes >= 4:
+                watch_time_score = 10  # Good watch time
+            elif avg_duration_minutes >= 2:
+                watch_time_score = 6   # Below average watch time
+            else:
+                watch_time_score = 2   # Poor watch time
+            
+            score_components['watch_time_score'] = watch_time_score
+            total_score += watch_time_score
+            
+            # 5. Subscriber Growth Score - 15 points max
+            subscriber_score = 0
+            if analytics.net_subscriber_change >= 100:
+                subscriber_score = 15  # Exceptional growth
+            elif analytics.net_subscriber_change >= 50:
+                subscriber_score = 13  # Excellent growth
+            elif analytics.net_subscriber_change >= 20:
+                subscriber_score = 10  # Good growth
+            elif analytics.net_subscriber_change >= 5:
+                subscriber_score = 6   # Moderate growth
+            elif analytics.net_subscriber_change >= 0:
+                subscriber_score = 3   # Stable
+            else:
+                subscriber_score = 0   # Declining
+            
+            score_components['subscriber_score'] = subscriber_score
+            total_score += subscriber_score
+            
+            # Determine algorithm favorability
+            if total_score >= 85:
+                favorability = "Excellent"
+                recommendation = "Your content is highly favored by the algorithm"
+            elif total_score >= 70:
+                favorability = "Very Good"
+                recommendation = "Algorithm performance is strong with room for optimization"
+            elif total_score >= 55:
+                favorability = "Good"
+                recommendation = "Solid algorithm performance, focus on retention and CTR"
+            elif total_score >= 40:
+                favorability = "Fair"
+                recommendation = "Algorithm performance needs improvement in key areas"
+            else:
+                favorability = "Poor"
+                recommendation = "Focus on fundamentals: thumbnails, hooks, and content quality"
+            
+            # Identify improvement areas
+            improvement_areas = []
+            if ctr_score < 15:
+                improvement_areas.append("Thumbnail and title optimization")
+            if retention_score < 15:
+                improvement_areas.append("Content structure and hooks")
+            if engagement_score < 12:
+                improvement_areas.append("Audience engagement strategies")
+            if watch_time_score < 8:
+                improvement_areas.append("Content length and pacing")
+            if subscriber_score < 8:
+                improvement_areas.append("Subscriber conversion tactics")
+            
+            return {
+                'overall_score': total_score,
+                'favorability': favorability,
+                'recommendation': recommendation,
+                'score_components': score_components,
+                'improvement_areas': improvement_areas,
+                'metrics_breakdown': {
+                    'ctr_rating': self._get_metric_rating(analytics.ctr, [(2, "Poor"), (4, "Fair"), (6, "Good"), (8, "Excellent"), (10, "Exceptional")]),
+                    'retention_rating': self._get_metric_rating(analytics.average_view_percentage, [(30, "Poor"), (40, "Fair"), (50, "Good"), (60, "Excellent"), (70, "Exceptional")]),
+                    'engagement_rating': self._get_metric_rating(engagement_rate, [(1, "Poor"), (2, "Fair"), (4, "Good"), (6, "Excellent"), (8, "Exceptional")]),
+                    'watch_time_rating': self._get_metric_rating(avg_duration_minutes, [(2, "Poor"), (4, "Fair"), (6, "Good"), (8, "Excellent")]),
+                    'growth_rating': self._get_metric_rating(analytics.net_subscriber_change, [(0, "Stable"), (5, "Fair"), (20, "Good"), (50, "Excellent"), (100, "Exceptional")])
+                }
+            }
+            
+        except Exception as e:
+            logger.error(f"Failed to calculate algorithm performance score: {e}")
+            return {
+                'overall_score': 0,
+                'favorability': 'Unknown',
+                'recommendation': 'Unable to calculate algorithm performance score',
+                'score_components': {},
+                'improvement_areas': [],
+                'metrics_breakdown': {}
+            }
+    
+    def _get_metric_rating(self, value: float, thresholds: List[Tuple[float, str]]) -> str:
+        """Get rating for a metric based on thresholds"""
+        for threshold, rating in reversed(thresholds):
+            if value >= threshold:
+                return rating
+        return thresholds[0][1] if thresholds else "Unknown"
     
     async def _get_channel_id(self, user_id: str, token) -> Optional[str]:
         """Get the user's channel ID"""

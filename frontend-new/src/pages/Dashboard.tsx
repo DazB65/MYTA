@@ -152,6 +152,7 @@ export default function Dashboard() {
                     />
                   </div>
 
+<<<<<<< HEAD
                   {/* Avatar Selection */}
                   <div>
                     <label className="text-xs text-primary-400 mb-2 block">Avatar</label>

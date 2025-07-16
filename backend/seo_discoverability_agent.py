@@ -253,13 +253,181 @@ class YouTubeSEOAPIClient:
         
         return trending_data
 
+class AlgorithmAnalyzer:
+    """Analyzes content for YouTube algorithm favorability"""
+
+    def __init__(self):
+        self.algorithm_factors = {
+            'engagement_velocity': 0.25,  # Likes, comments, shares in first hour
+            'retention_strength': 0.20,  # Viewer retention metrics
+            'searcher_intent': 0.15,  # Search and browse impressions
+            'topic_momentum': 0.15,  # Topic trending status
+            'production_signals': 0.15,  # Video quality signals
+            'metadata_strength': 0.10   # Title, description, tags optimization
+        }
+
+    def calculate_algorithm_score(self, seo_metrics: SEOMetrics, channel_context: Dict) -> Dict[str, Any]:
+        """Calculate algorithm favorability score and factors"""
+        
+        # Calculate factor scores
+        factor_scores = {
+            'engagement_velocity': self._score_engagement_velocity(seo_metrics),
+            'retention_strength': self._score_retention(seo_metrics),
+            'searcher_intent': self._score_search_intent(seo_metrics),
+            'topic_momentum': self._score_topic_momentum(seo_metrics, channel_context),
+            'production_signals': self._score_production_signals(seo_metrics),
+            'metadata_strength': self._score_metadata(seo_metrics)
+        }
+
+        # Calculate weighted score
+        algo_score = sum(score * self.algorithm_factors[factor] 
+                        for factor, score in factor_scores.items())
+
+        # Scale to 0-100
+        algo_score = min(100, max(0, algo_score * 100))
+
+        return {
+            'algorithm_score': round(algo_score, 1),
+            'factor_scores': factor_scores,
+            'key_factors': self._identify_key_factors(factor_scores),
+            'recommendations': self._generate_recommendations(factor_scores),
+            'risk_factors': self._identify_risks(seo_metrics, factor_scores)
+        }
+
+    def _score_engagement_velocity(self, metrics: SEOMetrics) -> float:
+        """Score early engagement patterns"""
+        if not hasattr(metrics, 'click_through_rate'):
+            return 0.5
+
+        ctr = metrics.click_through_rate
+        impressions = metrics.impressions
+
+        # Higher score for higher CTR and impressions
+        ctr_score = min(1.0, ctr / 10.0)  # Scale CTR to 0-1
+        impression_score = min(1.0, impressions / 50000)  # Scale impressions
+
+        return (ctr_score * 0.7 + impression_score * 0.3)
+
+    def _score_retention(self, metrics: SEOMetrics) -> float:
+        """Score viewer retention strength"""
+        # Would use actual retention data in production
+        return 0.75  # Default good retention score
+
+    def _score_search_intent(self, metrics: SEOMetrics) -> float:
+        """Score search and discovery patterns"""
+        search_traffic = metrics.search_traffic_percentage / 100
+        suggested = metrics.suggested_traffic_percentage / 100
+        browse = metrics.browse_traffic_percentage / 100
+
+        # Weight different traffic sources
+        return (search_traffic * 0.4 + suggested * 0.4 + browse * 0.2)
+
+    def _score_topic_momentum(self, metrics: SEOMetrics, context: Dict) -> float:
+        """Score topic trending status"""
+        title_lower = metrics.title.lower()
+        
+        # Keywords indicating trending topics
+        trend_indicators = [
+            'new', '2024', 'latest', 'update', 'breaking',
+            'announcement', 'revealed', 'launch', 'upcoming'
+        ]
+        
+        matches = sum(1 for word in trend_indicators if word in title_lower)
+        return min(1.0, matches / 3)
+
+    def _score_production_signals(self, metrics: SEOMetrics) -> float:
+        """Score production quality signals"""
+        # Would use actual quality metrics in production
+        return 0.8  # Default good quality score
+
+    def _score_metadata(self, metrics: SEOMetrics) -> float:
+        """Score metadata optimization"""
+        title_len = len(metrics.title)
+        desc_len = len(metrics.description)
+        tag_count = len(metrics.tags)
+
+        # Score based on metadata completeness
+        title_score = 1.0 if 40 <= title_len <= 70 else 0.5
+        desc_score = 1.0 if desc_len >= 200 else 0.5
+        tag_score = min(1.0, tag_count / 15)  # Up to 15 tags
+
+        return (title_score * 0.4 + desc_score * 0.3 + tag_score * 0.3)
+
+    def _identify_key_factors(self, scores: Dict[str, float]) -> List[Dict[str, Any]]:
+        """Identify key factors affecting algorithm performance"""
+        sorted_factors = sorted(scores.items(),
+                              key=lambda x: x[1],
+                              reverse=True)
+
+        return [
+            {
+                'factor': factor.replace('_', ' ').title(),
+                'score': round(score * 100, 1),
+                'impact': 'High' if score >= 0.8 else
+                         'Medium' if score >= 0.6 else 'Low'
+            }
+            for factor, score in sorted_factors[:3]
+        ]
+
+    def _generate_recommendations(self, scores: Dict[str, float]) -> List[Dict[str, Any]]:
+        """Generate algorithm optimization recommendations"""
+        recommendations = []
+
+        for factor, score in scores.items():
+            if score < 0.7:
+                recommendations.append({
+                    'focus_area': factor.replace('_', ' ').title(),
+                    'current_score': round(score * 100, 1),
+                    'target_score': round(min(score * 1.5, 1.0) * 100, 1),
+                    'priority': 'High' if score < 0.5 else 'Medium'
+                })
+
+        return sorted(recommendations,
+                     key=lambda x: x['current_score'])
+
+    def _identify_risks(self, metrics: SEOMetrics, scores: Dict[str, float]) -> List[Dict[str, Any]]:
+        """Identify potential algorithm risks"""
+        risks = []
+
+        # Check for low engagement risk
+        if scores['engagement_velocity'] < 0.4:
+            risks.append({
+                'risk': 'Low Engagement Velocity',
+                'severity': 'High',
+                'impact': 'Reduced recommendations',
+                'mitigation': 'Improve CTR and early engagement'
+            })
+
+        # Check for poor retention risk
+        if scores['retention_strength'] < 0.5:
+            risks.append({
+                'risk': 'Poor Retention',
+                'severity': 'High',
+                'impact': 'Reduced surfacing in search',
+                'mitigation': 'Enhance content engagement'
+            })
+
+        # Check for metadata risks
+        if scores['metadata_strength'] < 0.6:
+            risks.append({
+                'risk': 'Weak Metadata',
+                'severity': 'Medium',
+                'impact': 'Lower search visibility',
+                'mitigation': 'Optimize titles, descriptions, tags'
+            })
+
+        return risks
+
 class ClaudeHaikuSEOEngine:
     """Claude 3.5 Haiku integration for cost-effective SEO analysis"""
     
     def __init__(self, api_key: str):
         self.client = OpenAI(api_key=api_key)
+        self.algorithm_analyzer = AlgorithmAnalyzer()
         
     async def analyze_seo_performance(self, seo_metrics: List[SEOMetrics], channel_context: Dict) -> Dict[str, Any]:
+        """Analyze SEO performance and algorithm favorability"""
+
         """Analyze SEO performance using Claude 3.5 Haiku"""
         
         if not seo_metrics:
@@ -504,6 +672,9 @@ class SEODiscoverabilityAgent:
         self.youtube_client = YouTubeSEOAPIClient(youtube_api_key)
         self.seo_engine = ClaudeHaikuSEOEngine(openai_api_key)
         
+        # Initialize analyzers
+        self.algorithm_analyzer = AlgorithmAnalyzer()
+        
         # Initialize cache
         self.cache = SEODiscoverabilityCache()
         
@@ -632,6 +803,25 @@ class SEODiscoverabilityAgent:
             seo_metrics, 
             channel_context
         )
+        
+        # Analyze algorithm favorability
+        algorithm_scores = []
+        for metric in seo_metrics:
+            algo_analysis = self.algorithm_analyzer.calculate_algorithm_score(
+                metric, channel_context
+            )
+            algorithm_scores.append(algo_analysis)
+            
+        # Calculate average algorithm score
+        avg_algo_score = sum(score['algorithm_score'] for score in algorithm_scores) / len(algorithm_scores) if algorithm_scores else 0
+        
+        # Aggregate algorithm analysis
+        algorithm_analysis = {
+            'scores': algorithm_scores,
+            'average_score': round(avg_algo_score, 1),
+            'top_factors': self._aggregate_algorithm_factors(algorithm_scores),
+            'common_risks': self._aggregate_algorithm_risks(algorithm_scores)
+        }
         
         # Calculate SEO scores
         seo_scores = self._calculate_seo_scores(seo_metrics, ai_analysis)

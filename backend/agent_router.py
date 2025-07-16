@@ -147,12 +147,90 @@ def agent_status(request: Request):
 @router.post("/quick-action", response_model=StandardResponse)
 @limiter.limit(get_rate_limit("public", "generate"))
 async def quick_action(request: Request, action_request: QuickActionRequest):
-    """Handle quick actions from the user interface"""
+    """Handle quick actions with enhanced multi-agent coordination"""
     try:
-        logger.info(f"Processing quick action '{action_request.action}' for user: {action_request.user_id}")
+        logger.info(f"Processing enhanced quick action '{action_request.action}' for user: {action_request.user_id}")
         
         # Get user context for personalization
         context = get_user_context(action_request.user_id)
+        ch = context["channel_info"]
+        
+        # For script generation and hook analysis, use multi-agent coordination
+        if action_request.action in ["generate_script", "improve_hooks"]:
+            return await handle_enhanced_content_action(action_request, context)
+        
+        # For other actions, continue with existing logic
+        return await handle_standard_quick_action(action_request, context)
+        
+    except Exception as e:
+        logger.error(f"Error in enhanced quick_action endpoint: {e}")
+        logger.error(traceback.format_exc())
+        raise HTTPException(status_code=500, detail="Failed to process quick action")
+
+async def handle_enhanced_content_action(action_request: QuickActionRequest, context: Dict) -> StandardResponse:
+    """Handle content-related actions with multi-agent coordination"""
+    try:
+        from boss_agent import get_boss_agent
+        from enhanced_user_context import get_enhanced_context_manager
+        
+        # Get enhanced context with real-time data
+        enhanced_context_manager = get_enhanced_context_manager()
+        enhanced_context = await enhanced_context_manager.get_enhanced_context(action_request.user_id)
+        
+        # Get boss agent for orchestration
+        boss_agent = get_boss_agent()
+        
+        # Create enhanced prompt based on action type
+        if action_request.action == "generate_script":
+            enhanced_prompt = f"""
+            I need a high-quality video script for my YouTube channel. Please use your content analysis capabilities to create a script that's optimized for my channel's performance.
+            
+            Context: {action_request.context}
+            
+            Please analyze my recent content performance and create a script that:
+            1. Uses hook patterns that work well for my channel
+            2. Is structured for optimal retention based on my analytics
+            3. Includes engagement strategies that match my audience
+            4. Incorporates successful elements from my top-performing videos
+            
+            Make this script data-driven and personalized to my channel's strengths.
+            """
+        else:  # improve_hooks
+            enhanced_prompt = f"""
+            I need to improve my video hooks to increase CTR. Please analyze my content performance and hook effectiveness to provide specific recommendations.
+            
+            Current hook/context: {action_request.context}
+            
+            Please:
+            1. Analyze my current hook patterns and their effectiveness
+            2. Identify what types of hooks work best for my channel
+            3. Provide specific improved hooks based on my successful content
+            4. Give me actionable strategies to improve my CTR based on my analytics
+            
+            Base this on my actual performance data and successful video patterns.
+            """
+        
+        # Use boss agent with enhanced context
+        response = await boss_agent.process_user_message(
+            user_id=action_request.user_id,
+            message=enhanced_prompt,
+            user_context=enhanced_context,
+            priority=1  # High priority for quick actions
+        )
+        
+        return create_success_response(
+            f"Enhanced {action_request.action.replace('_', ' ')} generated successfully",
+            {"response": response}
+        )
+        
+    except Exception as e:
+        logger.error(f"Error in enhanced content action: {e}")
+        # Fallback to standard handling
+        return await handle_standard_quick_action(action_request, context)
+
+async def handle_standard_quick_action(action_request: QuickActionRequest, context: Dict) -> StandardResponse:
+    """Handle quick actions with existing logic"""
+    try:
         ch = context["channel_info"]
         
         # Calculate performance insights for better targeting
@@ -320,6 +398,195 @@ async def quick_action(request: Request, action_request: QuickActionRequest):
         raise
     except Exception as e:
         logger.error(f"Error in quick_action endpoint: {e}")
+        logger.error(traceback.format_exc())
+        raise HTTPException(status_code=500, detail="Failed to process quick action")
+
+async def handle_standard_quick_action(action_request: QuickActionRequest, context: Dict) -> StandardResponse:
+    """Handle quick actions with existing logic"""
+    try:
+        ch = context["channel_info"]
+        
+        # Calculate performance insights for better targeting
+        subscriber_tier = "new" if ch['subscriber_count'] < 1000 else "growing" if ch['subscriber_count'] < 10000 else "established" if ch['subscriber_count'] < 100000 else "large"
+        ctr_performance = "low" if ch['ctr'] < 3 else "average" if ch['ctr'] < 6 else "good" if ch['ctr'] < 10 else "excellent"
+        retention_performance = "low" if ch['retention'] < 30 else "average" if ch['retention'] < 50 else "good" if ch['retention'] < 70 else "excellent"
+        
+        # Define action prompts based on the action type (excluding enhanced actions)
+        action_prompts = {
+            "generate_script": f"""
+            As a {ch['niche']} YouTube expert, create a video script specifically for {ch['name']}.
+            
+            CHANNEL-SPECIFIC REQUIREMENTS:
+            🎯 Niche: {ch['niche']} (script must match {ch['niche']} audience expectations)
+            👥 Audience Size: {subscriber_tier.title()} channel ({ch['subscriber_count']:,} subs)
+            📊 Current CTR: {ch['ctr']}% ({ctr_performance}) - hook must be {ch['niche']}-specific to improve this
+            ⏱️ Retention: {ch['retention']}% ({retention_performance}) - structure for {ch['niche']} viewer attention span
+            🎬 Content Style: {ch['content_type']}
+            🎯 Channel Goal: {ch['primary_goal']}
+            
+            Topic/Context: {action_request.context}
+            
+            Create a {ch['niche']}-optimized script with:
+            1. HOOK (0-15 sec): Specific to {ch['niche']} audience pain points/interests
+            2. INTRODUCTION (15-30 sec): Establish credibility in {ch['niche']}
+            3. MAIN CONTENT: Structure for {ch['niche']} viewers (attention patterns)
+            4. ENGAGEMENT PROMPTS: {ch['niche']}-specific questions/calls
+            5. CTA: Appropriate for {subscriber_tier} channels in {ch['niche']}
+            6. OUTRO: {ch['niche']} community building
+            
+            Make it sound like a successful {ch['niche']} creator with {ch['subscriber_count']:,} subscribers would speak.
+            """,
+            
+            "optimize_title": f"""
+            As a {ch['niche']} YouTube SEO specialist, optimize titles for {ch['name']}.
+            
+            TITLE OPTIMIZATION TARGET:
+            🎯 Channel: {ch['name']} ({ch['niche']} niche)
+            📊 Current CTR: {ch['ctr']}% ({ctr_performance}) - need {ch['niche']}-optimized titles
+            👥 Audience: {subscriber_tier.title()} {ch['niche']} channel ({ch['subscriber_count']:,} subs)
+            🎯 Goal: {ch['primary_goal']}
+            
+            Current Title/Topic: {action_request.context}
+            
+            Provide 5 optimized title variations that could improve CTR from {ch['ctr']}% to 6-8%.
+            """,
+            
+            "get_ideas": f"""
+            As a {ch['niche']} content strategist, generate 10 video ideas for {ch['name']}.
+            Context: {action_request.context}
+            Focus on {ch['niche']} audience with {ch['subscriber_count']:,} subscribers.
+            """,
+            
+            "thumbnail_ideas": f"""
+            As a {ch['niche']} thumbnail specialist, design 3 thumbnail concepts for {ch['name']}.
+            Video Topic: {action_request.context}
+            Target CTR improvement from {ch['ctr']}% to 6-8%.
+            """,
+            
+            "analyze_viral": f"""
+            As a viral content expert for {ch['niche']}, analyze viral potential for {ch['name']}.
+            
+            VIRAL ANALYSIS TARGET:
+            🎯 Channel: {ch['name']} ({ch['niche']} niche)
+            👥 Audience: {subscriber_tier.title()} {ch['niche']} channel ({ch['subscriber_count']:,} subs)
+            📊 Current CTR: {ch['ctr']}% ({ctr_performance})
+            ⏱️ Retention: {ch['retention']}% ({retention_performance})
+            
+            Content to Analyze: {action_request.context}
+            
+            Provide:
+            1. Viral Score (0-100)
+            2. Key Viral Elements Analysis
+            3. Viral Pattern Matches
+            4. Improvement Suggestions
+            5. Predicted Performance Range
+            """,
+            
+            "find_collabs": f"""
+            As a {ch['niche']} collaboration strategist, identify optimal partners for {ch['name']}.
+            
+            COLLABORATION TARGET:
+            🎯 Channel: {ch['name']} ({ch['niche']} niche)
+            👥 Size: {subscriber_tier.title()} channel ({ch['subscriber_count']:,} subs)
+            🎯 Goal: {ch['primary_goal']}
+            🎬 Style: {ch['content_type']}
+            
+            Context: {action_request.context}
+            
+            Provide:
+            1. Ideal Collaboration Types
+            2. Partner Channel Size Range
+            3. Specific Niche Segments
+            4. Collaboration Format Ideas
+            5. Outreach Strategy
+            """,
+            
+            "check_algorithm": f"""
+            As a YouTube algorithm specialist for {ch['niche']}, analyze algorithm favorability for {ch['name']}.
+            
+            ALGORITHM ANALYSIS TARGET:
+            🎯 Channel: {ch['name']} ({ch['niche']} niche)
+            📊 CTR: {ch['ctr']}% ({ctr_performance})
+            ⏱️ Retention: {ch['retention']}% ({retention_performance})
+            👥 Audience: {subscriber_tier.title()} {ch['niche']} channel ({ch['subscriber_count']:,} subs)
+            
+            Content to Check: {action_request.context}
+            
+            Provide:
+            1. Algorithm Score (0-100)
+            2. Key Algorithm Factors
+            3. Optimization Opportunities
+            4. Risk Factors
+            5. Recommended Actions
+            """,
+            
+            "repurpose_content": f"""
+            As a content repurposing strategist for {ch['niche']}, analyze repurposing opportunities for {ch['name']}.
+            
+            REPURPOSING TARGET:
+            🎯 Channel: {ch['name']} ({ch['niche']} niche)
+            👥 Audience: {subscriber_tier.title()} {ch['niche']} channel
+            🎬 Content: {ch['content_type']}
+            
+            Content to Repurpose: {action_request.context}
+            
+            Provide:
+            1. Short-Form Opportunities (Shorts/Clips)
+            2. Cross-Platform Ideas
+            3. Series Potential
+            4. Content Breakdown Strategy
+            5. Timeline & Action Steps
+            """,
+            
+            "trending_ideas": f"""
+            As a trend analyst for {ch['niche']}, identify trending opportunities for {ch['name']}.
+            
+            TREND ANALYSIS TARGET:
+            🎯 Channel: {ch['name']} ({ch['niche']} niche)
+            👥 Size: {subscriber_tier.title()} channel ({ch['subscriber_count']:,} subs)
+            🎬 Style: {ch['content_type']}
+            
+            Context: {action_request.context}
+            
+            Provide:
+            1. Current {ch['niche']} Trends
+            2. Emerging Topics
+            3. Content Opportunities
+            4. Timing Recommendations
+            5. Implementation Strategy
+            """
+        }
+        
+        # Get the prompt for the requested action
+        if action_request.action not in action_prompts:
+            raise HTTPException(status_code=400, detail=f"Unknown action: {action_request.action}")
+        
+        prompt = action_prompts[action_request.action]
+        
+        # Process through boss agent system for consistency
+        user_context = get_user_context(action_request.user_id)
+        boss_response = await process_user_message(prompt, user_context)
+        
+        if boss_response.get("success", False):
+            response = boss_response["response"]
+            logger.info(f"✅ Standard quick action '{action_request.action}' completed via boss agent")
+        else:
+            # Fallback to direct AI service
+            response = await get_ai_response(prompt, action_request.user_id)
+            logger.info(f"✅ Standard quick action '{action_request.action}' completed via fallback AI")
+        
+        if not response:
+            raise HTTPException(status_code=500, detail="Failed to generate response for quick action")
+        
+        return create_success_response(
+            message=f"Quick action '{action_request.action}' completed successfully",
+            data={"response": response, "action": action_request.action}
+        )
+    
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error in standard quick action handling: {e}")
         logger.error(traceback.format_exc())
         raise HTTPException(status_code=500, detail="Failed to process quick action")
 
