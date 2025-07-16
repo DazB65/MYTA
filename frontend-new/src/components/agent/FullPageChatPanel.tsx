@@ -173,27 +173,7 @@ export default function FullPageChatPanel({ isOpen, onClose, onConvertToTask }: 
       )}
     >
       {/* Header */}
-      <div className="h-16 bg-gradient-to-r from-primary-600/10 to-purple-600/10 border-b border-white/10 px-6 flex items-center justify-between">
-        <div className="flex items-center gap-4">
-          <div 
-            className="w-10 h-10 rounded-full flex items-center justify-center"
-            style={{ backgroundColor: customization.color }}
-          >
-            <img
-              src={`/assets/images/Avatars/${customization.avatar}`}
-              alt={customization.name}
-              className="w-8 h-8 rounded-full object-cover"
-              onError={(e) => {
-                e.currentTarget.src = '/assets/images/CM Logo White.svg'
-              }}
-            />
-          </div>
-          <div>
-            <h3 className="font-semibold text-white">{customization.name}</h3>
-            <p className="text-xs text-dark-400">Your YouTube Personal Agent</p>
-          </div>
-        </div>
-
+      <div className="h-16 bg-gradient-to-r from-primary-600/10 to-purple-600/10 border-b border-white/10 px-6 flex items-center justify-end">
         <button
           onClick={onClose}
           className="p-2 hover:bg-white/10 rounded-lg transition-colors"
@@ -202,8 +182,9 @@ export default function FullPageChatPanel({ isOpen, onClose, onConvertToTask }: 
         </button>
       </div>
 
+
       {/* Main Content Area */}
-      <div className="h-[calc(100%-4rem)] flex">
+      <div className="flex-1 flex">
         {/* Chat Container */}
         <div className="flex-1 flex flex-col bg-background-secondary/50">
           
