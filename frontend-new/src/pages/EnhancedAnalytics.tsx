@@ -1,13 +1,12 @@
-import React from 'react';
-import { Card } from '@/components/ui/card';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Button } from '@/components/ui/button';
+import React, { useState } from 'react';
+import Card from '@/components/common/Card';
+import Button from '@/components/common/Button';
 import {
   AlgorithmPerformanceWidget,
   CommunityHealthWidget,
   HookAnalysisWidget
 } from '@/components/dashboard/widgets';
-import { useUser } from '@/hooks/useUser';
+import { useUserStore } from '@/store/userStore';
 
 interface MetricCardProps {
   title: string;
@@ -36,7 +35,8 @@ const MetricCard: React.FC<MetricCardProps> = ({ title, value, change, icon }) =
 };
 
 export const EnhancedAnalytics: React.FC = () => {
-  const { user } = useUser();
+  const { userId } = useUserStore();
+  const [activeTab, setActiveTab] = useState('algorithm');
 
   // Key Performance Metrics
   const metrics = [
@@ -103,14 +103,14 @@ export const EnhancedAnalytics: React.FC = () => {
             {timeRanges.map((range) => (
               <Button
                 key={range.value}
-                variant={range.value === "30d" ? "default" : "outline"}
+                variant={range.value === "30d" ? "primary" : "ghost"}
                 className="px-4"
               >
                 {range.label}
               </Button>
             ))}
           </div>
-          <Button variant="outline" className="ml-4">
+          <Button variant="ghost" className="ml-4">
             <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
             </svg>
@@ -133,31 +133,46 @@ export const EnhancedAnalytics: React.FC = () => {
       </div>
 
       {/* Main Content */}
-      <Tabs defaultValue="algorithm" className="w-full">
-        <TabsList className="mb-6">
-          <TabsTrigger value="algorithm">Algorithm Performance</TabsTrigger>
-          <TabsTrigger value="community">Community Health</TabsTrigger>
-          <TabsTrigger value="hooks">Hook Analysis</TabsTrigger>
-        </TabsList>
+      <div className="w-full">
+        <div className="flex space-x-4 mb-6 border-b border-gray-200">
+          <button
+            onClick={() => setActiveTab('algorithm')}
+            className={`pb-2 px-1 font-medium transition-colors ${
+              activeTab === 'algorithm'
+                ? 'text-primary-600 border-b-2 border-primary-600'
+                : 'text-gray-500 hover:text-gray-700'
+            }`}
+          >
+            Algorithm Performance
+          </button>
+          <button
+            onClick={() => setActiveTab('community')}
+            className={`pb-2 px-1 font-medium transition-colors ${
+              activeTab === 'community'
+                ? 'text-primary-600 border-b-2 border-primary-600'
+                : 'text-gray-500 hover:text-gray-700'
+            }`}
+          >
+            Community Health
+          </button>
+          <button
+            onClick={() => setActiveTab('hooks')}
+            className={`pb-2 px-1 font-medium transition-colors ${
+              activeTab === 'hooks'
+                ? 'text-primary-600 border-b-2 border-primary-600'
+                : 'text-gray-500 hover:text-gray-700'
+            }`}
+          >
+            Hook Analysis
+          </button>
+        </div>
 
-        <TabsContent value="algorithm">
-          <div className="space-y-6">
-            <AlgorithmPerformanceWidget userId={user?.id || ''} />
-          </div>
-        </TabsContent>
-
-        <TabsContent value="community">
-          <div className="space-y-6">
-            <CommunityHealthWidget userId={user?.id || ''} />
-          </div>
-        </TabsContent>
-
-        <TabsContent value="hooks">
-          <div className="space-y-6">
-            <HookAnalysisWidget userId={user?.id || ''} />
-          </div>
-        </TabsContent>
-      </Tabs>
+        <div className="space-y-6">
+          {activeTab === 'algorithm' && <AlgorithmPerformanceWidget userId={userId || ''} />}
+          {activeTab === 'community' && <CommunityHealthWidget userId={userId || ''} />}
+          {activeTab === 'hooks' && <HookAnalysisWidget userId={userId || ''} />}
+        </div>
+      </div>
     </div>
   );
 };

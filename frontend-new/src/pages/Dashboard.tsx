@@ -3,7 +3,7 @@ import { useAnalytics } from '@/hooks/useAnalytics'
 import Card from '@/components/common/Card'
 import TaskManager from '@/components/dashboard/TaskManager'
 import ChannelGoals from '@/components/dashboard/ChannelGoals'
-import { ChannelHealthWidget, RevenueDashboardWidget, SubscriberGrowthWidget, ContentPerformanceWidget, AlgorithmPerformanceWidget, CommunityHealthWidget } from '@/components/dashboard/widgets'
+import { AlgorithmPerformanceWidget, CommunityHealthWidget } from '@/components/dashboard/widgets'
 import { AlertCircle } from 'lucide-react'
 
 export default function Dashboard() {
@@ -11,7 +11,7 @@ export default function Dashboard() {
   
   // TEMPORARY FIX: Force use default_user for consistency
   const actualUserId = "default_user"
-  const { data: analyticsData, loading: analyticsLoading, error: analyticsError, refetch } = useAnalytics(actualUserId)
+  const { error: analyticsError, refetch } = useAnalytics(actualUserId)
 
   return (
     <div className="space-y-6">

@@ -17,6 +17,7 @@ from googleapiclient.errors import HttpError
 import google.generativeai as genai
 from dataclasses import dataclass
 from youtube_api_integration import get_youtube_integration
+from base_agent import BaseSpecializedAgent, AgentType, AgentRequest, AgentAnalysis, AgentInsight, AgentRecommendation
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { Card } from '../../common/Card';
-import { LoadingSpinner } from '../../common/LoadingSpinner';
+import Card from '../../common/Card';
+import LoadingSpinner from '../../common/LoadingSpinner';
 
 interface AlgorithmPerformanceData {
   overall_score: number;
@@ -157,55 +157,6 @@ export const AlgorithmPerformanceWidget: React.FC<AlgorithmPerformanceWidgetProp
     return 'bg-red-100';
   };
 
-  const getRatingColor = (rating: string): string => {
-    switch (rating.toLowerCase()) {
-      case 'exceptional':
-      case 'excellent':
-        return 'text-green-600 bg-green-100';
-      case 'very good':
-        return 'text-blue-600 bg-blue-100';
-      case 'good':
-        return 'text-yellow-600 bg-yellow-100';
-      case 'fair':
-        return 'text-orange-600 bg-orange-100';
-      case 'poor':
-        return 'text-red-600 bg-red-100';
-      default:
-        return 'text-gray-600 bg-gray-100';
-    }
-  };
-
-  const getComponentMaxScore = (component: string): number => {
-    switch (component) {
-      case 'ctr_score':
-      case 'retention_score':
-        return 25;
-      case 'engagement_score':
-        return 20;
-      case 'watch_time_score':
-      case 'subscriber_score':
-        return 15;
-      default:
-        return 100;
-    }
-  };
-
-  const formatComponentName = (component: string): string => {
-    switch (component) {
-      case 'ctr_score':
-        return 'CTR';
-      case 'retention_score':
-        return 'Retention';
-      case 'engagement_score':
-        return 'Engagement';
-      case 'watch_time_score':
-        return 'Watch Time';
-      case 'subscriber_score':
-        return 'Growth';
-      default:
-        return component;
-    }
-  };
 
   if (loading) {
     return (

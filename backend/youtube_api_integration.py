@@ -17,6 +17,7 @@ from googleapiclient.discovery import build
 from googleapiclient.errors import HttpError
 from agent_cache import get_agent_cache
 from oauth_manager import get_oauth_manager
+from security_config import get_api_key
 
 # Configure logging
 logger = logging.getLogger(__name__)
@@ -145,7 +146,7 @@ class YouTubeAPIIntegration:
     """Enhanced YouTube API integration with caching and quota management"""
     
     def __init__(self):
-        self.api_key = os.getenv("YOUTUBE_API_KEY") or os.getenv("YT_API_KEY")
+        self.api_key = get_api_key("youtube")
         self.youtube = None
         self.simple_cache = {}  # Simple in-memory cache
         self.cache_ttl = {}  # Track TTL for cache entries
@@ -160,7 +161,7 @@ class YouTubeAPIIntegration:
             except Exception as e:
                 logger.error(f"Failed to initialize YouTube API client: {e}")
         else:
-            logger.warning("YOUTUBE_API_KEY not found in environment variables")
+            logger.warning("YouTube API key not available")
     
     def _cache_get(self, key: str) -> Optional[Any]:
         """Get from simple cache if not expired"""

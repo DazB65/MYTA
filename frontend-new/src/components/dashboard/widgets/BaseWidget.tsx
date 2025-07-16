@@ -1,6 +1,6 @@
 import React from 'react';
-import { Card } from '@/components/common';
-import { Skeleton } from '@/components/ui';
+import Card from '../../common/Card';
+import LoadingSpinner from '../../common/LoadingSpinner';
 
 export interface BaseWidgetProps {
   title: string;
@@ -50,10 +50,8 @@ const BaseWidget: React.FC<BaseWidgetProps> = ({
       </div>
       <div className="p-4 h-full">
         {loading ? (
-          <div className="space-y-3 animate-pulse">
-            <Skeleton className="h-32" />
-            <Skeleton className="h-4 w-2/3" />
-            <Skeleton className="h-4 w-1/2" />
+          <div className="flex items-center justify-center h-full">
+            <LoadingSpinner size="lg" />
           </div>
         ) : error ? (
           <div className="flex flex-col items-center justify-center h-full text-center">

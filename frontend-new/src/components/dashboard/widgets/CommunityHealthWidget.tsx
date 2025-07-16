@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { Card } from '../../common/Card';
-import { LoadingSpinner } from '../../common/LoadingSpinner';
+import Card from '../../common/Card';
+import LoadingSpinner from '../../common/LoadingSpinner';
 
 interface CommunityHealthData {
   overall_health_score: number;

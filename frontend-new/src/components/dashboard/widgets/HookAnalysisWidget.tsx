@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { Card } from '../../common/Card';
-import { LoadingSpinner } from '../../common/LoadingSpinner';
+import Card from '../../common/Card';
+import LoadingSpinner from '../../common/LoadingSpinner';
 
 interface HookAnalysisData {
   overall_hook_performance: number;

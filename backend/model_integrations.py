@@ -13,6 +13,8 @@ import openai
 from openai import OpenAI
 import time
 
+from security_config import get_api_key
+
 # Configure logging
 logger = logging.getLogger(__name__)
 
@@ -171,7 +173,7 @@ class ModelIntegration:
     
     def _init_openai(self):
         """Initialize OpenAI client"""
-        api_key = os.getenv("OPENAI_API_KEY")
+        api_key = get_api_key("openai")
         if api_key:
             try:
                 self.openai_client = OpenAI(api_key=api_key)
@@ -179,7 +181,7 @@ class ModelIntegration:
             except Exception as e:
                 logger.error(f"Failed to initialize OpenAI client: {e}")
         else:
-            logger.warning("OPENAI_API_KEY not found in environment variables")
+            logger.warning("OpenAI API key not available")
     
     def _init_anthropic(self):
         """Initialize Anthropic Claude client"""
@@ -187,7 +189,7 @@ class ModelIntegration:
             logger.warning("Anthropic library not available")
             return
             
-        api_key = os.getenv("ANTHROPIC_API_KEY")
+        api_key = get_api_key("anthropic")
         if api_key:
             try:
                 self.anthropic_client = anthropic.Anthropic(api_key=api_key)
@@ -195,7 +197,7 @@ class ModelIntegration:
             except Exception as e:
                 logger.error(f"Failed to initialize Anthropic client: {e}")
         else:
-            logger.warning("ANTHROPIC_API_KEY not found in environment variables")
+            logger.warning("Anthropic API key not available")
     
     def _init_google(self):
         """Initialize Google Gemini client"""
@@ -203,7 +205,7 @@ class ModelIntegration:
             logger.warning("Google Generative AI library not available")
             return
             
-        api_key = os.getenv("GOOGLE_API_KEY")
+        api_key = get_api_key("google")
         if api_key:
             try:
                 genai.configure(api_key=api_key)
@@ -212,7 +214,7 @@ class ModelIntegration:
             except Exception as e:
                 logger.error(f"Failed to initialize Google client: {e}")
         else:
-            logger.warning("GOOGLE_API_KEY not found in environment variables")
+            logger.warning("Google API key not available")
     
     async def generate_response(
         self, 

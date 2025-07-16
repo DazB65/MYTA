@@ -17,6 +17,7 @@ from googleapiclient.errors import HttpError
 from openai import OpenAI
 from dataclasses import dataclass
 import statistics
+from base_agent import BaseSpecializedAgent, AgentType, AgentRequest, AgentAnalysis, AgentInsight, AgentRecommendation
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)

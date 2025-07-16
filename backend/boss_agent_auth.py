@@ -12,6 +12,8 @@ from typing import Dict, Any, Optional, List
 from dataclasses import dataclass
 import logging
 
+from security_config import get_boss_agent_secret
+
 logger = logging.getLogger(__name__)
 
 @dataclass
@@ -42,28 +44,24 @@ class BossAgentAuthenticator:
     def __init__(self, credentials: Optional[BossAgentCredentials] = None):
         self.credentials = credentials or BossAgentCredentials()
         
-        # Load secret from environment if available
-        env_secret = os.getenv('BOSS_AGENT_SECRET_KEY')
-        if env_secret:
-            self.credentials.secret_key = env_secret
-            logger.info("Loaded boss agent secret from environment")
-        else:
-            logger.warning("Using generated boss agent secret (not persistent)")
+        # Use secure configuration
+        self.credentials.secret_key = get_boss_agent_secret()
+        logger.info("Loaded boss agent secret from secure configuration")
     
     def generate_boss_agent_token(self, request_id: str, additional_claims: Dict[str, Any] = None) -> str:
         """Generate a JWT token for boss agent requests"""
         
-        now = datetime.utcnow()
-        expiry = now + timedelta(hours=self.credentials.token_expiry_hours)
+        now_timestamp = int(time.time())
+        expiry_timestamp = now_timestamp + (self.credentials.token_expiry_hours * 3600)
         
         payload = {
             # Standard JWT claims
             'iss': 'CreatorMate_Boss_Agent',  # Issuer
             'sub': self.credentials.agent_id,  # Subject
             'aud': 'specialized_agents',  # Audience
-            'iat': int(now.timestamp()),  # Issued at
-            'exp': int(expiry.timestamp()),  # Expiry
-            'nbf': int(now.timestamp()),  # Not before
+            'iat': now_timestamp,  # Issued at
+            'exp': expiry_timestamp,  # Expiry
+            'nbf': now_timestamp,  # Not before
             'jti': request_id,  # JWT ID (request ID)
             
             # Custom claims
@@ -75,7 +73,7 @@ class BossAgentAuthenticator:
             ],
             'hierarchy_level': 'boss',
             'request_id': request_id,
-            'timestamp': now.isoformat()
+            'timestamp': datetime.utcfromtimestamp(now_timestamp).isoformat()
         }
         
         # Add any additional claims

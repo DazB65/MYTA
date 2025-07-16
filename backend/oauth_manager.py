@@ -21,6 +21,8 @@ from google_auth_oauthlib.flow import Flow
 from google.auth.transport.requests import Request
 from googleapiclient.discovery import build
 
+from security_config import get_oauth_config
+
 # Configure logging
 logger = logging.getLogger(__name__)
 
@@ -80,9 +82,12 @@ class OAuthManager:
     
     def __init__(self, db_path: str = "creatormate.db"):
         self.db_path = db_path
-        self.client_id = os.getenv("GOOGLE_CLIENT_ID")
-        self.client_secret = os.getenv("GOOGLE_CLIENT_SECRET")
-        self.redirect_uri = os.getenv("OAUTH_REDIRECT_URI")
+        
+        # Use secure configuration
+        oauth_config = get_oauth_config()
+        self.client_id = oauth_config["client_id"]
+        self.client_secret = oauth_config["client_secret"]
+        self.redirect_uri = oauth_config["redirect_uri"]
         
         # OAuth scopes for YouTube access
         self.scopes = [

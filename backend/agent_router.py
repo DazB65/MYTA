@@ -413,6 +413,30 @@ async def handle_standard_quick_action(action_request: QuickActionRequest, conte
         
         # Define action prompts based on the action type (excluding enhanced actions)
         action_prompts = {
+            "generate_script": f"""
+            As a {ch['niche']} YouTube expert, create a video script specifically for {ch['name']}.
+            
+            CHANNEL-SPECIFIC REQUIREMENTS:
+            🎯 Niche: {ch['niche']} (script must match {ch['niche']} audience expectations)
+            👥 Audience Size: {subscriber_tier.title()} channel ({ch['subscriber_count']:,} subs)
+            📊 Current CTR: {ch['ctr']}% ({ctr_performance}) - hook must be {ch['niche']}-specific to improve this
+            ⏱️ Retention: {ch['retention']}% ({retention_performance}) - structure for {ch['niche']} viewer attention span
+            🎬 Content Style: {ch['content_type']}
+            🎯 Channel Goal: {ch['primary_goal']}
+            
+            Topic/Context: {action_request.context}
+            
+            Create a {ch['niche']}-optimized script with:
+            1. HOOK (0-15 sec): Specific to {ch['niche']} audience pain points/interests
+            2. INTRODUCTION (15-30 sec): Establish credibility in {ch['niche']}
+            3. MAIN CONTENT: Structure for {ch['niche']} viewers (attention patterns)
+            4. ENGAGEMENT PROMPTS: {ch['niche']}-specific questions/calls
+            5. CTA: Appropriate for {subscriber_tier} channels in {ch['niche']}
+            6. OUTRO: {ch['niche']} community building
+            
+            Make it sound like a successful {ch['niche']} creator with {ch['subscriber_count']:,} subscribers would speak.
+            """,
+            
             "optimize_title": f"""
             As a {ch['niche']} YouTube SEO specialist, optimize titles for {ch['name']}.
             
