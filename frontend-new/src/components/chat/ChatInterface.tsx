@@ -2,6 +2,7 @@ import { useEffect, useRef } from 'react'
 import ChatMessage from './ChatMessage'
 import ThinkingIndicator from './ThinkingIndicator'
 import ChatInput from './ChatInput'
+import SimpleShortcuts from '@/components/agent/SimpleShortcuts'
 import { useChat } from '@/hooks/useChat'
 
 export default function ChatInterface() {
@@ -18,6 +19,11 @@ export default function ChatInterface() {
 
   return (
     <div className="flex flex-col h-full min-h-0">
+      {/* Shortcuts */}
+      <div className="flex-shrink-0 mb-4">
+        <SimpleShortcuts />
+      </div>
+
       {/* Messages area */}
       <div className="flex-1 overflow-y-auto p-4 bg-black/20 rounded-lg mb-4 min-h-0 chat-scroll">
         <div className="space-y-4">

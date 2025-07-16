@@ -1,7 +1,5 @@
 import { useState } from 'react'
 import { NavLink } from 'react-router-dom'
-import { useFloatingChatStore } from '@/store/floatingChatStore'
-import { useAvatarStore } from '@/store/avatarStore'
 import { useSuggestionStore } from '@/store/suggestionStore'
 import { useSavedMessagesStore } from '@/store/savedMessagesStore'
 import { useOAuthStore } from '@/store/oauthStore'
@@ -10,25 +8,21 @@ import { useChat } from '@/hooks/useChat'
 import { cn } from '@/utils'
 import QuickActionModal from './QuickActionModal'
 import { 
-  Sparkles, 
-  Settings, 
-  Mic, 
   Zap,
   Bookmark,
   LayoutDashboard, 
   Building2, 
   Clapperboard, 
+  Settings as SettingsIcon,
+  CreditCard,
   LogOut
 } from 'lucide-react'
-import AvatarCustomizationPanel from './AvatarCustomizationPanel'
 import SavedSuggestionsPanel from '@/components/suggestions/SavedSuggestionsPanel'
 import { SavedMessagesPanel } from '@/components/SavedMessagesPanel'
 import OAuthStatus from '@/components/oauth/OAuthStatus'
 
 interface TopAgentPanelProps {
   className?: string
-  onToggleChat?: () => void
-  isChatOpen?: boolean
 }
 
 const navigation = [
@@ -47,12 +41,20 @@ const navigation = [
     href: '/videos',
     icon: Clapperboard,
   },
+  {
+    name: 'Settings',
+    href: '/settings',
+    icon: SettingsIcon,
+  },
+  {
+    name: 'Pricing',
+    href: '/pricing',
+    icon: CreditCard,
+  },
 ]
 
 
-export default function TopAgentPanel({ className, onToggleChat }: TopAgentPanelProps) {
-  const { openChat } = useFloatingChatStore()
-  const { customization, openCustomization } = useAvatarStore()
+export default function TopAgentPanel({ className }: TopAgentPanelProps) {
   const { } = useSuggestionStore()
   const { savedMessages } = useSavedMessagesStore()
   const { isAuthenticated, initiateOAuth, refreshToken, revokeToken, status } = useOAuthStore()
@@ -62,8 +64,6 @@ export default function TopAgentPanel({ className, onToggleChat }: TopAgentPanel
   const [showSavedSuggestions, setShowSavedSuggestions] = useState(false)
   const [showSavedMessages, setShowSavedMessages] = useState(false)
   const [selectedTool, setSelectedTool] = useState<{id: string, title: string, description: string, icon: string} | null>(null)
-  
-  const handleOpenChat = onToggleChat || openChat
 
 
   const handleToolModalSubmit = (context: string) => {
@@ -132,64 +132,19 @@ export default function TopAgentPanel({ className, onToggleChat }: TopAgentPanel
 
         {/* Main content */}
         <div className="relative z-10 h-full flex items-center justify-between px-12 py-8">
-          {/* Left Section - AI Avatar & Identity */}
+          {/* Left Section - Identity and Action Buttons */}
           <div className="flex items-center gap-12">
-            <div className="relative">
-              <button
-                onClick={handleOpenChat}
-                className={cn(
-                  'w-48 h-48 rounded-full flex items-center justify-center cursor-pointer transition-all duration-300',
-                  'hover:scale-110 hover:shadow-xl hover:shadow-white/30',
-                  'ring-4 ring-white/20 hover:ring-white/50',
-                  'animate-pulse-subtle',
-                  hasNewInsights && 'animate-bounce ring-yellow-400/60'
-                )}
-                style={{ backgroundColor: customization.color }}
-                title="Click to open chat"
-              >
-                <img
-                  src={`/assets/images/Avatars/${customization.avatar}`}
-                  alt={customization.name}
-                  className="w-44 h-44 rounded-full object-cover"
-                  onError={(e) => {
-                    e.currentTarget.src = '/assets/images/CM Logo White.svg'
-                  }}
-                />
-                
-                {hasNewInsights && (
-                  <div className="absolute -top-3 -right-3 w-10 h-10 bg-yellow-400 rounded-full flex items-center justify-center animate-bounce">
-                    <Sparkles className="w-5 h-5 text-white" />
-                  </div>
-                )}
-              </button>
-              
-              {/* Settings button */}
-              <button
-                onClick={openCustomization}
-                className="absolute -bottom-6 -left-6 w-12 h-12 bg-white/20 rounded-full border-2 border-white/40 flex items-center justify-center hover:bg-white/30 transition-colors backdrop-blur-sm"
-                title="Customize agent"
-              >
-                <Settings className="w-6 h-6 text-white" />
-              </button>
-              
-              {/* Chat microphone button */}
-              <button
-                onClick={handleOpenChat}
-                className="absolute -bottom-6 -right-6 w-12 h-12 bg-white/20 rounded-full border-2 border-white/40 flex items-center justify-center hover:bg-white/30 transition-colors backdrop-blur-sm"
-                title="Start chat"
-              >
-                <Mic className="w-6 h-6 text-white" />
-              </button>
-
+            {/* Action buttons cluster */}
+            <div className="flex gap-4">
               {/* Saved Messages button */}
               <button
                 onClick={() => setShowSavedMessages(true)}
-                className="absolute -top-6 -right-6 w-12 h-12 bg-white/20 rounded-full border-2 border-white/40 flex items-center justify-center hover:bg-white/30 transition-colors backdrop-blur-sm"
+                className="relative w-16 h-16 bg-white/20 rounded-full border-2 border-white/40 flex items-center justify-center hover:bg-white/30 transition-colors backdrop-blur-sm"
                 title="Saved chats"
               >
-                <Bookmark className="w-6 h-6 text-white" />
+                <Bookmark className="w-8 h-8 text-white" />
                 {savedMessages.length > 0 && (
-                  <div className="absolute -top-2 -right-2 w-5 h-5 bg-yellow-500 rounded-full flex items-center justify-center">
+                  <div className="absolute -top-2 -right-2 w-6 h-6 bg-yellow-500 rounded-full flex items-center justify-center">
                     <span className="text-xs font-bold text-white">{savedMessages.length}</span>
                   </div>
                 )}
@@ -201,9 +156,9 @@ export default function TopAgentPanel({ className, onToggleChat }: TopAgentPanel
               <div className="flex items-center gap-4">
                 <div>
                   <h1 className="font-bold text-white text-4xl drop-shadow-sm tracking-tight">
-                    {customization.name}
+                    CreatorMate Agent
                   </h1>
-                  <p className="text-white/80 text-lg font-medium mt-1">Your Personal Agent Mate</p>
+                  <p className="text-white/80 text-lg font-medium mt-1">Your Personal Creator Assistant</p>
                 </div>
                 {hasNewInsights && (
                   <Zap className="w-8 h-8 text-yellow-400 animate-pulse drop-shadow-sm" />
@@ -345,9 +300,6 @@ export default function TopAgentPanel({ className, onToggleChat }: TopAgentPanel
           </div>
         </div>
       </div>
-
-      {/* Avatar customization panel */}
-      <AvatarCustomizationPanel />
 
       {/* Saved Suggestions Panel */}
       <SavedSuggestionsPanel 

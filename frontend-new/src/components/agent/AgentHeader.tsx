@@ -1,12 +1,16 @@
 import { useState } from 'react'
 import { useUserStore } from '@/store/userStore'
 import { useOAuthStore } from '@/store/oauthStore'
+import { useAvatarStore } from '@/store/avatarStore'
 import AvatarSelector from './AvatarSelector'
+import AvatarCustomizationPanel from './AvatarCustomizationPanel'
 import OAuthStatus from '@/components/oauth/OAuthStatus'
+import { Settings } from 'lucide-react'
 
 export default function AgentHeader() {
   const { agentSettings } = useUserStore()
   const { isAuthenticated, initiateOAuth, refreshToken, revokeToken, status } = useOAuthStore()
+  const { openCustomization } = useAvatarStore()
   const [showAvatarSelector, setShowAvatarSelector] = useState(false)
 
   const personalityMap = {
@@ -78,12 +82,21 @@ export default function AgentHeader() {
             </div>
           </div>
           
-          {/* Right side with CreatorMate logo and YouTube connection */}
+          {/* Right side with CreatorMate logo, settings, and YouTube connection */}
           <div className="flex flex-col items-end space-y-3">
-            {/* Logo section moved up */}
-            <div className="flex items-center">
+            {/* Logo and settings section */}
+            <div className="flex items-center gap-3">
               <img src="/assets/images/CM Logo White.svg" alt="CreatorMate" className="h-8" />
-              <div className="text-xs text-white/80 ml-2 font-medium tracking-wide">YOUR CREATOR AGENT</div>
+              <div className="text-xs text-white/80 font-medium tracking-wide">YOUR CREATOR AGENT</div>
+              
+              {/* Settings button */}
+              <button
+                onClick={openCustomization}
+                className="w-8 h-8 bg-white/20 rounded-full border border-white/30 flex items-center justify-center hover:bg-white/30 transition-colors backdrop-blur-sm"
+                title="Customize agent"
+              >
+                <Settings className="w-4 h-4 text-white" />
+              </button>
             </div>
             
             {/* YouTube connection section */}
@@ -105,6 +118,9 @@ export default function AgentHeader() {
       {showAvatarSelector && (
         <AvatarSelector onClose={() => setShowAvatarSelector(false)} />
       )}
+
+      {/* Avatar customization panel */}
+      <AvatarCustomizationPanel />
     </>
   )
 }
