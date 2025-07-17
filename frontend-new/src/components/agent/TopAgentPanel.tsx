@@ -1,24 +1,19 @@
 import { useState } from 'react'
 import { NavLink } from 'react-router-dom'
 import { useSuggestionStore } from '@/store/suggestionStore'
-import { useSavedMessagesStore } from '@/store/savedMessagesStore'
 import { useOAuthStore } from '@/store/oauthStore'
 import { useUserStore } from '@/store/userStore'
 import { useChat } from '@/hooks/useChat'
 import { cn } from '@/utils'
 import QuickActionModal from './QuickActionModal'
 import { 
-  Zap,
-  Bookmark,
   LayoutDashboard, 
   Building2, 
   Clapperboard, 
   Settings as SettingsIcon,
-  CreditCard,
   LogOut
 } from 'lucide-react'
 import SavedSuggestionsPanel from '@/components/suggestions/SavedSuggestionsPanel'
-import { SavedMessagesPanel } from '@/components/SavedMessagesPanel'
 import OAuthStatus from '@/components/oauth/OAuthStatus'
 
 interface TopAgentPanelProps {
@@ -46,23 +41,15 @@ const navigation = [
     href: '/settings',
     icon: SettingsIcon,
   },
-  {
-    name: 'Pricing',
-    href: '/pricing',
-    icon: CreditCard,
-  },
 ]
 
 
 export default function TopAgentPanel({ className }: TopAgentPanelProps) {
   const { } = useSuggestionStore()
-  const { savedMessages } = useSavedMessagesStore()
   const { isAuthenticated, initiateOAuth, refreshToken, revokeToken, status } = useOAuthStore()
   const { channelInfo } = useUserStore()
   const { sendQuickAction } = useChat()
-  const [hasNewInsights] = useState(false)
   const [showSavedSuggestions, setShowSavedSuggestions] = useState(false)
-  const [showSavedMessages, setShowSavedMessages] = useState(false)
   const [selectedTool, setSelectedTool] = useState<{id: string, title: string, description: string, icon: string} | null>(null)
 
 
@@ -132,57 +119,27 @@ export default function TopAgentPanel({ className }: TopAgentPanelProps) {
 
         {/* Main content */}
         <div className="relative z-10 h-full flex items-center justify-between px-12 py-8">
-          {/* Left Section - Identity and Action Buttons */}
-          <div className="flex items-center gap-12">
-            {/* Action buttons cluster */}
-            <div className="flex gap-4">
-              {/* Saved Messages button */}
-              <button
-                onClick={() => setShowSavedMessages(true)}
-                className="relative w-16 h-16 bg-white/20 rounded-full border-2 border-white/40 flex items-center justify-center hover:bg-white/30 transition-colors backdrop-blur-sm"
-                title="Saved chats"
-              >
-                <Bookmark className="w-8 h-8 text-white" />
-                {savedMessages.length > 0 && (
-                  <div className="absolute -top-2 -right-2 w-6 h-6 bg-yellow-500 rounded-full flex items-center justify-center">
-                    <span className="text-xs font-bold text-white">{savedMessages.length}</span>
-                  </div>
-                )}
-              </button>
-            </div>
+          {/* Left Section - Logo */}
+          <div className="flex items-center">
+            <img
+              src="/assets/images/CM Logo White.svg"
+              alt="CreatorMate"
+              className="h-72 w-auto opacity-90 hover:opacity-100 transition-opacity duration-200"
+            />
+          </div>
 
-            {/* Agent identity - Clean and prominent */}
-            <div className="hidden sm:block">
-              <div className="flex items-center gap-4">
-                <div>
-                  <h1 className="font-bold text-white text-4xl drop-shadow-sm tracking-tight">
-                    CreatorMate Agent
-                  </h1>
-                  <p className="text-white/80 text-lg font-medium mt-1">Your Personal Creator Assistant</p>
-                </div>
-                {hasNewInsights && (
-                  <Zap className="w-8 h-8 text-yellow-400 animate-pulse drop-shadow-sm" />
-                )}
-              </div>
+          {/* Center Section - Welcome Message */}
+          <div className="absolute left-1/2 transform -translate-x-1/2 top-1/2 -translate-y-1/2">
+            <div className="text-white text-center">
+              <h2 className="text-xl font-medium">
+                Welcome back, {channelInfo.name || 'Creator'}! 👋
+              </h2>
+              <p className="text-white/70 text-base">Ready to grow your channel today</p>
             </div>
           </div>
 
-          {/* Right Section - Visual divider */}
-          <div className="w-px h-24 bg-white/20" />
-
-          {/* CreatorMate Logo and YouTube Connection */}
-          <div className="flex-1 flex justify-between items-center px-8">
-            {/* Logo positioned on the left - larger */}
-            <div className="flex items-center flex-1">
-              <img
-                src="/assets/images/CM Text White.svg"
-                alt="CreatorMate"
-                className="h-24 w-auto opacity-90 hover:opacity-100 transition-opacity duration-200"
-              />
-              <div className="text-sm text-white/80 ml-3 font-medium tracking-wide">YOUR CREATOR AGENT</div>
-            </div>
-            
-            {/* YouTube connection section moved to right */}
+          {/* Right Section - YouTube Connection */}
+          <div className="flex items-center">
             <div 
               className="bg-white/10 backdrop-blur-sm border border-white/20 rounded-lg p-4 w-[400px] hover:bg-white/20 hover:border-white/40 transition-all duration-200 shadow-lg hover:shadow-xl"
             >
@@ -307,11 +264,6 @@ export default function TopAgentPanel({ className }: TopAgentPanelProps) {
         onClose={() => setShowSavedSuggestions(false)} 
       />
 
-      {/* Saved Messages Panel */}
-      <SavedMessagesPanel 
-        isOpen={showSavedMessages} 
-        onClose={() => setShowSavedMessages(false)} 
-      />
 
       {/* Tool Modal */}
       {selectedTool && (

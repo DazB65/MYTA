@@ -7,6 +7,7 @@ import { api } from '@/services/api'
 import Card from '@/components/common/Card'
 import Button from '@/components/common/Button'
 import OAuthConnection from '@/components/oauth/OAuthConnection'
+import PricingPage from './PricingPage'
 
 const settingsSchema = z.object({
   channelName: z.string().min(1, 'Channel name is required'),
@@ -58,7 +59,7 @@ const primaryGoals = [
 export default function Settings() {
   const { userId, channelInfo, updateChannelInfo } = useUserStore()
   const [isSubmitting, setIsSubmitting] = useState(false)
-  const [activeTab, setActiveTab] = useState<'channel' | 'oauth' | 'agent' | 'preferences'>('channel')
+  const [activeTab, setActiveTab] = useState<'channel' | 'oauth' | 'agent' | 'preferences' | 'pricing'>('channel')
 
   const {
     register,
@@ -124,7 +125,8 @@ export default function Settings() {
     { id: 'channel', name: 'Channel Settings', icon: '📺' },
     { id: 'oauth', name: 'YouTube Connection', icon: '🔑' },
     { id: 'agent', name: 'AI Agent', icon: '🤖' },
-    { id: 'preferences', name: 'Preferences', icon: '⚙️' }
+    { id: 'preferences', name: 'Preferences', icon: '⚙️' },
+    { id: 'pricing', name: 'Pricing', icon: '💰' }
   ]
 
   return (
@@ -397,6 +399,13 @@ export default function Settings() {
             </p>
           </div>
         </Card>
+      )}
+
+      {/* Pricing Tab */}
+      {activeTab === 'pricing' && (
+        <div className="bg-white rounded-lg overflow-hidden">
+          <PricingPage />
+        </div>
       )}
     </div>
   )

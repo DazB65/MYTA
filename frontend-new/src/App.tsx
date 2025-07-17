@@ -7,7 +7,6 @@ import Channel from './pages/Channel'
 import Pillars from './pages/Pillars'
 import Videos from './pages/Videos'
 import Settings from './pages/Settings'
-import PricingPage from './pages/PricingPage'
 import EnhancedAnalytics from './pages/EnhancedAnalytics'
 import { SystemHealthCheck } from './components/SystemHealthCheck'
 import { useUserStore } from './store/userStore'
@@ -39,7 +38,6 @@ function App() {
               <Route path="/videos" element={<Videos />} />
               <Route path="/analytics" element={<EnhancedAnalytics />} />
               <Route path="/settings" element={<Settings />} />
-              <Route path="/pricing" element={<PricingPage />} />
               <Route path="*" element={<Navigate to="/dashboard" replace />} />
             </Routes>
           </Layout>

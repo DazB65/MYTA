@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useUserStore } from '@/store/userStore'
 import { useOAuthStore } from '@/store/oauthStore'
 import TaskManager from '@/components/dashboard/TaskManager'
@@ -8,7 +8,7 @@ import OAuthStatus from '@/components/oauth/OAuthStatus'
 import { Settings, RotateCcw } from 'lucide-react'
 
 export default function Dashboard() {
-  const { channelInfo, agentSettings, updateAgentSettings } = useUserStore()
+  const { agentSettings, updateAgentSettings } = useUserStore()
   const { isAuthenticated, initiateOAuth, refreshToken, revokeToken, status } = useOAuthStore()
   const [showCustomization, setShowCustomization] = useState(false)
   const [tempSettings, setTempSettings] = useState(agentSettings)
@@ -73,19 +73,30 @@ export default function Dashboard() {
     setShowCustomization(false)
   }
 
+  // Preserve scroll position on refresh - no auto-scrolling
+  useEffect(() => {
+    const savedScrollPosition = sessionStorage.getItem('dashboard-scroll-position')
+    if (savedScrollPosition) {
+      setTimeout(() => {
+        window.scrollTo(0, parseInt(savedScrollPosition))
+      }, 100)
+      sessionStorage.removeItem('dashboard-scroll-position')
+    }
+    // Removed forced scroll to 0,0 to prevent unwanted scrolling
+
+    // Save scroll position before page unload
+    const handleBeforeUnload = () => {
+      sessionStorage.setItem('dashboard-scroll-position', window.scrollY.toString())
+    }
+
+    window.addEventListener('beforeunload', handleBeforeUnload)
+    return () => {
+      window.removeEventListener('beforeunload', handleBeforeUnload)
+    }
+  }, [])
+
   return (
     <div className="space-y-6">
-      {/* Welcome Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold mb-2">
-            Welcome back, {channelInfo.name || 'Creator'}! 👋
-          </h1>
-          <p className="text-dark-400">
-            Here's what's happening with your channel today
-          </p>
-        </div>
-      </div>
 
 
       {/* Main Dashboard Grid - 50/50 Split */}
@@ -152,7 +163,6 @@ export default function Dashboard() {
                     />
                   </div>
 
-<<<<<<< HEAD
                   {/* Avatar Selection */}
                   <div>
                     <label className="text-xs text-primary-400 mb-2 block">Avatar</label>
