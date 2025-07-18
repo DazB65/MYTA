@@ -30,6 +30,7 @@ from youtube_router import router as youtube_router
 from pillars_router import router as pillars_router
 from analytics_router import router as analytics_router
 from oauth_endpoints import oauth_router
+from content_cards_router import router as content_cards_router
 
 # Import services
 from ai_services import update_user_context, get_user_context
@@ -151,6 +152,9 @@ app.include_router(analytics_router)
 
 # Include OAuth router (handles authentication flow)
 app.include_router(oauth_router)
+
+# Include content cards router (handles Content Studio functionality)
+app.include_router(content_cards_router)
 
 # =============================================================================
 # Core API Endpoints

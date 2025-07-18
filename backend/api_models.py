@@ -262,6 +262,69 @@ def create_success_response(message: str = "", data: Any = None) -> Dict[str, An
     
     return response
 
+# =============================================================================
+# Content Cards Models
+# =============================================================================
+
+class ContentCardCreate(BaseModel):
+    """Request model for creating a new content card"""
+    title: str
+    description: str = ""
+    status: str = "ideas"
+    pillars: List[Dict[str, Any]] = []
+    due_date: Optional[str] = None
+    progress: Optional[Dict[str, Any]] = None
+    user_id: str
+    
+    class Config:
+        str_strip_whitespace = True
+        str_min_length = 1
+        str_max_length = 500
+
+class ContentCardUpdate(BaseModel):
+    """Request model for updating an existing content card"""
+    title: Optional[str] = None
+    description: Optional[str] = None
+    status: Optional[str] = None
+    pillars: Optional[List[Dict[str, Any]]] = None
+    due_date: Optional[str] = None
+    progress: Optional[Dict[str, Any]] = None
+    archived: Optional[bool] = None
+    order_index: Optional[int] = None
+    
+    class Config:
+        str_strip_whitespace = True
+
+class ContentCardStatusUpdate(BaseModel):
+    """Request model for updating just the status of a content card"""
+    status: str
+    user_id: str
+    order_index: Optional[int] = None
+    
+    class Config:
+        str_strip_whitespace = True
+
+class ContentCardResponse(BaseModel):
+    """Response model for content card data"""
+    id: str
+    user_id: str
+    title: str
+    description: str
+    status: str
+    pillars: List[Dict[str, Any]]
+    due_date: Optional[str]
+    progress: Optional[Dict[str, Any]]
+    archived: bool
+    order_index: int
+    created_at: str
+    updated_at: str
+
+class ContentCardsListResponse(BaseModel):
+    """Response model for list of content cards"""
+    cards: List[ContentCardResponse]
+    total_count: int
+    status_counts: Dict[str, int]
+
 def validate_request_model(model_class: BaseModel, data: Dict[str, Any]) -> BaseModel:
     """Validate request data against Pydantic model"""
     try:
