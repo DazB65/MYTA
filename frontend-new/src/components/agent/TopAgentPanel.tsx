@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import React, { useState } from 'react'
 import { NavLink } from 'react-router-dom'
 import { useSuggestionStore } from '@/store/suggestionStore'
 import { useOAuthStore } from '@/store/oauthStore'
@@ -11,7 +11,8 @@ import {
   Building2, 
   Clapperboard, 
   Settings as SettingsIcon,
-  LogOut
+  LogOut,
+  Layers
 } from 'lucide-react'
 import SavedSuggestionsPanel from '@/components/suggestions/SavedSuggestionsPanel'
 import OAuthStatus from '@/components/oauth/OAuthStatus'
@@ -37,6 +38,11 @@ const navigation = [
     icon: Clapperboard,
   },
   {
+    name: 'Content Studio',
+    href: '/content-studio',
+    icon: Layers,
+  },
+  {
     name: 'Settings',
     href: '/settings',
     icon: SettingsIcon,
@@ -47,10 +53,44 @@ const navigation = [
 export default function TopAgentPanel({ className }: TopAgentPanelProps) {
   const { } = useSuggestionStore()
   const { isAuthenticated, initiateOAuth, refreshToken, revokeToken, status } = useOAuthStore()
-  const { channelInfo } = useUserStore()
+  const { channelInfo, userId } = useUserStore()
   const { sendQuickAction } = useChat()
   const [showSavedSuggestions, setShowSavedSuggestions] = useState(false)
   const [selectedTool, setSelectedTool] = useState<{id: string, title: string, description: string, icon: string} | null>(null)
+  const [bannerUrl, setBannerUrl] = React.useState('');
+
+  React.useEffect(() => {
+    const fetchBanner = async () => {
+      if (!userId) {
+        console.log('No userId available, skipping banner fetch');
+        return;
+      }
+
+      try {
+        const response = await fetch(`/api/get-user-profile?user_id=${userId}`, {
+          credentials: 'include', // Include cookies
+          headers: {
+            'Content-Type': 'application/json',
+          }
+        });
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        const userData = await response.json();
+        console.log('User profile data:', userData);
+        if (userData && userData.bannerUrl) {
+          console.log('Setting banner URL:', userData.bannerUrl);
+          setBannerUrl(userData.bannerUrl);
+        } else {
+          console.log('No banner URL found in response');
+        }
+      } catch (error) {
+        console.error('Error fetching user profile banner:', error);
+      }
+    };
+
+    fetchBanner();
+  }, [userId]); // Depend on userId so it refetches when user changes
 
 
   const handleToolModalSubmit = (context: string) => {
@@ -102,14 +142,28 @@ export default function TopAgentPanel({ className }: TopAgentPanelProps) {
 
   return (
     <>
-      <div className={cn(
-        'w-full relative overflow-hidden',
-        'bg-purple-900/95 backdrop-blur-md',
-        'border-b border-white/20 backdrop-blur-sm',
-        'transition-all duration-500 ease-in-out',
-        'h-72', // Fixed height - balanced size
-        className
-      )}>
+  <div
+    className={cn(
+      'w-full relative overflow-hidden',
+      !bannerUrl && 'bg-purple-900/95 backdrop-blur-md',
+      'border-b border-white/20 backdrop-blur-sm',
+      'transition-all duration-500 ease-in-out',
+      'h-72', // Fixed height - balanced size
+      className
+    )}
+    style={{
+      backgroundImage: bannerUrl ? `url("${bannerUrl}")` : 'none',
+      backgroundSize: 'cover',
+      backgroundPosition: 'center',
+      backgroundRepeat: 'no-repeat',
+      backgroundColor: bannerUrl ? 'transparent' : undefined,
+    }}
+  >
+        {/* Dark overlay for banner to ensure content readability */}
+        {bannerUrl && (
+          <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" />
+        )}
+        
         {/* Animated background elements */}
         <div className="absolute inset-0 overflow-hidden pointer-events-none">
           <div className="absolute top-6 left-1/4 w-40 h-40 bg-white/5 rounded-full blur-xl animate-pulse" />
@@ -203,7 +257,7 @@ export default function TopAgentPanel({ className }: TopAgentPanelProps) {
 
         {/* Navigation Bar - Bottom Edge */}
         <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 z-20">
-          <div className="h-16 bg-purple-900/95 backdrop-blur-md border border-purple-500/30 rounded-2xl shadow-2xl">
+          <div className="h-16 bg-white/10 backdrop-blur-sm border border-white/20 rounded-2xl shadow-lg hover:bg-white/20 hover:border-white/40 transition-all duration-200">
             <div className="flex items-center h-full overflow-hidden px-4">
               {/* Navigation */}
               <nav className="flex items-center px-4 space-x-2">
@@ -214,11 +268,11 @@ export default function TopAgentPanel({ className }: TopAgentPanelProps) {
                     className={({ isActive }) =>
                       cn(
                         'flex items-center gap-2 px-3 py-2 rounded-xl transition-all duration-200',
-                        'hover:bg-primary-600/10 hover:border-b-4 hover:border-primary-500',
-                        'text-dark-400 hover:text-white',
+                        'hover:bg-white/10',
+                        'text-white/70 hover:text-white',
                         'transform hover:scale-105 relative overflow-hidden',
                         'min-w-[40px] min-h-[40px] justify-start',
-                        isActive && 'active bg-primary-600/20 border-b-4 border-primary-500 text-white'
+                        isActive && 'active bg-white/20 text-white font-medium'
                       )
                     }
                   >
@@ -228,15 +282,16 @@ export default function TopAgentPanel({ className }: TopAgentPanelProps) {
                     </span>
                   </NavLink>
                 ))}
+                
               </nav>
               
               {/* Status section */}
-              <div className="border-l border-purple-400/20 pl-4 flex-shrink-0 flex items-center gap-3">
+              <div className="border-l border-white/20 pl-4 flex-shrink-0 flex items-center gap-3">
                 <div className="flex items-center">
-                  <div className="w-6 h-6 rounded-full bg-primary-600/20 flex items-center justify-center">
-                    <div className="w-2 h-2 bg-primary-400 rounded-full animate-pulse"></div>
+                  <div className="w-6 h-6 rounded-full bg-green-500/20 flex items-center justify-center">
+                    <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
                   </div>
-                  <span className="ml-2 text-sm text-dark-400 whitespace-nowrap">
+                  <span className="ml-2 text-sm text-white/70 whitespace-nowrap">
                     Online
                   </span>
                 </div>
@@ -245,7 +300,7 @@ export default function TopAgentPanel({ className }: TopAgentPanelProps) {
                 {isAuthenticated && (
                   <button
                     onClick={handleLogout}
-                    className="flex items-center gap-2 px-2 py-1 rounded-lg transition-all duration-200 hover:bg-red-500/20 text-red-300 hover:text-red-200 border border-red-500/30 hover:border-red-400"
+                    className="flex items-center gap-2 px-2 py-1 rounded-lg transition-all duration-200 hover:bg-white/10 text-white/70 hover:text-white"
                     title="Logout from YouTube"
                   >
                     <LogOut className="w-4 h-4" />

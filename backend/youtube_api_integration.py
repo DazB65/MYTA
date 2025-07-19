@@ -55,6 +55,7 @@ class YouTubeChannelMetrics:
     custom_url: Optional[str]
     published_at: str
     thumbnail_url: str
+    banner_url: Optional[str]
     country: Optional[str]
     view_count: int
     subscriber_count: int
@@ -252,6 +253,7 @@ class YouTubeAPIIntegration:
             channel_info = channel_response['items'][0]
             snippet = channel_info['snippet']
             statistics = channel_info['statistics']
+            branding_settings = channel_info.get('brandingSettings', {})
             
             # Get recent videos if requested
             recent_videos = []
@@ -275,6 +277,11 @@ class YouTubeAPIIntegration:
                 # Estimate upload frequency
                 upload_frequency = self._calculate_upload_frequency(recent_videos)
             
+            # Extract banner URL from branding settings
+            banner_url = None
+            if branding_settings and 'image' in branding_settings:
+                banner_url = branding_settings['image'].get('bannerExternalUrl')
+            
             # Create channel metrics object
             channel_metrics = YouTubeChannelMetrics(
                 channel_id=channel_id,
@@ -283,6 +290,7 @@ class YouTubeAPIIntegration:
                 custom_url=snippet.get('customUrl'),
                 published_at=snippet.get('publishedAt', ''),
                 thumbnail_url=snippet.get('thumbnails', {}).get('high', {}).get('url', ''),
+                banner_url=banner_url,
                 country=snippet.get('country'),
                 view_count=int(statistics.get('viewCount', 0)),
                 subscriber_count=int(statistics.get('subscriberCount', 0)),

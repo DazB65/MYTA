@@ -259,6 +259,194 @@ async def get_user_context_endpoint(user_id: str):
         logger.error(traceback.format_exc())
         raise HTTPException(status_code=500, detail="Failed to get user context")
 
+@app.get("/api/get-user-profile")
+async def get_user_profile(request: Request):
+    """Get user profile with YouTube channel banner"""
+    try:
+        # Get user_id from cookie or header
+        user_id = request.cookies.get("user_id") or request.headers.get("X-User-Id")
+        if not user_id:
+            # Try to get from query params as fallback
+            user_id = request.query_params.get("user_id")
+            
+        if not user_id:
+            raise HTTPException(status_code=401, detail="User ID not found")
+        
+        # Get user context
+        context = get_user_context(user_id)
+        if not context:
+            raise HTTPException(status_code=404, detail="User not found")
+        
+        channel_info = context.get("channel_info", {})
+        
+        # Check if we have YouTube integration data
+        youtube_data = None
+        banner_url = None
+        debug_info = {}
+        
+        # Try to get YouTube channel data if OAuth is connected
+        try:
+            from oauth_manager import get_oauth_manager
+            from youtube_api_integration import get_youtube_integration
+            
+            logger.info(f"Getting user profile for user_id: {user_id}")
+            
+            oauth_manager = get_oauth_manager()
+            oauth_token = await oauth_manager.get_valid_token(user_id)
+            
+            debug_info["oauth_token_exists"] = oauth_token is not None
+            debug_info["has_access_token"] = bool(oauth_token and oauth_token.access_token)
+            
+            logger.info(f"OAuth token for user {user_id}: {oauth_token}")
+            
+            # Get channel ID from user context
+            user_channel_id = channel_info.get("channel_id")
+            debug_info["channel_id_from_context"] = user_channel_id
+            
+            # Try to get channel data
+            if user_channel_id:
+                logger.info(f"Found channel ID {user_channel_id} for user {user_id}")
+                
+                # Get YouTube API integration instance
+                youtube_api = get_youtube_integration()
+                
+                try:
+                    # Try to get channel data with banner using the YouTube API integration
+                    channel_metrics = await youtube_api.get_channel_data(
+                        channel_id=user_channel_id,
+                        user_id=user_id,
+                        include_recent_videos=False
+                    )
+                    
+                    debug_info["channel_metrics_returned"] = channel_metrics is not None
+                    
+                    if channel_metrics:
+                        banner_url = channel_metrics.banner_url
+                        debug_info["banner_url_from_integration"] = banner_url
+                        logger.info(f"Found banner URL from integration: {banner_url}")
+                        
+                        # Log all the channel metrics for debugging
+                        logger.info(f"Channel metrics: title={channel_metrics.title}, banner_url={channel_metrics.banner_url}")
+                    else:
+                        logger.warning(f"No channel metrics returned for channel {user_channel_id}")
+                        
+                except Exception as e:
+                    debug_info["channel_fetch_error"] = str(e)
+                    logger.warning(f"Failed to fetch YouTube channel data: {e}")
+            
+            # If no channel ID but we have a channel name, try known mappings
+            elif channel_info.get("name") and channel_info.get("name") != "Unknown":
+                channel_name = channel_info.get("name")
+                logger.info(f"No channel ID found, checking known channel mappings for: {channel_name}")
+                
+                # Temporary solution: known channel mappings
+                # TODO: Implement proper channel search or fix OAuth to save channel IDs
+                known_channels = {
+                    "THE AUSTRALIA STORY  - History, Legends and Land": "UCsLRPnpYsl2E4ficU5wfHWg"
+                }
+                
+                if channel_name in known_channels:
+                    found_channel_id = known_channels[channel_name]
+                    logger.info(f"Found known channel ID: {found_channel_id}")
+                    
+                    # Get YouTube API integration instance
+                    youtube_api = get_youtube_integration()
+                    
+                    try:
+                        # Get channel data with banner
+                        channel_metrics = await youtube_api.get_channel_data(
+                            channel_id=found_channel_id,
+                            user_id=user_id,
+                            include_recent_videos=False
+                        )
+                        
+                        if channel_metrics:
+                            banner_url = channel_metrics.banner_url
+                            debug_info["banner_url_from_known"] = banner_url
+                            logger.info(f"Found banner URL from known channel: {banner_url}")
+                            
+                            # Update the user's channel_id for future use
+                            from ai_services import update_user_context
+                            update_user_context(user_id, "channel_info", {
+                                **channel_info,
+                                "channel_id": found_channel_id
+                            })
+                            logger.info(f"Updated channel_id for user {user_id}")
+                        else:
+                            logger.warning(f"No channel metrics returned for known channel {found_channel_id}")
+                            
+                    except Exception as e:
+                        debug_info["known_channel_error"] = str(e)
+                        logger.warning(f"Failed to fetch known channel data: {e}")
+                else:
+                    debug_info["channel_not_in_known_list"] = True
+                    logger.info(f"Channel '{channel_name}' not in known mappings")
+            
+            # Fallback: try OAuth if available
+            elif oauth_token and oauth_token.access_token:
+                logger.info(f"No channel ID found, trying OAuth approach for user {user_id}")
+                
+                try:
+                    # Try to get channel data using OAuth
+                    youtube_service = await oauth_manager.get_youtube_service(user_id)
+                    
+                    if youtube_service:
+                        # Get the user's channel data with branding settings
+                        channels_response = youtube_service.channels().list(
+                            part='snippet,statistics,brandingSettings',
+                            mine=True
+                        ).execute()
+                        
+                        debug_info["youtube_api_response"] = bool(channels_response.get('items'))
+                        
+                        if channels_response.get('items'):
+                            channel = channels_response['items'][0]
+                            branding_settings = channel.get('brandingSettings', {})
+                            
+                            # Extract banner URL from branding settings
+                            if branding_settings and 'image' in branding_settings:
+                                banner_url = branding_settings['image'].get('bannerExternalUrl')
+                                debug_info["banner_url_from_oauth"] = banner_url
+                                logger.info(f"Found banner URL from OAuth: {banner_url}")
+                            else:
+                                debug_info["no_branding_settings"] = True
+                                logger.info("No branding settings found in YouTube API response")
+                        else:
+                            debug_info["no_channel_data"] = True
+                            logger.warning("No channel data returned from YouTube API")
+                    else:
+                        debug_info["no_youtube_service"] = True
+                        logger.warning("Could not get YouTube service for user")
+                        
+                except Exception as e:
+                    debug_info["oauth_fetch_error"] = str(e)
+                    logger.warning(f"Failed to fetch YouTube channel data via OAuth: {e}")
+            else:
+                debug_info["no_channel_id_or_oauth"] = True
+                logger.info(f"No channel ID or valid OAuth for user {user_id}")
+        except Exception as e:
+            debug_info["integration_error"] = str(e)
+            logger.warning(f"Failed to access YouTube integration: {e}")
+        
+        # Return user profile data
+        result = {
+            "userName": channel_info.get("name", "Creator"),
+            "bannerUrl": banner_url
+        }
+        
+        # Add debug info in development (remove this in production)
+        if request.query_params.get("debug") == "true":
+            result["debug"] = debug_info
+            
+        return result
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error in get_user_profile: {e}")
+        logger.error(traceback.format_exc())
+        raise HTTPException(status_code=500, detail="Failed to retrieve user profile")
+
 # =============================================================================
 # Health Check Endpoints
 # =============================================================================
