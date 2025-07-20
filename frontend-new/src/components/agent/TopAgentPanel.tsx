@@ -172,92 +172,85 @@ export default function TopAgentPanel({ className }: TopAgentPanelProps) {
         </div>
 
         {/* Main content */}
-        <div className="relative z-10 h-full flex items-center justify-between px-12 py-8">
-          {/* Left Section - Logo */}
-          <div className="flex items-center">
-            <img
-              src="/assets/images/CM Logo White.svg"
-              alt="CreatorMate"
-              className="h-72 w-auto opacity-90 hover:opacity-100 transition-opacity duration-200"
-            />
-          </div>
-
-          {/* Center Section - Welcome Message */}
-          <div className="absolute left-1/2 transform -translate-x-1/2 top-1/2 -translate-y-1/2">
+        <div className="relative z-10 h-full flex flex-col justify-between">
+          {/* Top Section - Welcome Message */}
+          <div className="flex items-start justify-center pt-8">
             <div className="text-white text-center">
-              <h2 className="text-xl font-medium">
+              <h2 className="text-2xl font-semibold">
                 Welcome back, {channelInfo.name || 'Creator'}! 👋
               </h2>
-              <p className="text-white/70 text-base">Ready to grow your channel today</p>
+              <p className="text-white/70 text-base mt-1">Ready to grow your channel today</p>
             </div>
           </div>
 
-          {/* Right Section - YouTube Connection */}
-          <div className="flex items-center">
-            <div 
-              className="bg-white/10 backdrop-blur-sm border border-white/20 rounded-lg p-4 w-[400px] hover:bg-white/20 hover:border-white/40 transition-all duration-200 shadow-lg hover:shadow-xl"
-            >
-              <div className="flex flex-col gap-3">
-                <div className="flex items-center justify-between">
-                  <OAuthStatus showDetails={true} className="text-white flex-1" />
-                  <div className="ml-2 text-white/60 text-xs">
-                    {isAuthenticated ? '✓' : 'Click to connect'}
-                  </div>
-                </div>
-                
-                {isAuthenticated && channelInfo.name !== 'Unknown' && (
-                  <div className="text-xs text-white/90 bg-white/15 px-3 py-2 rounded-lg border border-white/20">
-                    <div className="flex items-center gap-2">
-                      <span>📺</span>
-                      <span className="font-medium">{channelInfo.name}</span>
-                    </div>
-                  </div>
-                )}
-                
-                {!isAuthenticated && (
+          {/* Bottom Section - Spacer for navigation alignment */}
+          <div className="h-20"></div>
+        </div>
+
+        {/* Logo - Above YouTube Connection */}
+        <div className="absolute bottom-20 right-12 z-50 flex items-center justify-center w-64">
+          <img
+            src="/assets/images/CM Logo White.svg"
+            alt="CreatorMate"
+            className="h-56 w-auto opacity-90 hover:opacity-100 transition-opacity duration-200"
+          />
+        </div>
+
+        {/* YouTube Connection - Aligned with Navigation Bar */}
+        <div className="absolute bottom-6 right-12 z-20 flex items-center h-14">
+          <div 
+            className="bg-white/10 backdrop-blur-sm border border-white/20 rounded-lg p-3 hover:bg-white/20 hover:border-white/40 transition-all duration-200 shadow-lg hover:shadow-xl"
+          >
+            <div className="flex items-center gap-3">
+              <OAuthStatus showDetails={false} className="text-white" />
+              
+              {isAuthenticated ? (
+                <div className="flex items-center gap-2">
                   <button
                     onClick={(e) => {
                       e.stopPropagation();
-                      handleYouTubeClick();
+                      refreshToken();
                     }}
-                    className="w-full bg-red-600 hover:bg-red-700 text-white text-xs font-medium py-2 px-3 rounded-lg transition-colors duration-200"
+                    className="p-2 bg-white/10 hover:bg-white/20 text-white rounded-lg transition-colors duration-200"
+                    title="Refresh connection"
                   >
-                    Connect YouTube
+                    <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                    </svg>
                   </button>
-                )}
-                
-                {isAuthenticated && (
-                  <div className="flex gap-2">
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        refreshToken();
-                      }}
-                      className="flex-1 bg-blue-600 hover:bg-blue-700 text-white text-xs font-medium py-2 px-3 rounded-lg transition-colors duration-200"
-                    >
-                      🔄 Refresh
-                    </button>
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        if (confirm('Disconnect YouTube account?')) {
-                          revokeToken();
-                        }
-                      }}
-                      className="flex-1 bg-gray-600 hover:bg-gray-700 text-white text-xs font-medium py-2 px-3 rounded-lg transition-colors duration-200"
-                    >
-                      🔌 Disconnect
-                    </button>
-                  </div>
-                )}
-              </div>
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      if (confirm('Disconnect YouTube account?')) {
+                        revokeToken();
+                      }
+                    }}
+                    className="p-2 bg-white/10 hover:bg-red-500/20 text-white hover:text-red-300 rounded-lg transition-colors duration-200"
+                    title="Disconnect"
+                  >
+                    <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+                    </svg>
+                  </button>
+                </div>
+              ) : (
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleYouTubeClick();
+                  }}
+                  className="bg-red-600 hover:bg-red-700 text-white text-sm font-medium py-2 px-4 rounded-lg transition-colors duration-200"
+                >
+                  Connect
+                </button>
+              )}
             </div>
           </div>
         </div>
 
         {/* Navigation Bar - Bottom Edge */}
-        <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 z-20">
-          <div className="h-16 bg-white/10 backdrop-blur-sm border border-white/20 rounded-2xl shadow-lg hover:bg-white/20 hover:border-white/40 transition-all duration-200">
+        <div className="absolute bottom-6 left-1/2 transform -translate-x-1/2 z-20">
+          <div className="h-14 bg-white/10 backdrop-blur-sm border border-white/20 rounded-2xl shadow-lg transition-all duration-200">
             <div className="flex items-center h-full overflow-hidden px-4">
               {/* Navigation */}
               <nav className="flex items-center px-4 space-x-2">

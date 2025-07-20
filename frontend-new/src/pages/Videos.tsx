@@ -382,9 +382,6 @@ export default function Videos() {
             📊 100% Real Data from YouTube Data API • Views, Likes, Comments, CTR
           </p>
         </div>
-        <Button className="flex items-center gap-2">
-          📊 Export Data
-        </Button>
       </div>
 
       {/* Real YouTube Data Stats */}

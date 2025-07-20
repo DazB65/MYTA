@@ -29,12 +29,13 @@ from agent_cache import get_agent_cache
 from model_integrations import get_model_integration, generate_agent_response
 from boss_agent_auth import get_boss_agent_authenticator, validate_specialized_agent_request
 
-# Import refactored agents
-from content_analysis_agent_v2 import process_content_analysis_request
-from audience_insights_agent_v2 import process_audience_insights_request  
-from seo_discoverability_agent_v2 import process_seo_request
-from competitive_analysis_agent_v2 import process_competitive_analysis_request
-from monetization_strategy_agent_v2 import process_monetization_strategy_request
+# Import standardized agents (v1) - COMMENTED OUT due to missing process functions
+# TODO: These imports need to be fixed or the functions need to be implemented
+# from content_analysis_agent import process_content_analysis_request
+# from audience_insights_agent import process_audience_insights_request  
+# from seo_discoverability_agent import process_seo_request
+# from competitive_analysis_agent import process_competitive_analysis_request
+# from monetization_strategy_agent import process_monetization_strategy_request
 
 # Configure logging
 logger = logging.getLogger(__name__)
@@ -598,9 +599,9 @@ async def handle_standard_quick_action(action_request: QuickActionRequest, conte
 async def content_analysis_task(request: AgentTaskRequest, auth=Depends(verify_agent_token)):
     """Endpoint for Boss Agent to request content analysis"""
     try:
-        logger.info(f"Processing content analysis task: {action_request.request_id}")
-        result = await process_content_analysis_request(action_request.dict())
-        return result
+        logger.info(f"Processing content analysis task: {request.request_id}")
+        # TODO: Fix import - process_content_analysis_request not available
+        return create_error_response("Content analysis temporarily unavailable", "Function not implemented")
     except Exception as e:
         logger.error(f"Content analysis task error: {e}")
         return create_error_response("Content analysis failed", str(e))
@@ -609,9 +610,9 @@ async def content_analysis_task(request: AgentTaskRequest, auth=Depends(verify_a
 async def audience_insights_task(request: AgentTaskRequest, auth=Depends(verify_agent_token)):
     """Endpoint for Boss Agent to request audience insights"""
     try:
-        logger.info(f"Processing audience insights task: {action_request.request_id}")
-        result = await process_audience_insights_request(action_request.dict())
-        return result
+        logger.info(f"Processing audience insights task: {request.request_id}")
+        # TODO: Fix import - process_audience_insights_request not available
+        return create_error_response("Audience insights temporarily unavailable", "Function not implemented")
     except Exception as e:
         logger.error(f"Audience insights task error: {e}")
         return create_error_response("Audience insights failed", str(e))
@@ -620,9 +621,9 @@ async def audience_insights_task(request: AgentTaskRequest, auth=Depends(verify_
 async def seo_discoverability_task(request: AgentTaskRequest, auth=Depends(verify_agent_token)):
     """Endpoint for Boss Agent to request SEO analysis"""
     try:
-        logger.info(f"Processing SEO discoverability task: {action_request.request_id}")
-        result = await process_seo_request(action_request.dict())
-        return result
+        logger.info(f"Processing SEO discoverability task: {request.request_id}")
+        # TODO: Fix import - process_seo_request not available
+        return create_error_response("SEO analysis temporarily unavailable", "Function not implemented")
     except Exception as e:
         logger.error(f"SEO discoverability task error: {e}")
         return create_error_response("SEO analysis failed", str(e))
@@ -631,9 +632,9 @@ async def seo_discoverability_task(request: AgentTaskRequest, auth=Depends(verif
 async def competitive_analysis_task(request: AgentTaskRequest, auth=Depends(verify_agent_token)):
     """Endpoint for Boss Agent to request competitive analysis"""
     try:
-        logger.info(f"Processing competitive analysis task: {action_request.request_id}")
-        result = await process_competitive_analysis_request(action_request.dict())
-        return result
+        logger.info(f"Processing competitive analysis task: {request.request_id}")
+        # TODO: Fix import - process_competitive_analysis_request not available
+        return create_error_response("Competitive analysis temporarily unavailable", "Function not implemented")
     except Exception as e:
         logger.error(f"Competitive analysis task error: {e}")
         return create_error_response("Competitive analysis failed", str(e))
@@ -642,9 +643,9 @@ async def competitive_analysis_task(request: AgentTaskRequest, auth=Depends(veri
 async def monetization_strategy_task(request: AgentTaskRequest, auth=Depends(verify_agent_token)):
     """Endpoint for Boss Agent to request monetization analysis"""
     try:
-        logger.info(f"Processing monetization strategy task: {action_request.request_id}")
-        result = await process_monetization_strategy_request(action_request.dict())
-        return result
+        logger.info(f"Processing monetization strategy task: {request.request_id}")
+        # TODO: Fix import - process_monetization_strategy_request not available
+        return create_error_response("Monetization analysis temporarily unavailable", "Function not implemented")
     except Exception as e:
         logger.error(f"Monetization strategy task error: {e}")
         return create_error_response("Monetization analysis failed", str(e))
@@ -657,15 +658,15 @@ async def monetization_strategy_task(request: AgentTaskRequest, auth=Depends(ver
 async def agent_callback(request: AgentCallbackRequest, auth=Depends(verify_agent_token)):
     """Receive callbacks from specialized agents"""
     try:
-        logger.info(f"Received callback from {action_request.agent_type} for request {action_request.request_id}")
+        logger.info(f"Received callback from {request.agent_type} for request {request.request_id}")
         
         # Process the callback response
         cache = get_agent_cache()
         cache.store_agent_response(
-            action_request.request_id,
-            action_request.agent_type,
-            action_request.response_data,
-            action_request.processing_time
+            request.request_id,
+            request.agent_type,
+            request.response_data,
+            request.processing_time
         )
         
         return create_success_response("Callback processed successfully")

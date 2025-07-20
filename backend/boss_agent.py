@@ -16,6 +16,7 @@ import os
 from agent_cache import get_agent_cache
 from enhanced_user_context import get_enhanced_context_manager
 from realtime_data_pipeline import get_data_pipeline
+from boss_agent_auth import get_boss_agent_authenticator
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -275,12 +276,27 @@ class ContentAnalysisAgent(SpecializedAgent):
             'include_visual_analysis': True
         }
         
-        # Get response from specialized agent
-        specialized_response = await self.specialized_agent.process_boss_agent_request(specialized_request)
+        # Add boss agent authentication
+        authenticator = get_boss_agent_authenticator()
+        specialized_request = authenticator.create_authenticated_request(specialized_request)
         
-        # Check if the specialized agent handled the request
-        if not specialized_response.get('domain_match', True):
-            # Fall back to simple content analysis
+        # Get response from specialized agent with error handling
+        try:
+            specialized_response = await self.specialized_agent.process_boss_agent_request(specialized_request)
+            
+            # Check if the specialized agent handled the request
+            if not specialized_response.get('domain_match', True):
+                logger.warning("Specialized agent couldn't handle request, falling back to simple analysis")
+                return await self._simple_content_analysis(request)
+            
+            # Check for authentication errors
+            if specialized_response.get('authentication_required', False):
+                logger.error("Authentication failed for specialized agent request")
+                return await self._simple_content_analysis(request)
+                
+        except Exception as e:
+            logger.error(f"Specialized Content Analysis Agent failed: {e}")
+            logger.info("Falling back to simple content analysis")
             return await self._simple_content_analysis(request)
         
         # Extract relevant data from specialized agent response
@@ -382,8 +398,28 @@ class AudienceInsightsAgent(SpecializedAgent):
             'include_behavior_analysis': True
         }
         
-        # Get response from specialized agent
-        specialized_response = await self.specialized_agent.process_boss_agent_request(specialized_request)
+        # Add boss agent authentication
+        authenticator = get_boss_agent_authenticator()
+        specialized_request = authenticator.create_authenticated_request(specialized_request)
+        
+        # Get response from specialized agent with error handling
+        try:
+            specialized_response = await self.specialized_agent.process_boss_agent_request(specialized_request)
+            
+            # Check if the specialized agent handled the request
+            if not specialized_response.get('domain_match', True):
+                logger.warning("Specialized agent couldn't handle request, falling back to simple analysis")
+                return await self._simple_audience_analysis(request)
+            
+            # Check for authentication errors
+            if specialized_response.get('authentication_required', False):
+                logger.error("Authentication failed for specialized agent request")
+                return await self._simple_audience_analysis(request)
+                
+        except Exception as e:
+            logger.error(f"Specialized Audience Insights Agent failed: {e}")
+            logger.info("Falling back to simple audience analysis")
+            return await self._simple_audience_analysis(request)
         
         # Check if the specialized agent handled the request
         if not specialized_response.get('domain_match', True):
@@ -488,6 +524,10 @@ class SEOOptimizationAgent(SpecializedAgent):
             'include_competitor_keywords': True,
             'include_optimization_suggestions': True
         }
+        
+        # Add boss agent authentication
+        authenticator = get_boss_agent_authenticator()
+        specialized_request = authenticator.create_authenticated_request(specialized_request)
         
         # Get response from specialized agent
         specialized_response = await self.specialized_agent.process_boss_agent_request(specialized_request)
@@ -599,6 +639,10 @@ class CompetitiveAnalysisAgent(SpecializedAgent):
             'include_trend_analysis': True
         }
         
+        # Add boss agent authentication
+        authenticator = get_boss_agent_authenticator()
+        specialized_request = authenticator.create_authenticated_request(specialized_request)
+        
         # Get response from specialized agent
         specialized_response = await self.specialized_agent.process_boss_agent_request(specialized_request)
         
@@ -709,6 +753,10 @@ class MonetizationAgent(SpecializedAgent):
             'include_alternative_streams': True,
             'include_optimization_suggestions': True
         }
+        
+        # Add boss agent authentication
+        authenticator = get_boss_agent_authenticator()
+        specialized_request = authenticator.create_authenticated_request(specialized_request)
         
         # Get response from specialized agent
         specialized_response = await self.specialized_agent.process_boss_agent_request(specialized_request)
@@ -828,7 +876,7 @@ class VoiceAnalyzer:
             response = await asyncio.get_event_loop().run_in_executor(
                 None,
                 lambda: self.client.chat.completions.create(
-                    model="claude-3-5-sonnet-20241022",
+                    model="gpt-4o",
                     messages=[{"role": "user", "content": analysis_prompt}],
                     temperature=0.2,
                     max_tokens=1000
@@ -881,7 +929,7 @@ class VoiceAnalyzer:
             response = await asyncio.get_event_loop().run_in_executor(
                 None,
                 lambda: self.client.chat.completions.create(
-                    model="claude-3-5-sonnet-20241022",
+                    model="gpt-4o",
                     messages=[{"role": "user", "content": generation_prompt}],
                     temperature=0.7,
                     max_tokens=1500
@@ -936,7 +984,7 @@ class VoiceAnalyzer:
             response = await asyncio.get_event_loop().run_in_executor(
                 None,
                 lambda: self.client.chat.completions.create(
-                    model="claude-3-5-sonnet-20241022",
+                    model="gpt-4o",
                     messages=[{"role": "user", "content": verification_prompt}],
                     temperature=0.1,
                     max_tokens=100

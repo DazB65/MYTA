@@ -50,7 +50,7 @@ async def analyze_content_pillars(request: ContentPillarsRequest):
             raise HTTPException(status_code=404, detail="No video data found for analysis")
         
         # Use Content Analysis Agent to analyze content pillars
-        from content_analysis_agent_v2 import get_content_analysis_agent
+        from content_analysis_agent import get_content_analysis_agent
         content_agent = get_content_analysis_agent()
         
         # Prepare request for content analysis agent

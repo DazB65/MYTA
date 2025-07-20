@@ -495,7 +495,9 @@ class OAuthManager:
                 """, (user_id,))
                 
                 row = cursor.fetchone()
+                logger.info(f"OAuth status check for user {user_id}: row = {row}")
                 if not row:
+                    logger.info(f"No OAuth token found for user {user_id}")
                     return {
                         "authenticated": False,
                         "message": "No OAuth token found"
@@ -512,12 +514,14 @@ class OAuthManager:
                 if hasattr(expires_at, 'tzinfo') and expires_at.tzinfo is not None:
                     expires_at = expires_at.astimezone(timezone.utc).replace(tzinfo=None)
                 
+                needs_refresh = expires_at <= now_utc
+                
                 return {
                     "authenticated": True,
                     "expires_at": expires_at.isoformat(),
                     "expires_in_seconds": (expires_at - now_utc).total_seconds(),
                     "scopes": scope.split(),
-                    "needs_refresh": expires_at <= now_utc
+                    "needs_refresh": needs_refresh
                 }
                 
         except Exception as e:

@@ -1918,6 +1918,121 @@ class ContentAnalysisAgent(BaseSpecializedAgent):
         except Exception as e:
             logger.error(f"Error in content analysis: {e}")
             raise
+    
+    async def process_boss_agent_request(self, request_data: Dict[str, Any]) -> Dict[str, Any]:
+        """Process a request from the Boss Agent with authentication validation"""
+        from boss_agent_auth import validate_specialized_agent_request
+        
+        # Validate Boss Agent authentication
+        auth_result = validate_specialized_agent_request(request_data)
+        if not auth_result.is_valid:
+            logger.warning(f"Unauthorized access attempt to Content Analysis Agent: {auth_result.error_message}")
+            return {
+                'agent_type': 'content_analysis',
+                'response_id': f"unauth_{request_data.get('request_id', 'unknown')}",
+                'request_id': request_data.get('request_id', ''),
+                'timestamp': datetime.utcnow().isoformat(),
+                'domain_match': False,
+                'analysis': {
+                    'summary': 'Unauthorized request: Boss agent authentication required',
+                    'error_type': 'authentication_error',
+                    'error_message': auth_result.error_message,
+                    'required_auth': 'boss_agent_jwt_token'
+                },
+                'confidence_score': 0.0,
+                'processing_time': 0.0,
+                'for_boss_agent_only': True,
+                'authentication_required': True
+            }
+        
+        # Convert to legacy format and process
+        try:
+            # Extract parameters from request
+            request_id = request_data.get('request_id', str(uuid.uuid4()))
+            channel_id = request_data.get('context', {}).get('channel_id', '')
+            time_period = request_data.get('context', {}).get('time_period', 'last_30d')
+            specific_videos = request_data.get('context', {}).get('specific_videos', [])
+            analysis_depth = request_data.get('analysis_depth', 'standard')
+            include_visual_analysis = request_data.get('include_visual_analysis', True)
+            user_context = request_data.get('user_context', {})
+            
+            # Create analysis request
+            analysis_request = AnalysisRequest(
+                request_id=request_id,
+                channel_id=channel_id,
+                video_ids=specific_videos,
+                time_period=time_period,
+                analysis_depth=analysis_depth,
+                include_visual_analysis=include_visual_analysis,
+                user_context=user_context
+            )
+            
+            # Perform analysis
+            start_time = time.time()
+            analysis_result = await self._perform_content_analysis(analysis_request)
+            processing_time = time.time() - start_time
+            
+            # Format response for Boss Agent
+            return {
+                'agent_type': 'content_analysis',
+                'response_id': f"content_{request_id}",
+                'request_id': request_id,
+                'timestamp': datetime.utcnow().isoformat(),
+                'confidence_score': analysis_result.get('confidence_score', 0.85),
+                'domain_match': True,
+                'analysis': {
+                    'summary': analysis_result.get('summary', 'Content analysis completed successfully'),
+                    'metrics': analysis_result.get('metrics', {}),
+                    'key_insights': [
+                        {
+                            'insight': insight.get('insight', ''),
+                            'evidence': insight.get('evidence', ''),
+                            'impact': insight.get('impact', 'Medium'),
+                            'confidence': insight.get('confidence', 0.8)
+                        }
+                        for insight in analysis_result.get('key_insights', [])
+                    ],
+                    'recommendations': [
+                        {
+                            'recommendation': rec.get('recommendation', ''),
+                            'expected_impact': rec.get('expected_impact', 'Medium'),
+                            'implementation_difficulty': rec.get('implementation_difficulty', 'Medium'),
+                            'reasoning': rec.get('reasoning', '')
+                        }
+                        for rec in analysis_result.get('recommendations', [])
+                    ]
+                },
+                'token_usage': {
+                    'input_tokens': analysis_result.get('token_usage', {}).get('input_tokens', 0),
+                    'output_tokens': analysis_result.get('token_usage', {}).get('output_tokens', 0),
+                    'model': 'gemini-2.5-pro'
+                },
+                'cache_info': {
+                    'cache_hit': False,
+                    'cache_key': f"content_analysis_{channel_id}_{hash(str(specific_videos))}",
+                    'ttl_remaining': 3600
+                },
+                'processing_time': processing_time,
+                'for_boss_agent_only': True
+            }
+            
+        except Exception as e:
+            logger.error(f"Error processing Boss Agent request: {e}")
+            return {
+                'agent_type': 'content_analysis',
+                'response_id': f"error_{request_data.get('request_id', 'unknown')}",
+                'request_id': request_data.get('request_id', ''),
+                'timestamp': datetime.utcnow().isoformat(),
+                'domain_match': False,
+                'analysis': {
+                    'summary': f'Error processing content analysis request: {str(e)}',
+                    'error_type': 'processing_error',
+                    'error_message': str(e)
+                },
+                'confidence_score': 0.0,
+                'processing_time': 0.0,
+                'for_boss_agent_only': True
+            }
 
 # Global instance for boss agent integration
 content_analysis_agent = None

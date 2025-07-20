@@ -1,17 +1,20 @@
 import { useState, useEffect } from 'react'
 import { useUserStore } from '@/store/userStore'
 import { useOAuthStore } from '@/store/oauthStore'
+import { useAvatarStore, brandColors } from '@/store/avatarStore'
 import TaskManager from '@/components/dashboard/TaskManager'
 import ChannelGoals from '@/components/dashboard/ChannelGoals'
 import ChatInterface from '@/components/chat/ChatInterface'
 import OAuthStatus from '@/components/oauth/OAuthStatus'
-import { Settings, RotateCcw } from 'lucide-react'
+import { Settings, RotateCcw, Maximize2 } from 'lucide-react'
+import { useFullChat } from '@/contexts/FullChatContext'
 
 export default function Dashboard() {
-  const { agentSettings, updateAgentSettings } = useUserStore()
+  const { agentSettings } = useUserStore()
   const { isAuthenticated, initiateOAuth, refreshToken, revokeToken, status } = useOAuthStore()
+  const { customization, setName, setAvatar, setColor, resetToDefaults } = useAvatarStore()
+  const { openFullChat } = useFullChat()
   const [showCustomization, setShowCustomization] = useState(false)
-  const [tempSettings, setTempSettings] = useState(agentSettings)
 
   const availableAvatars = [
     'MateBlue.svg',
@@ -22,16 +25,7 @@ export default function Dashboard() {
     'MateRed.svg'
   ]
 
-  const themeColors = [
-    '#6366f1', // Blue
-    '#8b5cf6', // Purple
-    '#14b8a6', // Teal
-    '#10b981', // Green
-    '#f97316', // Orange
-    '#ec4899', // Pink
-    '#ef4444', // Red
-    '#f59e0b'  // Yellow
-  ]
+  // Use brandColors from avatarStore instead
 
   const personalityMap = {
     professional: 'Professional Assistant',
@@ -53,23 +47,11 @@ export default function Dashboard() {
     }
   }
 
-  const handleSaveSettings = () => {
-    updateAgentSettings(tempSettings)
-    setShowCustomization(false)
-  }
-
   const handleResetSettings = () => {
-    const defaultSettings = {
-      avatar: 'MateBlue.svg',
-      name: 'Your Personal Agent',
-      personality: 'professional' as const,
-      responseLength: 'medium' as const,
-    }
-    setTempSettings(defaultSettings)
+    resetToDefaults()
   }
 
-  const handleCancelSettings = () => {
-    setTempSettings(agentSettings)
+  const handleCloseCustomization = () => {
     setShowCustomization(false)
   }
 
@@ -115,16 +97,21 @@ export default function Dashboard() {
               {/* Agent Avatar and Info */}
               <div className="flex items-center gap-3">
                 <div className="relative">
-                  <img 
-                    src={`/assets/images/Avatars/${agentSettings.avatar}`}
-                    className="h-12 w-12 rounded-full border-2 border-primary-500/50 cursor-pointer hover:scale-105 transition-transform" 
-                    alt={agentSettings.name}
+                  <div 
+                    className="w-12 h-12 rounded-full flex items-center justify-center cursor-pointer hover:scale-105 transition-transform border-2"
+                    style={{ backgroundColor: customization.color, borderColor: customization.color + '80' }}
                     onClick={() => setShowCustomization(true)}
-                  />
+                  >
+                    <img 
+                      src={`/assets/images/Avatars/${customization.avatar}`}
+                      className="h-10 w-10 rounded-full" 
+                      alt={customization.name}
+                    />
+                  </div>
                   <div className="absolute -bottom-1 -right-1 bg-green-500 h-3 w-3 rounded-full border-2 border-dark-800"></div>
                 </div>
                 <div>
-                  <h3 className="font-semibold text-white text-sm">{agentSettings.name}</h3>
+                  <h3 className="font-semibold text-white text-sm">{customization.name}</h3>
                   <p className="text-xs text-dark-400">{personalityMap[agentSettings.personality]}</p>
                 </div>
               </div>
@@ -139,6 +126,14 @@ export default function Dashboard() {
                     <OAuthStatus showDetails={false} className="text-white" />
                   </button>
                 </div>
+                <button
+                  onClick={openFullChat}
+                  className="flex items-center gap-2 px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white text-xs font-medium rounded-lg transition-colors"
+                  title="Open full chat window"
+                >
+                  <Maximize2 className="w-4 h-4" />
+                  <span>Full Chat</span>
+                </button>
                 <button
                   onClick={() => setShowCustomization(!showCustomization)}
                   className="p-2 bg-primary-600/20 hover:bg-primary-600/40 border border-primary-500/30 rounded-lg transition-colors"
@@ -157,8 +152,8 @@ export default function Dashboard() {
                     <label className="text-xs text-primary-400 mb-1 block">Agent Name</label>
                     <input
                       type="text"
-                      value={tempSettings.name}
-                      onChange={(e) => setTempSettings({...tempSettings, name: e.target.value})}
+                      value={customization.name}
+                      onChange={(e) => setName(e.target.value)}
                       className="w-full px-2 py-1 bg-dark-700 border border-primary-500/30 rounded text-white text-xs focus:outline-none focus:border-primary-500"
                     />
                   </div>
@@ -170,9 +165,9 @@ export default function Dashboard() {
                       {availableAvatars.map((avatar) => (
                         <button
                           key={avatar}
-                          onClick={() => setTempSettings({...tempSettings, avatar})}
+                          onClick={() => setAvatar(avatar)}
                           className={`relative p-1 rounded-lg transition-all ${
-                            tempSettings.avatar === avatar 
+                            customization.avatar === avatar 
                               ? 'bg-primary-600/30 border-2 border-primary-500' 
                               : 'bg-dark-700/50 border border-primary-500/20 hover:bg-primary-600/10'
                           }`}
@@ -191,12 +186,15 @@ export default function Dashboard() {
                   <div>
                     <label className="text-xs text-primary-400 mb-2 block">Theme Color</label>
                     <div className="grid grid-cols-4 gap-2">
-                      {themeColors.map((color, index) => (
+                      {brandColors.map((color, index) => (
                         <button
                           key={index}
-                          onClick={() => console.log('Theme color selected:', color)}
-                          className="w-6 h-6 rounded hover:scale-110 transition-all"
-                          style={{ backgroundColor: color }}
+                          onClick={() => setColor(color.value)}
+                          className={`w-6 h-6 rounded hover:scale-110 transition-all ${
+                            customization.color === color.value ? 'ring-2 ring-white ring-offset-2 ring-offset-dark-800' : ''
+                          }`}
+                          style={{ backgroundColor: color.value }}
+                          title={color.name}
                         />
                       ))}
                     </div>
@@ -213,16 +211,10 @@ export default function Dashboard() {
                     </button>
                     <div className="flex gap-2">
                       <button
-                        onClick={handleCancelSettings}
-                        className="px-3 py-1 text-xs bg-gray-600 hover:bg-gray-700 text-white rounded transition-colors"
-                      >
-                        Cancel
-                      </button>
-                      <button
-                        onClick={handleSaveSettings}
+                        onClick={handleCloseCustomization}
                         className="px-3 py-1 text-xs bg-primary-600 hover:bg-primary-700 text-white rounded transition-colors"
                       >
-                        Save
+                        Close
                       </button>
                     </div>
                   </div>

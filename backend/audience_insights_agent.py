@@ -1932,6 +1932,96 @@ class AudienceInsightsAgent(BaseSpecializedAgent):
             'processing_time': round(time.time() - start_time, 2),
             'for_boss_agent_only': True
         }
+    
+    async def process_boss_agent_request(self, request_data: Dict[str, Any]) -> Dict[str, Any]:
+        """Process a request from the Boss Agent with authentication validation"""
+        from boss_agent_auth import validate_specialized_agent_request
+        
+        # Validate Boss Agent authentication
+        auth_result = validate_specialized_agent_request(request_data)
+        if not auth_result.is_valid:
+            logger.warning(f"Unauthorized access attempt to Audience Insights Agent: {auth_result.error_message}")
+            return {
+                'agent_type': 'audience_insights',
+                'response_id': f"unauth_{request_data.get('request_id', 'unknown')}",
+                'request_id': request_data.get('request_id', ''),
+                'timestamp': datetime.utcnow().isoformat(),
+                'domain_match': False,
+                'analysis': {
+                    'summary': 'Unauthorized request: Boss agent authentication required',
+                    'error_type': 'authentication_error',
+                    'error_message': auth_result.error_message,
+                    'required_auth': 'boss_agent_jwt_token'
+                },
+                'confidence_score': 0.0,
+                'processing_time': 0.0,
+                'for_boss_agent_only': True,
+                'authentication_required': True
+            }
+        
+        # Process the authenticated request
+        try:
+            # Extract parameters from request
+            request_id = request_data.get('request_id', str(uuid.uuid4()))
+            channel_id = request_data.get('context', {}).get('channel_id', '')
+            time_period = request_data.get('context', {}).get('time_period', 'last_30d')
+            analysis_depth = request_data.get('analysis_depth', 'standard')
+            user_context = request_data.get('user_context', {})
+            
+            start_time = time.time()
+            
+            # Perform analysis using existing methods
+            analysis_result = await self._perform_audience_analysis(
+                channel_id, time_period, analysis_depth, user_context
+            )
+            
+            processing_time = time.time() - start_time
+            
+            # Format response for Boss Agent
+            return {
+                'agent_type': 'audience_insights',
+                'response_id': f"audience_{request_id}",
+                'request_id': request_id,
+                'timestamp': datetime.utcnow().isoformat(),
+                'confidence_score': analysis_result.get('confidence_score', 0.85),
+                'domain_match': True,
+                'analysis': {
+                    'summary': analysis_result.get('summary', 'Audience analysis completed successfully'),
+                    'metrics': analysis_result.get('metrics', {}),
+                    'key_insights': analysis_result.get('key_insights', []),
+                    'recommendations': analysis_result.get('recommendations', [])
+                },
+                'token_usage': {
+                    'input_tokens': analysis_result.get('token_usage', {}).get('input_tokens', 0),
+                    'output_tokens': analysis_result.get('token_usage', {}).get('output_tokens', 0),
+                    'model': 'claude-3.5-sonnet'
+                },
+                'cache_info': {
+                    'cache_hit': False,
+                    'cache_key': f"audience_insights_{channel_id}_{time_period}",
+                    'ttl_remaining': 1800
+                },
+                'processing_time': processing_time,
+                'for_boss_agent_only': True
+            }
+            
+        except Exception as e:
+            logger.error(f"Error processing Boss Agent request: {e}")
+            return {
+                'agent_type': 'audience_insights',
+                'response_id': f"error_{request_data.get('request_id', 'unknown')}",
+                'request_id': request_data.get('request_id', ''),
+                'timestamp': datetime.utcnow().isoformat(),
+                'domain_match': False,
+                'analysis': {
+                    'summary': f'Error processing audience insights request: {str(e)}',
+                    'error_type': 'processing_error',
+                    'error_message': str(e)
+                },
+                'confidence_score': 0.0,
+                'processing_time': 0.0,
+                'for_boss_agent_only': True
+            }
 
 # Global instance for boss agent integration
 audience_insights_agent = None
