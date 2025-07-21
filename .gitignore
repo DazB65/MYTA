@@ -99,3 +99,14 @@ Thumbs.db
 # Temporary files
 tmp/
 temp/.env
+
+# Frontend build artifacts
+frontend-dist/
+dist/
+
+# Claude Code specific
+.kiro/
+
+# Development backup files
+*_original_backup.*
+*_v2.*
