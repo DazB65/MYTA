@@ -112,7 +112,7 @@ export default function Dashboard() {
                 </div>
                 <div>
                   <h3 className="font-semibold text-white text-sm">{customization.name}</h3>
-                  <p className="text-xs text-dark-400">{personalityMap[agentSettings.personality]}</p>
+                  <p className="text-xs text-gray-300">{personalityMap[agentSettings.personality]}</p>
                 </div>
               </div>
               

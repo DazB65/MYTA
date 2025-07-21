@@ -148,24 +148,24 @@ const ContentCardComponent = ({
     return (
         <>
             <div 
-                className="bg-slate-800 p-4 rounded-lg border border-slate-700/50 mb-4 cursor-pointer hover:border-slate-600 transition-colors duration-200 relative"
+                className="bg-white p-4 rounded-lg border border-gray-200 mb-4 cursor-pointer hover:border-gray-300 hover:shadow-md transition-all duration-200 relative"
                 onClick={handleClick}
                 onContextMenu={handleContextMenu}
             >
-                <h4 className="font-semibold text-gray-100">{card.title}</h4>
-                <p className="text-sm text-gray-400 mt-1 line-clamp-2">{card.description}</p>
+                <h4 className="font-semibold text-gray-900">{card.title}</h4>
+                <p className="text-sm text-gray-600 mt-1 line-clamp-2">{card.description}</p>
                 <div className="flex flex-wrap gap-2 mt-3">
                     {card.pillars?.map((pillar, index) => (
-                        <div key={index} className="flex items-center space-x-1 px-2 py-1 bg-slate-700 rounded text-xs">
+                        <div key={index} className="flex items-center space-x-1 px-2 py-1 bg-gray-100 rounded text-xs">
                             <div className={`w-3 h-3 rounded bg-gradient-to-br ${pillar.color} flex items-center justify-center text-xs`}>
                                 {pillar.icon}
                             </div>
-                            <span className="text-gray-300">{pillar.name}</span>
+                            <span className="text-gray-700">{pillar.name}</span>
                         </div>
                     ))}
                 </div>
                 {card.dueDate && (
-                    <p className="text-xs text-gray-500 mt-3">Due: {card.dueDate}</p>
+                    <p className="text-xs text-gray-600 mt-3">Due: {card.dueDate}</p>
                 )}
                 {card.progress && <ProgressBar {...card.progress} />}
             </div>
@@ -178,7 +178,7 @@ const ContentCardComponent = ({
                         onClick={() => setShowContextMenu(false)}
                     />
                     <div 
-                        className="fixed z-50 bg-slate-800 border border-slate-600 rounded-lg shadow-lg py-2 min-w-[160px]"
+                        className="fixed z-50 bg-white border border-gray-200 rounded-lg shadow-xl py-2 min-w-[160px]"
                         style={{ 
                             left: contextMenuPosition.x, 
                             top: contextMenuPosition.y 
@@ -189,7 +189,7 @@ const ContentCardComponent = ({
                                 onEdit(card);
                                 setShowContextMenu(false);
                             }}
-                            className="w-full px-4 py-2 text-left text-sm text-gray-200 hover:bg-slate-700 transition-colors"
+                            className="w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-100 transition-colors"
                         >
                             Edit
                         </button>
@@ -198,13 +198,13 @@ const ContentCardComponent = ({
                                 onDuplicate(card.id);
                                 setShowContextMenu(false);
                             }}
-                            className="w-full px-4 py-2 text-left text-sm text-gray-200 hover:bg-slate-700 transition-colors"
+                            className="w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-100 transition-colors"
                         >
                             Duplicate
                         </button>
-                        <div className="border-t border-slate-600 my-1" />
+                        <div className="border-t border-gray-200 my-1" />
                         <div className="px-4 py-1">
-                            <p className="text-xs text-gray-400 uppercase tracking-wide">Move to</p>
+                            <p className="text-xs text-gray-500 uppercase tracking-wide">Move to</p>
                         </div>
                         {statusOptions
                             .filter(option => option.value !== card.status)
@@ -215,19 +215,19 @@ const ContentCardComponent = ({
                                         onMove(card.id, option.value);
                                         setShowContextMenu(false);
                                     }}
-                                    className="w-full px-4 py-2 text-left text-sm text-gray-200 hover:bg-slate-700 transition-colors"
+                                    className="w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-100 transition-colors"
                                 >
                                     {option.label}
                                 </button>
                             ))
                         }
-                        <div className="border-t border-slate-600 my-1" />
+                        <div className="border-t border-gray-200 my-1" />
                         <button
                             onClick={() => {
                                 onDelete(card.id);
                                 setShowContextMenu(false);
                             }}
-                            className="w-full px-4 py-2 text-left text-sm text-red-400 hover:bg-slate-700 transition-colors"
+                            className="w-full px-4 py-2 text-left text-sm text-red-600 hover:bg-red-50 transition-colors"
                         >
                             Delete
                         </button>
@@ -258,12 +258,12 @@ const KanbanColumn = ({
         <div className="flex justify-between items-center mb-4">
             <div className="flex items-center">
                 <div className={cx("w-2 h-2 rounded-full mr-2", accentColor)}></div>
-                <h3 className="font-semibold text-gray-100">{title}</h3>
-                <span className="ml-2 text-sm text-gray-500 bg-slate-700/50 px-2 py-0.5 rounded-full">{count}</span>
+                <h3 className="font-semibold text-gray-900">{title}</h3>
+                <span className="ml-2 text-sm text-gray-600 bg-gray-100 px-2 py-0.5 rounded-full">{count}</span>
             </div>
             <button 
                 onClick={() => onQuickAdd(status)}
-                className="text-gray-500 hover:text-gray-200 transition-colors"
+                className="text-gray-400 hover:text-gray-700 transition-colors"
                 title={`Add new card to ${title}`}
             >
                 <PlusIcon className="w-5 h-5" />
@@ -275,7 +275,7 @@ const KanbanColumn = ({
 
 // Suggestion Card Component
 const SuggestionCard = ({ suggestion }: { suggestion: Suggestion }) => (
-    <div className="bg-slate-800 p-5 rounded-lg border border-slate-700/50 flex flex-col">
+    <div className="bg-white p-5 rounded-lg border border-gray-200 shadow-sm hover:shadow-md transition-shadow flex flex-col">
         <div className="flex items-start justify-between">
             <div className={cx("w-10 h-10 rounded-lg flex items-center justify-center", suggestion.iconBg, suggestion.iconColor)}>
                 {suggestion.icon}
@@ -286,8 +286,8 @@ const SuggestionCard = ({ suggestion }: { suggestion: Suggestion }) => (
             </div>
         </div>
         <div className="mt-4 flex-grow">
-            <h4 className="font-semibold text-gray-100">{suggestion.title}</h4>
-            <p className="text-sm text-gray-400 mt-1">{suggestion.description}</p>
+            <h4 className="font-semibold text-gray-900">{suggestion.title}</h4>
+            <p className="text-sm text-gray-600 mt-1">{suggestion.description}</p>
         </div>
         <div className="flex items-center justify-between mt-4">
             <div className="flex flex-wrap gap-2">
@@ -373,12 +373,12 @@ export default function ContentStudio() {
 
     if (loading) {
         return (
-            <div className="bg-slate-900 text-gray-300 min-h-screen font-sans p-4 sm:p-6 lg:p-8">
+            <div className="min-h-screen font-sans p-4 sm:p-6 lg:p-8">
                 <div className="max-w-7xl mx-auto">
                     <div className="flex items-center justify-center h-64">
                         <div className="text-center">
                             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto"></div>
-                            <p className="mt-4 text-gray-400">Loading content cards...</p>
+                            <p className="mt-4 text-gray-600">Loading content cards...</p>
                         </div>
                     </div>
                 </div>
@@ -388,7 +388,7 @@ export default function ContentStudio() {
 
     if (error) {
         return (
-            <div className="bg-slate-900 text-gray-300 min-h-screen font-sans p-4 sm:p-6 lg:p-8">
+            <div className="min-h-screen font-sans p-4 sm:p-6 lg:p-8">
                 <div className="max-w-7xl mx-auto">
                     <div className="flex items-center justify-center h-64">
                         <div className="text-center">
@@ -397,8 +397,8 @@ export default function ContentStudio() {
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                                 </svg>
                             </div>
-                            <p className="text-red-400 font-medium">{error}</p>
-                            <p className="mt-2 text-gray-500 text-sm">
+                            <p className="text-red-600 font-medium">{error}</p>
+                            <p className="mt-2 text-gray-600 text-sm">
                                 Please ensure the Supabase database is properly configured and the content_cards table exists
                             </p>
                         </div>
@@ -409,22 +409,22 @@ export default function ContentStudio() {
     }
 
     return (
-        <div className="bg-slate-900 text-gray-300 min-h-screen font-sans p-4 sm:p-6 lg:p-8">
+        <div className="min-h-screen font-sans">
             <div className="max-w-7xl mx-auto">
                 {/* Header */}
                 <header className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6">
                     <div>
-                        <h1 className="text-2xl font-bold text-white">Content Studio</h1>
-                        <p className="text-gray-400 mt-1">Create, plan, and optimize your content</p>
+                        <h1 className="text-2xl font-bold text-gray-900">Content Studio</h1>
+                        <p className="text-gray-600 mt-1">Create, plan, and optimize your content</p>
                     </div>
                     <div className="flex items-center gap-2 mt-4 sm:mt-0">
-                        <button className="flex items-center bg-slate-800 border border-slate-700 text-white font-semibold py-2 px-4 rounded-lg hover:bg-slate-700 transition-colors duration-200">
+                        <button className="flex items-center bg-white border border-gray-300 text-gray-700 font-semibold py-2 px-4 rounded-lg hover:bg-gray-50 hover:shadow-sm transition-all duration-200">
                             <CalendarIcon />
                             <span>Calendar View</span>
                         </button>
                         <button 
                             onClick={handleNewContent}
-                            className="flex items-center bg-blue-600 text-white font-semibold py-2 px-4 rounded-lg hover:bg-blue-700 transition-colors duration-200"
+                            className="flex items-center bg-primary-600 text-white font-semibold py-2 px-4 rounded-lg hover:bg-primary-700 transition-colors duration-200"
                         >
                             <PlusIcon className="w-5 h-5 mr-1" />
                             <span>New Content</span>
@@ -434,7 +434,7 @@ export default function ContentStudio() {
 
                 {/* Tabs */}
                 <nav className="mb-8">
-                    <div className="border-b border-slate-700">
+                    <div className="border-b border-gray-200">
                         <div className="flex space-x-4 sm:space-x-8 -mb-px">
                             {tabs.map(tab => (
                                 <button
@@ -443,8 +443,8 @@ export default function ContentStudio() {
                                     className={cx(
                                         'py-3 px-1 text-sm sm:text-base font-medium transition-colors duration-200',
                                         activeTab === tab
-                                            ? 'border-b-2 border-blue-500 text-white'
-                                            : 'border-b-2 border-transparent text-gray-400 hover:text-gray-200 hover:border-gray-500'
+                                            ? 'border-b-2 border-primary-500 text-gray-900'
+                                            : 'border-b-2 border-transparent text-gray-600 hover:text-gray-900 hover:border-gray-300'
                                     )}
                                 >
                                     {tab}
@@ -533,8 +533,8 @@ export default function ContentStudio() {
                 {/* AI Suggestions Section */}
                 <section className="mt-12">
                      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6">
-                        <h2 className="text-xl font-bold text-white">AI Content Suggestions</h2>
-                        <button className="mt-3 sm:mt-0 bg-slate-800 border border-slate-700 text-white font-semibold py-2 px-4 rounded-lg hover:bg-slate-700 transition-colors duration-200">
+                        <h2 className="text-xl font-bold text-gray-900">AI Content Suggestions</h2>
+                        <button className="mt-3 sm:mt-0 bg-white border border-gray-300 text-gray-700 font-semibold py-2 px-4 rounded-lg hover:bg-gray-50 hover:shadow-sm transition-all duration-200">
                             All Pillars
                         </button>
                     </div>
@@ -561,20 +561,20 @@ export default function ContentStudio() {
                 toastOptions={{
                     duration: 4000,
                     style: {
-                        background: '#1e293b',
-                        color: '#f1f5f9',
-                        border: '1px solid #475569',
+                        background: '#ffffff',
+                        color: '#374151',
+                        border: '1px solid #e5e7eb',
                     },
                     success: {
                         iconTheme: {
                             primary: '#10b981',
-                            secondary: '#f1f5f9',
+                            secondary: '#ffffff',
                         },
                     },
                     error: {
                         iconTheme: {
                             primary: '#ef4444',
-                            secondary: '#f1f5f9',
+                            secondary: '#ffffff',
                         },
                     },
                 }}

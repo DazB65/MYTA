@@ -1,9 +1,7 @@
 import { useState, useEffect } from 'react'
-import { X, Send } from 'lucide-react'
+import { X } from 'lucide-react'
 import { cn } from '@/utils'
-import { useAvatarStore } from '@/store/avatarStore'
-import { useFloatingChatStore } from '@/store/floatingChatStore'
-import { useChat } from '@/hooks/useChat'
+import { useContentCards } from '@/hooks/useContentCards'
 import Button from '@/components/common/Button'
 
 interface CreateContentModalProps {
@@ -31,6 +29,7 @@ interface FormData {
   description: string
   contentType: string
   additionalInstructions: string
+  status: 'ideas' | 'planning' | 'inProgress'
 }
 
 interface PillarFormData {
@@ -54,6 +53,12 @@ const contentTypes = [
   'Comparison'
 ]
 
+const statusOptions = [
+  { value: 'ideas' as const, label: 'Ideas', color: 'bg-purple-500' },
+  { value: 'planning' as const, label: 'Planning', color: 'bg-yellow-500' },
+  { value: 'inProgress' as const, label: 'In Progress', color: 'bg-blue-500' }
+]
+
 const pillarIcons = ['🎮', '⭐', '💡', '📰', '🎯', '🔥', '📈', '🎬', '🎵', '💰', '🏆', '🌟']
 const pillarColors = [
   'from-blue-500 to-cyan-400',
@@ -67,16 +72,15 @@ const pillarColors = [
 ]
 
 export default function CreateContentModal({ isOpen, onClose, pillar, editingPillar, onCreatePillar, onUpdatePillar }: CreateContentModalProps) {
-  const { customization } = useAvatarStore()
-  const { openChat } = useFloatingChatStore()
-  const { sendMessage } = useChat()
+  const { addCard } = useContentCards()
   
   const [formData, setFormData] = useState<FormData>({
     pillarName: '',
     title: '',
     description: '',
     contentType: '',
-    additionalInstructions: ''
+    additionalInstructions: '',
+    status: 'ideas'
   })
   
   const [pillarData, setPillarData] = useState<PillarFormData>({
@@ -107,11 +111,17 @@ export default function CreateContentModal({ isOpen, onClose, pillar, editingPil
   
   const [errors, setErrors] = useState<Partial<FormData & PillarFormData>>({})
   const [isSubmitting, setIsSubmitting] = useState(false)
-  const [isCreatingPillarOnly, setIsCreatingPillarOnly] = useState(!pillar || isEditing)
+  const [isCreatingPillarOnly, setIsCreatingPillarOnly] = useState(isEditing || !pillar)
 
   // Update modal mode when props change
   useEffect(() => {
-    setIsCreatingPillarOnly(!pillar || isEditing)
+    if (isEditing) {
+      setIsCreatingPillarOnly(true)  // Edit mode: only edit pillar
+    } else if (pillar) {
+      setIsCreatingPillarOnly(false) // Create content for existing pillar
+    } else {
+      setIsCreatingPillarOnly(true)  // No pillar: start with create pillar mode
+    }
   }, [pillar, isEditing])
 
   const handleInputChange = (field: keyof FormData, value: string) => {
@@ -180,55 +190,36 @@ export default function CreateContentModal({ isOpen, onClose, pillar, editingPil
           handleClose()
         }
       } else {
-        // Create content (existing functionality)
+        // Create content and save to both pillar and content studio
         const pillarName = pillar ? pillar.name : formData.pillarName
         const isNewPillar = !pillar
-        
-        const requestMessage = isNewPillar 
-          ? `I want to create a new content pillar called "${pillarName}" and need help with the first piece of content.
 
-**New Pillar Details:**
-- Pillar Name: ${pillarName}
-- First Content Title: ${formData.title}
-- Content Type: ${formData.contentType}
-- Description: ${formData.description}
+        // Save content card to Content Studio
+        const pillarForCard = pillar || {
+          id: `temp-${Date.now()}`,
+          name: pillarName,
+          icon: '📝',
+          color: 'from-blue-500 to-cyan-400'
+        }
 
-${formData.additionalInstructions ? `**Additional Instructions:**\n${formData.additionalInstructions}` : ''}
+        const cardData = {
+          title: formData.title,
+          description: formData.description,
+          pillars: [pillarForCard],
+          status: formData.status,
+          dueDate: ''
+        }
 
-Please help me:
-1. Define this new content pillar strategy
-2. Suggest how to develop this pillar over time
-3. Provide detailed suggestions for this first piece of content including:
-   - Hook ideas to grab attention
-   - Key points to cover
-   - Structure recommendations
-   - SEO optimization tips
-   - Engagement strategies
+        await addCard(cardData)
 
-Focus on establishing a strong foundation for my new ${pillarName} pillar.`
-          : `I need help creating content for my "${pillarName}" pillar.
-
-**Content Details:**
-- Title: ${formData.title}
-- Type: ${formData.contentType}
-- Description: ${formData.description}
-
-${formData.additionalInstructions ? `**Additional Instructions:**\n${formData.additionalInstructions}` : ''}
-
-Please provide detailed suggestions for this content including:
-- Hook ideas to grab attention
-- Key points to cover
-- Structure recommendations
-- SEO optimization tips
-- Engagement strategies
-
-Focus on making this content align with my ${pillarName} pillar strategy.`
-
-        // Send message to chat
-        await sendMessage(requestMessage)
-        
-        // Open the chat interface
-        openChat()
+        // If creating a new pillar, save it
+        if (isNewPillar && onCreatePillar) {
+          onCreatePillar({
+            name: pillarName,
+            icon: '📝',
+            color: 'from-blue-500 to-cyan-400'
+          })
+        }
         
         // Close modal and reset form
         handleClose()
@@ -248,7 +239,8 @@ Focus on making this content align with my ${pillarName} pillar strategy.`
       title: '',
       description: '',
       contentType: '',
-      additionalInstructions: ''
+      additionalInstructions: '',
+      status: 'ideas'
     })
     setPillarData({
       name: '',
@@ -256,16 +248,16 @@ Focus on making this content align with my ${pillarName} pillar strategy.`
       color: pillarColors[0]
     })
     setErrors({})
-    setIsCreatingPillarOnly(!pillar)
+    setIsCreatingPillarOnly(true)  // Reset to default mode
   }
 
   if (!isOpen) return null
 
   return (
     <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-      <div className="bg-dark-800 rounded-xl border border-dark-600 w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+      <div className="bg-white rounded-xl border border-gray-200 w-full max-w-2xl max-h-[90vh] overflow-y-auto">
         {/* Header */}
-        <div className="flex items-center justify-between p-6 border-b border-dark-600">
+        <div className="flex items-center justify-between p-6 border-b border-gray-200">
           <div className="flex items-center gap-3">
             {pillar ? (
               <div className={`w-10 h-10 rounded-lg bg-gradient-to-br ${pillar.color} flex items-center justify-center text-lg`}>
@@ -277,10 +269,10 @@ Focus on making this content align with my ${pillarName} pillar strategy.`
               </div>
             )}
             <div>
-              <h2 className="text-xl font-semibold text-white">
+              <h2 className="text-xl font-semibold text-gray-900">
                 {isEditing ? 'Edit Pillar' : pillar ? 'Create Content' : 'Add New Pillar'}
               </h2>
-              <p className="text-sm text-gray-300">
+              <p className="text-sm text-gray-600">
                 {isEditing ? (
                   <>Update <span className="pillar-name-visible">{editingPillar?.name}</span> pillar</>
                 ) : pillar ? (
@@ -293,7 +285,7 @@ Focus on making this content align with my ${pillarName} pillar strategy.`
           </div>
           <button
             onClick={handleClose}
-            className="p-2 text-gray-400 hover:text-white rounded-lg hover:bg-dark-700 transition-colors"
+            className="p-2 text-gray-400 hover:text-gray-600 rounded-lg hover:bg-gray-100 transition-colors"
           >
             <X className="w-5 h-5" />
           </button>
@@ -303,7 +295,7 @@ Focus on making this content align with my ${pillarName} pillar strategy.`
         <div className="p-6 space-y-6">
           {/* Mode Toggle (only show when no existing pillar and not editing) */}
           {!pillar && !isEditing && (
-            <div className="flex gap-2 p-1 bg-dark-700 rounded-lg">
+            <div className="flex gap-2 p-1 bg-gray-100 rounded-lg">
               <button
                 type="button"
                 onClick={() => setIsCreatingPillarOnly(true)}
@@ -311,7 +303,7 @@ Focus on making this content align with my ${pillarName} pillar strategy.`
                   'flex-1 px-3 py-2 text-sm font-medium rounded-md transition-colors',
                   isCreatingPillarOnly
                     ? 'bg-primary-600 text-white'
-                    : 'text-gray-300 hover:text-white'
+                    : 'text-gray-700 hover:text-gray-900'
                 )}
               >
                 Create Pillar Only
@@ -323,7 +315,7 @@ Focus on making this content align with my ${pillarName} pillar strategy.`
                   'flex-1 px-3 py-2 text-sm font-medium rounded-md transition-colors',
                   !isCreatingPillarOnly
                     ? 'bg-primary-600 text-white'
-                    : 'text-gray-300 hover:text-white'
+                    : 'text-gray-700 hover:text-gray-900'
                 )}
               >
                 Create Pillar + Content
@@ -336,7 +328,7 @@ Focus on making this content align with my ${pillarName} pillar strategy.`
             <>
               {/* Pillar Name */}
               <div>
-                <label className="block text-sm font-medium text-white mb-2">
+                <label className="block text-sm font-medium text-gray-700 mb-2">
                   Pillar Name *
                 </label>
                 <input
@@ -350,8 +342,8 @@ Focus on making this content align with my ${pillarName} pillar strategy.`
                     }
                   }}
                   className={cn(
-                    'w-full px-3 py-2 bg-dark-700 border rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary-500',
-                    errors.name ? 'border-red-500' : 'border-dark-600'
+                    'w-full px-3 py-2 bg-white border rounded-lg text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary-500',
+                    errors.name ? 'border-red-500' : 'border-gray-300'
                   )}
                   placeholder="Enter pillar name (e.g., Game Development, Reviews)..."
                 />
@@ -362,7 +354,7 @@ Focus on making this content align with my ${pillarName} pillar strategy.`
 
               {/* Icon Selection */}
               <div>
-                <label className="block text-sm font-medium text-white mb-2">
+                <label className="block text-sm font-medium text-gray-700 mb-2">
                   Pillar Icon
                 </label>
                 <div className="grid grid-cols-6 gap-2">
@@ -375,7 +367,7 @@ Focus on making this content align with my ${pillarName} pillar strategy.`
                         'w-12 h-12 rounded-lg border-2 flex items-center justify-center text-xl transition-colors',
                         pillarData.icon === icon
                           ? 'border-primary-500 bg-primary-500/20'
-                          : 'border-dark-600 hover:border-dark-500'
+                          : 'border-gray-300 hover:border-gray-400'
                       )}
                     >
                       {icon}
@@ -386,7 +378,7 @@ Focus on making this content align with my ${pillarName} pillar strategy.`
 
               {/* Color Selection */}
               <div>
-                <label className="block text-sm font-medium text-white mb-2">
+                <label className="block text-sm font-medium text-gray-700 mb-2">
                   Pillar Color
                 </label>
                 <div className="grid grid-cols-4 gap-2">
@@ -400,7 +392,7 @@ Focus on making this content align with my ${pillarName} pillar strategy.`
                         `bg-gradient-to-br ${color}`,
                         pillarData.color === color
                           ? 'border-white scale-105'
-                          : 'border-dark-600 hover:border-dark-500'
+                          : 'border-gray-300 hover:border-gray-400'
                       )}
                     />
                   ))}
@@ -412,20 +404,20 @@ Focus on making this content align with my ${pillarName} pillar strategy.`
               {/* Pillar Field */}
               {pillar ? (
                 <div>
-                  <label className="block text-sm font-medium text-white mb-2">
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
                     Content Pillar
                   </label>
-                  <div className="flex items-center gap-3 p-3 bg-dark-700 border border-dark-600 rounded-lg">
+                  <div className="flex items-center gap-3 p-3 bg-gray-50 border border-gray-300 rounded-lg">
                     <div className={`w-8 h-8 rounded-lg bg-gradient-to-br ${pillar.color} flex items-center justify-center text-sm`}>
                       {pillar.icon}
                     </div>
-                    <span className="font-medium pillar-name-visible">{pillar.name}</span>
+                    <span className="font-medium pillar-name-visible text-gray-900">{pillar.name}</span>
                     <span className="text-xs text-gray-400 ml-auto">Selected</span>
                   </div>
                 </div>
               ) : (
                 <div>
-                  <label className="block text-sm font-medium text-white mb-2">
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
                     Pillar Name *
                   </label>
                   <input
@@ -433,8 +425,8 @@ Focus on making this content align with my ${pillarName} pillar strategy.`
                     value={formData.pillarName}
                     onChange={(e) => handleInputChange('pillarName', e.target.value)}
                     className={cn(
-                      'w-full px-3 py-2 bg-dark-700 border rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary-500',
-                      errors.pillarName ? 'border-red-500' : 'border-dark-600'
+                      'w-full px-3 py-2 bg-white border rounded-lg text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary-500',
+                      errors.pillarName ? 'border-red-500' : 'border-gray-300'
                     )}
                     placeholder="Enter your new pillar name..."
                   />
@@ -446,7 +438,7 @@ Focus on making this content align with my ${pillarName} pillar strategy.`
 
           {/* Content Title */}
           <div>
-            <label className="block text-sm font-medium text-white mb-2">
+            <label className="block text-sm font-medium text-gray-700 mb-2">
               Content Title *
             </label>
             <input
@@ -454,8 +446,8 @@ Focus on making this content align with my ${pillarName} pillar strategy.`
               value={formData.title}
               onChange={(e) => handleInputChange('title', e.target.value)}
               className={cn(
-                'w-full px-3 py-2 bg-dark-700 border rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary-500',
-                errors.title ? 'border-red-500' : 'border-dark-600'
+                'w-full px-3 py-2 bg-white border rounded-lg text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary-500',
+                errors.title ? 'border-red-500' : 'border-gray-300'
               )}
               placeholder="Enter your content title..."
             />
@@ -466,15 +458,15 @@ Focus on making this content align with my ${pillarName} pillar strategy.`
 
           {/* Content Type */}
           <div>
-            <label className="block text-sm font-medium text-white mb-2">
+            <label className="block text-sm font-medium text-gray-700 mb-2">
               Content Type *
             </label>
             <select
               value={formData.contentType}
               onChange={(e) => handleInputChange('contentType', e.target.value)}
               className={cn(
-                'w-full px-3 py-2 bg-dark-700 border rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-primary-500',
-                errors.contentType ? 'border-red-500' : 'border-dark-600'
+                'w-full px-3 py-2 bg-white border rounded-lg text-gray-900 focus:outline-none focus:ring-2 focus:ring-primary-500',
+                errors.contentType ? 'border-red-500' : 'border-gray-300'
               )}
             >
               <option value="">Select content type...</option>
@@ -487,9 +479,27 @@ Focus on making this content align with my ${pillarName} pillar strategy.`
             )}
           </div>
 
+          {/* Status */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Save to Content Studio
+            </label>
+            <select
+              value={formData.status}
+              onChange={(e) => handleInputChange('status', e.target.value as 'ideas' | 'planning' | 'inProgress')}
+              className="w-full px-3 py-2 bg-white border border-gray-300 rounded-lg text-gray-900 focus:outline-none focus:ring-2 focus:ring-primary-500"
+            >
+              {statusOptions.map((status) => (
+                <option key={status.value} value={status.value}>
+                  {status.label}
+                </option>
+              ))}
+            </select>
+          </div>
+
           {/* Content Description */}
           <div>
-            <label className="block text-sm font-medium text-white mb-2">
+            <label className="block text-sm font-medium text-gray-700 mb-2">
               Content Description *
             </label>
             <textarea
@@ -497,8 +507,8 @@ Focus on making this content align with my ${pillarName} pillar strategy.`
               onChange={(e) => handleInputChange('description', e.target.value)}
               rows={4}
               className={cn(
-                'w-full px-3 py-2 bg-dark-700 border rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary-500 resize-none',
-                errors.description ? 'border-red-500' : 'border-dark-600'
+                'w-full px-3 py-2 bg-white border rounded-lg text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary-500 resize-none',
+                errors.description ? 'border-red-500' : 'border-gray-300'
               )}
               placeholder="Describe what you want to create, your target audience, key points to cover, etc."
             />
@@ -509,14 +519,14 @@ Focus on making this content align with my ${pillarName} pillar strategy.`
 
           {/* Additional Instructions */}
           <div>
-            <label className="block text-sm font-medium text-white mb-2">
+            <label className="block text-sm font-medium text-gray-700 mb-2">
               Additional Instructions
             </label>
             <textarea
               value={formData.additionalInstructions}
               onChange={(e) => handleInputChange('additionalInstructions', e.target.value)}
               rows={3}
-              className="w-full px-3 py-2 bg-dark-700 border border-dark-600 rounded-lg text-white placeholder-dark-400 focus:outline-none focus:ring-2 focus:ring-primary-500 resize-none"
+              className="w-full px-3 py-2 bg-white border border-gray-300 rounded-lg text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary-500 resize-none"
               placeholder="Any specific requirements, style preferences, or additional context..."
             />
           </div>
@@ -543,8 +553,7 @@ Focus on making this content align with my ${pillarName} pillar strategy.`
                 </>
               ) : (
                 <>
-                  <Send className="w-4 h-4 mr-2" />
-                  {isSubmitting ? 'Sending...' : `Send to ${customization.name}`}
+                  ✨ {isSubmitting ? 'Creating...' : 'Create Content'}
                 </>
               )}
             </Button>

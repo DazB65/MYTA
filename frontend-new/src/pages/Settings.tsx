@@ -133,7 +133,7 @@ export default function Settings() {
     <div className="space-y-6">
       <div>
         <h1 className="text-3xl font-bold mb-2">Settings</h1>
-        <p className="text-dark-400">
+        <p className="text-gray-300">
           Manage your channel information, AI agent, and application preferences.
         </p>
       </div>
@@ -148,7 +148,7 @@ export default function Settings() {
               className={`flex-1 flex items-center justify-center gap-2 py-2 px-4 rounded-md text-sm font-medium transition-colors ${
                 activeTab === tab.id
                   ? 'bg-primary-600 text-white'
-                  : 'text-dark-400 hover:text-white hover:bg-dark-700'
+                  : 'text-gray-300 hover:text-white hover:bg-dark-700'
               }`}
             >
               <span>{tab.icon}</span>

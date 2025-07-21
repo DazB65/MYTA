@@ -1,5 +1,5 @@
 import { NavLink } from 'react-router-dom'
-import { LayoutDashboard, Building2, Clapperboard, Settings, LogOut, BarChart3 } from 'lucide-react'
+import { LayoutDashboard, Building2, Clapperboard, Settings, LogOut, BarChart3, FileEdit } from 'lucide-react'
 import { cn } from '@/utils'
 import { useOAuthStore } from '@/store/oauthStore'
 
@@ -13,6 +13,11 @@ const navigation = [
     name: 'Analytics',
     href: '/analytics',
     icon: BarChart3,
+  },
+  {
+    name: 'Content Studio',
+    href: '/content-studio',
+    icon: FileEdit,
   },
   {
     name: 'Pillars',
@@ -70,7 +75,7 @@ export default function Sidebar() {
                 cn(
                   'flex items-center gap-2 px-3 py-2 rounded-xl transition-all duration-200',
                   'hover:bg-primary-600/10 hover:border-b-4 hover:border-primary-500',
-                  'text-dark-400 hover:text-white',
+                  'text-gray-300 hover:text-white',
                   'transform hover:scale-105 relative overflow-hidden',
                   'min-w-[40px] min-h-[40px] justify-start',
                   isActive && 'active bg-primary-600/20 border-b-4 border-primary-500 text-white'
@@ -91,7 +96,7 @@ export default function Sidebar() {
             <div className="w-6 h-6 rounded-full bg-primary-600/20 flex items-center justify-center">
               <div className="w-2 h-2 bg-primary-400 rounded-full animate-pulse"></div>
             </div>
-            <span className="ml-2 text-sm text-dark-400 whitespace-nowrap">
+            <span className="ml-2 text-sm text-gray-300 whitespace-nowrap">
               Online
             </span>
           </div>

@@ -75,18 +75,18 @@ function PillarCard({
             {pillar.icon}
           </div>
           <div>
-            <h3 className="font-semibold text-white">{pillar.name}</h3>
-            <p className="text-sm text-dark-400">{pillar.videos} videos • Created {pillar.createdAgo}</p>
+            <h3 className="font-semibold pillar-name-visible">{pillar.name}</h3>
+            <p className="text-sm text-gray-300">{pillar.videos} videos • Created {pillar.createdAgo}</p>
           </div>
         </div>
-        <button className="p-1 text-dark-400 hover:text-white">
+        <button className="p-1 text-gray-400 hover:text-white">
           <MoreHorizontal className="w-4 h-4" />
         </button>
       </div>
 
       <div className="grid grid-cols-3 gap-4 mb-6">
         <div>
-          <div className="text-sm text-dark-400 mb-1">Views</div>
+          <div className="text-sm text-gray-300 mb-1">Views</div>
           <div className="text-xl font-bold text-white">{formatViews(pillar.views)}</div>
           <div className={`text-xs flex items-center gap-1 ${getChangeColor(pillar.viewsChange)}`}>
             {getChangeIcon(pillar.viewsChange)}
@@ -94,7 +94,7 @@ function PillarCard({
           </div>
         </div>
         <div>
-          <div className="text-sm text-dark-400 mb-1">Watch Time</div>
+          <div className="text-sm text-gray-300 mb-1">Watch Time</div>
           <div className="text-xl font-bold text-white">{formatWatchTime(pillar.watchTime)}</div>
           <div className={`text-xs flex items-center gap-1 ${getChangeColor(pillar.watchTimeChange)}`}>
             {getChangeIcon(pillar.watchTimeChange)}
@@ -102,7 +102,7 @@ function PillarCard({
           </div>
         </div>
         <div>
-          <div className="text-sm text-dark-400 mb-1">Revenue</div>
+          <div className="text-sm text-gray-300 mb-1">Revenue</div>
           <div className="text-xl font-bold text-white">{formatRevenue(pillar.revenue)}</div>
           <div className={`text-xs flex items-center gap-1 ${getChangeColor(pillar.revenueChange)}`}>
             {getChangeIcon(pillar.revenueChange)}
@@ -137,8 +137,8 @@ function PillarCard({
         </div>
       ) : (
         <div className="mb-6 p-4 bg-dark-800/30 rounded-lg border border-dashed border-dark-600">
-          <p className="text-sm text-dark-400 text-center">📈 Historical performance data not available</p>
-          <p className="text-xs text-dark-500 text-center mt-1">Charts require YouTube Analytics API access</p>
+          <p className="text-sm text-gray-300 text-center">📈 Historical performance data not available</p>
+          <p className="text-xs text-gray-400 text-center mt-1">Charts require YouTube Analytics API access</p>
         </div>
       )}
 
@@ -146,14 +146,14 @@ function PillarCard({
         {pillar.tags.map((tag) => (
           <span 
             key={tag} 
-            className="px-2 py-1 text-xs bg-dark-800 text-dark-300 rounded"
+            className="px-2 py-1 text-xs bg-gray-700 text-gray-200 rounded"
           >
             {tag}
           </span>
         ))}
       </div>
 
-      <div className="text-sm text-dark-400 mb-4">{pillar.topPerformingContent}</div>
+      <div className="text-sm text-gray-300 mb-4">{pillar.topPerformingContent}</div>
 
       <div className="space-y-2">
         <div className="flex gap-2">
@@ -658,7 +658,7 @@ export default function Pillars() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold mb-2">Content Pillars</h1>
-          <p className="text-dark-400">
+          <p className="text-gray-300">
             Analyze and optimize your content strategy
           </p>
           <p className="text-xs text-blue-400 mt-1">
@@ -686,7 +686,7 @@ export default function Pillars() {
         <Card className="p-12 text-center">
           <Loader className="w-8 h-8 animate-spin mx-auto mb-4 text-primary-500" />
           <h3 className="text-xl font-semibold mb-2">Analyzing Your Content</h3>
-          <p className="text-dark-400">
+          <p className="text-gray-300">
             Using AI to analyze your YouTube videos and identify content pillars...
           </p>
         </Card>
@@ -694,7 +694,7 @@ export default function Pillars() {
         <Card className="p-12 text-center">
           <AlertCircle className="w-12 h-12 mx-auto mb-4 text-red-400" />
           <h3 className="text-xl font-semibold mb-2">Analysis Failed</h3>
-          <p className="text-dark-400 mb-4">{error}</p>
+          <p className="text-gray-300 mb-4">{error}</p>
           <Button onClick={fetchContentPillars}>
             Retry Analysis
           </Button>
@@ -703,7 +703,7 @@ export default function Pillars() {
         <Card className="p-12 text-center">
           <div className="text-6xl mb-4">📊</div>
           <h3 className="text-xl font-semibold mb-2">Connect YouTube for Content Pillars</h3>
-          <p className="text-dark-400 mb-4">
+          <p className="text-gray-300 mb-4">
             Connect your YouTube account to analyze your content and discover your main content pillars.
           </p>
         </Card>
@@ -711,7 +711,7 @@ export default function Pillars() {
         <Card className="p-12 text-center">
           <div className="text-6xl mb-4">🎯</div>
           <h3 className="text-xl font-semibold mb-2">No Content Pillars Detected</h3>
-          <p className="text-dark-400 mb-4">
+          <p className="text-gray-300 mb-4">
             We couldn't identify clear content pillars from your recent videos. This might mean you need more videos or more varied content.
           </p>
           <Button onClick={() => setIsModalOpen(true)}>
