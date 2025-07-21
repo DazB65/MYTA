@@ -1,0 +1,76 @@
+# Handle line endings automatically for files detected as text
+# and leave all files detected as binary untouched.
+* text=auto
+
+# Text files
+*.md text
+*.txt text
+*.json text
+*.js text
+*.jsx text
+*.ts text
+*.tsx text
+*.css text
+*.scss text
+*.html text
+*.xml text
+*.yaml text
+*.yml text
+
+# Python files
+*.py text
+*.pyx text
+*.pyd binary
+*.so binary
+*.egg binary
+
+# Documentation
+*.markdown text
+*.mdown text
+*.mkd text
+
+# Configuration files
+.gitignore text
+.gitattributes text
+.editorconfig text
+*.toml text
+*.cfg text
+*.ini text
+*.conf text
+
+# Scripts
+*.sh text eol=lf
+*.bat text eol=crlf
+*.ps1 text eol=crlf
+
+# SQL files
+*.sql text
+
+# Binary files
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.ico binary
+*.mov binary
+*.mp4 binary
+*.mp3 binary
+*.flv binary
+*.fla binary
+*.swf binary
+*.gz binary
+*.zip binary
+*.7z binary
+*.ttf binary
+*.eot binary
+*.woff binary
+*.woff2 binary
+
+# Database files
+*.db binary
+*.sqlite binary
+*.sqlite3 binary
+
+# Generated files
+package-lock.json -diff
+npm-shrinkwrap.json -diff
