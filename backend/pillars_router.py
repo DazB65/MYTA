@@ -345,12 +345,35 @@ async def get_pillar_analytics(pillar_id: str, user_id: str = "default_user"):
                 }
             )
         
-        # Calculate analytics
+        # Calculate comprehensive analytics with real YouTube metrics
         total_views = sum(video.get("view_count", 0) for video in videos)
         avg_views = total_views / len(videos) if videos else 0
         
         total_engagement = sum(video.get("engagement_rate", 0) for video in videos)
         avg_engagement = total_engagement / len(videos) if videos else 0
+        
+        # Additional real YouTube metrics
+        total_watch_time = sum(video.get("watch_time_hours", 0) for video in videos)
+        avg_watch_time = total_watch_time / len(videos) if videos else 0
+        
+        total_ctr = sum(video.get("ctr", 0) for video in videos)
+        avg_ctr = total_ctr / len(videos) if videos else 0
+        
+        total_retention = sum(video.get("average_view_percentage", 0) for video in videos)
+        avg_retention = total_retention / len(videos) if videos else 0
+        
+        total_revenue = sum(video.get("estimated_revenue", 0) for video in videos if video.get("estimated_revenue"))
+        
+        # Performance health indicators (simple real metrics)
+        performance_health = "Unknown"
+        if avg_ctr >= 5.0 and avg_retention >= 50.0:
+            performance_health = "Excellent"
+        elif avg_ctr >= 3.0 and avg_retention >= 40.0:
+            performance_health = "Good"
+        elif avg_ctr >= 2.0 and avg_retention >= 30.0:
+            performance_health = "Fair"
+        else:
+            performance_health = "Needs Improvement"
         
         return create_success_response(
             "Pillar analytics retrieved successfully",
@@ -361,6 +384,12 @@ async def get_pillar_analytics(pillar_id: str, user_id: str = "default_user"):
                 "avg_views": avg_views,
                 "total_engagement": total_engagement,
                 "avg_engagement": avg_engagement,
+                "total_watch_time_hours": total_watch_time,
+                "avg_watch_time_hours": avg_watch_time,
+                "avg_ctr_percentage": round(avg_ctr, 2),
+                "avg_retention_percentage": round(avg_retention, 1),
+                "total_estimated_revenue": round(total_revenue, 2) if total_revenue else 0,
+                "performance_health": performance_health,
                 "videos": videos
             }
         )
@@ -422,3 +451,76 @@ async def get_pillars_overview(user_id: str):
         logger.error(f"Error getting pillars overview: {e}")
         logger.error(traceback.format_exc())
         raise HTTPException(status_code=500, detail=f"Failed to get pillars overview: {e}")
+
+@router.post("/videos/suggest-pillar", response_model=StandardResponse)
+async def suggest_pillar_for_video(video_title: str, user_id: str = "default_user"):
+    """Simple AI suggestion for which pillar a video belongs to based on title keywords"""
+    try:
+        from database import db_manager
+        
+        # Get user's existing pillars
+        pillars = db_manager.get_content_pillars(user_id)
+        
+        if not pillars:
+            return create_success_response(
+                "No pillars found for user",
+                {"suggested_pillar": None, "confidence": 0, "reason": "No pillars exist"}
+            )
+        
+        # Simple keyword matching approach using real pillar names
+        video_title_lower = video_title.lower()
+        best_match = None
+        best_score = 0
+        
+        for pillar in pillars:
+            pillar_name_lower = pillar['name'].lower()
+            
+            # Simple scoring: word overlap + exact matches
+            score = 0
+            
+            # Check for exact pillar name in title
+            if pillar_name_lower in video_title_lower:
+                score += 10
+            
+            # Check for word overlap
+            pillar_words = set(pillar_name_lower.split())
+            title_words = set(video_title_lower.split())
+            common_words = pillar_words.intersection(title_words)
+            score += len(common_words) * 3
+            
+            # Bonus for longer common word matches
+            for word in common_words:
+                if len(word) > 4:  # Longer words are more meaningful
+                    score += 2
+            
+            if score > best_score:
+                best_score = score
+                best_match = pillar
+        
+        # Determine confidence level
+        confidence = min(best_score / 10.0, 1.0)  # Normalize to 0-1
+        
+        if best_match and confidence > 0.3:  # Only suggest if reasonably confident
+            return create_success_response(
+                "Pillar suggestion generated",
+                {
+                    "suggested_pillar": {
+                        "id": best_match['id'],
+                        "name": best_match['name'],
+                        "icon": best_match.get('icon', '🎯'),
+                        "color": best_match.get('color', 'from-blue-500 to-cyan-400')
+                    },
+                    "confidence": round(confidence, 2),
+                    "reason": f"Title keywords match '{best_match['name']}' pillar"
+                }
+            )
+        else:
+            return create_success_response(
+                "No confident pillar match found",
+                {"suggested_pillar": None, "confidence": 0, "reason": "Title doesn't clearly match any existing pillars"}
+            )
+    
+    except Exception as e:
+        logger.error(f"Error suggesting pillar: {e}")
+        logger.error(traceback.format_exc())
+        raise HTTPException(status_code=500, detail=f"Failed to suggest pillar: {e}")

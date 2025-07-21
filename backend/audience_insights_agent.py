@@ -1097,58 +1097,51 @@ class ClaudeSentimentEngine:
     async def _perform_advanced_sentiment_analysis(self, comment_texts: List[str], audience_context: Dict) -> Dict[str, Any]:
         """Perform advanced sentiment analysis with enhanced prompts"""
         
+        # Voice consistency - audience behavior specialist with community insights
         sentiment_prompt = f"""
-        As a specialized Audience Insights Agent for YouTube analytics, analyze the following comments from a YouTube channel to understand audience sentiment and behavior patterns.
+        VOICE: Audience behavior specialist | Data-driven, empathetic, community-focused
         
-        IMPORTANT: You are a sub-agent reporting to a boss agent. Your analysis will be synthesized with other agents.
+        TASK: Sentiment analysis for {audience_context.get('name', 'Unknown')} ({audience_context.get('niche', 'Unknown')}, {audience_context.get('subscriber_count', 0):,} subs).
         
-        Channel Context:
-        - Channel: {audience_context.get('name', 'Unknown')}
-        - Niche: {audience_context.get('niche', 'Unknown')}
-        - Subscriber Count: {audience_context.get('subscriber_count', 0):,}
-        
-        Comments to Analyze (recent audience feedback):
+        COMMENTS DATA:
         {json.dumps(comment_texts[:30], indent=2)}
         
-        Provide comprehensive audience sentiment analysis focusing on:
+        ANALYZE:
+        • Sentiment distribution (% positive/negative/neutral)
+        • Key topics & audience requests
+        • Engagement patterns & community health
+        • Content preferences expressed
         
-        1. SENTIMENT CLASSIFICATION:
-           - Overall sentiment distribution (positive, negative, neutral percentages)
-           - Emotional tone analysis (excitement, frustration, curiosity, etc.)
-           - Satisfaction indicators with current content
-        
-        2. TOPIC EXTRACTION:
-           - Most frequently mentioned topics and themes
-           - Audience requests and suggestions
-           - Common questions or concerns raised
-           - Content preferences expressed
-        
-        3. ENGAGEMENT PATTERNS:
-           - Types of comments that generate most engagement
-           - Audience interaction preferences
-           - Community behavior indicators
-           - Creator-audience relationship dynamics
-        
-        4. AUDIENCE INSIGHTS:
-           - Audience expertise level and interests
-           - Content format preferences
-           - Timing and frequency expectations
-           - Community building opportunities
-        
-        5. ACTIONABLE RECOMMENDATIONS:
-           - Community engagement strategies
-           - Content adjustments based on feedback
-           - Response strategies for different sentiment types
-           - Growth opportunities identified from comments
-        
-        Format your response as structured JSON with the following sections:
-        - sentiment_summary: Overall sentiment assessment
-        - sentiment_breakdown: Numerical breakdown of sentiment categories
-        - key_topics: Most important topics and themes
-        - audience_insights: Deep insights about audience behavior
-        - engagement_opportunities: Specific recommendations for community building
-        
-        Be specific, data-driven, and focus on actionable insights that can improve audience engagement and retention.
+        RESPONSE FORMAT (JSON):
+        {{
+          "sentiment_summary": "X% positive, Y% negative - overall satisfied/frustrated",
+          "sentiment_breakdown": {{
+            "positive": 72,
+            "negative": 18,
+            "neutral": 10,
+            "dominant_emotions": ["excitement", "curiosity"]
+          }},
+          "key_topics": [
+            {{
+              "topic": "Specific topic mentioned",
+              "frequency": 15,
+              "sentiment": "positive",
+              "sample_comment": "Example comment"
+            }}
+          ],
+          "audience_insights": {{
+            "expertise_level": "Beginner/Intermediate/Advanced",
+            "content_preferences": ["Format type audience wants"],
+            "community_health": "Strong/Moderate/Weak engagement"
+          }},
+          "engagement_opportunities": [
+            {{
+              "opportunity": "Specific community building action",
+              "evidence": "What comments show",
+              "expected_impact": "High/Medium/Low"
+            }}
+          ]
+        }}
         """
         
         try:

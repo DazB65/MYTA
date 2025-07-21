@@ -870,7 +870,14 @@ class GeminiAnalysisEngine:
     
     def __init__(self, api_key: str):
         genai.configure(api_key=api_key)
-        self.model = genai.GenerativeModel('gemini-2.0-flash-exp')
+        self.model = genai.GenerativeModel(
+            'gemini-2.0-flash-exp',
+            generation_config=genai.GenerationConfig(
+                temperature=0.2,  # Consistent, focused analysis
+                top_p=0.9,
+                top_k=40
+            )
+        )
         self.viral_analyzer = ViralPotentialAnalyzer()
         
     async def analyze_content_performance(self, metrics: List[ContentMetrics], channel_context: Dict, include_hook_analysis: bool = True) -> Dict[str, Any]:
@@ -884,71 +891,54 @@ class GeminiAnalysisEngine:
         if include_hook_analysis:
             hook_analysis = await self._analyze_video_hooks(metrics, channel_context)
         
+        # Voice consistency - data-driven expert with actionable insights
         analysis_prompt = f"""
-        As a specialized Content Analysis Agent for YouTube analytics, analyze the following content performance data with enhanced hook analysis capabilities.
+        VOICE: Expert YouTube strategist | Data-driven, specific, actionable
         
-        IMPORTANT: You are a sub-agent reporting to a boss agent. Your analysis will be synthesized with other agents.
+        TASK: Analyze content performance data for {channel_context.get('name', 'Unknown')} ({channel_context.get('niche', 'Unknown')} niche).
         
-        Channel Context:
-        - Channel: {channel_context.get('name', 'Unknown')}
-        - Niche: {channel_context.get('niche', 'Unknown')}
-        - Subscriber Count: {channel_context.get('subscriber_count', 0):,}
-        - Average Views: {channel_context.get('avg_view_count', 0):,}
+        CHANNEL CONTEXT:
+        Subscribers: {channel_context.get('subscriber_count', 0):,} | Avg Views: {channel_context.get('avg_view_count', 0):,}
         
-        Content Performance Data:
+        DATA:
         {json.dumps(content_data, indent=2)}
         
-        Hook Analysis Results:
-        {json.dumps(hook_analysis, indent=2) if hook_analysis else "Hook analysis not available"}
+        HOOK INSIGHTS:
+        {json.dumps(hook_analysis, indent=2) if hook_analysis else "Not available"}
         
-        CRITICAL INSTRUCTIONS:
-        - You MUST reference SPECIFIC video titles from the data above
-        - You MUST quote EXACT view counts and metrics from the data
-        - You MUST identify the ACTUAL best performing video by title and views
-        - You MUST incorporate hook analysis insights when available
-        - DO NOT make up generic titles or approximate numbers
-        - DO NOT provide general advice without specific examples from the data
+        REQUIREMENTS:
+        • Use EXACT video titles and metrics from data
+        • Identify #1 performing video by title + view count
+        • Find 3 engagement patterns with specific examples
+        • Include hook analysis when available
+        • NO generic advice - only data-backed insights
         
-        Provide a comprehensive content analysis focusing on:
-        
-        1. ENGAGEMENT PATTERNS:
-           - Which SPECIFIC videos (by title) significantly outperformed or underperformed
-           - EXACT engagement rates for top videos
-           - Comment-to-view ratios with ACTUAL numbers
-           - Hook effectiveness based on retention data
-        
-        2. TOP PERFORMERS:
-           - The #1 best performing video by views (exact title and view count)
-           - The top 3 videos by engagement rate (exact titles and rates)
-           - Videos that exceeded the channel average and by how much
-           - Best hooks and their impact on retention
-        
-        3. PERFORMANCE INSIGHTS:
-           - SPECIFIC content themes from actual video titles
-           - Publishing timing patterns based on the data
-           - Length patterns of successful videos
-           - Hook patterns that drive higher retention
-        
-        4. HOOK ANALYSIS (if available):
-           - Title hook effectiveness scores
-           - Opening hook patterns that work
-           - Retention improvement opportunities
-           - Best performing hook types for this niche
-        
-        5. ACTIONABLE RECOMMENDATIONS:
-           - Based on SPECIFIC successful videos in the data
-           - Reference actual titles and their performance
-           - Hook optimization suggestions with examples
-           - Data-driven suggestions, not generic advice
-        
-        Format your response as structured JSON with the following sections:
-        - summary: Brief overall assessment mentioning specific top videos and hooks
-        - key_insights: Array of insight objects with specific video examples
-        - recommendations: Array based on actual performance data including hook improvements
-        - performance_analysis: Detailed metrics with specific video titles
-        - hook_analysis: Hook effectiveness insights when available
-        
-        Remember: Use ONLY the data provided. Quote exact titles and numbers.
+        RESPONSE FORMAT (JSON):
+        {{
+          "summary": "Key finding with specific video example",
+          "key_insights": [
+            {{
+              "insight": "Specific pattern found",
+              "evidence": "Video title + exact metrics",
+              "impact": "High/Medium/Low",
+              "confidence": 0.9
+            }}
+          ],
+          "recommendations": [
+            {{
+              "recommendation": "Specific action based on data",
+              "expected_impact": "High/Medium/Low",
+              "implementation_difficulty": "Easy/Medium/Hard",
+              "reasoning": "Why this works (reference successful video)"
+            }}
+          ],
+          "performance_analysis": {{
+            "top_performer": "Video title (X views)",
+            "engagement_leaders": ["Title 1 (X%)", "Title 2 (Y%)"],
+            "content_themes": ["Theme from actual titles"]
+          }},
+          "hook_analysis": "Hook effectiveness insights when available"
+        }}
         """
         
         try:
@@ -985,12 +975,11 @@ class GeminiAnalysisEngine:
         if not metrics:
             return {}
         
+        # Streamlined hook analysis prompt
         hook_prompt = f"""
-        As a specialized Hook Analysis system, analyze the following video titles for hook effectiveness.
+        TASK: Analyze video hooks for {channel_context.get('niche', 'Unknown')} channel.
         
-        Channel Niche: {channel_context.get('niche', 'Unknown')}
-        
-        Video Titles and Performance:
+        DATA:
         {json.dumps([{
             'title': m.title,
             'views': m.views,
@@ -998,27 +987,20 @@ class GeminiAnalysisEngine:
             'retention_data': getattr(m, 'retention_data', None)
         } for m in metrics], indent=2)}
         
-        Analyze each title for hook effectiveness based on:
-        1. CURIOSITY TRIGGERS: Words/phrases that create curiosity gaps
-        2. EMOTIONAL HOOKS: Language that triggers emotional responses
-        3. BENEFIT HOOKS: Clear value propositions
-        4. URGENCY/SCARCITY: Time-sensitive or exclusive elements
-        5. PATTERN INTERRUPTS: Unexpected or contrarian elements
-        6. NUMBERS/SPECIFICITY: Specific claims and data points
+        ANALYZE FOR:
+        • Curiosity triggers • Emotional hooks • Benefit statements
+        • Urgency/scarcity • Pattern interrupts • Specificity
         
-        For each video, provide:
-        - Hook type identification
-        - Effectiveness score (1-10)
-        - Specific hook elements that work
-        - Retention correlation analysis
-        - Improvement suggestions
-        
-        Return structured JSON with:
-        - overall_hook_performance: Average effectiveness across videos
-        - best_hooks: Top 3 most effective hooks with examples
-        - hook_patterns: Patterns that work well for this niche
-        - improvement_opportunities: Specific suggestions for underperforming titles
-        - retention_correlation: How hooks impact viewer retention
+        RETURN JSON:
+        {{
+          "overall_hook_performance": 7.2,
+          "best_hooks": [
+            {{"title": "Exact title", "score": 9, "hook_type": "curiosity", "why_effective": "Specific reason"}}
+          ],
+          "hook_patterns": ["Pattern that works for this niche"],
+          "improvement_opportunities": ["Specific title → suggested improvement"],
+          "retention_correlation": "How hooks impact retention"
+        }}
         """
         
         try:

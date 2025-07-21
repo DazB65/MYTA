@@ -48,6 +48,11 @@ class EnhancedChannelContext:
     top_traffic_source: str
     traffic_source_breakdown: Dict[str, float]
     
+    # Content pillars performance
+    pillar_performance: List[Dict[str, Any]]
+    top_performing_pillar: Optional[str]
+    underperforming_pillars: List[str]
+    
     # Audience insights
     top_countries: List[Dict[str, Any]]
     audience_age_gender: Dict[str, float]
@@ -131,36 +136,212 @@ class EnhancedUserContextManager:
             
         except Exception as e:
             logger.error(f"Failed to get enhanced context for {user_id}: {e}")
+            import traceback
+            logger.error(f"Full enhanced context error traceback: {traceback.format_exc()}")
             
-            # Try to determine the specific failure point
+            # Enhanced error analysis and recovery
             error_context = {
                 "error_type": type(e).__name__,
                 "error_message": str(e),
                 "user_id": user_id,
-                "fallback_used": True
+                "fallback_used": True,
+                "timestamp": datetime.now().isoformat()
             }
             
-            # Check if it's an OAuth-related error
+            # Analyze specific failure types for better recovery
             if "oauth" in str(e).lower() or "token" in str(e).lower():
                 error_context["likely_cause"] = "oauth_issue"
-                logger.warning(f"OAuth-related error in enhanced context for {user_id}: {e}")
-            elif "analytics" in str(e).lower():
+                error_context["recovery_suggestion"] = "refresh_oauth_token"
+                logger.warning(f"🔐 OAuth-related error in enhanced context for {user_id}: {e}")
+            elif "analytics" in str(e).lower() or "youtube" in str(e).lower():
                 error_context["likely_cause"] = "analytics_api_issue"
-                logger.warning(f"Analytics API error in enhanced context for {user_id}: {e}")
+                error_context["recovery_suggestion"] = "retry_analytics_later"
+                logger.warning(f"📈 Analytics API error in enhanced context for {user_id}: {e}")
+            elif "database" in str(e).lower() or "sqlite" in str(e).lower():
+                error_context["likely_cause"] = "database_issue"
+                error_context["recovery_suggestion"] = "check_database_schema"
+                logger.warning(f"💾 Database error in enhanced context for {user_id}: {e}")
+            elif "timeout" in str(e).lower() or "connection" in str(e).lower():
+                error_context["likely_cause"] = "network_timeout"
+                error_context["recovery_suggestion"] = "retry_with_timeout"
+                logger.warning(f"🌐 Network/timeout error in enhanced context for {user_id}: {e}")
             else:
                 error_context["likely_cause"] = "unknown"
+                error_context["recovery_suggestion"] = "manual_investigation"
             
-            # Fallback to base context with error information
+            # Try multiple fallback approaches
+            fallback_context = await self._attempt_enhanced_fallback(user_id, error_context)
+            
+            if fallback_context:
+                logger.info(f"✅ Enhanced fallback successful for {user_id}")
+                return fallback_context
+            else:
+                # Final fallback to basic context
+                logger.warning(f"🔄 Using basic context fallback for {user_id}")
+                base_context = get_user_context(user_id)
+                base_context['enhanced_context_error'] = error_context
+                base_context['context_type'] = 'basic_fallback_after_error'
+                base_context['oauth_status'] = self.oauth_manager.get_oauth_status(user_id)
+                
+                return base_context
+    
+    async def _attempt_enhanced_fallback(self, user_id: str, error_context: Dict[str, Any]) -> Optional[Dict[str, Any]]:
+        """Attempt enhanced fallback strategies based on error type"""
+        try:
+            logger.info(f"🔄 Attempting enhanced fallback for {user_id} due to {error_context.get('likely_cause')}")
+            
+            # Get base context first
             base_context = get_user_context(user_id)
-            base_context['enhanced_context_error'] = error_context
-            base_context['context_type'] = 'basic_fallback'
             
-            logger.info(f"🔄 Using fallback context for {user_id} due to: {error_context['likely_cause']}")
-            return base_context
+            # Try to get OAuth status regardless of previous errors
+            oauth_status = {}
+            try:
+                oauth_status = self.oauth_manager.get_oauth_status(user_id)
+                logger.info(f"✅ Got OAuth status in fallback: {oauth_status.get('authenticated', False)}")
+            except Exception as oauth_e:
+                logger.warning(f"Could not get OAuth status in fallback: {oauth_e}")
+                oauth_status = {"authenticated": False, "error": str(oauth_e)}
+            
+            # Create enhanced fallback context with available data
+            fallback_context = {
+                'user_id': user_id,
+                'channel_info': base_context.get('channel_info', self._get_empty_channel_info()),
+                'conversation_history': base_context.get('conversation_history', []),
+                'preferences': base_context.get('preferences', {}),
+                'oauth_status': oauth_status,
+                'realtime_data': {},  # Empty but structured
+                'intelligence': {},   # Empty but available for basic insights
+                'last_updated': datetime.now().isoformat(),
+                'context_type': 'enhanced_fallback',
+                'fallback_reason': error_context.get('likely_cause', 'unknown'),
+                'data_quality': 'fallback'
+            }
+            
+            # Try to add some basic intelligence even without real-time data
+            try:
+                fallback_context['intelligence'] = await self._generate_basic_intelligence(
+                    user_id, fallback_context
+                )
+                logger.info(f"✅ Added basic intelligence to fallback context")
+            except Exception as intel_e:
+                logger.warning(f"Could not add basic intelligence: {intel_e}")
+                fallback_context['intelligence'] = {}
+            
+            # If OAuth is working, try to get minimal real-time data
+            if oauth_status.get('authenticated', False) and error_context.get('likely_cause') != 'oauth_issue':
+                try:
+                    logger.info(f"🔄 Attempting minimal real-time data fetch in fallback")
+                    minimal_data = await self._get_minimal_realtime_data(user_id)
+                    if minimal_data:
+                        fallback_context['realtime_data'] = minimal_data
+                        fallback_context['data_quality'] = 'minimal_realtime'
+                        logger.info(f"✅ Added minimal real-time data to fallback")
+                except Exception as minimal_e:
+                    logger.warning(f"Minimal real-time data fetch failed: {minimal_e}")
+            
+            logger.info(f"✅ Enhanced fallback context created for {user_id}")
+            return fallback_context
+            
+        except Exception as fallback_e:
+            logger.error(f"Enhanced fallback also failed for {user_id}: {fallback_e}")
+            return None
+    
+    def _get_empty_channel_info(self) -> Dict[str, Any]:
+        """Get empty channel info structure for fallbacks"""
+        return {
+            "name": "Unknown",
+            "channel_id": "",
+            "niche": "Unknown",
+            "content_type": "Unknown",
+            "subscriber_count": 0,
+            "avg_view_count": 0,
+            "total_view_count": 0,
+            "video_count": 0,
+            "ctr": 0,
+            "retention": 0,
+            "recent_views": 0,
+            "recent_ctr": 0,
+            "recent_retention": 0,
+            "recent_engagement_rate": 0,
+            "recent_subscriber_change": 0,
+            "upload_frequency": "Unknown",
+            "video_length": "Unknown",
+            "monetization_status": "Unknown",
+            "primary_goal": "Unknown",
+            "notes": "",
+            "last_message": ""
+        }
+    
+    async def _generate_basic_intelligence(self, user_id: str, context: Dict[str, Any]) -> Dict[str, Any]:
+        """Generate basic intelligence insights even without real-time data"""
+        try:
+            channel_info = context.get('channel_info', {})
+            subscriber_count = channel_info.get('subscriber_count', 0)
+            niche = channel_info.get('niche', 'Unknown')
+            
+            intelligence = {
+                'performance_score': 0,  # Can't calculate without real-time data
+                'growth_opportunities': [
+                    f"Connect YouTube Analytics for personalized growth insights",
+                    f"Consider content optimization for the {niche} niche",
+                    "Regular content scheduling can improve channel performance"
+                ],
+                'optimization_priorities': [
+                    "Enable YouTube Analytics integration",
+                    "Establish consistent upload schedule",
+                    "Focus on audience retention strategies"
+                ],
+                'competitive_position': f"Channel has {subscriber_count:,} subscribers in {niche} niche",
+                'content_recommendations': [
+                    f"Create content targeted at {niche} audience",
+                    "Use analytics to identify top-performing content themes",
+                    "Experiment with different video formats"
+                ],
+                'fallback_mode': True
+            }
+            
+            return intelligence
+            
+        except Exception as e:
+            logger.error(f"Failed to generate basic intelligence: {e}")
+            return {'fallback_mode': True, 'error': str(e)}
+    
+    async def _get_minimal_realtime_data(self, user_id: str) -> Optional[Dict[str, Any]]:
+        """Get minimal real-time data for fallback scenarios"""
+        try:
+            # Try to get just basic channel analytics with reduced scope
+            channel_analytics = await self.analytics_service.get_channel_analytics(
+                user_id, days=7, force_refresh=False  # Use cache if available
+            )
+            
+            if channel_analytics:
+                return {
+                    'key_metrics': {
+                        'current_week_views': channel_analytics.views,
+                        'current_week_ctr': channel_analytics.ctr,
+                        'current_week_retention': channel_analytics.average_view_percentage,
+                        'subscriber_change': channel_analytics.net_subscriber_change
+                    },
+                    'performance_summary': {
+                        'current_period': {
+                            'views': channel_analytics.views,
+                            'ctr': channel_analytics.ctr,
+                            'average_view_percentage': channel_analytics.average_view_percentage,
+                            'net_subscriber_change': channel_analytics.net_subscriber_change
+                        }
+                    },
+                    'data_type': 'minimal_fallback'
+                }
+            
+            return None
+            
+        except Exception as e:
+            logger.warning(f"Minimal real-time data fetch failed: {e}")
+            return None
     
     async def get_agent_context(self, user_id: str, agent_type: str) -> Dict[str, Any]:
         """
-        Get context optimized for specific agent type
+        Get context optimized for specific agent type with enhanced error handling
         
         Args:
             user_id: User ID
@@ -170,26 +351,105 @@ class EnhancedUserContextManager:
             Agent-optimized context
         """
         try:
-            # Get enhanced context
-            enhanced_context = await self.get_enhanced_context(user_id)
+            logger.info(f"🤖 Getting {agent_type} context for user {user_id}")
             
-            # Optimize for specific agent
-            if agent_type == "content_analysis":
-                return self._optimize_for_content_agent(enhanced_context)
-            elif agent_type == "audience_insights":
-                return self._optimize_for_audience_agent(enhanced_context)
-            elif agent_type == "seo_discoverability":
-                return self._optimize_for_seo_agent(enhanced_context)
-            elif agent_type == "competitive_analysis":
-                return self._optimize_for_competitive_agent(enhanced_context)
-            elif agent_type == "monetization_strategy":
-                return self._optimize_for_monetization_agent(enhanced_context)
-            else:
+            # Get enhanced context with retries
+            enhanced_context = None
+            max_retries = 2
+            
+            for attempt in range(max_retries):
+                try:
+                    enhanced_context = await self.get_enhanced_context(user_id)
+                    if enhanced_context:
+                        logger.info(f"✅ Enhanced context retrieved on attempt {attempt + 1}")
+                        break
+                except Exception as context_e:
+                    logger.warning(f"Enhanced context attempt {attempt + 1} failed: {context_e}")
+                    if attempt == max_retries - 1:
+                        # On final failure, create minimal context
+                        logger.warning(f"Creating minimal context for {agent_type} agent")
+                        enhanced_context = await self._create_minimal_agent_context(user_id, agent_type)
+            
+            if not enhanced_context:
+                logger.error(f"Could not get any context for {agent_type} agent")
+                return await self._create_minimal_agent_context(user_id, agent_type)
+            
+            # Optimize for specific agent type
+            try:
+                if agent_type == "content_analysis":
+                    optimized = self._optimize_for_content_agent(enhanced_context)
+                elif agent_type == "audience_insights":
+                    optimized = self._optimize_for_audience_agent(enhanced_context)
+                elif agent_type == "seo_discoverability":
+                    optimized = self._optimize_for_seo_agent(enhanced_context)
+                elif agent_type == "competitive_analysis":
+                    optimized = self._optimize_for_competitive_agent(enhanced_context)
+                elif agent_type == "monetization_strategy":
+                    optimized = self._optimize_for_monetization_agent(enhanced_context)
+                else:
+                    optimized = enhanced_context
+                
+                logger.info(f"✅ Context optimized for {agent_type} agent")
+                return optimized
+                
+            except Exception as opt_e:
+                logger.error(f"Context optimization failed for {agent_type}: {opt_e}")
+                # Return unoptimized context rather than failing
                 return enhanced_context
             
         except Exception as e:
-            logger.error(f"Failed to get agent context for {agent_type}: {e}")
-            return await self.get_enhanced_context(user_id)
+            logger.error(f"Critical error getting agent context for {agent_type}: {e}")
+            import traceback
+            logger.error(f"Full traceback: {traceback.format_exc()}")
+            return await self._create_minimal_agent_context(user_id, agent_type)
+    
+    async def _create_minimal_agent_context(self, user_id: str, agent_type: str) -> Dict[str, Any]:
+        """Create minimal context for agent when enhanced context fails"""
+        try:
+            # Get basic user context
+            base_context = get_user_context(user_id)
+            
+            minimal_context = {
+                'user_id': user_id,
+                'channel_info': base_context.get('channel_info', self._get_empty_channel_info()),
+                'conversation_history': base_context.get('conversation_history', []),
+                'realtime_data': {},
+                'intelligence': {},
+                'context_type': f'minimal_{agent_type}',
+                'data_quality': 'minimal_fallback',
+                'last_updated': datetime.now().isoformat(),
+                'agent_type': agent_type,
+                'fallback_mode': True
+            }
+            
+            # Add OAuth status if possible
+            try:
+                minimal_context['oauth_status'] = self.oauth_manager.get_oauth_status(user_id)
+            except:
+                minimal_context['oauth_status'] = {'authenticated': False, 'error': 'status_unavailable'}
+            
+            # Add agent-specific minimal data
+            if agent_type == "content_analysis":
+                minimal_context['focus_areas'] = ['basic_metrics', 'fallback_recommendations']
+            elif agent_type == "audience_insights":
+                minimal_context['focus_areas'] = ['subscriber_info', 'basic_demographics']
+            elif agent_type in ["seo_discoverability", "competitive_analysis", "monetization_strategy"]:
+                minimal_context['focus_areas'] = ['basic_guidance', 'general_recommendations']
+            
+            logger.info(f"✅ Created minimal {agent_type} context for {user_id}")
+            return minimal_context
+            
+        except Exception as e:
+            logger.error(f"Failed to create minimal context for {agent_type}: {e}")
+            # Absolute fallback
+            return {
+                'user_id': user_id,
+                'agent_type': agent_type,
+                'context_type': 'absolute_fallback',
+                'error': str(e),
+                'fallback_mode': True,
+                'channel_info': self._get_empty_channel_info()
+            }
     
     async def _build_enhanced_channel_context(
         self, 
@@ -243,6 +503,11 @@ class EnhancedUserContextManager:
                     'External': current_period.get('traffic_source_external', 0),
                     'Direct/Other': current_period.get('traffic_source_direct', 0) + current_period.get('traffic_source_browse_features', 0)
                 },
+                
+                # Content pillars performance (simple real data)
+                pillar_performance=await self._get_pillar_performance(user_id),
+                top_performing_pillar=await self._get_top_performing_pillar(user_id),
+                underperforming_pillars=await self._get_underperforming_pillars(user_id),
                 
                 # Audience insights
                 top_countries=current_period.get('top_countries', []),
@@ -540,6 +805,59 @@ class EnhancedUserContextManager:
             'revenue_data': context.get('realtime_data', {}).get('performance_summary', {}).get('current_period', {}).get('estimated_revenue'),
             'subscriber_growth': context.get('channel_info', {}).get('recent_subscriber_change', 0)
         }
+    
+    async def _get_pillar_performance(self, user_id: str) -> List[Dict[str, Any]]:
+        """Get simple pillar performance data using real YouTube metrics"""
+        try:
+            from database import db_manager
+            pillars = db_manager.get_content_pillars(user_id)
+            
+            pillar_data = []
+            for pillar in pillars:
+                videos = db_manager.get_videos_for_pillar(user_id, pillar['id'])
+                if videos:
+                    avg_views = sum(v.get('view_count', 0) for v in videos) / len(videos)
+                    avg_ctr = sum(v.get('ctr', 0) for v in videos) / len(videos)
+                    avg_retention = sum(v.get('average_view_percentage', 0) for v in videos) / len(videos)
+                    
+                    pillar_data.append({
+                        'name': pillar['name'],
+                        'video_count': len(videos),
+                        'avg_views': round(avg_views),
+                        'avg_ctr': round(avg_ctr, 2),
+                        'avg_retention': round(avg_retention, 1)
+                    })
+            
+            return pillar_data
+        except Exception as e:
+            logger.error(f"Error getting pillar performance: {e}")
+            return []
+    
+    async def _get_top_performing_pillar(self, user_id: str) -> Optional[str]:
+        """Get the best performing pillar based on views"""
+        try:
+            pillar_data = await self._get_pillar_performance(user_id)
+            if pillar_data:
+                top_pillar = max(pillar_data, key=lambda x: x['avg_views'])
+                return top_pillar['name']
+            return None
+        except Exception as e:
+            logger.error(f"Error getting top pillar: {e}")
+            return None
+    
+    async def _get_underperforming_pillars(self, user_id: str) -> List[str]:
+        """Get pillars with below-average performance"""
+        try:
+            pillar_data = await self._get_pillar_performance(user_id)
+            if len(pillar_data) < 2:
+                return []
+            
+            avg_views = sum(p['avg_views'] for p in pillar_data) / len(pillar_data)
+            underperforming = [p['name'] for p in pillar_data if p['avg_views'] < avg_views * 0.7]
+            return underperforming
+        except Exception as e:
+            logger.error(f"Error getting underperforming pillars: {e}")
+            return []
     
     def _cache_context(self, key: str, context: Dict[str, Any]):
         """Cache context with timestamp"""

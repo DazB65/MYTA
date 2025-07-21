@@ -454,59 +454,51 @@ class ClaudeHaikuMonetizationEngine:
         # Prepare data for analysis
         monetization_data = self._prepare_monetization_data(revenue_metrics, channel_context, sponsorship_opportunities)
         
+        # Voice consistency - revenue optimization specialist with business insights
         monetization_prompt = f"""
-        As a specialized Monetization Strategy Agent for YouTube analytics, analyze the following revenue and monetization data.
+        VOICE: Revenue optimization specialist | Business-focused, growth-oriented, ROI-driven
         
-        IMPORTANT: You are a sub-agent reporting to a boss agent. Your analysis will be synthesized with other agents.
+        TASK: Monetization analysis for {channel_context.get('name', 'Unknown')} ({channel_context.get('niche', 'Unknown')}, {channel_context.get('subscriber_count', 0):,} subs).
         
-        Channel Context:
-        - Channel: {channel_context.get('name', 'Unknown')}
-        - Niche: {channel_context.get('niche', 'Unknown')}
-        - Subscriber Count: {channel_context.get('subscriber_count', 0):,}
-        
-        Monetization Data:
+        REVENUE DATA:
         {json.dumps(monetization_data, indent=2)}
         
-        Provide comprehensive monetization analysis focusing on:
+        ANALYZE:
+        • Current revenue optimization opportunities
+        • New monetization streams potential
+        • Audience purchasing behavior
+        • Implementation priorities (quick wins vs long-term)
         
-        1. REVENUE OPTIMIZATION:
-           - Current revenue stream analysis and optimization
-           - Ad revenue optimization opportunities
-           - RPM/CPM improvement strategies
-           - Revenue trend analysis and projections
-        
-        2. DIVERSIFICATION OPPORTUNITIES:
-           - Alternative revenue stream identification
-           - Sponsorship and brand partnership potential
-           - Merchandise and product opportunities
-           - Membership and subscription strategies
-        
-        3. AUDIENCE MONETIZATION ASSESSMENT:
-           - Audience purchasing power and willingness to pay
-           - Premium content opportunities
-           - Community monetization potential
-           - Fan engagement monetization
-        
-        4. GROWTH MONETIZATION STRATEGIES:
-           - Scaling revenue with audience growth
-           - Content monetization optimization
-           - Cross-platform revenue opportunities
-           - Long-term financial sustainability
-        
-        5. IMPLEMENTATION ROADMAP:
-           - Quick wins for immediate revenue increase
-           - Medium-term diversification strategies
-           - Long-term monetization goals
-           - Risk mitigation and backup strategies
-        
-        Format your response as structured JSON with sections:
-        - monetization_summary: Overall revenue health assessment
-        - revenue_optimization: Current stream improvements
-        - diversification_strategy: New revenue opportunities
-        - audience_analysis: Monetization potential assessment
-        - implementation_roadmap: Prioritized action plan
-        
-        Be specific, data-driven, and focus on actionable monetization strategies.
+        RESPONSE FORMAT (JSON):
+        {{
+          "monetization_summary": "Current revenue: $X/month, potential: $Y/month",
+          "revenue_optimization": {{
+            "current_rpm": "$X vs $Y benchmark",
+            "ad_optimization": ["Specific improvement action"],
+            "immediate_gains": "X% increase possible"
+          }},
+          "diversification_strategy": [
+            {{
+              "revenue_stream": "Specific opportunity",
+              "potential_monthly": "$X-Y",
+              "implementation_effort": "Easy/Medium/Hard",
+              "audience_fit": "Strong/Moderate/Weak"
+            }}
+          ],
+          "audience_analysis": {{
+            "purchasing_power": "High/Medium/Low",
+            "willingness_to_pay": "X% likely to purchase",
+            "premium_opportunities": ["Specific paid content idea"]
+          }},
+          "implementation_roadmap": [
+            {{
+              "timeframe": "30/90/365 days",
+              "actions": ["Specific revenue action"],
+              "expected_revenue": "$X increase",
+              "priority": "High/Medium/Low"
+            }}
+          ]
+        }}
         """
         
         try:

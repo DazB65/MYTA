@@ -436,59 +436,50 @@ class ClaudeHaikuSEOEngine:
         # Prepare data for analysis
         seo_data = self._prepare_seo_data(seo_metrics, channel_context)
         
+        # Voice consistency - SEO optimization specialist with search insights
         seo_prompt = f"""
-        As a specialized SEO & Discoverability Agent for YouTube analytics, analyze the following video SEO data.
+        VOICE: SEO optimization specialist | Data-driven, technical, search-focused
         
-        IMPORTANT: You are a sub-agent reporting to a boss agent. Your analysis will be synthesized with other agents.
+        TASK: SEO analysis for {channel_context.get('name', 'Unknown')} ({channel_context.get('niche', 'Unknown')}, {channel_context.get('subscriber_count', 0):,} subs).
         
-        Channel Context:
-        - Channel: {channel_context.get('name', 'Unknown')}
-        - Niche: {channel_context.get('niche', 'Unknown')}
-        - Subscriber Count: {channel_context.get('subscriber_count', 0):,}
-        
-        SEO Performance Data:
+        SEO DATA:
         {json.dumps(seo_data, indent=2)}
         
-        Provide comprehensive SEO analysis focusing on:
+        ANALYZE:
+        • Search traffic performance & gaps
+        • Keyword opportunities & ranking potential
+        • Title/description optimization
+        • Click-through rate improvements
         
-        1. DISCOVERABILITY ASSESSMENT:
-           - Search traffic performance vs. industry benchmarks
-           - Keyword ranking opportunities and gaps
-           - Title and thumbnail optimization potential
-           - Discovery pattern analysis
-        
-        2. OPTIMIZATION OPPORTUNITIES:
-           - Specific title optimization recommendations
-           - Description improvement suggestions
-           - Tag strategy enhancements
-           - Keyword targeting refinements
-        
-        3. SEARCH PERFORMANCE INSIGHTS:
-           - High-performing vs. low-performing content patterns
-           - Search traffic drivers and inhibitors
-           - Click-through rate optimization opportunities
-           - Impression-to-view conversion analysis
-        
-        4. COMPETITIVE POSITIONING:
-           - Keyword competition assessment
-           - Search ranking improvement strategies
-           - Niche-specific SEO best practices
-           - Algorithmic factor optimization
-        
-        5. ACTIONABLE RECOMMENDATIONS:
-           - Immediate SEO improvements (quick wins)
-           - Long-term discoverability strategy
-           - Content planning for search optimization
-           - Technical SEO enhancements
-        
-        Format your response as structured JSON with sections:
-        - seo_summary: Overall SEO health assessment
-        - keyword_analysis: Keyword performance and opportunities
-        - optimization_priorities: Ranked list of improvement areas
-        - search_insights: Discovery and ranking insights
-        - recommendations: Specific actionable suggestions
-        
-        Be specific, data-driven, and focus on actionable SEO improvements.
+        RESPONSE FORMAT (JSON):
+        {{
+          "seo_summary": "Search traffic at X%, ranking for Y keywords",
+          "keyword_analysis": {{
+            "top_keywords": ["keyword (rank #X)"],
+            "missed_opportunities": ["high-volume keyword"],
+            "keyword_gaps": ["competitor keyword we're missing"]
+          }},
+          "optimization_priorities": [
+            {{
+              "priority": "Title optimization",
+              "impact": "High/Medium/Low",
+              "effort": "Easy/Medium/Hard",
+              "examples": ["Current title → Optimized title"]
+            }}
+          ],
+          "search_insights": {{
+            "traffic_sources": "Search/Browse/Suggested breakdown",
+            "ctr_performance": "X% vs Y% benchmark",
+            "ranking_factors": ["What's working/not working"]
+          }},
+          "recommendations": [
+            {{
+              "action": "Specific SEO improvement",
+              "reasoning": "Why this will improve rankings",
+              "expected_impact": "X% traffic increase"
+            }}
+          ]
+        }}
         """
         
         try:

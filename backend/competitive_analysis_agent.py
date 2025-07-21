@@ -402,7 +402,14 @@ class GeminiCompetitiveEngine:
     
     def __init__(self, api_key: str):
         genai.configure(api_key=api_key)
-        self.model = genai.GenerativeModel('gemini-2.0-flash-exp')
+        self.model = genai.GenerativeModel(
+            'gemini-2.0-flash-exp',
+            generation_config=genai.GenerationConfig(
+                temperature=0.1,  # Precise competitive analysis
+                top_p=0.9,
+                top_k=40
+            )
+        )
         
     async def analyze_competitive_landscape(self, competitor_data: List[CompetitorMetrics], channel_context: Dict, niche_trends: Dict) -> Dict[str, Any]:
         """Analyze competitive landscape using Gemini"""
@@ -413,59 +420,48 @@ class GeminiCompetitiveEngine:
         # Prepare data for analysis
         competitive_data = self._prepare_competitive_data(competitor_data, channel_context, niche_trends)
         
+        # Voice consistency - strategic market analyst with competitive insights
         competitive_prompt = f"""
-        As a specialized Competitive Analysis Agent for YouTube analytics, analyze the following competitive landscape data.
+        VOICE: Strategic YouTube market analyst | Data-driven, competitive, precise
         
-        IMPORTANT: You are a sub-agent reporting to a boss agent. Your analysis will be synthesized with other agents.
+        TASK: Competitive analysis for {channel_context.get('name', 'Unknown')} ({channel_context.get('niche', 'Unknown')} niche, {channel_context.get('subscriber_count', 0):,} subs).
         
-        Channel Context:
-        - Channel: {channel_context.get('name', 'Unknown')}
-        - Niche: {channel_context.get('niche', 'Unknown')}
-        - Subscriber Count: {channel_context.get('subscriber_count', 0):,}
-        
-        Competitive Landscape Data:
+        COMPETITIVE DATA:
         {json.dumps(competitive_data, indent=2)}
         
-        Provide comprehensive competitive analysis focusing on:
+        ANALYZE:
+        • Market position vs competitors
+        • Performance gaps & opportunities
+        • Content strategy advantages
+        • Differentiation strategies
         
-        1. COMPETITIVE POSITIONING:
-           - Channel's position relative to competitors
-           - Unique value proposition opportunities
-           - Market gaps and differentiation strategies
-           - Competitive advantages and disadvantages
-        
-        2. PERFORMANCE BENCHMARKING:
-           - Performance comparison across key metrics
-           - Growth trajectory analysis vs. competitors
-           - Content strategy effectiveness comparison
-           - Audience engagement benchmark analysis
-        
-        3. CONTENT STRATEGY INSIGHTS:
-           - Successful content formats in the niche
-           - Content gaps and opportunity identification
-           - Trending topics and themes analysis
-           - Upload frequency and timing optimization
-        
-        4. MARKET OPPORTUNITY ANALYSIS:
-           - Underserved audience segments
-           - Emerging content categories
-           - Competitive blind spots
-           - Growth potential assessment
-        
-        5. STRATEGIC RECOMMENDATIONS:
-           - Differentiation strategies
-           - Content calendar optimization
-           - Competitive response tactics
-           - Long-term positioning strategy
-        
-        Format your response as structured JSON with sections:
-        - competitive_summary: Overall competitive position assessment
-        - performance_comparison: Detailed benchmarking analysis
-        - content_opportunities: Identified content gaps and opportunities
-        - market_insights: Market dynamics and trends
-        - strategic_recommendations: Actionable competitive strategies
-        
-        Be specific, data-driven, and focus on actionable competitive intelligence.
+        RESPONSE FORMAT (JSON):
+        {{
+          "competitive_summary": "Channel ranks #X in niche with Y advantage",
+          "performance_comparison": {{
+            "vs_top_competitor": "Specific metrics comparison",
+            "growth_trajectory": "Behind/ahead by X%",
+            "content_gaps": ["Specific opportunity"]
+          }},
+          "content_opportunities": [
+            {{
+              "opportunity": "Specific content gap",
+              "evidence": "Competitor data showing gap",
+              "potential_impact": "High/Medium/Low"
+            }}
+          ],
+          "market_insights": {{
+            "niche_trends": ["Trend with data"],
+            "audience_segments": ["Underserved segment"]
+          }},
+          "strategic_recommendations": [
+            {{
+              "strategy": "Specific competitive move",
+              "reasoning": "Why this beats competitors",
+              "implementation": "Easy/Medium/Hard"
+            }}
+          ]
+        }}
         """
         
         try:

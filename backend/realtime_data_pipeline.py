@@ -187,49 +187,157 @@ class RealTimeDataPipeline:
     async def get_real_time_context(self, user_id: str) -> Dict[str, Any]:
         """Get real-time context for user (for agent prompts)"""
         try:
-            # Get fresh performance summary
-            performance_summary = await self.analytics_service.get_recent_performance_summary(user_id)
+            # Enhanced error handling and fallback logic
+            logger.info(f"🔄 Fetching real-time context for user {user_id}")
+            
+            # Get fresh performance summary with retry logic
+            performance_summary = None
+            max_retries = 2
+            
+            for attempt in range(max_retries):
+                try:
+                    performance_summary = await self.analytics_service.get_recent_performance_summary(user_id)
+                    if performance_summary:
+                        logger.info(f"✅ Got performance summary on attempt {attempt + 1}")
+                        break
+                    else:
+                        logger.warning(f"⚠️ No performance summary on attempt {attempt + 1}")
+                except Exception as retry_e:
+                    logger.warning(f"⚠️ Performance summary attempt {attempt + 1} failed: {retry_e}")
+                    if attempt == max_retries - 1:
+                        raise retry_e
             
             if not performance_summary:
-                return {}
+                # Try to get basic channel data as fallback
+                logger.info(f"🔄 Attempting fallback to basic channel analytics for {user_id}")
+                try:
+                    basic_analytics = await self.analytics_service.get_channel_analytics(user_id, days=7)
+                    if basic_analytics:
+                        logger.info(f"✅ Got basic analytics fallback")
+                        # Create minimal performance summary structure
+                        performance_summary = {
+                            'current_period': {
+                                'views': basic_analytics.views,
+                                'ctr': basic_analytics.ctr,
+                                'average_view_percentage': basic_analytics.average_view_percentage,
+                                'net_subscriber_change': basic_analytics.net_subscriber_change,
+                                'traffic_source_youtube_search': basic_analytics.traffic_source_youtube_search,
+                                'traffic_source_suggested_videos': basic_analytics.traffic_source_suggested_videos,
+                                'traffic_source_external': basic_analytics.traffic_source_external,
+                                'traffic_source_direct': basic_analytics.traffic_source_direct
+                            },
+                            'performance_changes': {},  # No comparison data in fallback
+                            'top_insights': [f"Channel had {basic_analytics.views:,} views in the last 7 days"]
+                        }
+                    else:
+                        logger.warning(f"❌ Both performance summary and basic analytics failed for {user_id}")
+                        return self._create_empty_context_with_status(user_id, "analytics_unavailable")
+                except Exception as fallback_e:
+                    logger.error(f"❌ Fallback analytics also failed for {user_id}: {fallback_e}")
+                    return self._create_empty_context_with_status(user_id, "all_analytics_failed")
             
             # Get recent alerts
-            recent_alerts = await self._get_recent_alerts(user_id, hours=24)
+            recent_alerts = []
+            try:
+                recent_alerts = await self._get_recent_alerts(user_id, hours=24)
+                logger.info(f"📊 Got {len(recent_alerts)} recent alerts for {user_id}")
+            except Exception as alert_e:
+                logger.warning(f"Failed to get recent alerts for {user_id}: {alert_e}")
+                # Continue without alerts rather than failing entirely
             
-            # Build real-time context
-            context = {
-                'last_updated': datetime.now().isoformat(),
-                'performance_summary': performance_summary,
-                'recent_alerts': [alert.__dict__ for alert in recent_alerts],
-                'key_metrics': {
-                    'current_week_views': performance_summary['current_period']['views'],
-                    'current_week_ctr': performance_summary['current_period']['ctr'],
-                    'current_week_retention': performance_summary['current_period']['average_view_percentage'],
-                    'subscriber_change': performance_summary['current_period']['net_subscriber_change'],
-                    'top_traffic_source': self._get_top_traffic_source(performance_summary['current_period'])
-                },
-                'performance_insights': performance_summary.get('top_insights', []),
-                'data_freshness': 'real-time'  # Indicates to agents this is fresh data
-            }
-            
-            return context
+            # Build real-time context with enhanced error handling
+            try:
+                current_period = performance_summary.get('current_period', {})
+                context = {
+                    'last_updated': datetime.now().isoformat(),
+                    'performance_summary': performance_summary,
+                    'recent_alerts': [alert.__dict__ for alert in recent_alerts],
+                    'key_metrics': {
+                        'current_week_views': current_period.get('views', 0),
+                        'current_week_ctr': current_period.get('ctr', 0.0),
+                        'current_week_retention': current_period.get('average_view_percentage', 0.0),
+                        'subscriber_change': current_period.get('net_subscriber_change', 0),
+                        'top_traffic_source': self._get_top_traffic_source(current_period)
+                    },
+                    'performance_insights': performance_summary.get('top_insights', []),
+                    'data_freshness': 'real-time',  # Indicates to agents this is fresh data
+                    'context_quality': 'complete' if performance_summary.get('performance_changes') else 'basic_fallback'
+                }
+                
+                # Add top video information if available
+                if 'top_video' in performance_summary.get('current_period', {}):
+                    context['top_video'] = performance_summary['current_period']['top_video']
+                
+                logger.info(f"✅ Successfully built real-time context for {user_id}")
+                return context
+                
+            except Exception as context_e:
+                logger.error(f"Failed to build context structure for {user_id}: {context_e}")
+                return self._create_empty_context_with_status(user_id, "context_build_failed")
             
         except Exception as e:
-            logger.error(f"Failed to get real-time context for {user_id}: {e}")
-            return {}
+            logger.error(f"💥 Critical error getting real-time context for {user_id}: {e}")
+            import traceback
+            logger.error(f"Full traceback: {traceback.format_exc()}")
+            return self._create_empty_context_with_status(user_id, "critical_error")
+    
+    def _create_empty_context_with_status(self, user_id: str, error_type: str) -> Dict[str, Any]:
+        """Create empty context with error status information"""
+        return {
+            'last_updated': datetime.now().isoformat(),
+            'performance_summary': None,
+            'recent_alerts': [],
+            'key_metrics': {
+                'current_week_views': 0,
+                'current_week_ctr': 0.0,
+                'current_week_retention': 0.0,
+                'subscriber_change': 0,
+                'top_traffic_source': 'Unknown'
+            },
+            'performance_insights': [],
+            'data_freshness': 'unavailable',
+            'context_quality': 'empty_fallback',
+            'error_type': error_type,
+            'user_id': user_id
+        }
     
     async def force_refresh_user_data(self, user_id: str) -> bool:
-        """Force immediate refresh of user data"""
+        """Force immediate refresh of user data with enhanced monitoring"""
         try:
-            if user_id in self.active_refreshes:
-                logger.info(f"Refresh already in progress for user {user_id}")
-                return False
+            logger.info(f"🚀 Force refresh requested for user {user_id}")
             
+            if user_id in self.active_refreshes:
+                logger.info(f"⏳ Refresh already in progress for user {user_id}, waiting...")
+                
+                # Wait up to 10 seconds for existing refresh to complete
+                wait_time = 0
+                while user_id in self.active_refreshes and wait_time < 10:
+                    await asyncio.sleep(0.5)
+                    wait_time += 0.5
+                
+                if user_id in self.active_refreshes:
+                    logger.warning(f"⏰ Existing refresh for {user_id} taking too long, proceeding anyway")
+                    return False
+                else:
+                    logger.info(f"✅ Previous refresh completed for {user_id}")
+                    return True
+            
+            # Proceed with force refresh
+            start_time = datetime.now()
             success = await self._refresh_user_data(user_id, force=True)
+            duration = (datetime.now() - start_time).total_seconds()
+            
+            if success:
+                logger.info(f"✅ Force refresh successful for {user_id} in {duration:.1f}s")
+            else:
+                logger.error(f"❌ Force refresh failed for {user_id} after {duration:.1f}s")
+            
             return success
             
         except Exception as e:
-            logger.error(f"Failed to force refresh for user {user_id}: {e}")
+            logger.error(f"💥 Critical error in force refresh for user {user_id}: {e}")
+            import traceback
+            logger.error(f"Full traceback: {traceback.format_exc()}")
             return False
     
     async def _background_refresh_scheduler(self):
@@ -342,46 +450,109 @@ class RealTimeDataPipeline:
                 await asyncio.sleep(300)
     
     async def _refresh_user_data(self, user_id: str, force: bool = False) -> bool:
-        """Refresh data for a specific user"""
+        """Refresh data for a specific user with enhanced error handling"""
         if user_id in self.active_refreshes and not force:
+            logger.info(f"Data refresh already in progress for {user_id}")
             return False
         
         self.active_refreshes.add(user_id)
+        refresh_start_time = datetime.now()
         
         try:
-            logger.info(f"🔄 Refreshing data for user {user_id}")
+            logger.info(f"🔄 Starting data refresh for user {user_id} (force={force})")
             
-            # Check if user has valid OAuth token
+            # Check if user has valid OAuth token with detailed logging
             token = await self.oauth_manager.get_valid_token(user_id)
             if not token:
-                logger.warning(f"No valid token for user {user_id}, skipping refresh")
+                oauth_status = self.oauth_manager.get_oauth_status(user_id)
+                logger.warning(f"🔐 No valid OAuth token for user {user_id}")
+                logger.info(f"OAuth status details: {oauth_status}")
+                
                 if user_id in self.user_activities:
                     self.user_activities[user_id].consecutive_errors += 1
+                    
+                    # If too many consecutive errors, reduce refresh frequency
+                    if self.user_activities[user_id].consecutive_errors >= 3:
+                        self.user_activities[user_id].refresh_priority = 'low'
+                        logger.warning(f"Reduced refresh priority for {user_id} due to consecutive OAuth errors")
+                
                 return False
             
-            # Refresh channel analytics (7 days for quick context)
-            channel_analytics = await self.analytics_service.get_channel_analytics(
-                user_id, days=7, force_refresh=force
-            )
+            logger.info(f"✅ OAuth token valid for {user_id}, proceeding with analytics fetch")
             
-            if channel_analytics:
-                # Update user activity
-                if user_id in self.user_activities:
-                    activity = self.user_activities[user_id]
-                    activity.last_refresh_time = datetime.now()
-                    activity.consecutive_errors = 0
-                    await self._store_user_activity(activity)
+            # Try multiple analytics approaches with fallbacks
+            refresh_success = False
+            analytics_data = None
+            
+            # Approach 1: Try performance summary (most comprehensive)
+            try:
+                logger.info(f"📊 Attempting performance summary fetch for {user_id}")
+                performance_summary = await self.analytics_service.get_recent_performance_summary(user_id)
+                if performance_summary:
+                    logger.info(f"✅ Performance summary successful for {user_id}")
+                    analytics_data = performance_summary
+                    refresh_success = True
+                else:
+                    logger.warning(f"⚠️ Performance summary returned None for {user_id}")
+            except Exception as perf_e:
+                logger.warning(f"⚠️ Performance summary failed for {user_id}: {perf_e}")
+            
+            # Approach 2: Fallback to basic channel analytics
+            if not refresh_success:
+                try:
+                    logger.info(f"🔄 Attempting basic channel analytics for {user_id}")
+                    channel_analytics = await self.analytics_service.get_channel_analytics(
+                        user_id, days=7, force_refresh=force
+                    )
+                    if channel_analytics:
+                        logger.info(f"✅ Basic channel analytics successful for {user_id}")
+                        analytics_data = channel_analytics
+                        refresh_success = True
+                    else:
+                        logger.warning(f"⚠️ Channel analytics returned None for {user_id}")
+                except Exception as analytics_e:
+                    logger.warning(f"⚠️ Channel analytics failed for {user_id}: {analytics_e}")
+            
+            # Update user activity based on results
+            if user_id in self.user_activities:
+                activity = self.user_activities[user_id]
+                activity.last_refresh_time = datetime.now()
                 
-                logger.info(f"✅ Successfully refreshed data for user {user_id}")
+                if refresh_success:
+                    activity.consecutive_errors = 0
+                    # Restore normal priority if we were successful
+                    if activity.refresh_priority == 'low':
+                        activity.refresh_priority = 'normal'
+                        logger.info(f"Restored normal refresh priority for {user_id}")
+                else:
+                    activity.consecutive_errors += 1
+                    
+                await self._store_user_activity(activity)
+            
+            refresh_duration = (datetime.now() - refresh_start_time).total_seconds()
+            
+            if refresh_success:
+                logger.info(f"✅ Successfully refreshed data for user {user_id} in {refresh_duration:.1f}s")
+                
+                # Store success metrics
+                if hasattr(analytics_data, 'views'):
+                    logger.info(f"📈 Analytics summary for {user_id}: {analytics_data.views:,} views, {analytics_data.ctr:.1f}% CTR")
+                elif isinstance(analytics_data, dict) and 'current_period' in analytics_data:
+                    views = analytics_data['current_period'].get('views', 0)
+                    ctr = analytics_data['current_period'].get('ctr', 0)
+                    logger.info(f"📈 Performance summary for {user_id}: {views:,} views, {ctr:.1f}% CTR")
+                
                 return True
             else:
-                logger.warning(f"Failed to refresh channel analytics for user {user_id}")
-                if user_id in self.user_activities:
-                    self.user_activities[user_id].consecutive_errors += 1
+                logger.error(f"❌ Failed to refresh any analytics data for user {user_id} after {refresh_duration:.1f}s")
                 return False
             
         except Exception as e:
-            logger.error(f"Error refreshing data for user {user_id}: {e}")
+            refresh_duration = (datetime.now() - refresh_start_time).total_seconds()
+            logger.error(f"💥 Critical error refreshing data for user {user_id} after {refresh_duration:.1f}s: {e}")
+            import traceback
+            logger.error(f"Full traceback: {traceback.format_exc()}")
+            
             if user_id in self.user_activities:
                 self.user_activities[user_id].consecutive_errors += 1
             return False

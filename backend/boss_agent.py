@@ -17,6 +17,7 @@ from agent_cache import get_agent_cache
 from enhanced_user_context import get_enhanced_context_manager
 from realtime_data_pipeline import get_data_pipeline
 from boss_agent_auth import get_boss_agent_authenticator
+from data_access_monitor import get_data_access_monitor
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -115,43 +116,63 @@ class IntentClassifier:
         
         channel_info = context.get('channel_info', {})
         classification_prompt = f"""
-        Analyze this YouTube creator's message and classify the intent. Extract relevant parameters.
+        You are CreatorMate's AI intent classifier. Analyze this YouTube creator's message with precision and extract actionable parameters.
         
-        Message: "{message}"
+        CREATOR MESSAGE: "{message}"
         
-        Channel Context:
+        CHANNEL CONTEXT:
         - Channel: {channel_info.get('name', 'Unknown')}
-        - Niche: {channel_info.get('niche', 'Unknown')}
-        - Subscriber Count: {channel_info.get('subscriber_count', 0):,}
+        - Niche: {channel_info.get('niche', 'Unknown')} 
+        - Subscribers: {channel_info.get('subscriber_count', 0):,}
+        - Total Views: {channel_info.get('total_view_count', 0):,}
+        - Recent Performance: {channel_info.get('recent_views', 0):,} views (last 7d)
         
-        Classify into ONE of these categories:
-        1. content_analysis - analyzing video performance, best/worst performing videos, hooks, titles, thumbnails, retention, which video has most views/engagement, video rankings, content effectiveness, channel metrics (total views, total videos)
-           Examples: "what is my best performing video", "which video has the most views", "what's my top video", "which content performs best", "what is my total views", "how many videos do I have"
-        2. audience - audience demographics, behavior, sentiment, comments, subscribers, engagement patterns, subscriber count questions
-           Examples: "who is my audience", "what are the demographics", "how many subscribers do I have"
-        3. seo - search optimization, keywords, rankings, discoverability
-        4. competition - competitor analysis, benchmarking, market positioning
-        5. monetization - revenue optimization, sponsorships, product placement
-        6. general - general questions, greetings, or unclear intent
+        INTENT CLASSIFICATION:
+        Classify into the MOST SPECIFIC category:
         
-        Extract these parameters if mentioned:
-        - time_period: last_7d, last_30d, last_90d, or specific dates
-        - specific_videos: video titles or IDs mentioned
-        - competitors: competitor channels mentioned
-        - metrics: specific metrics requested (views, CTR, retention, etc.)
+        1. **content_analysis** - Video performance, analytics, metrics, rankings
+           • Triggers: "best video", "top performing", "most views", "analytics", "performance", "total views", "video count", "CTR", "retention"
+           • Examples: "what's my best video?", "total views?", "which content performs best?"
         
-        Respond with JSON:
+        2. **audience** - Demographics, behavior, engagement, subscriber insights  
+           • Triggers: "audience", "subscribers", "demographics", "engagement", "comments", "who watches"
+           • Examples: "who is my audience?", "how many subscribers?", "engagement rate?"
+        
+        3. **seo** - Search optimization, keywords, discoverability, algorithm
+           • Triggers: "SEO", "keywords", "search", "ranking", "discoverability", "algorithm"
+           • Examples: "optimize my titles", "keyword research", "search rankings"
+        
+        4. **competition** - Competitor analysis, benchmarking, market research
+           • Triggers: "competitors", "compare", "benchmark", "similar channels", "market"
+           • Examples: "analyze competitors", "how do I compare?", "market positioning"
+        
+        5. **monetization** - Revenue, sponsorships, monetization strategies
+           • Triggers: "revenue", "money", "monetize", "sponsorship", "ads", "earnings"
+           • Examples: "how to monetize?", "revenue optimization", "sponsorship rates"
+        
+        6. **general** - Greetings, unclear requests, or out-of-scope questions
+           • Triggers: "hello", "help", unclear or non-YouTube related content
+        
+        PARAMETER EXTRACTION:
+        Extract specific, actionable parameters:
+        - time_period: "last_7d", "last_30d", "last_90d", or "all_time"
+        - specific_videos: Exact video titles or IDs mentioned
+        - competitors: Specific channel names mentioned
+        - metrics: Specific metrics requested (views, CTR, retention, engagement, revenue)
+        - focus_areas: Specific aspects to analyze
+        
+        RESPONSE FORMAT:
         {{
-            "intent": "category_name",
-            "confidence": 0.0-1.0,
+            "intent": "most_specific_category",
+            "confidence": 0.85-1.0,
             "parameters": {{
-                "time_period": "extracted_period",
-                "specific_videos": ["video1", "video2"],
-                "competitors": ["channel1", "channel2"],
-                "metrics": ["metric1", "metric2"],
-                "focus_areas": ["area1", "area2"]
+                "time_period": "extracted_or_default_last_30d",
+                "specific_videos": ["exact_titles_mentioned"],
+                "competitors": ["exact_channel_names"],
+                "metrics": ["specific_metrics_requested"],
+                "focus_areas": ["specific_analysis_areas"]
             }},
-            "reasoning": "Brief explanation of classification"
+            "reasoning": "Specific trigger words and context that led to this classification"
         }}
         """
         
@@ -161,7 +182,7 @@ class IntentClassifier:
                 lambda: self.client.chat.completions.create(
                     model="gpt-4o",
                     messages=[{"role": "user", "content": classification_prompt}],
-                    temperature=0.1,
+                    temperature=0.05,
                     max_tokens=500
                 )
             )
@@ -320,25 +341,53 @@ class ContentAnalysisAgent(SpecializedAgent):
         }
     
     async def _simple_content_analysis(self, request: AgentRequest) -> Dict[str, Any]:
-        """Fallback content analysis using OpenAI"""
+        """Enhanced fallback content analysis using OpenAI with real-time context"""
         
         context = request.context
+        user_context = request.user_context or {}
+        channel_info = user_context.get('channel_info', {})
         
+        # Enhanced context injection with real-time data
         analysis_prompt = f"""
-        As a YouTube content analysis expert, analyze the performance data for channel "{context.channel_id}".
+        You are CreatorMate's Content Analysis Expert. Analyze this YouTube channel's performance with precision.
         
-        Time Period: {context.time_period}
-        Focus Videos: {context.specific_videos or "All recent videos"}
+        {self._get_voice_guidelines()}
         
-        Provide analysis in these areas:
-        1. Content Performance Metrics
-        2. Hook Effectiveness Analysis
-        3. Title Performance Patterns
-        4. Thumbnail Click-Through Optimization
-        5. Content Structure Recommendations
+        CHANNEL PROFILE:
+        • Channel: {channel_info.get('name', context.channel_id)}
+        • Niche: {channel_info.get('niche', 'Unknown')}
+        • Subscribers: {channel_info.get('subscriber_count', 0):,}
+        • Total Views: {channel_info.get('total_view_count', 0):,}
+        • Video Count: {channel_info.get('video_count', 0)}
         
-        Return analysis as JSON with actionable insights and specific recommendations.
-        Focus on data-driven conclusions and concrete next steps.
+        RECENT PERFORMANCE ({context.time_period}):
+        • Views: {channel_info.get('recent_views', 0):,}
+        • CTR: {channel_info.get('recent_ctr', 0):.1f}%
+        • Retention: {channel_info.get('recent_retention', 0):.1f}%
+        • Engagement: {channel_info.get('recent_engagement_rate', 0):.1f}%
+        
+        ANALYSIS FOCUS: {context.specific_videos or "Recent channel performance"}
+        
+        EXPERT ANALYSIS AREAS:
+        1. **Performance Metrics Analysis**
+           - CTR benchmarking (good: >5%, excellent: >8%)
+           - Retention benchmarking (good: >50%, excellent: >70%)
+           - Engagement rate analysis (good: >3%, excellent: >6%)
+        
+        2. **Content Optimization Opportunities** 
+           - Hook effectiveness (first 15 seconds critical)
+           - Title performance patterns and optimization
+           - Thumbnail click-through optimization strategies
+        
+        3. **Strategic Recommendations**
+           - Content structure improvements
+           - Algorithm favorability factors
+           - Growth acceleration tactics
+        
+        RESPONSE FORMAT:
+        Provide specific, data-driven insights with exact benchmarks and actionable next steps.
+        Reference the channel's actual metrics and provide context relative to YouTube standards.
+        Focus on the top 3 highest-impact improvements.
         """
         
         response = await asyncio.get_event_loop().run_in_executor(
@@ -346,7 +395,7 @@ class ContentAnalysisAgent(SpecializedAgent):
             lambda: self.client.chat.completions.create(
                 model="gpt-4o",
                 messages=[{"role": "user", "content": analysis_prompt}],
-                temperature=0.2,
+                temperature=0.15,
                 max_tokens=1000
             )
         )
@@ -1050,6 +1099,15 @@ class VoiceAnalyzer:
 class BossAgent:
     """Main orchestration agent that coordinates specialized agents"""
     
+    # Standardized voice and personality across all agents
+    AGENT_VOICE_PROFILE = {
+        "tone": "Expert yet approachable YouTube strategist",
+        "personality": "Data-driven, actionable, encouraging",
+        "communication_style": "Direct answers first, then context",
+        "expertise_level": "Professional consultant with deep YouTube knowledge",
+        "response_format": "Specific numbers + context + actionable next step"
+    }
+    
     def __init__(self, openai_api_key: str):
         self.client = OpenAI(api_key=openai_api_key)
         self.intent_classifier = IntentClassifier(self.client)
@@ -1065,6 +1123,25 @@ class BossAgent:
         }
         
         self.cache = get_agent_cache()
+        self.monitor = get_data_access_monitor()
+    
+    def _get_voice_guidelines(self) -> str:
+        """Get standardized voice guidelines for all agent prompts"""
+        return f"""
+        VOICE & PERSONALITY GUIDELINES:
+        • Tone: {self.AGENT_VOICE_PROFILE['tone']}
+        • Personality: {self.AGENT_VOICE_PROFILE['personality']}
+        • Style: {self.AGENT_VOICE_PROFILE['communication_style']}
+        • Expertise: {self.AGENT_VOICE_PROFILE['expertise_level']}
+        • Format: {self.AGENT_VOICE_PROFILE['response_format']}
+        
+        RESPONSE STANDARDS:
+        ✓ Start with specific numbers/data answering their exact question
+        ✓ Provide context relative to YouTube benchmarks
+        ✓ Include one actionable next step
+        ✓ Use encouraging, professional tone
+        ✓ Keep response focused and under 200 words unless complex analysis requested
+        """
         
     async def generate_voice_matched_content(self, content_type: str, topic: str, user_context: Dict) -> Dict[str, Any]:
         """Generate content that matches the user's channel voice"""
@@ -1140,11 +1217,18 @@ class BossAgent:
         """
         
         try:
+            # Monitor query start
+            user_id = user_context.get('user_id', 'unknown')
+            await self.monitor.log_event(user_id, 'query_processing', 'boss_agent', 'start', 
+                                        {'message_preview': message[:50]})
+            
             # Get enhanced real-time context
-            user_id = user_context.get('user_id')
             if user_id:
                 # Register user activity for data pipeline
                 await get_data_pipeline().register_user_activity(user_id, "chat")
+                
+                # Monitor OAuth status check
+                await self.monitor.log_event(user_id, 'oauth_check', 'boss_agent', 'start')
                 
                 # Check OAuth status before attempting enhanced context
                 from oauth_manager import get_oauth_manager
@@ -1157,10 +1241,16 @@ class BossAgent:
                 needs_refresh = oauth_status.get('needs_refresh', False)
                 logger.info(f"📊 OAuth Status for {user_id}: authenticated={is_auth}, expires_in={expires_in}s, needs_refresh={needs_refresh}")
                 
+                await self.monitor.log_event(user_id, 'oauth_check', 'boss_agent', 'success', 
+                                           {'authenticated': is_auth, 'needs_refresh': needs_refresh})
+                
                 if is_auth:
                     logger.info(f"✅ OAuth connected - proceeding with real-time data access")
                 else:
                     logger.warning(f"❌ OAuth not connected - will use basic context only")
+                
+                # Monitor enhanced context fetching
+                await self.monitor.log_event(user_id, 'context_fetch', 'boss_agent', 'start')
                 
                 # Get enhanced context with real-time data
                 try:
@@ -1179,12 +1269,16 @@ class BossAgent:
                     
                     logger.info(f"📈 Enhanced context for {user_id}: total_views={total_views}, recent_views={recent_views}, realtime_data={has_realtime}, quality={data_quality}")
                     
+                    await self.monitor.log_event(user_id, 'context_fetch', 'boss_agent', 'success',
+                                               {'total_views': total_views, 'data_quality': data_quality})
+                    
                     if total_views > 0:
                         logger.info(f"✅ Real-time channel data available - agents can provide specific insights")
                     else:
                         logger.warning(f"⚠️ No view data available - may need fresh YouTube API call")
                     
                 except Exception as e:
+                    await self.monitor.log_event(user_id, 'context_fetch', 'boss_agent', 'failure', error_message=str(e))
                     logger.warning(f"Failed to get enhanced context for {user_id}: {e}")
                     enhanced_context = user_context
                     channel_info = user_context.get("channel_info", {})
@@ -1524,6 +1618,7 @@ class BossAgent:
             elif any(keyword in message_lower for keyword in ["best video", "top video", "best performing", "most views", "most popular", "highest performing"]):
                 # Check if we have enhanced context with video performance data
                 realtime_data = enhanced_context.get("realtime_data", {}) if 'enhanced_context' in locals() else {}
+                oauth_status = enhanced_context.get('oauth_status', {}) if 'enhanced_context' in locals() else {}
                 
                 if realtime_data and realtime_data.get('top_video'):
                     top_video = realtime_data['top_video']
@@ -1539,8 +1634,34 @@ class BossAgent:
                         "real_time_data": True
                     }
                 else:
-                    # Delegate to content analysis agent for detailed video analysis
-                    logger.info("No top video data in enhanced context - delegating to content analysis agent")
+                    # Check OAuth status and provide appropriate response
+                    is_auth = oauth_status.get('authenticated', False)
+                    needs_refresh = oauth_status.get('needs_refresh', False)
+                    
+                    if not is_auth:
+                        return {
+                            "success": True,
+                            "response": "I need access to your YouTube data to find your best performing video. Please connect your YouTube account in Settings > YouTube Integration to see detailed performance analytics.",
+                            "intent": "content_analysis",
+                            "agents_used": ["oauth_check"],
+                            "processing_time": 0.1,
+                            "confidence": 1.0,
+                            "oauth_required": True
+                        }
+                    elif needs_refresh:
+                        return {
+                            "success": True,
+                            "response": "Your YouTube connection needs to be refreshed. Please go to Settings > YouTube Integration and reconnect your account to see your best performing videos.",
+                            "intent": "content_analysis",
+                            "agents_used": ["oauth_refresh_needed"],
+                            "processing_time": 0.1,
+                            "confidence": 1.0,
+                            "refresh_required": True
+                        }
+                    else:
+                        # OAuth is connected but no data - try to fetch fresh data
+                        logger.info("No top video data in enhanced context - will attempt fresh data fetch via content analysis agent")
+                        # Continue to full agent processing for fresh data fetch
             
             # Step 1: Parse message and classify intent
             intent, parameters = await self.intent_classifier.classify_intent(message, user_context)
@@ -1680,18 +1801,114 @@ class BossAgent:
                 task = agent.process_request(requests[0])
                 tasks.append(task)
         
-        # Execute agents in parallel
+        # Execute agents in parallel with enhanced error handling
         responses = await asyncio.gather(*tasks, return_exceptions=True)
         
-        # Filter out exceptions and failed responses
+        # Enhanced error handling and response validation
         valid_responses = []
-        for response in responses:
-            if isinstance(response, AgentResponse) and response.success:
-                valid_responses.append(response)
+        failed_agents = []
+        
+        for i, response in enumerate(responses):
+            agent_type = active_agents[i] if i < len(active_agents) else "unknown"
+            
+            if isinstance(response, AgentResponse):
+                if response.success and response.confidence >= 0.5:
+                    valid_responses.append(response)
+                    logger.info(f"✅ {agent_type.value} agent succeeded (confidence: {response.confidence:.2f})")
+                else:
+                    failed_agents.append(agent_type.value)
+                    logger.warning(f"⚠️ {agent_type.value} agent low confidence: {response.confidence:.2f}")
+                    if response.confidence >= 0.3:  # Still use low confidence responses as backup
+                        valid_responses.append(response)
             elif isinstance(response, Exception):
-                logger.error(f"Agent execution failed: {response}")
+                failed_agents.append(agent_type.value)
+                logger.error(f"❌ {agent_type.value} agent failed: {response}")
+                
+                # Try to recover with simplified fallback
+                try:
+                    fallback_response = await self._create_fallback_response(agent_type, requests[0])
+                    if fallback_response:
+                        valid_responses.append(fallback_response)
+                        logger.info(f"🔄 {agent_type.value} fallback recovery successful")
+                except Exception as fallback_error:
+                    logger.error(f"💥 {agent_type.value} fallback also failed: {fallback_error}")
+        
+        # Log overall success rate
+        success_rate = len(valid_responses) / len(active_agents) if active_agents else 0
+        logger.info(f"📊 Agent execution success rate: {success_rate:.1%} ({len(valid_responses)}/{len(active_agents)})")
+        
+        if failed_agents:
+            logger.warning(f"⚠️ Failed agents: {', '.join(failed_agents)}")
         
         return valid_responses
+    
+    async def _create_fallback_response(self, agent_type: QueryType, request: AgentRequest) -> Optional[AgentResponse]:
+        """Create a simplified fallback response when an agent fails"""
+        
+        try:
+            start_time = datetime.now()
+            user_context = request.user_context or {}
+            channel_info = user_context.get('channel_info', {})
+            
+            fallback_prompts = {
+                QueryType.CONTENT_ANALYSIS: f"""
+                Provide basic YouTube content analysis for channel: {channel_info.get('name', 'Creator')}
+                Recent metrics: {channel_info.get('recent_views', 0):,} views, {channel_info.get('recent_ctr', 0):.1f}% CTR
+                Give 3 actionable content improvement suggestions based on standard YouTube best practices.
+                """,
+                QueryType.AUDIENCE_INSIGHTS: f"""
+                Analyze audience for channel: {channel_info.get('name', 'Creator')} 
+                Subscribers: {channel_info.get('subscriber_count', 0):,}
+                Provide 3 insights about audience growth and engagement strategies.
+                """,
+                QueryType.SEO_OPTIMIZATION: f"""
+                SEO analysis for channel: {channel_info.get('name', 'Creator')}
+                Niche: {channel_info.get('niche', 'General')}
+                Suggest 3 SEO optimization strategies for better discoverability.
+                """,
+                QueryType.COMPETITIVE_ANALYSIS: f"""
+                Competitive analysis for {channel_info.get('niche', 'YouTube')} channel
+                Provide 3 competitive positioning strategies and market opportunities.
+                """,
+                QueryType.MONETIZATION: f"""
+                Monetization analysis for channel with {channel_info.get('subscriber_count', 0):,} subscribers
+                Suggest 3 revenue optimization strategies appropriate for this channel size.
+                """
+            }
+            
+            prompt = fallback_prompts.get(agent_type, "Provide general YouTube growth advice.")
+            
+            response = await asyncio.get_event_loop().run_in_executor(
+                None,
+                lambda: self.client.chat.completions.create(
+                    model="gpt-4o",
+                    messages=[{"role": "user", "content": prompt}],
+                    temperature=0.3,
+                    max_tokens=300
+                )
+            )
+            
+            processing_time = (datetime.now() - start_time).total_seconds()
+            
+            return AgentResponse(
+                agent_id=f"{agent_type.value}_fallback",
+                request_id=request.request_id,
+                timestamp=datetime.now().isoformat(),
+                success=True,
+                data={
+                    "analysis_type": f"{agent_type.value}_fallback",
+                    "insights": response.choices[0].message.content,
+                    "recommendations": ["Review and optimize based on analytics data"],
+                    "fallback_response": True
+                },
+                confidence=0.6,  # Lower confidence for fallback responses
+                processing_time=processing_time,
+                tokens_used=300
+            )
+            
+        except Exception as e:
+            logger.error(f"Fallback response creation failed for {agent_type.value}: {e}")
+            return None
     
     async def _synthesize_response(self, intent: QueryType, agent_responses: List[AgentResponse], user_context: Dict, message: str) -> Dict[str, Any]:
         """Synthesize final response from agent outputs"""
@@ -1730,47 +1947,73 @@ class BossAgent:
                     Engagement Rate: {best['engagement_rate']:.1f}%
                     """
         
-        # Create synthesis prompt
+        # Create enhanced synthesis prompt with confidence weighting
         channel_info = user_context.get("channel_info", {})
+        
+        # Calculate confidence-weighted insights
+        high_confidence_insights = []
+        medium_confidence_insights = []
+        low_confidence_insights = []
+        
+        for response in agent_responses:
+            confidence = response.confidence
+            agent_name = response.agent_id.replace('_', ' ').title()
+            data = response.data
+            
+            if "insights" in data:
+                insight_text = f"**{agent_name}** (confidence: {confidence:.1f}): {data['insights']}"
+                if confidence >= 0.85:
+                    high_confidence_insights.append(insight_text)
+                elif confidence >= 0.70:
+                    medium_confidence_insights.append(insight_text)
+                else:
+                    low_confidence_insights.append(insight_text)
+        
+        # Prioritize high confidence insights
+        prioritized_insights = high_confidence_insights + medium_confidence_insights + low_confidence_insights
+        
         synthesis_prompt = f"""
-        As CreatorMate, answer the user's specific question using these YouTube analytics insights.
+        You are CreatorMate's AI assistant. Provide an expert, data-driven response to this YouTube creator's question.
         
-        User's Question: "{message}"
-        User Intent: {intent.value.replace('_', ' ').title()}
-        Channel: {channel_info.get('name', 'Your channel')}
+        {self._get_voice_guidelines()}
         
-        Channel Information Available:
-        - Total Views: {channel_info.get('total_view_count', 0):,} ({channel_info.get('total_view_count', 0) and 'real-time data' or 'basic data'})
-        - Subscriber Count: {channel_info.get('subscriber_count', 0):,}
-        - Average Views per Video: {channel_info.get('avg_view_count', 0):,}
-        - Total Videos: {channel_info.get('video_count', 0)}
-        - Recent CTR: {channel_info.get('recent_ctr', 0):.1f}%
-        - Recent Retention: {channel_info.get('recent_retention', 0):.1f}%
-        - Recent Engagement: {channel_info.get('recent_engagement_rate', 0):.1f}%
+        CREATOR'S QUESTION: "{message}"
+        DETECTED INTENT: {intent.value.replace('_', ' ').title()}
+        CHANNEL: {channel_info.get('name', 'Creator')}
         
-        Agent Insights:
-        {chr(10).join(all_insights)}
+        REAL-TIME CHANNEL DATA:
+        • Total Views: {channel_info.get('total_view_count', 0):,}
+        • Subscribers: {channel_info.get('subscriber_count', 0):,}
+        • Total Videos: {channel_info.get('video_count', 0)}
+        • Recent Performance (7d): {channel_info.get('recent_views', 0):,} views
+        • Current CTR: {channel_info.get('recent_ctr', 0):.1f}%
+        • Retention Rate: {channel_info.get('recent_retention', 0):.1f}%
+        • Engagement Rate: {channel_info.get('recent_engagement_rate', 0):.1f}%
+        
+        AI AGENT ANALYSIS (Prioritized by Confidence):
+        {chr(10).join(prioritized_insights)}
         {top_performers_info}
         
-        CRITICAL INSTRUCTIONS:
-        1. ALWAYS start with a DIRECT ANSWER to the user's exact question using the specific data above
-        2. For "total views" questions: "Your channel has X total views" (use the exact number)
-        3. For "subscribers" questions: "You have X subscribers" (use the exact number)
-        4. For "best video" questions: Use the BEST PERFORMING VIDEO data above if available
-        5. For performance metrics: Use the Recent CTR, Retention, Engagement data above
-        6. If no specific data is available for their question, say "I don't have that specific data available" instead of generic responses
+        RESPONSE GUIDELINES:
+        1. **DIRECT ANSWER FIRST**: Start with exact numbers answering their specific question
+        2. **DATA-DRIVEN**: Use only the real metrics provided above - no generic estimates
+        3. **CONTEXT-AWARE**: Reference their channel's specific performance levels
+        4. **ACTIONABLE**: Include 1-2 specific next steps if relevant to their question
+        5. **PROFESSIONAL TONE**: Expert but approachable, like a seasoned YouTube strategist
         
-        Response Structure:
-        - FIRST SENTENCE: Direct answer to their question with specific numbers
-        - OPTIONAL: Brief additional context or insights (1-2 sentences max)
-        - OPTIONAL: Recommendations ONLY if truly relevant to their question
+        QUALITY STANDARDS:
+        ✓ Answer must be specific to their exact question
+        ✓ Use precise numbers from the data above
+        ✓ Provide context relative to YouTube benchmarks when relevant
+        ✓ Keep total response under 200 words unless complex analysis requested
+        ✓ End with actionable next step if applicable
         
-        Examples:
-        - Question: "What is my total views?" → "Your channel has 1,234,567 total views."
-        - Question: "What's my best video?" → "Your best performing video is 'Video Title' with 50,000 views."
+        RESPONSE STRUCTURE:
+        [Direct numerical answer] + [Brief context] + [Actionable insight if relevant]
         
-        Do NOT provide generic advice unless specifically asked for it.
-        Keep the response concise and focused on answering their exact question.
+        EXAMPLES:
+        Q: "Total views?" → "Your channel has 1,234,567 total views, which puts you in the top 15% of creators in your niche."
+        Q: "Best video?" → "Your top video is 'Title' with 89K views (8.2% CTR) - consider analyzing what made it successful."
         """
         
         try:
@@ -1779,7 +2022,7 @@ class BossAgent:
                 lambda: self.client.chat.completions.create(
                     model="gpt-4o",
                     messages=[{"role": "user", "content": synthesis_prompt}],
-                    temperature=0.3,
+                    temperature=0.2,
                     max_tokens=800
                 )
             )
