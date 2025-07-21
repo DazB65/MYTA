@@ -1,0 +1,480 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Content Studio Dashboard</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="content-studio-styles.css">
+</head>
+<body>
+    <!-- Main Dashboard Container -->
+    <div class="dashboard-container">
+        
+        <!-- Left Sidebar Navigation -->
+        <nav class="left-sidebar">
+            <div class="nav-item">
+                <div class="nav-icon">📊</div>
+                <span class="nav-label">Channel</span>
+            </div>
+            <div class="nav-item">
+                <div class="nav-icon">🏛️</div>
+                <span class="nav-label">Pillars</span>
+            </div>
+            <div class="nav-item">
+                <div class="nav-icon">🎥</div>
+                <span class="nav-label">Video</span>
+            </div>
+            <div class="nav-item active">
+                <div class="nav-icon">🎨</div>
+                <span class="nav-label">Content Studio</span>
+            </div>
+        </nav>
+
+        <!-- Main Content Area -->
+        <main class="main-content">
+            
+            <!-- Top Header -->
+            <header class="content-header">
+                <div class="header-left">
+                    <h1 class="page-title">Content Studio</h1>
+                    <p class="page-subtitle">Create, plan, and optimize your content</p>
+                </div>
+                
+                <div class="header-controls">
+                    <!-- Tab Navigation -->
+                    <div class="tab-navigation">
+                        <button class="tab-btn active">Ideas & Planning</button>
+                        <button class="tab-btn">Scripts</button>
+                        <button class="tab-btn">Thumbnails</button>
+                        <button class="tab-btn">Keywords</button>
+                        <button class="tab-btn">Analytics</button>
+                    </div>
+                    
+                    <!-- Action Buttons -->
+                    <div class="action-buttons">
+                        <button class="btn-secondary">
+                            <span class="btn-icon">📅</span>
+                            Calendar View
+                        </button>
+                        <button class="btn-primary">
+                            <span class="btn-icon">+</span>
+                            New Content
+                        </button>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Kanban Board Section -->
+            <section class="kanban-section">
+                <h2 class="section-title">Ideas & Planning</h2>
+                
+                <div class="kanban-board">
+                    
+                    <!-- Ideas Column -->
+                    <div class="kanban-column">
+                        <div class="column-header">
+                            <div class="column-title">
+                                <span class="column-icon">💡</span>
+                                Ideas
+                            </div>
+                            <button class="add-card-btn">+</button>
+                        </div>
+                        
+                        <div class="cards-container">
+                            <div class="content-card">
+                                <h4 class="card-title">Top 5 AI Tools for Video Editing</h4>
+                                <p class="card-description">Comparison of new AI editing tools including Runway, Pika Labs, and emerging platforms for creators.</p>
+                                <div class="card-tags">
+                                    <span class="tag tag-ai">AI</span>
+                                    <span class="tag tag-editing">Editing</span>
+                                    <span class="tag tag-tools">Tools</span>
+                                </div>
+                            </div>
+                            
+                            <div class="content-card">
+                                <h4 class="card-title">My Creator Studio Tour 2025</h4>
+                                <p class="card-description">Complete tour of my updated setup including new equipment, workspace, and workflow optimizations.</p>
+                                <div class="card-tags">
+                                    <span class="tag tag-behind-scenes">Behind the Scenes</span>
+                                    <span class="tag tag-tech">Tech</span>
+                                    <span class="tag tag-studio">Studio</span>
+                                </div>
+                            </div>
+                            
+                            <div class="content-card">
+                                <h4 class="card-title">iPhone 16 Pro Max vs Pixel 8 Pro</h4>
+                                <p class="card-description">In-depth camera, performance, and battery comparison between flagship smartphones.</p>
+                                <div class="card-tags">
+                                    <span class="tag tag-tech">Tech</span>
+                                    <span class="tag tag-review">Review</span>
+                                    <span class="tag tag-general">General</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Planning Column -->
+                    <div class="kanban-column">
+                        <div class="column-header">
+                            <div class="column-title">
+                                <span class="column-icon">📋</span>
+                                Planning
+                            </div>
+                            <button class="add-card-btn">+</button>
+                        </div>
+                        
+                        <div class="cards-container">
+                            <div class="content-card">
+                                <h4 class="card-title">How to 10x Your Video Workflow</h4>
+                                <p class="card-description">Automation, analytics, and systems to maximize content production efficiency.</p>
+                                <div class="progress-section">
+                                    <div class="progress-label">Research done</div>
+                                    <div class="progress-bar">
+                                        <div class="progress-fill" style="width: 30%"></div>
+                                    </div>
+                                    <div class="progress-percentage">30%</div>
+                                </div>
+                            </div>
+                            
+                            <div class="content-card">
+                                <h4 class="card-title">Best Budget Laptops for Creators</h4>
+                                <p class="card-description">Review of 5 laptops under $1000 perfect for video editing and content creation.</p>
+                                <div class="card-tags">
+                                    <span class="tag tag-tech">Tech</span>
+                                    <span class="tag tag-budget">Budget</span>
+                                    <span class="tag tag-review">Review</span>
+                                </div>
+                                <div class="progress-section">
+                                    <div class="progress-label">Script ready</div>
+                                    <div class="progress-bar">
+                                        <div class="progress-fill" style="width: 50%"></div>
+                                    </div>
+                                    <div class="progress-percentage">50%</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- In Progress Column -->
+                    <div class="kanban-column">
+                        <div class="column-header">
+                            <div class="column-title">
+                                <span class="column-icon">🏗️</span>
+                                In Progress
+                            </div>
+                            <button class="add-card-btn">+</button>
+                        </div>
+                        
+                        <div class="cards-container">
+                            <div class="content-card">
+                                <h4 class="card-title">Midjourney v6: Complete Tutorial</h4>
+                                <p class="card-description">Step-by-step guide to the new Midjourney v6 features and advanced prompt engineering.</p>
+                                <div class="card-tags">
+                                    <span class="tag tag-creator">Creator</span>
+                                    <span class="tag tag-tutorial">Tutorial</span>
+                                </div>
+                                <div class="progress-section">
+                                    <div class="progress-label">Filming complete</div>
+                                    <div class="progress-bar">
+                                        <div class="progress-fill" style="width: 75%"></div>
+                                    </div>
+                                    <div class="progress-percentage">75%</div>
+                                </div>
+                                <div class="status-indicator editing">Editing in progress</div>
+                            </div>
+                            
+                            <div class="content-card">
+                                <h4 class="card-title">How Much I Made as a Creator in 2023</h4>
+                                <p class="card-description">Transparent breakdown of my income streams including sponsorships, ads, and digital products.</p>
+                                <div class="card-tags">
+                                    <span class="tag tag-creator">Creator</span>
+                                    <span class="tag tag-business">Business</span>
+                                </div>
+                                <div class="progress-section">
+                                    <div class="progress-label">Data Nov</div>
+                                    <div class="progress-bar">
+                                        <div class="progress-fill" style="width: 90%"></div>
+                                    </div>
+                                    <div class="progress-percentage">90%</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Ready to Publish Column -->
+                    <div class="kanban-column">
+                        <div class="column-header">
+                            <div class="column-title">
+                                <span class="column-icon">🚀</span>
+                                Ready to Publish
+                            </div>
+                            <button class="add-card-btn">+</button>
+                        </div>
+                        
+                        <div class="cards-container">
+                            <div class="content-card">
+                                <h4 class="card-title">7 ChatGPT Prompts Every Creator Needs</h4>
+                                <p class="card-description">Powerful prompts for scripting, thumbnail ideas, and channel optimization strategies.</p>
+                                <div class="card-tags">
+                                    <span class="tag tag-creator">Creator</span>
+                                    <span class="tag tag-tutorials">Tutorials</span>
+                                </div>
+                                <div class="progress-section">
+                                    <div class="progress-label">Publish</div>
+                                    <div class="progress-bar">
+                                        <div class="progress-fill" style="width: 100%"></div>
+                                    </div>
+                                    <div class="progress-percentage">100%</div>
+                                </div>
+                                <div class="status-indicator ready">Ready to publish 100%</div>
+                            </div>
+                            
+                            <div class="content-card">
+                                <h4 class="card-title">Studio Lighting on a Budget</h4>
+                                <p class="card-description">Budget-friendly lighting recommendations and setups for professional-looking videos under $200.</p>
+                                <div class="card-tags">
+                                    <span class="tag tag-creator">Creator</span>
+                                    <span class="tag tag-tech">Tech</span>
+                                </div>
+                                <div class="status-indicator schedule">Schedule</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- AI Content Suggestions Section -->
+            <section class="ai-suggestions-section">
+                <div class="section-header">
+                    <h2 class="section-title">AI Content Suggestions</h2>
+                    <select class="filter-dropdown">
+                        <option>All Pillars</option>
+                        <option>Tech Reviews</option>
+                        <option>Creator Tips</option>
+                        <option>Tutorials</option>
+                    </select>
+                </div>
+                
+                <div class="suggestions-grid">
+                    <div class="suggestion-card trending">
+                        <div class="suggestion-header">
+                            <div class="suggestion-icon">📈</div>
+                            <div class="suggestion-type">Trending</div>
+                        </div>
+                        <h3 class="suggestion-title">AI Video Generation</h3>
+                        <div class="suggestion-metric">+128% search volume</div>
+                        <p class="suggestion-description">Video generators like Runway, Pika Labs, and Sora are gaining significant traction. A comparison video would likely perform well.</p>
+                        <div class="suggestion-tags">
+                            <span class="tag tag-high-revenue">High revenue potential</span>
+                        </div>
+                        <button class="suggestion-action">Add to Ideas</button>
+                    </div>
+                    
+                    <div class="suggestion-card opportunity">
+                        <div class="suggestion-header">
+                            <div class="suggestion-icon">🎯</div>
+                            <div class="suggestion-type">Opportunity</div>
+                        </div>
+                        <h3 class="suggestion-title">Budget PC Builds</h3>
+                        <div class="suggestion-metric">+48% engagement</div>
+                        <p class="suggestion-description">Your audience engagement spikes when discussing affordable tech. A "$500 Content Creator PC Build" video could perform exceptionally well.</p>
+                        <div class="suggestion-tags">
+                            <span class="tag tag-medium-revenue">Medium revenue potential</span>
+                        </div>
+                        <button class="suggestion-action">Add to Ideas</button>
+                    </div>
+                    
+                    <div class="suggestion-card repurpose">
+                        <div class="suggestion-header">
+                            <div class="suggestion-icon">🔄</div>
+                            <div class="suggestion-type">Repurpose</div>
+                        </div>
+                        <h3 class="suggestion-title">Day in the Life</h3>
+                        <div class="suggestion-metric">+85% subscriber growth</div>
+                        <p class="suggestion-description">Your "Creator Workday" video from 6 months ago led to significant subscriber growth. Consider creating an updated version showing your new workflow.</p>
+                        <div class="suggestion-tags">
+                            <span class="tag tag-high-subscriber">High subscriber growth</span>
+                        </div>
+                        <button class="suggestion-action">Add to Ideas</button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Upcoming Content Calendar Section -->
+            <section class="calendar-section">
+                <div class="section-header">
+                    <h2 class="section-title">Upcoming Content Calendar</h2>
+                    <a href="#" class="full-calendar-link">Full Calendar</a>
+                </div>
+                
+                <div class="calendar-view">
+                    <div class="calendar-day">
+                        <div class="day-header">
+                            <div class="day-name">Mon</div>
+                            <div class="day-date">Nov 6</div>
+                        </div>
+                    </div>
+                    
+                    <div class="calendar-day">
+                        <div class="day-header">
+                            <div class="day-name">Tue</div>
+                            <div class="day-date">Nov 7</div>
+                        </div>
+                        <div class="calendar-event">
+                            <div class="event-time">10:00 AM</div>
+                            <div class="event-title">7 ChatGPT Prompts</div>
+                            <div class="event-category">Tutorials</div>
+                        </div>
+                    </div>
+                    
+                    <div class="calendar-day">
+                        <div class="day-header">
+                            <div class="day-name">Wed</div>
+                            <div class="day-date">Nov 8</div>
+                        </div>
+                        <div class="calendar-event all-day">
+                            <div class="event-time">All day</div>
+                            <div class="event-title">Film: Midjourney v6 Complete Tutorial</div>
+                        </div>
+                    </div>
+                    
+                    <div class="calendar-day">
+                        <div class="day-header">
+                            <div class="day-name">Thu</div>
+                            <div class="day-date">Nov 9</div>
+                        </div>
+                        <div class="calendar-event">
+                            <div class="event-time">3:00 PM</div>
+                            <div class="event-title">How Much I Made as a Creator 2023</div>
+                            <div class="event-category">Creator Tips</div>
+                        </div>
+                    </div>
+                    
+                    <div class="calendar-day">
+                        <div class="day-header">
+                            <div class="day-name">Fri</div>
+                            <div class="day-date">Nov 10</div>
+                        </div>
+                    </div>
+                    
+                    <div class="calendar-day">
+                        <div class="day-header">
+                            <div class="day-name">Sat</div>
+                            <div class="day-date">Nov 11</div>
+                        </div>
+                        <div class="calendar-event">
+                            <div class="event-time">10:00 AM</div>
+                            <div class="event-title">Creator Studio Workf...</div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <!-- Right Sidebar - Personal Agent -->
+        <aside class="right-sidebar">
+            <div class="agent-header">
+                <div class="agent-avatar">🤖</div>
+                <div class="agent-info">
+                    <h3 class="agent-title">Your Personal Agent</h3>
+                    <p class="agent-subtitle">AI-powered insights</p>
+                </div>
+                <div class="insights-badge">3 new insights</div>
+            </div>
+            
+            <div class="insights-list">
+                <div class="insight-item trending">
+                    <div class="insight-icon">📈</div>
+                    <div class="insight-content">
+                        <h4 class="insight-title">Trending topic detected</h4>
+                        <p class="insight-description">AI trending topics are surging in your niche. Create content now for maximum reach.</p>
+                    </div>
+                </div>
+                
+                <div class="insight-item retention">
+                    <div class="insight-icon">✅</div>
+                    <div class="insight-content">
+                        <h4 class="insight-title">Retention improved</h4>
+                        <p class="insight-description">Your audience retention increased by 15% this week. Keep using opening hooks!</p>
+                    </div>
+                </div>
+                
+                <div class="insight-item revenue">
+                    <div class="insight-icon">💰</div>
+                    <div class="insight-content">
+                        <h4 class="insight-title">Revenue impact</h4>
+                        <p class="insight-description">My suggestions earned you £4300 in additional revenue this month.</p>
+                    </div>
+                </div>
+                
+                <div class="insight-item revenue">
+                    <div class="insight-icon">💰</div>
+                    <div class="insight-content">
+                        <h4 class="insight-title">Revenue impact</h4>
+                        <p class="insight-description">My suggestions earned you £4300 in additional revenue this month.</p>
+                    </div>
+                </div>
+                
+                <div class="insight-item revenue">
+                    <div class="insight-icon">💰</div>
+                    <div class="insight-content">
+                        <h4 class="insight-title">Revenue impact</h4>
+                        <p class="insight-description">My suggestions earned you £4300 in additional revenue this month.</p>
+                    </div>
+                </div>
+                
+                <div class="insight-item revenue">
+                    <div class="insight-icon">💰</div>
+                    <div class="insight-content">
+                        <h4 class="insight-title">Revenue impact</h4>
+                        <p class="insight-description">My suggestions earned you £4300 in additional revenue this month.</p>
+                    </div>
+                </div>
+                
+                <div class="insight-item revenue">
+                    <div class="insight-icon">💰</div>
+                    <div class="insight-content">
+                        <h4 class="insight-title">Revenue impact</h4>
+                        <p class="insight-description">My suggestions earned you £4300 in additional revenue this month.</p>
+                    </div>
+                </div>
+                
+                <div class="insight-item revenue">
+                    <div class="insight-icon">💰</div>
+                    <div class="insight-content">
+                        <h4 class="insight-title">Revenue impact</h4>
+                        <p class="insight-description">My suggestions earned you £4300 in additional revenue this month.</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="quick-actions">
+                <h4 class="quick-actions-title">QUICK ACTIONS</h4>
+                <button class="quick-action-btn">
+                    <span class="action-icon">💡</span>
+                    Generate Video Ideas
+                </button>
+                <button class="quick-action-btn">
+                    <span class="action-icon">📝</span>
+                    Optimize My Script
+                </button>
+                <button class="quick-action-btn">
+                    <span class="action-icon">📅</span>
+                    Plan This Week
+                </button>
+            </div>
+            
+            <div class="agent-input">
+                <div class="input-container">
+                    <input type="text" placeholder="Ask your AI Agent anything..." class="agent-text-input">
+                    <button class="ask-ai-btn">Ask AI</button>
+                </div>
+                <p class="input-hint">Ask me about trends, optimization, or revenue opportunities</p>
+            </div>
+        </aside>
+    </div>
+</body>
+</html>
