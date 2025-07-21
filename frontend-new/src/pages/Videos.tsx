@@ -2,7 +2,6 @@ import { useState, useEffect } from 'react'
 import Card from '@/components/common/Card'
 import Button from '@/components/common/Button'
 import { formatNumber } from '@/utils'
-import { useUserStore } from '@/store/userStore'
 import { useOAuthStore } from '@/store/oauthStore'
 import { Loader, AlertCircle } from 'lucide-react'
 
@@ -89,7 +88,6 @@ const formatPercentage = (value: number | undefined): string => {
 // formatCurrency removed - no longer needed for real data only display
 
 export default function Videos() {
-  const { channelInfo } = useUserStore()
   const { isAuthenticated, checkStatus } = useOAuthStore()
   
   // TEMPORARY FIX: Force use default_user for consistency with Pillars page
@@ -111,12 +109,10 @@ export default function Videos() {
   }, [])
 
   useEffect(() => {
-    // Fetch videos when authenticated and channel is configured
-    if (isAuthenticated && channelInfo.name !== 'Unknown') {
-      fetchVideos()
-      fetchPillars()
-    }
-  }, [isAuthenticated, channelInfo.name])
+    // Always fetch videos and pillars on mount - API works with or without OAuth
+    fetchVideos()
+    fetchPillars()
+  }, []) // Run once on mount
 
   const fetchPillars = async () => {
     try {
