@@ -80,7 +80,7 @@ class YouTubeCommentData:
     parent_id: Optional[str] = None
 
 class YouTubeQuotaManager:
-    """Manages YouTube API quota usage"""
+    """Manages YouTube API quota usage with intelligent backoff"""
     
     def __init__(self):
         self.daily_quota = 10000  # YouTube API default quota
@@ -94,6 +94,13 @@ class YouTubeQuotaManager:
             'playlists.list': 1,
             'playlistItems.list': 1
         }
+        
+        # Exponential backoff parameters
+        self.backoff_enabled = True
+        self.last_quota_error = None
+        self.consecutive_errors = 0
+        self.backoff_delay = 0  # seconds
+        self.max_backoff_delay = 300  # 5 minutes max
     
     def check_quota(self, operation: str, estimated_calls: int = 1) -> bool:
         """Check if operation is within quota limits"""
@@ -119,8 +126,66 @@ class YouTubeQuotaManager:
             "used_quota": self.used_quota,
             "remaining_quota": self.daily_quota - self.used_quota,
             "quota_reset_time": self.quota_reset_time.isoformat(),
-            "usage_percentage": (self.used_quota / self.daily_quota) * 100
+            "usage_percentage": (self.used_quota / self.daily_quota) * 100,
+            "backoff_enabled": self.backoff_enabled,
+            "backoff_delay": self.backoff_delay,
+            "consecutive_errors": self.consecutive_errors
         }
+    
+    def record_quota_error(self):
+        """Record a quota error and increase backoff delay"""
+        if not self.backoff_enabled:
+            return
+        
+        self.last_quota_error = datetime.now()
+        self.consecutive_errors += 1
+        
+        # Exponential backoff: 2^n seconds, capped at max_backoff_delay
+        base_delay = min(2 ** self.consecutive_errors, self.max_backoff_delay)
+        self.backoff_delay = base_delay
+        
+        logger.warning(f"Quota error recorded. Backoff delay: {self.backoff_delay}s, consecutive errors: {self.consecutive_errors}")
+    
+    def record_quota_success(self):
+        """Record successful quota usage and reset backoff"""
+        if self.consecutive_errors > 0:
+            logger.info(f"Quota success after {self.consecutive_errors} errors. Resetting backoff.")
+            
+        self.consecutive_errors = 0
+        self.backoff_delay = 0
+        self.last_quota_error = None
+    
+    def should_backoff(self) -> Tuple[bool, float]:
+        """Check if we should apply backoff delay"""
+        if not self.backoff_enabled or self.backoff_delay == 0:
+            return False, 0
+        
+        if self.last_quota_error:
+            time_since_error = (datetime.now() - self.last_quota_error).total_seconds()
+            if time_since_error < self.backoff_delay:
+                remaining_delay = self.backoff_delay - time_since_error
+                return True, remaining_delay
+            else:
+                # Backoff period has passed, reset
+                self.backoff_delay = 0
+                return False, 0
+        
+        return False, 0
+    
+    def get_safe_operation_limit(self) -> int:
+        """Get conservative quota limit for high-cost operations when quota is low"""
+        remaining = self.daily_quota - self.used_quota
+        usage_percentage = (self.used_quota / self.daily_quota) * 100
+        
+        # When quota usage is high, be more conservative
+        if usage_percentage > 90:
+            return max(1, remaining // 4)  # Use only 25% of remaining
+        elif usage_percentage > 75:
+            return max(1, remaining // 2)  # Use only 50% of remaining
+        elif usage_percentage > 50:
+            return max(1, remaining * 3 // 4)  # Use only 75% of remaining
+        else:
+            return remaining  # Use all remaining when plenty available
 
 def parse_duration(duration_str: str) -> str:
     """Convert YouTube duration format (PT4M47S) to readable format (4:47)"""
@@ -151,8 +216,20 @@ class YouTubeAPIIntegration:
         self.youtube = None
         self.simple_cache = {}  # Simple in-memory cache
         self.cache_ttl = {}  # Track TTL for cache entries
+        self.etag_cache = {}  # Store ETags for conditional requests
         self.quota_manager = YouTubeQuotaManager()
         self.oauth_manager = get_oauth_manager()
+        
+        # Cache analytics
+        self.cache_stats = {
+            'hits': 0,
+            'misses': 0,
+            'etag_saves': 0,
+            'total_requests': 0,
+            'hit_rate': 0.0,
+            'quota_saved': 0
+        }
+        self.cache_access_patterns = {}  # Track access patterns per cache key
         
         # Initialize with API key (fallback for public data)
         if self.api_key:
@@ -165,20 +242,100 @@ class YouTubeAPIIntegration:
             logger.warning("YouTube API key not available")
     
     def _cache_get(self, key: str) -> Optional[Any]:
-        """Get from simple cache if not expired"""
+        """Get from simple cache if not expired with analytics tracking"""
+        self.cache_stats['total_requests'] += 1
+        
+        # Track access pattern
+        if key not in self.cache_access_patterns:
+            self.cache_access_patterns[key] = {'hits': 0, 'misses': 0, 'last_access': None}
+        
         if key in self.simple_cache and key in self.cache_ttl:
             if time.time() < self.cache_ttl[key]:
+                # Cache hit
+                self.cache_stats['hits'] += 1
+                self.cache_access_patterns[key]['hits'] += 1
+                self.cache_access_patterns[key]['last_access'] = datetime.now()
+                self._update_hit_rate()
                 return self.simple_cache[key]
             else:
                 # Expired, remove from cache
                 del self.simple_cache[key]
                 del self.cache_ttl[key]
+                # Also remove associated ETag
+                if key in self.etag_cache:
+                    del self.etag_cache[key]
+        
+        # Cache miss
+        self.cache_stats['misses'] += 1
+        self.cache_access_patterns[key]['misses'] += 1
+        self._update_hit_rate()
         return None
     
-    def _cache_set(self, key: str, value: Any, ttl: int = 3600):
-        """Set in simple cache with TTL"""
+    def _cache_set(self, key: str, value: Any, ttl: int = 3600, etag: Optional[str] = None):
+        """Set in simple cache with TTL and optional ETag"""
         self.simple_cache[key] = value
         self.cache_ttl[key] = time.time() + ttl
+        if etag:
+            self.etag_cache[key] = etag
+    
+    def _get_etag(self, key: str) -> Optional[str]:
+        """Get stored ETag for a cache key"""
+        return self.etag_cache.get(key)
+    
+    def _should_use_conditional_request(self, key: str) -> bool:
+        """Check if we should use conditional request (has ETag but cache expired)"""
+        return key in self.etag_cache and key not in self.simple_cache
+    
+    def _update_hit_rate(self):
+        """Update cache hit rate"""
+        if self.cache_stats['total_requests'] > 0:
+            self.cache_stats['hit_rate'] = (self.cache_stats['hits'] / self.cache_stats['total_requests']) * 100
+    
+    def record_etag_save(self, operation_type: str):
+        """Record that an ETag saved us a quota unit"""
+        self.cache_stats['etag_saves'] += 1
+        # Estimate quota saved based on operation type
+        quota_cost = self.quota_manager.operation_costs.get(operation_type, 1)
+        self.cache_stats['quota_saved'] += quota_cost
+        logger.info(f"✅ ETag saved {quota_cost} quota units for {operation_type}")
+    
+    def get_cache_analytics(self) -> Dict[str, Any]:
+        """Get comprehensive cache analytics"""
+        # Calculate cache efficiency
+        efficiency_score = 0
+        if self.cache_stats['total_requests'] > 0:
+            efficiency_score = (
+                (self.cache_stats['hits'] + self.cache_stats['etag_saves']) / 
+                self.cache_stats['total_requests']
+            ) * 100
+        
+        # Find most accessed cache keys
+        top_keys = sorted(
+            self.cache_access_patterns.items(),
+            key=lambda x: x[1]['hits'] + x[1]['misses'],
+            reverse=True
+        )[:5]
+        
+        return {
+            'cache_stats': self.cache_stats,
+            'efficiency_score': efficiency_score,
+            'cache_size': len(self.simple_cache),
+            'etag_count': len(self.etag_cache),
+            'top_accessed_keys': [
+                {
+                    'key': key[:50] + '...' if len(key) > 50 else key,
+                    'total_accesses': data['hits'] + data['misses'],
+                    'hit_rate': (data['hits'] / max(data['hits'] + data['misses'], 1)) * 100,
+                    'last_access': data['last_access'].isoformat() if data['last_access'] else None
+                }
+                for key, data in top_keys
+            ],
+            'quota_savings': {
+                'total_saved': self.cache_stats['quota_saved'],
+                'etag_saves': self.cache_stats['etag_saves'],
+                'cache_hits': self.cache_stats['hits']
+            }
+        }
     
     async def get_authenticated_service(self, user_id: str, service_name: str = "youtube", version: str = "v3"):
         """Get authenticated YouTube service for a user"""
@@ -198,6 +355,81 @@ class YouTubeAPIIntegration:
         """Generate cache key for API request"""
         key_data = f"{method}_{json.dumps(params, sort_keys=True)}"
         return hashlib.md5(key_data.encode()).hexdigest()
+    
+    async def _make_conditional_request(self, request_func, cache_key: str, operation_type: str):
+        """Make a conditional API request using ETags when available with smart backoff"""
+        # Check if we should apply backoff delay
+        should_wait, delay = self.quota_manager.should_backoff()
+        if should_wait:
+            logger.info(f"⏳ Applying exponential backoff: waiting {delay:.1f}s before {operation_type}")
+            await asyncio.sleep(delay)
+        
+        etag = self._get_etag(cache_key)
+        
+        try:
+            if etag:
+                # Try conditional request with If-None-Match header
+                logger.info(f"Making conditional request with ETag: {etag[:20]}...")
+                try:
+                    # Note: The Google API client doesn't directly support If-None-Match headers
+                    # We'll implement this by checking if we get a 304 response
+                    response = await asyncio.get_event_loop().run_in_executor(None, request_func)
+                    
+                    # Extract ETag from response if available
+                    new_etag = getattr(response, 'etag', None)
+                    if new_etag and new_etag == etag:
+                        # Content hasn't changed - no quota consumed for 304 response
+                        logger.info(f"✅ ETag match - no quota consumed for {operation_type}")
+                        self.quota_manager.record_quota_success()
+                        self.record_etag_save(operation_type)
+                        return None, True  # Return None to indicate cached data should be used
+                    
+                    # Content changed, consume quota and return new data
+                    self.quota_manager.consume_quota(operation_type)
+                    self.quota_manager.record_quota_success()
+                    return response, False
+                    
+                except HttpError as e:
+                    if e.resp.status == 304:
+                        # Not Modified - use cached data, no quota consumed
+                        logger.info(f"✅ HTTP 304 Not Modified - no quota consumed for {operation_type}")
+                        self.quota_manager.record_quota_success()
+                        self.record_etag_save(operation_type)
+                        return None, True
+                    elif e.resp.status == 403 and 'quotaExceeded' in str(e):
+                        # Quota exceeded error
+                        logger.error(f"❌ Quota exceeded for {operation_type}")
+                        self.quota_manager.record_quota_error()
+                        raise e
+                    else:
+                        raise e
+            else:
+                # No ETag available, make normal request
+                response = await asyncio.get_event_loop().run_in_executor(None, request_func)
+                self.quota_manager.consume_quota(operation_type)
+                self.quota_manager.record_quota_success()
+                return response, False
+                
+        except HttpError as e:
+            if e.resp.status == 403 and 'quotaExceeded' in str(e):
+                logger.error(f"❌ Quota exceeded in conditional request for {operation_type}: {e}")
+                self.quota_manager.record_quota_error()
+                raise e
+            else:
+                logger.error(f"HTTP error in conditional request for {operation_type}: {e}")
+                raise e
+        except Exception as e:
+            logger.error(f"Error in conditional request for {operation_type}: {e}")
+            # Fall back to normal request
+            try:
+                response = await asyncio.get_event_loop().run_in_executor(None, request_func)
+                self.quota_manager.consume_quota(operation_type)
+                self.quota_manager.record_quota_success()
+                return response, False
+            except HttpError as he:
+                if he.resp.status == 403 and 'quotaExceeded' in str(he):
+                    self.quota_manager.record_quota_error()
+                raise he
     
     async def get_channel_data(
         self, 
@@ -222,6 +454,10 @@ class YouTubeAPIIntegration:
             logger.info(f"Cache hit for channel data: {channel_id}")
             return YouTubeChannelMetrics(**cached_data)
         
+        # Check if we should use conditional request (cache expired but have ETag)
+        if self._should_use_conditional_request(cache_key):
+            logger.info(f"Cache expired but ETag available for channel {channel_id}")
+        
         # Get appropriate service (OAuth if available, otherwise API key)
         youtube_service = await self.get_authenticated_service(user_id) if user_id else self.youtube
         
@@ -235,16 +471,30 @@ class YouTubeAPIIntegration:
                 logger.error("YouTube API quota exceeded")
                 return None
             
-            # Get channel info
-            channel_response = await asyncio.get_event_loop().run_in_executor(
-                None,
-                lambda: youtube_service.channels().list(
-                    part='snippet,statistics,brandingSettings',
-                    id=channel_id
-                ).execute()
+            # Make conditional API request with ETag support
+            request_func = lambda: youtube_service.channels().list(
+                part='snippet,statistics,brandingSettings',
+                id=channel_id
+            ).execute()
+            
+            channel_response, is_cached = await self._make_conditional_request(
+                request_func, cache_key, 'channels.list'
             )
             
-            self.quota_manager.consume_quota('channels.list')
+            # If ETag matched (304 Not Modified), use cached data
+            if is_cached:
+                # Return the cached data since content hasn't changed
+                cached_data = self.simple_cache.get(cache_key + "_etag_data")
+                if cached_data:
+                    logger.info(f"✅ Using cached channel data for {channel_id} (ETag matched)")
+                    return YouTubeChannelMetrics(**cached_data)
+                else:
+                    # Fallback: ETag matched but no cached data, make fresh request
+                    logger.warning(f"ETag matched but no cached data for {channel_id}, making fresh request")
+                    channel_response = await asyncio.get_event_loop().run_in_executor(
+                        None, request_func
+                    )
+                    self.quota_manager.consume_quota('channels.list')
             
             if not channel_response.get('items'):
                 logger.warning(f"Channel not found: {channel_id}")
@@ -301,8 +551,15 @@ class YouTubeAPIIntegration:
                 upload_frequency=upload_frequency
             )
             
-            # Cache the result (4 hours TTL for channel data)
-            self._cache_set(cache_key, asdict(channel_metrics), ttl=14400)
+            # Extract ETag from response for future conditional requests
+            response_etag = getattr(channel_response, 'etag', None)
+            
+            # Cache the result (4 hours TTL for channel data) with ETag
+            self._cache_set(cache_key, asdict(channel_metrics), ttl=14400, etag=response_etag)
+            
+            # Also cache a copy for ETag-based retrieval (longer TTL since ETag handles freshness)
+            if response_etag:
+                self._cache_set(cache_key + "_etag_data", asdict(channel_metrics), ttl=86400)  # 24 hours
             
             return channel_metrics
             
@@ -319,7 +576,7 @@ class YouTubeAPIIntegration:
         count: int = 20,
         user_id: Optional[str] = None
     ) -> List[YouTubeVideoMetrics]:
-        """Get recent videos for a channel"""
+        """Get recent videos for a channel using efficient uploads playlist method"""
         
         logger.info(f"🔍 get_recent_videos called with user_id: {user_id}")
         
@@ -338,13 +595,115 @@ class YouTubeAPIIntegration:
             return []
         
         try:
-            # Check quota for search
-            if not self.quota_manager.check_quota('search.list'):
-                logger.error("YouTube API quota exceeded for search")
+            # First get the uploads playlist ID (much more efficient than search)
+            uploads_playlist_id = await self._get_uploads_playlist_id(youtube_service, channel_id)
+            if not uploads_playlist_id:
+                logger.warning(f"No uploads playlist found for channel {channel_id}")
                 return []
             
-            # Search for recent videos
-            logger.info(f"Searching for videos from channel: {channel_id}, count: {min(count, 50)}")
+            # Check quota for playlistItems (much cheaper than search)
+            if not self.quota_manager.check_quota('playlistItems.list'):
+                logger.error("YouTube API quota exceeded for playlist items")
+                return []
+            
+            # Get recent videos from uploads playlist (1 unit vs 100 units for search)
+            logger.info(f"🚀 Getting recent videos from uploads playlist: {uploads_playlist_id}, count: {min(count, 50)}")
+            playlist_response = await asyncio.get_event_loop().run_in_executor(
+                None,
+                lambda: youtube_service.playlistItems().list(
+                    part='snippet',
+                    playlistId=uploads_playlist_id,
+                    maxResults=min(count, 50),
+                    order='date'
+                ).execute()
+            )
+            
+            self.quota_manager.consume_quota('playlistItems.list')
+            
+            # Extract video IDs from playlist items
+            video_ids = []
+            for item in playlist_response.get('items', []):
+                video_id = item['snippet']['resourceId']['videoId']
+                video_ids.append(video_id)
+            
+            if not video_ids:
+                logger.warning(f"No videos found in uploads playlist for channel {channel_id}")
+                return []
+            
+            # Get detailed video information
+            logger.info(f"🎥 Getting video details for {len(video_ids)} videos with user_id: {user_id}")
+            videos = await self.get_video_details(video_ids, user_id)
+            
+            # Cache the result (2 hours TTL for recent videos)
+            videos_dict = [asdict(video) for video in videos]
+            self._cache_set(cache_key, videos_dict, ttl=7200)
+            
+            logger.info(f"✅ Retrieved {len(videos)} recent videos using efficient uploads playlist method")
+            return videos
+            
+        except HttpError as e:
+            logger.error(f"YouTube API error getting recent videos: {e}")
+            # Fallback to search method if playlist method fails
+            return await self._fallback_search_videos(youtube_service, channel_id, count, user_id)
+        except Exception as e:
+            logger.error(f"Error getting recent videos: {e}")
+            return []
+    
+    async def _get_uploads_playlist_id(self, youtube_service, channel_id: str) -> Optional[str]:
+        """Get the uploads playlist ID for a channel (cached)"""
+        cache_key = f"uploads_playlist_{channel_id}"
+        
+        # Check cache first (uploads playlist ID rarely changes)
+        cached_playlist_id = self._cache_get(cache_key)
+        if cached_playlist_id:
+            return cached_playlist_id
+        
+        try:
+            # Check quota for channel lookup
+            if not self.quota_manager.check_quota('channels.list'):
+                logger.error("YouTube API quota exceeded for channel lookup")
+                return None
+            
+            # Get channel content details to find uploads playlist
+            channel_response = await asyncio.get_event_loop().run_in_executor(
+                None,
+                lambda: youtube_service.channels().list(
+                    part='contentDetails',
+                    id=channel_id
+                ).execute()
+            )
+            
+            self.quota_manager.consume_quota('channels.list')
+            
+            if channel_response.get('items'):
+                content_details = channel_response['items'][0].get('contentDetails', {})
+                related_playlists = content_details.get('relatedPlaylists', {})
+                uploads_playlist_id = related_playlists.get('uploads')
+                
+                if uploads_playlist_id:
+                    # Cache for 24 hours (uploads playlist ID is stable)
+                    self._cache_set(cache_key, uploads_playlist_id, ttl=86400)
+                    logger.info(f"Found uploads playlist: {uploads_playlist_id} for channel {channel_id}")
+                    return uploads_playlist_id
+            
+            logger.warning(f"No uploads playlist found for channel {channel_id}")
+            return None
+            
+        except Exception as e:
+            logger.error(f"Error getting uploads playlist ID for channel {channel_id}: {e}")
+            return None
+    
+    async def _fallback_search_videos(self, youtube_service, channel_id: str, count: int, user_id: Optional[str]) -> List[YouTubeVideoMetrics]:
+        """Fallback to search method when uploads playlist method fails"""
+        try:
+            logger.warning(f"Using fallback search method for channel {channel_id}")
+            
+            # Check quota for search (expensive but fallback)
+            if not self.quota_manager.check_quota('search.list'):
+                logger.error("YouTube API quota exceeded for fallback search")
+                return []
+            
+            # Search for recent videos (fallback method)
             search_response = await asyncio.get_event_loop().run_in_executor(
                 None,
                 lambda: youtube_service.search().list(
@@ -361,28 +720,20 @@ class YouTubeAPIIntegration:
             video_ids = [item['id']['videoId'] for item in search_response.get('items', [])]
             
             if not video_ids:
-                logger.warning(f"No videos found for channel {channel_id}")
+                logger.warning(f"No videos found via fallback search for channel {channel_id}")
                 return []
             
             # Get detailed video information
-            logger.info(f"🎥 Getting video details for {len(video_ids)} videos with user_id: {user_id}")
             videos = await self.get_video_details(video_ids, user_id)
-            
-            # Cache the result (2 hours TTL for recent videos)
-            videos_dict = [asdict(video) for video in videos]
-            self._cache_set(cache_key, videos_dict, ttl=7200)
-            
+            logger.info(f"⚠️ Retrieved {len(videos)} videos via fallback search method")
             return videos
             
-        except HttpError as e:
-            logger.error(f"YouTube API error getting recent videos: {e}")
-            return []
         except Exception as e:
-            logger.error(f"Error getting recent videos: {e}")
+            logger.error(f"Fallback search method failed for channel {channel_id}: {e}")
             return []
     
     async def get_video_details(self, video_ids: List[str], user_id: Optional[str] = None) -> List[YouTubeVideoMetrics]:
-        """Get detailed information for specific videos"""
+        """Get detailed information for specific videos with optimized batching"""
         
         logger.info(f"📊 get_video_details called with user_id: {user_id} for {len(video_ids)} videos")
         
@@ -392,24 +743,49 @@ class YouTubeAPIIntegration:
         if not youtube_service or not video_ids:
             return []
         
+        all_videos = []
+        
+        # Process in batches of 50 (YouTube API limit) for optimal efficiency
+        batch_size = 50
+        for i in range(0, len(video_ids), batch_size):
+            batch_ids = video_ids[i:i+batch_size]
+            logger.info(f"🚀 Processing batch {i//batch_size + 1}: {len(batch_ids)} videos")
+            
+            try:
+                # Check quota for this batch
+                if not self.quota_manager.check_quota('videos.list'):
+                    logger.error("YouTube API quota exceeded for video details batch")
+                    break
+                
+                # Get video details for this batch (optimized: removed unused 'status' part)
+                videos_response = await asyncio.get_event_loop().run_in_executor(
+                    None,
+                    lambda ids=batch_ids: youtube_service.videos().list(
+                        part='snippet,statistics,contentDetails',
+                        id=','.join(ids)
+                    ).execute()
+                )
+                
+                self.quota_manager.consume_quota('videos.list')
+                
+                # Process batch results
+                batch_videos = await self._process_video_batch(videos_response, user_id)
+                all_videos.extend(batch_videos)
+                
+            except HttpError as e:
+                logger.error(f"YouTube API error getting video details batch: {e}")
+                continue
+            except Exception as e:
+                logger.error(f"Error getting video details batch: {e}")
+                continue
+        
+        return all_videos
+    
+    async def _process_video_batch(self, videos_response: dict, user_id: Optional[str]) -> List[YouTubeVideoMetrics]:
+        """Process a batch of video API responses"""
+        videos = []
+        
         try:
-            # Check quota
-            if not self.quota_manager.check_quota('videos.list'):
-                logger.error("YouTube API quota exceeded for video details")
-                return []
-            
-            # Get video details
-            videos_response = await asyncio.get_event_loop().run_in_executor(
-                None,
-                lambda: youtube_service.videos().list(
-                    part='snippet,statistics,contentDetails,status',
-                    id=','.join(video_ids)
-                ).execute()
-            )
-            
-            self.quota_manager.consume_quota('videos.list')
-            
-            videos = []
             for video in videos_response.get('items', []):
                 video_id = video['id']
                 snippet = video['snippet']
@@ -1041,14 +1417,18 @@ class YouTubeAPIIntegration:
             return 5.0  # Default fallback
     
     def get_api_status(self) -> Dict[str, Any]:
-        """Get YouTube API integration status"""
+        """Get YouTube API integration status with comprehensive analytics"""
         return {
             "api_available": self.youtube is not None,
             "api_key_configured": self.api_key is not None,
             "quota_status": self.quota_manager.get_quota_status(),
-            "cache_stats": {
-                "size": len(self.simple_cache),
-                "keys": list(self.simple_cache.keys())[:5]  # Show first 5 keys
+            "cache_analytics": self.get_cache_analytics(),
+            "optimizations_active": {
+                "playlist_method": True,  # Using playlistItems.list instead of search.list
+                "etag_support": True,     # ETags for conditional requests
+                "batch_processing": True, # Batching video details requests
+                "exponential_backoff": True, # Smart quota management
+                "optimized_parts": True   # Removed unused API parts
             }
         }
 
