@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react'
 import Card from '@/components/common/Card'
 import Button from '@/components/common/Button'
 import { formatNumber } from '@/utils'
-import { useOAuthStore } from '@/store/oauthStore'
+import { useSupabaseOAuthStore } from '@/store/supabaseOAuthStore'
 import { Loader, AlertCircle } from 'lucide-react'
 
 interface VideoData {
@@ -88,7 +88,7 @@ const formatPercentage = (value: number | undefined): string => {
 // formatCurrency removed - no longer needed for real data only display
 
 export default function Videos() {
-  const { isAuthenticated, checkStatus } = useOAuthStore()
+  const { isAuthenticated, checkStatus } = useSupabaseOAuthStore()
   
   // TEMPORARY FIX: Force use default_user for consistency with Pillars page
   const actualUserId = "default_user"
@@ -521,7 +521,10 @@ export default function Videos() {
                       className="w-full h-full object-cover rounded-lg"
                       onError={(e) => {
                         e.currentTarget.style.display = 'none';
-                        e.currentTarget.parentElement!.innerHTML = '<span class="text-2xl">🎬</span>';
+                        const fallbackElement = document.createElement('span');
+                        fallbackElement.className = 'text-2xl';
+                        fallbackElement.textContent = '🎬';
+                        e.currentTarget.parentElement!.appendChild(fallbackElement);
                       }}
                     />
                   ) : (

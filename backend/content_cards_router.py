@@ -1,7 +1,7 @@
 """
 Content Cards Router for CreatorMate
 Contains all content cards-related API endpoints for the Content Studio feature
-Replaces Firebase Firestore with Supabase backend operations
+Uses local SQLite storage as a fallback when Supabase is not configured
 """
 
 from fastapi import APIRouter, HTTPException, Query
@@ -11,7 +11,6 @@ import traceback
 import uuid
 from typing import List, Optional, Dict, Any
 import os
-from supabase import create_client
 
 # Import models
 from api_models import (
@@ -26,20 +25,33 @@ logger = logging.getLogger(__name__)
 # Create router
 router = APIRouter(prefix="/api/content-cards", tags=["content-cards"])
 
+# Try to import Supabase, fall back to local storage if not available
+USE_SUPABASE = False
+supabase_client = None
+
+try:
+    from supabase import create_client
+    supabase_url = os.getenv("SUPABASE_URL") or os.getenv("SB_URL")
+    supabase_key = os.getenv("SUPABASE_KEY") or os.getenv("SB_KEY")
+    
+    if supabase_url and supabase_key:
+        supabase_client = create_client(supabase_url, supabase_key)
+        USE_SUPABASE = True
+        logger.info("Using Supabase for content cards storage")
+except Exception as e:
+    logger.info("Supabase not configured, using local SQLite storage")
+
+# Import local storage as fallback
+from content_cards_local import get_local_content_cards_db
+
 # Initialize Supabase client
 def get_supabase_client():
     """Get configured Supabase client"""
-    try:
-        supabase_url = os.getenv("SUPABASE_URL") or os.getenv("SB_URL")
-        supabase_key = os.getenv("SUPABASE_KEY") or os.getenv("SB_KEY")
-        
-        if not supabase_url or not supabase_key:
-            raise ValueError("Supabase configuration missing")
-            
-        return create_client(supabase_url, supabase_key)
-    except Exception as e:
-        logger.error(f"Failed to initialize Supabase client: {e}")
-        raise HTTPException(status_code=500, detail="Database connection failed")
+    if USE_SUPABASE and supabase_client:
+        return supabase_client
+    else:
+        # Return None to indicate local storage should be used
+        return None
 
 # =============================================================================
 # Content Cards CRUD Endpoints
@@ -58,32 +70,44 @@ async def get_content_cards(
         
         supabase = get_supabase_client()
         
-        # Build query
-        query = supabase.table("content_cards").select("*").eq("user_id", user_id)
-        
-        # Add status filter if provided
-        if status:
-            query = query.eq("status", status)
+        if supabase:
+            # Use Supabase
+            # Build query
+            query = supabase.table("content_cards").select("*").eq("user_id", user_id)
             
-        # Add archived filter
-        if not include_archived:
-            query = query.eq("archived", False)
+            # Add status filter if provided
+            if status:
+                query = query.eq("status", status)
+                
+            # Add archived filter
+            if not include_archived:
+                query = query.eq("archived", False)
+                
+            # Add ordering and limit
+            query = query.order("order_index", desc=False).order("created_at", desc=True).limit(limit)
             
-        # Add ordering and limit
-        query = query.order("order_index", desc=False).order("created_at", desc=True).limit(limit)
+            # Execute query
+            result = query.execute()
+            
+            if not result.data:
+                return create_success_response(
+                    "No content cards found",
+                    {"cards": [], "total_count": 0, "status_counts": {}}
+                )
+            
+            cards = result.data
+        else:
+            # Use local SQLite storage
+            local_db = get_local_content_cards_db()
+            cards = local_db.get_cards(user_id, status, include_archived)
+            
+            if not cards:
+                return create_success_response(
+                    "No content cards found",
+                    {"cards": [], "total_count": 0, "status_counts": {}}
+                )
         
-        # Execute query
-        result = query.execute()
-        
-        if not result.data:
-            return create_success_response(
-                "No content cards found",
-                {"cards": [], "total_count": 0, "status_counts": {}}
-            )
-        
-        # Convert to response models
-        cards = []
-        status_counts = {}
+        # Continue with existing card processing logic
         
         for card_data in result.data:
             # Convert datetime strings for response
@@ -131,40 +155,54 @@ async def create_content_card(card_data: ContentCardCreate):
         
         supabase = get_supabase_client()
         
-        # Get next order index for this user and status
-        order_result = supabase.table("content_cards")\
-            .select("order_index")\
-            .eq("user_id", card_data.user_id)\
-            .eq("status", card_data.status)\
-            .eq("archived", False)\
-            .order("order_index", desc=True)\
-            .limit(1)\
-            .execute()
-        
-        next_order = 1000  # Default starting order
-        if order_result.data:
-            next_order = order_result.data[0]["order_index"] + 1000
-        
-        # Prepare card data for insertion
-        insert_data = {
-            "user_id": card_data.user_id,
-            "title": card_data.title,
-            "description": card_data.description,
-            "status": card_data.status,
-            "pillars": card_data.pillars,
-            "due_date": card_data.due_date,
-            "progress": card_data.progress,
-            "archived": False,
-            "order_index": next_order
-        }
-        
-        # Insert into Supabase
-        result = supabase.table("content_cards").insert(insert_data).execute()
-        
-        if not result.data:
-            raise HTTPException(status_code=500, detail="Failed to create content card")
-        
-        created_card = result.data[0]
+        if supabase:
+            # Use Supabase
+            # Get next order index for this user and status
+            order_result = supabase.table("content_cards")\
+                .select("order_index")\
+                .eq("user_id", card_data.user_id)\
+                .eq("status", card_data.status)\
+                .eq("archived", False)\
+                .order("order_index", desc=True)\
+                .limit(1)\
+                .execute()
+            
+            next_order = 1000  # Default starting order
+            if order_result.data:
+                next_order = order_result.data[0]["order_index"] + 1000
+            
+            # Prepare card data for insertion
+            insert_data = {
+                "user_id": card_data.user_id,
+                "title": card_data.title,
+                "description": card_data.description,
+                "status": card_data.status,
+                "pillars": card_data.pillars,
+                "due_date": card_data.due_date,
+                "progress": card_data.progress,
+                "archived": False,
+                "order_index": next_order
+            }
+            
+            # Insert into Supabase
+            result = supabase.table("content_cards").insert(insert_data).execute()
+            
+            if not result.data:
+                raise HTTPException(status_code=500, detail="Failed to create content card")
+            
+            created_card = result.data[0]
+        else:
+            # Use local SQLite storage
+            local_db = get_local_content_cards_db()
+            created_card = local_db.create_card(
+                user_id=card_data.user_id,
+                title=card_data.title,
+                description=card_data.description,
+                status=card_data.status,
+                pillars=card_data.pillars,
+                due_date=card_data.due_date,
+                progress=card_data.progress
+            )
         
         # Convert to response model
         card_response = ContentCardResponse(
@@ -479,4 +517,4 @@ async def get_content_cards_stats(user_id: str):
     except Exception as e:
         logger.error(f"Error getting content cards stats: {e}")
         logger.error(traceback.format_exc())
-        raise HTTPException(status_code=500, detail="Failed to get content cards stats")
+        raise HTTPException(status_code=500, detail="Failed to get content cards stats")# Trigger reload

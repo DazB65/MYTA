@@ -3,7 +3,7 @@ CreatorMate Multi-Agent API - Refactored Main Application
 Modular FastAPI application with separated routers for better maintainability
 """
 
-from fastapi import FastAPI, HTTPException, Request
+from fastapi import FastAPI, HTTPException, Request, Depends
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import JSONResponse, FileResponse
@@ -16,7 +16,7 @@ from slowapi.errors import RateLimitExceeded
 
 # Import security middleware
 from security_middleware import add_security_middleware
-from security_config import get_security_config
+from config import get_settings
 
 # Import API models
 from api_models import (
@@ -31,12 +31,32 @@ from pillars_router import router as pillars_router
 from analytics_router import router as analytics_router
 from oauth_endpoints import oauth_router
 from content_cards_router import router as content_cards_router
+from session_router import router as session_router
 
 # Import services
 from ai_services import update_user_context, get_user_context
 
 # Import rate limiting
 from rate_limiter import limiter, custom_rate_limit_handler, get_rate_limit
+
+# Import authentication
+from auth_middleware import get_current_user, get_optional_user, get_user_id_from_request, AuthToken, create_session_token
+
+# Import CSRF protection
+from csrf_protection import setup_csrf_protection
+
+# Import secure error handling
+from secure_error_handler import create_secure_exception_handlers
+
+# Import monitoring and logging
+from logging_config import get_logging_manager, get_logger, LogCategory
+from monitoring_middleware import setup_monitoring_middleware
+
+# Import health checks
+from health_checks import get_health_checker, perform_health_check
+
+# Import session management
+from session_middleware import SessionMiddleware
 
 # Security helpers
 def add_security_headers(response):
@@ -47,15 +67,107 @@ def add_security_headers(response):
     response.headers["Referrer-Policy"] = "strict-origin-when-cross-origin"
     return response
 
-# Configure logging
-logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger(__name__)
+# Load configuration
+settings = get_settings()
 
-# Create FastAPI app
+# Configure advanced logging system
+logging_manager = get_logging_manager()
+logger = get_logger(__name__, LogCategory.SYSTEM)
+
+# Create FastAPI app with comprehensive documentation
 app = FastAPI(
-    title="CreatorMate Multi-Agent API", 
+    title="CreatorMate Multi-Agent API",
     version="2.0.0",
-    description="Hierarchical multi-agent system for YouTube analytics and optimization"
+    description="""
+    **CreatorMate** is a sophisticated hierarchical multi-agent system designed for YouTube content creators 
+    to optimize their channel performance, content strategy, and audience engagement.
+    
+    ## Key Features
+    
+    * **🤖 Multi-Agent Architecture**: Specialized AI agents for different aspects of content optimization
+    * **📊 YouTube Analytics**: Deep integration with YouTube Data API for comprehensive analytics
+    * **🎯 Content Pillars**: Strategic content organization and planning system
+    * **🔐 Session Management**: Secure Redis-based session handling
+    * **⚡ Real-time Chat**: Interactive AI-powered content advisory
+    * **📈 Performance Monitoring**: Advanced metrics and health monitoring
+    
+    ## Agent System
+    
+    The system consists of specialized agents:
+    - **Boss Agent**: Central orchestrator using Claude 3.5 Sonnet
+    - **Content Analysis Agent**: Video performance analysis using Gemini 2.5 Pro
+    - **Audience Insights Agent**: Demographics and sentiment analysis using Claude 3.5 Sonnet
+    - **SEO & Discoverability Agent**: Search optimization using Claude 3.5 Haiku
+    - **Competitive Analysis Agent**: Market positioning using Gemini 2.5 Pro
+    - **Monetization Strategy Agent**: Revenue optimization using Claude 3.5 Haiku
+    
+    ## Authentication
+    
+    The API uses Redis-based session management. Most endpoints require authentication.
+    Use the `/api/session/login` endpoint to create a session.
+    """,
+    summary="AI-powered YouTube optimization platform",
+    debug=settings.debug,
+    docs_url="/docs" if getattr(settings, "enable_api_docs", True) else None,
+    redoc_url="/redoc" if getattr(settings, "enable_api_docs", True) else None,
+    openapi_url="/openapi.json" if getattr(settings, "enable_api_docs", True) else None,
+    contact={
+        "name": "CreatorMate Support",
+        "url": "https://github.com/creatormate/api",
+        "email": "support@creatormate.com"
+    },
+    license_info={
+        "name": "MIT License",
+        "url": "https://opensource.org/licenses/MIT"
+    },
+    servers=[
+        {
+            "url": "http://localhost:8888",
+            "description": "Development server"
+        },
+        {
+            "url": "https://api.creatormate.com",
+            "description": "Production server"
+        }
+    ],
+    tags_metadata=[
+        {
+            "name": "agent",
+            "description": "Multi-agent system operations including chat, quick actions, and specialized agent interactions."
+        },
+        {
+            "name": "session",
+            "description": "Redis-based session management for secure authentication and user state."
+        },
+        {
+            "name": "youtube",
+            "description": "YouTube Data API integration for analytics, video data, and OAuth authentication."
+        },
+        {
+            "name": "pillars",
+            "description": "Content pillars management for strategic content organization and planning."
+        },
+        {
+            "name": "analytics",
+            "description": "Dashboard analytics and performance metrics for data-driven insights."
+        },
+        {
+            "name": "oauth",
+            "description": "OAuth 2.0 authentication flow for YouTube and other third-party integrations."
+        },
+        {
+            "name": "content-cards",
+            "description": "Content Studio functionality for content creation and management workflows."
+        },
+        {
+            "name": "health",
+            "description": "System health checks and monitoring endpoints for operational oversight."
+        },
+        {
+            "name": "auth",
+            "description": "User authentication and authorization endpoints."
+        }
+    ]
 )
 
 # Add rate limiter to app state
@@ -72,48 +184,57 @@ app.add_exception_handler(RateLimitExceeded, custom_rate_limit_handler)
 async def startup_event():
     """Initialize the CreatorMate multi-agent system"""
     try:
+        logger.info(
+            "Starting CreatorMate Multi-Agent System",
+            extra={
+                'category': LogCategory.SYSTEM.value,
+                'metadata': {
+                    'environment': settings.environment.value,
+                    'version': '2.0.0',
+                    'debug_mode': settings.debug
+                }
+            }
+        )
+        
         from api_startup import initialize_creatormate_system
         initialization_result = await initialize_creatormate_system()
         
         if initialization_result["overall_status"] == "success":
-            logger.info("🚀 CreatorMate Multi-Agent System started successfully")
+            logger.info(
+                "CreatorMate Multi-Agent System started successfully",
+                extra={
+                    'category': LogCategory.SYSTEM.value,
+                    'metadata': initialization_result
+                }
+            )
         else:
-            logger.warning(f"⚠️ CreatorMate started with warnings: {initialization_result['overall_status']}")
+            logger.warning(
+                f"CreatorMate started with warnings: {initialization_result['overall_status']}",
+                extra={
+                    'category': LogCategory.SYSTEM.value,
+                    'metadata': initialization_result
+                }
+            )
             
     except Exception as e:
-        logger.error(f"❌ Failed to initialize CreatorMate system: {e}")
-        # Don't crash the server, but log the error
+        logger.error(
+            "Failed to initialize CreatorMate system",
+            extra={
+                'category': LogCategory.ERROR.value,
+                'metadata': {
+                    'error_type': type(e).__name__,
+                    'error_message': str(e)
+                }
+            },
+            exc_info=True
+        )
 
 # =============================================================================
-# Exception Handlers
+# Exception Handlers (Secure)
 # =============================================================================
 
-@app.exception_handler(Exception)
-async def global_exception_handler(request, exc):
-    """Global exception handler for unexpected errors"""
-    logger.error(f"Global exception handler caught: {exc}")
-    logger.error(traceback.format_exc())
-    return JSONResponse(
-        status_code=500,
-        content=create_error_response(
-            "Internal server error",
-            "An unexpected error occurred. Please try again later.",
-            status_code=500
-        )
-    )
-
-@app.exception_handler(ValidationError)
-async def validation_exception_handler(request, exc):
-    """Validation error handler"""
-    logger.error(f"Validation error: {exc}")
-    return JSONResponse(
-        status_code=422,
-        content=create_error_response(
-            "Validation error",
-            str(exc),
-            status_code=422
-        )
-    )
+# Setup secure exception handlers
+create_secure_exception_handlers(app)
 
 # =============================================================================
 # Middleware Configuration
@@ -122,17 +243,18 @@ async def validation_exception_handler(request, exc):
 # Add security middleware first (order matters)
 add_security_middleware(app)
 
-# Add CORS middleware
-security_config = get_security_config()
-allowed_origins = ["http://localhost:3000", "http://localhost:8888"] if not security_config.is_production() else ["https://your-domain.com"]
+# Add CSRF protection
+setup_csrf_protection(app, settings.boss_agent_secret_key or "fallback-secret")
 
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=allowed_origins,
-    allow_credentials=True,
-    allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-    allow_headers=["*"],
-)
+# Add monitoring middleware (before CORS for complete request tracking)
+setup_monitoring_middleware(app)
+
+# Add Redis session middleware (after monitoring, before CORS)
+app.add_middleware(SessionMiddleware)
+
+# Add CORS middleware with environment-specific configuration
+cors_config = settings.get_cors_config()
+app.add_middleware(CORSMiddleware, **cors_config)
 
 # =============================================================================
 # Include Routers
@@ -156,19 +278,141 @@ app.include_router(oauth_router)
 # Include content cards router (handles Content Studio functionality)
 app.include_router(content_cards_router)
 
+# Include session router (handles Redis-based session management)
+app.include_router(session_router)
+
+# =============================================================================
+# Authentication Endpoints
+# =============================================================================
+
+@app.post("/api/auth/login")
+@limiter.limit(get_rate_limit("public", "auth"))
+async def login(request: Request):
+    """Temporary login endpoint for development - creates session token"""
+    try:
+        body = await request.json()
+        user_id = body.get('user_id', 'default_user')
+        
+        # In production, validate credentials here
+        # For now, just create a token for any user_id
+        token = create_session_token(user_id)
+        
+        logger.info(
+            "Session token created",
+            extra={
+                'category': LogCategory.AUTHENTICATION.value,
+                'user_id': user_id,
+                'metadata': {
+                    'action': 'login',
+                    'token_expires_in': 28800
+                }
+            }
+        )
+        
+        return create_success_response(
+            "Login successful",
+            {
+                "token": token,
+                "user_id": user_id,
+                "expires_in": 28800  # 8 hours
+            }
+        )
+        
+    except Exception as e:
+        logger.error(
+            "Login failed",
+            extra={
+                'category': LogCategory.AUTHENTICATION.value,
+                'metadata': {
+                    'error_type': type(e).__name__,
+                    'error_message': str(e)
+                }
+            },
+            exc_info=True
+        )
+        raise HTTPException(status_code=400, detail="Login failed")
+
+@app.post("/api/auth/logout")
+async def logout(current_user: AuthToken = Depends(get_current_user)):
+    """Logout endpoint - invalidates session"""
+    try:
+        logger.info(
+            "User logged out",
+            extra={
+                'category': LogCategory.AUTHENTICATION.value,
+                'user_id': current_user.user_id,
+                'metadata': {
+                    'action': 'logout',
+                    'session_id': current_user.session_id
+                }
+            }
+        )
+        # TODO: Add token to blacklist in production
+        
+        return create_success_response("Logout successful")
+        
+    except Exception as e:
+        logger.error(
+            "Logout failed",
+            extra={
+                'category': LogCategory.AUTHENTICATION.value,
+                'metadata': {
+                    'error_type': type(e).__name__,
+                    'error_message': str(e)
+                }
+            },
+            exc_info=True
+        )
+        raise HTTPException(status_code=400, detail="Logout failed")
+
+@app.get("/api/auth/me")
+async def get_current_user_info(current_user: AuthToken = Depends(get_current_user)):
+    """Get current authenticated user information"""
+    return create_success_response(
+        "User information retrieved",
+        {
+            "user_id": current_user.user_id,
+            "session_id": current_user.session_id,
+            "permissions": current_user.permissions,
+            "expires_at": current_user.expires_at.isoformat()
+        }
+    )
+
 # =============================================================================
 # Core API Endpoints
 # =============================================================================
 
 @app.post("/api/agent/set-channel-info", response_model=StandardResponse)
 @limiter.limit(get_rate_limit("public", "default"))
-async def set_channel_info(request: Request, channel_info: ChannelInfo):
+async def set_channel_info(
+    request: Request, 
+    channel_info: ChannelInfo, 
+    current_user: AuthToken = Depends(get_optional_user)
+):
     """Endpoint to manually set channel information"""
     try:
+        # Get user ID from authentication or fallback to legacy method
+        user_id = current_user.user_id if current_user else await get_user_id_from_request(request)
+        
+        # Validate that the user can only update their own channel info
+        if channel_info.user_id != user_id:
+            raise HTTPException(status_code=403, detail="Cannot update other user's channel information")
+        
         # Validate channel info
         channel_info.validate_metrics()
         
-        logger.info(f"Updating channel info for user: {channel_info.user_id}")
+        logger.info(
+            "Updating channel information",
+            extra={
+                'category': LogCategory.USER_ACTION.value,
+                'user_id': user_id,
+                'metadata': {
+                    'action': 'update_channel_info',
+                    'channel_name': channel_info.name,
+                    'niche': channel_info.niche
+                }
+            }
+        )
         
         # Extract channel info fields
         info = {
@@ -187,7 +431,7 @@ async def set_channel_info(request: Request, channel_info: ChannelInfo):
         }
         
         # Update user context
-        result = update_user_context(channel_info.user_id, "channel_info", info)
+        result = update_user_context(user_id, "channel_info", info)
         
         if not result:
             raise HTTPException(status_code=500, detail="Failed to update channel information")
@@ -195,18 +439,47 @@ async def set_channel_info(request: Request, channel_info: ChannelInfo):
         return create_success_response("Channel information updated successfully")
     
     except ValueError as e:
-        logger.error(f"Validation error in set_channel_info: {e}")
+        logger.error(
+            "Channel info validation failed",
+            extra={
+                'category': LogCategory.ERROR.value,
+                'user_id': user_id,
+                'metadata': {
+                    'error_type': 'ValidationError',
+                    'error_message': str(e)
+                }
+            }
+        )
         raise HTTPException(status_code=400, detail=str(e))
     except Exception as e:
-        logger.error(f"Unexpected error in set_channel_info: {e}")
-        logger.error(traceback.format_exc())
+        logger.error(
+            "Unexpected error updating channel info",
+            extra={
+                'category': LogCategory.ERROR.value,
+                'user_id': user_id,
+                'metadata': {
+                    'error_type': type(e).__name__,
+                    'error_message': str(e)
+                }
+            },
+            exc_info=True
+        )
         raise HTTPException(status_code=500, detail="Failed to update channel information")
 
 @app.get("/api/agent/insights/{user_id}")
 async def get_insights(user_id: str):
     """Get dynamic insights for a user"""
     try:
-        logger.info(f"Getting insights for user: {user_id}")
+        logger.info(
+            "Retrieving user insights",
+            extra={
+                'category': LogCategory.USER_ACTION.value,
+                'user_id': user_id,
+                'metadata': {
+                    'action': 'get_insights'
+                }
+            }
+        )
         
         from insights_engine import insights_engine
         
@@ -232,22 +505,51 @@ async def get_insights(user_id: str):
         )
     
     except Exception as e:
-        logger.error(f"Unexpected error in get_insights: {e}")
-        logger.error(traceback.format_exc())
+        logger.error(
+            "Failed to retrieve insights",
+            extra={
+                'category': LogCategory.ERROR.value,
+                'user_id': user_id,
+                'metadata': {
+                    'error_type': type(e).__name__,
+                    'error_message': str(e)
+                }
+            },
+            exc_info=True
+        )
         raise HTTPException(status_code=500, detail="Failed to get insights")
 
 @app.get("/api/agent/context/{user_id}")
 async def get_user_context_endpoint(user_id: str):
     """Get user context including channel information"""
     try:
-        logger.info(f"📡 Getting context for user: {user_id}")
+        logger.info(
+            "Getting user context",
+            extra={
+                'category': LogCategory.USER_ACTION.value,
+                'user_id': user_id,
+                'metadata': {
+                    'action': 'get_user_context'
+                }
+            }
+        )
         
         # Get user context
         context = get_user_context(user_id)
         
         # Log what we're returning so we can debug
         channel_info = context["channel_info"]
-        logger.info(f"📊 Returning channel info for {user_id}: '{channel_info['name']}' with {channel_info['subscriber_count']} subscribers")
+        logger.info(
+            "Returning channel context",
+            extra={
+                'category': LogCategory.USER_ACTION.value,
+                'user_id': user_id,
+                'metadata': {
+                    'channel_name': channel_info['name'],
+                    'subscriber_count': channel_info['subscriber_count']
+                }
+            }
+        )
         
         return create_success_response(
             "User context retrieved successfully",
@@ -255,22 +557,29 @@ async def get_user_context_endpoint(user_id: str):
         )
     
     except Exception as e:
-        logger.error(f"Unexpected error in get_user_context_endpoint: {e}")
-        logger.error(traceback.format_exc())
+        logger.error(
+            "Failed to get user context",
+            extra={
+                'category': LogCategory.ERROR.value,
+                'user_id': user_id,
+                'metadata': {
+                    'error_type': type(e).__name__,
+                    'error_message': str(e)
+                }
+            },
+            exc_info=True
+        )
         raise HTTPException(status_code=500, detail="Failed to get user context")
 
 @app.get("/api/get-user-profile")
-async def get_user_profile(request: Request):
+async def get_user_profile(
+    request: Request,
+    current_user: AuthToken = Depends(get_optional_user)
+):
     """Get user profile with YouTube channel banner"""
     try:
-        # Get user_id from cookie or header
-        user_id = request.cookies.get("user_id") or request.headers.get("X-User-Id")
-        if not user_id:
-            # Try to get from query params as fallback
-            user_id = request.query_params.get("user_id")
-            
-        if not user_id:
-            raise HTTPException(status_code=401, detail="User ID not found")
+        # Get user ID from authentication or fallback to legacy method
+        user_id = current_user.user_id if current_user else await get_user_id_from_request(request)
         
         # Get user context
         context = get_user_context(user_id)
@@ -490,7 +799,17 @@ def system_health():
         )
     
     except Exception as e:
-        logger.error(f"Error in system health check: {e}")
+        logger.error(
+            "System health check failed",
+            extra={
+                'category': LogCategory.SYSTEM.value,
+                'metadata': {
+                    'error_type': type(e).__name__,
+                    'error_message': str(e)
+                }
+            },
+            exc_info=True
+        )
         return SystemHealthResponse(
             overall_health=0.0,
             model_integrations={"error": str(e)},
@@ -531,9 +850,27 @@ if os.path.exists("../frontend-dist"):
         # For unknown routes, also serve React (let React handle 404s)
         return FileResponse("../frontend-dist/index.html")
     
-    logger.info("📁 Frontend SPA configured with proper routing support")
+    logger.info(
+        "Frontend SPA configured with proper routing support",
+        extra={
+            'category': LogCategory.SYSTEM.value,
+            'metadata': {
+                'static_files_enabled': True,
+                'spa_routing_enabled': True
+            }
+        }
+    )
 else:
-    logger.warning("⚠️ Frontend build directory not found. Run 'npm run build' in frontend-new/")
+    logger.warning(
+        "Frontend build directory not found",
+        extra={
+            'category': LogCategory.SYSTEM.value,
+            'metadata': {
+                'expected_path': '../frontend-dist',
+                'recommendation': "Run 'npm run build' in frontend-new/"
+            }
+        }
+    )
 
 # =============================================================================
 # Application Info
