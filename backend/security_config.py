@@ -105,14 +105,43 @@ class SecurityConfig:
     
     def get_security_headers(self) -> Dict[str, str]:
         """Get security headers for API responses"""
-        return {
+        
+        # Build Content Security Policy
+        csp_directives = [
+            "default-src 'self'",
+            "script-src 'self' 'unsafe-inline'",  # Allow inline scripts for React
+            "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
+            "font-src 'self' https://fonts.gstatic.com",
+            "img-src 'self' https://yt3.googleusercontent.com https://*.googleusercontent.com https://i.ytimg.com data:",
+            "media-src 'self' https://*.googlevideo.com",
+            "connect-src 'self' https://api.openai.com https://generativelanguage.googleapis.com https://oauth2.googleapis.com https://www.googleapis.com",
+            "frame-src 'none'",
+            "object-src 'none'",
+            "base-uri 'self'",
+            "form-action 'self'",
+            "upgrade-insecure-requests" if self.is_production() else ""
+        ]
+        
+        # Filter out empty directives
+        csp = "; ".join(filter(None, csp_directives))
+        
+        headers = {
             "X-Content-Type-Options": "nosniff",
             "X-Frame-Options": "DENY",
             "X-XSS-Protection": "1; mode=block",
-            "Strict-Transport-Security": "max-age=31536000; includeSubDomains" if self.is_production() else "",
-            "Content-Security-Policy": "default-src 'self'; img-src 'self' https://yt3.googleusercontent.com https://*.googleusercontent.com data:; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; connect-src 'self'",
-            "Referrer-Policy": "strict-origin-when-cross-origin"
+            "Content-Security-Policy": csp,
+            "Referrer-Policy": "strict-origin-when-cross-origin",
+            "Permissions-Policy": "camera=(), microphone=(), geolocation=(), payment=()",
+            "Cross-Origin-Embedder-Policy": "require-corp",
+            "Cross-Origin-Opener-Policy": "same-origin",
+            "Cross-Origin-Resource-Policy": "same-origin"
         }
+        
+        # Add HSTS only in production
+        if self.is_production():
+            headers["Strict-Transport-Security"] = "max-age=31536000; includeSubDomains; preload"
+        
+        return headers
 
 # Global security config instance
 _security_config: Optional[SecurityConfig] = None

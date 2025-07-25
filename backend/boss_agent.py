@@ -19,9 +19,11 @@ from realtime_data_pipeline import get_data_pipeline
 from boss_agent_auth import get_boss_agent_authenticator
 from data_access_monitor import get_data_access_monitor
 
-# Configure logging
-logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger(__name__)
+# Configure advanced logging
+from logging_config import get_logger, LogCategory, log_performance_metrics
+from monitoring_middleware import get_agent_monitor, monitor_agent_operation
+
+logger = get_logger(__name__, LogCategory.AGENT)
 
 class QueryType(Enum):
     CONTENT_ANALYSIS = "content_analysis"  # Including viral potential and hook analysis

@@ -7,6 +7,7 @@ import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import { useEffect } from 'react';
 import oauthService, { OAuthStatus, AuthenticatedChannelData } from '../services/oauth';
+import { secureTokenStorage } from '../utils/secureStorage';
 
 interface OAuthState {
   // Authentication state
@@ -25,7 +26,8 @@ interface OAuthState {
   authenticatedChannelData: AuthenticatedChannelData | null;
   
   // Actions
-  setUserId: (userId: string) => void;
+  initialize: () => Promise<void>;
+  setUserId: (userId: string) => Promise<void>;
   checkStatus: () => Promise<void>;
   initiateOAuth: (returnUrl?: string) => Promise<void>;
   handleCallback: () => { success: boolean; error?: string };
@@ -44,13 +46,25 @@ export const useOAuthStore = create<OAuthState>()(
       status: null,
       isLoading: false,
       error: null,
-      userId: localStorage.getItem('creatormate_user_id') || 'default_user',
+      userId: 'default_user', // Will be loaded asynchronously from secure storage
       isAuthenticating: false,
       authenticatedChannelData: null,
 
+      // Initialize store by loading user data from secure storage
+      initialize: async () => {
+        try {
+          const userData = await secureTokenStorage.getUserData();
+          if (userData?.userId) {
+            set({ userId: userData.userId });
+          }
+        } catch (error) {
+          console.warn('Failed to load user data from secure storage:', error);
+        }
+      },
+
       // Set user ID
-      setUserId: (userId: string) => {
-        localStorage.setItem('creatormate_user_id', userId);
+      setUserId: async (userId: string) => {
+        await secureTokenStorage.setUserData({ userId });
         set({ userId });
       },
 
@@ -221,12 +235,14 @@ export const useOAuthStore = create<OAuthState>()(
       // Reset authentication state
       resetAuthentication: () => {
         oauthService.resetAuthenticationState();
+        secureTokenStorage.clearAll(); // Clear all secure storage
         set({
           isAuthenticated: false,
           status: null,
           isAuthenticating: false,
           authenticatedChannelData: null,
-          error: null
+          error: null,
+          userId: 'default_user'
         });
       }
     }),

@@ -18,7 +18,7 @@ from slowapi.util import get_remote_address
 from api_models import (
     ChatMessage, QuickActionRequest, AgentTaskRequest, AgentCallbackRequest,
     ModelStatusResponse, StandardResponse, ChatResponse, ErrorResponse,
-    create_error_response, create_success_response
+    ChannelInfo, create_error_response, create_success_response
 )
 
 # Import services
@@ -37,8 +37,11 @@ from boss_agent_auth import get_boss_agent_authenticator, validate_specialized_a
 # from competitive_analysis_agent import process_competitive_analysis_request
 # from monetization_strategy_agent import process_monetization_strategy_request
 
-# Configure logging
-logger = logging.getLogger(__name__)
+# Configure advanced logging
+from logging_config import get_logger, LogCategory
+from monitoring_middleware import get_agent_monitor, monitor_agent_operation
+
+logger = get_logger(__name__, LogCategory.AGENT)
 
 # Create router
 router = APIRouter(prefix="/api/agent", tags=["agent"])
@@ -82,7 +85,18 @@ async def chat(request: Request, message: ChatMessage):
         if len(message.message) > 2000:
             raise HTTPException(status_code=400, detail="Message too long (max 2000 characters)")
         
-        logger.info(f"Processing chat message from user: {message.user_id}")
+        logger.info(
+            "Processing chat message",
+            extra={
+                'category': LogCategory.AGENT.value,
+                'user_id': message.user_id,
+                'metadata': {
+                    'action': 'chat_message',
+                    'message_length': len(message.message),
+                    'has_context': bool(message.context)
+                }
+            }
+        )
         
         # Extract any channel info from the message
         extract_channel_info(message.user_id, message.message)
@@ -91,12 +105,43 @@ async def chat(request: Request, message: ChatMessage):
         user_context = get_user_context(message.user_id)
         
         # Process through boss agent orchestration system
-        logger.info(f"Processing message through boss agent: '{message.message[:50]}...'")
+        logger.info(
+            "Processing message through boss agent",
+            extra={
+                'category': LogCategory.AGENT.value,
+                'user_id': message.user_id,
+                'metadata': {
+                    'agent_type': 'boss_agent',
+                    'message_preview': message.message[:50] + '...' if len(message.message) > 50 else message.message
+                }
+            }
+        )
         boss_response = await process_user_message(message.message, user_context)
         
-        logger.info(f"Boss agent response success: {boss_response.get('success', False)}")
+        logger.info(
+            "Boss agent response received",
+            extra={
+                'category': LogCategory.AGENT.value,
+                'user_id': message.user_id,
+                'metadata': {
+                    'agent_type': 'boss_agent',
+                    'success': boss_response.get('success', False),
+                    'agents_used': boss_response.get('agents_used', [])
+                }
+            }
+        )
         if not boss_response.get("success", False):
-            logger.error(f"Boss agent error: {boss_response.get('error', 'Unknown error')}")
+            logger.error(
+                "Boss agent processing failed",
+                extra={
+                    'category': LogCategory.AGENT.value,
+                    'user_id': message.user_id,
+                    'metadata': {
+                        'agent_type': 'boss_agent',
+                        'error_message': boss_response.get('error', 'Unknown error')
+                    }
+                }
+            )
         
         if boss_response.get("success", False):
             response = boss_response["response"]
@@ -121,8 +166,18 @@ async def chat(request: Request, message: ChatMessage):
         logger.error(f"Value error in chat endpoint: {e}")
         raise HTTPException(status_code=400, detail=str(e))
     except Exception as e:
-        logger.error(f"Unexpected error in chat endpoint: {e}")
-        logger.error(traceback.format_exc())
+        logger.error(
+            "Chat endpoint error",
+            extra={
+                'category': LogCategory.ERROR.value,
+                'user_id': getattr(message, 'user_id', None),
+                'metadata': {
+                    'error_type': type(e).__name__,
+                    'error_message': str(e)
+                }
+            },
+            exc_info=True
+        )
         raise HTTPException(status_code=500, detail="Failed to process chat message")
 
 @router.get("/status")
@@ -150,7 +205,18 @@ def agent_status(request: Request):
 async def quick_action(request: Request, action_request: QuickActionRequest):
     """Handle quick actions with enhanced multi-agent coordination"""
     try:
-        logger.info(f"Processing enhanced quick action '{action_request.action}' for user: {action_request.user_id}")
+        logger.info(
+            "Processing quick action",
+            extra={
+                'category': LogCategory.AGENT.value,
+                'user_id': action_request.user_id,
+                'metadata': {
+                    'action': action_request.action,
+                    'action_type': 'enhanced',
+                    'has_context': bool(action_request.context)
+                }
+            }
+        )
         
         # Get user context for personalization
         context = get_user_context(action_request.user_id)
@@ -164,8 +230,19 @@ async def quick_action(request: Request, action_request: QuickActionRequest):
         return await handle_standard_quick_action(action_request, context)
         
     except Exception as e:
-        logger.error(f"Error in enhanced quick_action endpoint: {e}")
-        logger.error(traceback.format_exc())
+        logger.error(
+            "Enhanced quick action failed",
+            extra={
+                'category': LogCategory.ERROR.value,
+                'user_id': getattr(action_request, 'user_id', None),
+                'metadata': {
+                    'action': getattr(action_request, 'action', None),
+                    'error_type': type(e).__name__,
+                    'error_message': str(e)
+                }
+            },
+            exc_info=True
+        )
         raise HTTPException(status_code=500, detail="Failed to process quick action")
 
 async def handle_enhanced_content_action(action_request: QuickActionRequest, context: Dict) -> StandardResponse:
@@ -674,6 +751,54 @@ async def agent_callback(request: AgentCallbackRequest, auth=Depends(verify_agen
     except Exception as e:
         logger.error(f"Error processing agent callback: {e}")
         return create_error_response("Callback processing failed", str(e))
+
+@router.post("/set-channel-info")
+@limiter.limit(get_rate_limit("authenticated", "channel_info"))
+async def set_channel_info(channel_info: ChannelInfo, request: Request):
+    """Set or update channel information for a user"""
+    try:
+        # For now, use default user ID
+        user_id = "default_user"
+        
+        logger.info(
+            "Setting channel info",
+            extra={
+                'category': LogCategory.AGENT.value,
+                'user_id': user_id,
+                'metadata': {
+                    'channel_name': channel_info.name,
+                    'niche': channel_info.niche
+                }
+            }
+        )
+        
+        # Update user context with channel information
+        update_user_context(user_id, "channel_info", {
+            "name": channel_info.name,
+            "niche": channel_info.niche,
+            "content_type": channel_info.content_type,
+            "subscriber_count": channel_info.subscriber_count,
+            "avg_view_count": channel_info.avg_view_count,
+            "ctr": channel_info.ctr,
+            "retention": channel_info.retention,
+            "upload_frequency": channel_info.upload_frequency,
+            "video_length": channel_info.video_length,
+            "monetization_status": channel_info.monetization_status,
+            "primary_goal": channel_info.primary_goal,
+            "notes": channel_info.notes or ""
+        })
+        
+        logger.info(f"✅ Channel info updated successfully for user {user_id}")
+        
+        return create_success_response(
+            "Channel information updated successfully",
+            {"user_id": user_id, "channel_name": channel_info.name}
+        )
+        
+    except Exception as e:
+        logger.error(f"Error setting channel info: {e}")
+        logger.error(traceback.format_exc())
+        raise HTTPException(status_code=500, detail="Failed to update channel information")
 
 @router.get("/model-status", response_model=ModelStatusResponse)
 async def get_model_status():

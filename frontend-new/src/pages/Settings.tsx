@@ -6,22 +6,30 @@ import { useUserStore } from '@/store/userStore'
 import { api } from '@/services/api'
 import Card from '@/components/common/Card'
 import Button from '@/components/common/Button'
-import OAuthConnection from '@/components/oauth/OAuthConnection'
+import SupabaseOAuthConnection from '@/components/oauth/SupabaseOAuthConnection'
 import PricingPage from './PricingPage'
+import validation from '@/utils/validation'
 
 const settingsSchema = z.object({
-  channelName: z.string().min(1, 'Channel name is required'),
+  channelName: z.string()
+    .min(1, 'Channel name is required')
+    .max(100, 'Channel name too long')
+    .transform(val => validation.sanitizeInput(val, 100))
+    .refine(val => validation.isSafeText(val), 'Invalid characters in channel name'),
   niche: z.string().min(1, 'Please select a niche'),
   contentType: z.string().min(1, 'Please select content type'),
-  subscriberCount: z.number().min(0, 'Must be 0 or greater'),
-  avgViewCount: z.number().min(0, 'Must be 0 or greater'),
+  subscriberCount: z.number().min(0, 'Must be 0 or greater').max(1000000000, 'Value too large'),
+  avgViewCount: z.number().min(0, 'Must be 0 or greater').max(1000000000, 'Value too large'),
   ctr: z.number().min(0).max(100, 'Must be between 0 and 100'),
   retention: z.number().min(0).max(100, 'Must be between 0 and 100'),
   uploadFrequency: z.string().min(1, 'Please select upload frequency'),
   videoLength: z.string().min(1, 'Please select video length'),
   monetizationStatus: z.string().min(1, 'Please select monetization status'),
   primaryGoal: z.string().min(1, 'Please select your primary goal'),
-  notes: z.string().optional(),
+  notes: z.string()
+    .optional()
+    .transform(val => val ? validation.sanitizeInput(val, 1000) : val)
+    .refine(val => !val || validation.isSafeText(val), 'Invalid characters in notes'),
 })
 
 type SettingsForm = z.infer<typeof settingsSchema>
@@ -59,7 +67,7 @@ const primaryGoals = [
 export default function Settings() {
   const { userId, channelInfo, updateChannelInfo } = useUserStore()
   const [isSubmitting, setIsSubmitting] = useState(false)
-  const [activeTab, setActiveTab] = useState<'channel' | 'oauth' | 'agent' | 'preferences' | 'pricing'>('channel')
+  const [activeTab, setActiveTab] = useState<'channel' | 'oauth' | 'pricing'>('channel')
 
   const {
     register,
@@ -124,8 +132,6 @@ export default function Settings() {
   const tabs = [
     { id: 'channel', name: 'Channel Settings', icon: '📺' },
     { id: 'oauth', name: 'YouTube Connection', icon: '🔑' },
-    { id: 'agent', name: 'AI Agent', icon: '🤖' },
-    { id: 'preferences', name: 'Preferences', icon: '⚙️' },
     { id: 'pricing', name: 'Pricing', icon: '💰' }
   ]
 
@@ -134,7 +140,7 @@ export default function Settings() {
       <div>
         <h1 className="text-3xl font-bold mb-2">Settings</h1>
         <p className="text-gray-300">
-          Manage your channel information, AI agent, and application preferences.
+          Manage your channel information and YouTube connection.
         </p>
       </div>
 
@@ -369,37 +375,10 @@ export default function Settings() {
       {/* OAuth Tab */}
       {activeTab === 'oauth' && (
         <div className="space-y-6">
-          <OAuthConnection variant="full" showBenefits={true} />
+          <SupabaseOAuthConnection variant="full" showBenefits={true} />
         </div>
       )}
 
-      {/* AI Agent Tab */}
-      {activeTab === 'agent' && (
-        <Card>
-          <h3 className="text-xl font-semibold mb-6">AI Agent Configuration</h3>
-          <div className="text-center py-8">
-            <div className="text-6xl mb-4">🤖</div>
-            <h4 className="text-lg font-semibold mb-2">Agent settings will be here</h4>
-            <p className="text-dark-400">
-              Configure your AI agent's personality, response style, and behavior preferences.
-            </p>
-          </div>
-        </Card>
-      )}
-
-      {/* Preferences Tab */}
-      {activeTab === 'preferences' && (
-        <Card>
-          <h3 className="text-xl font-semibold mb-6">Application Preferences</h3>
-          <div className="text-center py-8">
-            <div className="text-6xl mb-4">⚙️</div>
-            <h4 className="text-lg font-semibold mb-2">Preferences will be here</h4>
-            <p className="text-dark-400">
-              Customize notifications, themes, and other application settings.
-            </p>
-          </div>
-        </Card>
-      )}
 
       {/* Pricing Tab */}
       {activeTab === 'pricing' && (
