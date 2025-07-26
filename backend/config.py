@@ -1,0 +1,299 @@
+"""
+Enhanced Configuration Management for CreatorMate
+Handles environment-specific settings with validation and type safety
+"""
+
+import os
+import json
+import logging
+from typing import List, Dict, Any, Optional, Union
+from enum import Enum
+from pathlib import Path
+from pydantic_settings import BaseSettings
+from pydantic import Field, validator
+from dotenv import load_dotenv
+
+logger = logging.getLogger(__name__)
+
+class Environment(str, Enum):
+    """Application environments"""
+    DEVELOPMENT = "development"
+    STAGING = "staging"
+    PRODUCTION = "production"
+    TESTING = "testing"
+
+class LogLevel(str, Enum):
+    """Logging levels"""
+    DEBUG = "DEBUG"
+    INFO = "INFO"
+    WARNING = "WARNING"
+    ERROR = "ERROR"
+    CRITICAL = "CRITICAL"
+
+class Settings(BaseSettings):
+    """Application settings with environment-specific configuration"""
+    
+    # Core Application Settings
+    app_name: str = Field(default="CreatorMate", description="Application name")
+    environment: Environment = Field(default=Environment.DEVELOPMENT, description="Application environment")
+    debug: bool = Field(default=False, description="Debug mode")
+    log_level: LogLevel = Field(default=LogLevel.INFO, description="Logging level")
+    
+    # Server Configuration
+    host: str = Field(default="0.0.0.0", description="Server host")
+    port: int = Field(default=8888, description="Server port")
+    frontend_url: str = Field(default="http://localhost:3000", description="Frontend URL")
+    backend_url: str = Field(default="http://localhost:8888", description="Backend URL")
+    
+    # Database Configuration
+    database_url: str = Field(default="sqlite:///./creatormate.db", description="Database URL")
+    database_echo: bool = Field(default=False, description="Echo SQL queries")
+    
+    # Security Configuration
+    cors_origins: List[str] = Field(default=["http://localhost:3000"], description="CORS allowed origins")
+    security_headers_strict: bool = Field(default=True, description="Strict security headers")
+    csrf_protection_strict: bool = Field(default=True, description="Strict CSRF protection")
+    
+    # API Keys (loaded from secrets)
+    openai_api_key: Optional[str] = Field(default=None, description="OpenAI API key")
+    anthropic_api_key: Optional[str] = Field(default=None, description="Anthropic API key") 
+    google_api_key: Optional[str] = Field(default=None, description="Google API key")
+    youtube_api_key: Optional[str] = Field(default=None, description="YouTube API key")
+    
+    # OAuth Configuration
+    google_client_id: Optional[str] = Field(default=None, description="Google OAuth client ID")
+    google_client_secret: Optional[str] = Field(default=None, description="Google OAuth client secret")
+    oauth_redirect_uri: str = Field(default="http://localhost:8888/auth/google/callback", description="OAuth redirect URI")
+    
+    # Security Keys
+    boss_agent_secret_key: Optional[str] = Field(default=None, description="Boss agent secret key")
+    session_secret_key: Optional[str] = Field(default=None, description="Session secret key")
+    
+    # Rate Limiting
+    rate_limit_per_minute: int = Field(default=60, description="Rate limit per minute")
+    rate_limit_burst: int = Field(default=10, description="Rate limit burst")
+    
+    # Session Configuration
+    session_timeout_hours: int = Field(default=8, description="Session timeout in hours")
+    jwt_expiry_hours: int = Field(default=4, description="JWT expiry in hours")
+    
+    # Cache Configuration
+    cache_ttl_hours: int = Field(default=2, description="Cache TTL in hours")
+    enable_cache: bool = Field(default=True, description="Enable caching")
+    
+    # External Service URLs
+    openai_api_base_url: str = Field(default="https://api.openai.com/v1", description="OpenAI API base URL")
+    google_api_base_url: str = Field(default="https://generativelanguage.googleapis.com", description="Google API base URL")
+    youtube_api_base_url: str = Field(default="https://www.googleapis.com/youtube/v3", description="YouTube API base URL")
+    
+    # Feature Flags
+    enable_analytics: bool = Field(default=True, description="Enable analytics")
+    enable_oauth: bool = Field(default=True, description="Enable OAuth")
+    enable_multi_agent: bool = Field(default=True, description="Enable multi-agent system")
+    enable_content_studio: bool = Field(default=True, description="Enable content studio")
+    
+    class Config:
+        env_file_encoding = 'utf-8'
+        case_sensitive = False
+        validate_assignment = True
+        use_enum_values = True
+        
+    @validator('cors_origins', pre=True)
+    def parse_cors_origins(cls, v):
+        """Parse CORS origins from string or list"""
+        if isinstance(v, str):
+            try:
+                return json.loads(v)
+            except json.JSONDecodeError:
+                return [origin.strip() for origin in v.split(',')]
+        return v
+    
+    @validator('environment', pre=True)
+    def validate_environment(cls, v):
+        """Validate environment value"""
+        if isinstance(v, str):
+            return v.lower()
+        return v
+    
+    def is_development(self) -> bool:
+        """Check if running in development"""
+        return self.environment == Environment.DEVELOPMENT
+    
+    def is_production(self) -> bool:
+        """Check if running in production"""
+        return self.environment == Environment.PRODUCTION
+    
+    def is_staging(self) -> bool:
+        """Check if running in staging"""
+        return self.environment == Environment.STAGING
+    
+    def get_database_config(self) -> Dict[str, Any]:
+        """Get database configuration"""
+        return {
+            "url": self.database_url,
+            "echo": self.database_echo,
+        }
+    
+    def get_cors_config(self) -> Dict[str, Any]:
+        """Get CORS configuration"""
+        return {
+            "allow_origins": self.cors_origins,
+            "allow_credentials": True,
+            "allow_methods": ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+            "allow_headers": ["*"],
+        }
+    
+    def get_rate_limit_config(self) -> Dict[str, Any]:
+        """Get rate limiting configuration"""
+        return {
+            "per_minute": self.rate_limit_per_minute,
+            "burst": self.rate_limit_burst,
+        }
+    
+    def get_security_headers(self) -> Dict[str, str]:
+        """Get security headers configuration"""
+        csp_directives = [
+            "default-src 'self'",
+            "script-src 'self' 'unsafe-inline'" if not self.is_production() else "script-src 'self'",
+            "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
+            "font-src 'self' https://fonts.gstatic.com",
+            "img-src 'self' https://yt3.googleusercontent.com https://*.googleusercontent.com https://i.ytimg.com data:",
+            "media-src 'self' https://*.googlevideo.com",
+            "connect-src 'self' https://api.openai.com https://generativelanguage.googleapis.com https://oauth2.googleapis.com https://www.googleapis.com",
+            "frame-src 'none'",
+            "object-src 'none'",
+            "base-uri 'self'",
+            "form-action 'self'",
+        ]
+        
+        if self.is_production():
+            csp_directives.append("upgrade-insecure-requests")
+        
+        csp = "; ".join(filter(None, csp_directives))
+        
+        headers = {
+            "X-Content-Type-Options": "nosniff",
+            "X-Frame-Options": "DENY",
+            "X-XSS-Protection": "1; mode=block",
+            "Content-Security-Policy": csp,
+            "Referrer-Policy": "strict-origin-when-cross-origin",
+            "Permissions-Policy": "camera=(), microphone=(), geolocation=(), payment=()",
+        }
+        
+        if self.security_headers_strict:
+            headers.update({
+                "Cross-Origin-Embedder-Policy": "require-corp",
+                "Cross-Origin-Opener-Policy": "same-origin",
+                "Cross-Origin-Resource-Policy": "same-origin"
+            })
+        
+        if self.is_production():
+            headers["Strict-Transport-Security"] = "max-age=31536000; includeSubDomains; preload"
+        
+        return headers
+
+def load_environment_config(env: str = None) -> Settings:
+    """Load configuration for specific environment"""
+    
+    # Determine environment
+    if not env:
+        env = os.getenv("ENVIRONMENT", "development").lower()
+    
+    # Load base environment file
+    env_file = f".env.{env}"
+    if os.path.exists(env_file):
+        load_dotenv(env_file)
+        logger.info(f"Loaded environment config from {env_file}")
+    
+    # Load secrets from .env.local (never commit this)
+    secrets_file = ".env.local"
+    if os.path.exists(secrets_file):
+        load_dotenv(secrets_file, override=True)
+        logger.info("Loaded secrets from .env.local")
+    
+    # Load from .env as fallback
+    if os.path.exists(".env"):
+        load_dotenv(".env", override=False)
+        logger.info("Loaded fallback config from .env")
+    
+    # Create settings instance
+    settings = Settings()
+    
+    # Validate required settings
+    validate_required_settings(settings)
+    
+    return settings
+
+def validate_required_settings(settings: Settings):
+    """Validate required settings are present"""
+    required_for_production = [
+        'openai_api_key',
+        'google_api_key', 
+        'youtube_api_key',
+        'boss_agent_secret_key'
+    ]
+    
+    if settings.is_production():
+        missing = []
+        for key in required_for_production:
+            if not getattr(settings, key):
+                missing.append(key.upper())
+        
+        if missing:
+            raise ValueError(f"Missing required production settings: {', '.join(missing)}")
+    
+    logger.info(f"Configuration loaded for {settings.environment} environment")
+
+def create_env_template():
+    """Create .env.local template for secrets"""
+    template_content = """# Local Environment Secrets (NEVER COMMIT THIS FILE)
+# Copy from .env.example and fill in your actual values
+
+# =================================================================
+# CRITICAL: ADD THIS FILE TO .gitignore IMMEDIATELY
+# =================================================================
+
+# AI Service API Keys
+OPENAI_API_KEY=your_openai_api_key_here
+ANTHROPIC_API_KEY=your_anthropic_api_key_here
+GOOGLE_API_KEY=your_google_api_key_here
+YOUTUBE_API_KEY=your_youtube_api_key_here
+
+# OAuth Configuration
+GOOGLE_CLIENT_ID=your_google_client_id_here
+GOOGLE_CLIENT_SECRET=your_google_client_secret_here
+
+# Security Keys (generate with: python -c "import secrets; print(secrets.token_urlsafe(64))")
+BOSS_AGENT_SECRET_KEY=your_boss_agent_secret_key_here
+SESSION_SECRET_KEY=your_session_secret_key_here
+"""
+    
+    if not os.path.exists(".env.local"):
+        with open(".env.local", "w") as f:
+            f.write(template_content)
+        logger.info("Created .env.local template - please fill in your secrets")
+    else:
+        logger.info(".env.local already exists")
+
+# Global settings instance
+_settings: Optional[Settings] = None
+
+def get_settings() -> Settings:
+    """Get global settings instance"""
+    global _settings
+    if _settings is None:
+        _settings = load_environment_config()
+    return _settings
+
+# Backward compatibility
+def get_security_config():
+    """Backward compatibility with existing security_config.py"""
+    return get_settings()
+
+if __name__ == "__main__":
+    # Test configuration loading
+    settings = load_environment_config()
+    print(f"Environment: {settings.environment}")
+    print(f"Debug: {settings.debug}")
+    print(f"Database: {settings.database_url}")
+    print(f"CORS Origins: {settings.cors_origins}")

@@ -24,6 +24,9 @@ from api_models import (
     create_error_response, create_success_response
 )
 
+# Import constants
+from constants import MAX_CONVERSATION_HISTORY, DEFAULT_SESSION_TIMEOUT_HOURS
+
 # Import routers
 from agent_router import router as agent_router
 from youtube_router import router as youtube_router
@@ -189,7 +192,7 @@ async def startup_event():
             extra={
                 'category': LogCategory.SYSTEM.value,
                 'metadata': {
-                    'environment': settings.environment.value,
+                    'environment': str(settings.environment),
                     'version': '2.0.0',
                     'debug_mode': settings.debug
                 }
@@ -228,6 +231,21 @@ async def startup_event():
             },
             exc_info=True
         )
+
+@app.on_event("shutdown")
+async def shutdown_event():
+    """Clean up resources on shutdown"""
+    try:
+        logger.info("Shutting down CreatorMate Multi-Agent System")
+        
+        # Cleanup connection pools
+        from connection_pool import cleanup_connections
+        await cleanup_connections()
+        
+        logger.info("CreatorMate shutdown completed successfully")
+        
+    except Exception as e:
+        logger.error(f"Error during shutdown: {e}", exc_info=True)
 
 # =============================================================================
 # Exception Handlers (Secure)
@@ -314,7 +332,7 @@ async def login(request: Request):
             {
                 "token": token,
                 "user_id": user_id,
-                "expires_in": 28800  # 8 hours
+                "expires_in": DEFAULT_SESSION_TIMEOUT_HOURS * 3600  # Convert hours to seconds
             }
         )
         
@@ -451,6 +469,9 @@ async def set_channel_info(
             }
         )
         raise HTTPException(status_code=400, detail=str(e))
+    except HTTPException:
+        # Re-raise HTTP exceptions without modification
+        raise
     except Exception as e:
         logger.error(
             "Unexpected error updating channel info",
