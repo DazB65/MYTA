@@ -11,7 +11,6 @@ from datetime import datetime
 import logging
 import traceback
 import os
-from pydantic import ValidationError
 from slowapi.errors import RateLimitExceeded
 
 # Import security middleware
@@ -25,7 +24,7 @@ from api_models import (
 )
 
 # Import constants
-from constants import MAX_CONVERSATION_HISTORY, DEFAULT_SESSION_TIMEOUT_HOURS
+from constants import DEFAULT_SESSION_TIMEOUT_HOURS
 
 # Import routers
 from agent_router import router as agent_router
@@ -35,9 +34,11 @@ from analytics_router import router as analytics_router
 from oauth_endpoints import oauth_router
 from content_cards_router import router as content_cards_router
 from session_router import router as session_router
+from backup_router import router as backup_router
+from monitoring_router import router as monitoring_router
 
 # Import services
-from ai_services import update_user_context, get_user_context
+from ai_services import update_user_context
 
 # Import rate limiting
 from rate_limiter import limiter, custom_rate_limit_handler, get_rate_limit
@@ -202,6 +203,87 @@ async def startup_event():
         from api_startup import initialize_creatormate_system
         initialization_result = await initialize_creatormate_system()
         
+        # Initialize performance tracking system
+        try:
+            from agent_performance_tracker import init_performance_tracking
+            init_performance_tracking()
+            
+            logger.info(
+                "Performance tracking system initialized",
+                extra={
+                    'category': LogCategory.SYSTEM.value,
+                    'metadata': {'performance_tracking': True}
+                }
+            )
+        except Exception as e:
+            logger.error(
+                f"Failed to initialize performance tracking: {e}",
+                extra={
+                    'category': LogCategory.ERROR.value,
+                    'metadata': {'error': str(e)}
+                }
+            )
+        
+        # Initialize alert system
+        try:
+            from alert_manager import init_alert_system
+            await init_alert_system()
+            
+            logger.info(
+                "Alert system initialized",
+                extra={
+                    'category': LogCategory.SYSTEM.value,
+                    'metadata': {'alert_system': True}
+                }
+            )
+        except Exception as e:
+            logger.error(
+                f"Failed to initialize alert system: {e}",
+                extra={
+                    'category': LogCategory.ERROR.value,
+                    'metadata': {'error': str(e)}
+                }
+            )
+        
+        # Initialize backup service
+        try:
+            from backup_service import get_backup_service
+            backup_config = settings.get_backup_config()
+            
+            # Get database path from settings
+            db_path = settings.database_url.replace("sqlite:///", "").replace("./", "")
+            
+            # Initialize backup service with configuration
+            backup_service = get_backup_service(
+                db_path=db_path,
+                schedule_config=backup_config["schedule"],
+                alert_config=backup_config["alerts"]
+            )
+            
+            # Start the backup service
+            backup_service.start()
+            
+            logger.info(
+                "Backup service started successfully",
+                extra={
+                    'category': LogCategory.SYSTEM.value,
+                    'metadata': {
+                        'frequency': backup_config["schedule"].frequency.value,
+                        'time': backup_config["schedule"].time,
+                        'enabled': backup_config["schedule"].enabled
+                    }
+                }
+            )
+            
+        except Exception as e:
+            logger.error(
+                f"Failed to start backup service: {e}",
+                extra={
+                    'category': LogCategory.ERROR.value,
+                    'metadata': {'error': str(e)}
+                }
+            )
+        
         if initialization_result["overall_status"] == "success":
             logger.info(
                 "CreatorMate Multi-Agent System started successfully",
@@ -237,6 +319,24 @@ async def shutdown_event():
     """Clean up resources on shutdown"""
     try:
         logger.info("Shutting down CreatorMate Multi-Agent System")
+        
+        # Stop backup service
+        try:
+            from backup_service import get_backup_service
+            backup_service = get_backup_service()
+            backup_service.stop()
+            logger.info("Backup service stopped successfully")
+        except Exception as e:
+            logger.error(f"Error stopping backup service: {e}")
+        
+        # Stop alert monitoring
+        try:
+            from alert_manager import get_alert_manager
+            alert_manager = get_alert_manager()
+            await alert_manager.stop_monitoring()
+            logger.info("Alert monitoring stopped successfully")
+        except Exception as e:
+            logger.error(f"Error stopping alert monitoring: {e}")
         
         # Cleanup connection pools
         from connection_pool import cleanup_connections
@@ -298,6 +398,12 @@ app.include_router(content_cards_router)
 
 # Include session router (handles Redis-based session management)
 app.include_router(session_router)
+
+# Include backup router (handles database backup management)
+app.include_router(backup_router)
+
+# Include monitoring router (handles performance monitoring and dashboard)
+app.include_router(monitoring_router)
 
 # =============================================================================
 # Authentication Endpoints

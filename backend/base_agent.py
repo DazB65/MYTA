@@ -16,6 +16,10 @@ from enum import Enum
 import logging
 import os
 
+# Import performance tracking
+from agent_performance_tracker import get_performance_tracker
+from agent_performance_models import AgentType as PerfAgentType, ModelProvider
+
 # Configure logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -294,10 +298,28 @@ class BaseSpecializedAgent(ABC):
         # Initialize cache
         self.cache = BaseAgentCache()
         
+        # Initialize performance tracker
+        self.performance_tracker = get_performance_tracker()
+        
+        # Map agent type to performance agent type
+        self.perf_agent_type = self._map_to_perf_agent_type(agent_type)
+        
         # Domain-specific keywords for validation
         self.domain_keywords = self._get_domain_keywords()
         
         logger.info(f"{self.agent_type.value} agent initialized")
+    
+    def _map_to_perf_agent_type(self, agent_type: AgentType) -> PerfAgentType:
+        """Map base agent type to performance agent type"""
+        mapping = {
+            AgentType.BOSS: PerfAgentType.BOSS,
+            AgentType.CONTENT_ANALYSIS: PerfAgentType.CONTENT_ANALYSIS,
+            AgentType.AUDIENCE_INSIGHTS: PerfAgentType.AUDIENCE_INSIGHTS,
+            AgentType.SEO_DISCOVERABILITY: PerfAgentType.SEO_DISCOVERABILITY,
+            AgentType.COMPETITIVE_ANALYSIS: PerfAgentType.COMPETITIVE_ANALYSIS,
+            AgentType.MONETIZATION_STRATEGY: PerfAgentType.MONETIZATION_STRATEGY
+        }
+        return mapping.get(agent_type, PerfAgentType.BOSS)
     
     @abstractmethod
     def _get_domain_keywords(self) -> List[str]:
@@ -309,47 +331,108 @@ class BaseSpecializedAgent(ABC):
         """Perform the core analysis - implemented by each agent"""
         pass
     
+    async def _perform_analysis_with_tracking(self, request: AgentRequest, tracking_context: Dict[str, Any]) -> AgentAnalysis:
+        """Wrapper for analysis that includes performance tracking"""
+        return await self._perform_analysis(request)
+    
+    def track_model_usage(self, tracking_context: Dict[str, Any], model_name: str, 
+                         provider: ModelProvider, input_tokens: int, output_tokens: int, cost_estimate: float):
+        """Helper method for subclasses to track model usage"""
+        self.performance_tracker.track_model_usage(
+            tracking_context, model_name, provider, input_tokens, output_tokens, cost_estimate
+        )
+    
+    def track_fallback_usage(self, tracking_context: Dict[str, Any], fallback_model: str):
+        """Helper method for subclasses to track fallback model usage"""
+        self.performance_tracker.track_fallback_usage(tracking_context, fallback_model)
+    
     async def process_boss_agent_request(self, request_data: Dict[str, Any]) -> Dict[str, Any]:
         """
         Main entry point for boss agent requests
         This is the standardized interface all agents must implement
         """
-        start_time = time.time()
         request_id = request_data.get('request_id', str(uuid.uuid4()))
+        user_id = request_data.get('user_id', 'unknown')
+        request_type = request_data.get('query_type', 'general')
+        analysis_depth = request_data.get('analysis_depth', 'standard')
         
-        try:
-            # Parse and validate request
-            request = self._parse_boss_request(request_data)
+        # Start performance tracking
+        async with self.performance_tracker.track_agent_request(
+            agent_type=self.perf_agent_type,
+            user_id=user_id,
+            request_type=request_type,
+            analysis_depth=analysis_depth
+        ) as tracking_context:
             
-            # Validate domain match
-            if not self._is_valid_domain_request(request_data):
-                return self._create_domain_mismatch_response(request_id, start_time)
-            
-            # Check cache first
-            cached_response = self.cache.get(request)
-            if cached_response:
-                return self._format_cached_response(cached_response, request_id, start_time)
-            
-            # Perform analysis
-            analysis_result = await self._perform_analysis(request)
-            
-            # Create response
-            response = self._create_success_response(
-                request, 
-                analysis_result, 
-                request_id, 
-                start_time
-            )
-            
-            # Cache the response
-            self.cache.set(request, response)
-            
-            logger.info(f"{self.agent_type.value} completed task: {request_id}")
-            return response.to_dict()
-            
-        except Exception as e:
-            logger.error(f"{self.agent_type.value} error: {e}")
-            return self._create_error_response(request_id, str(e), start_time)
+            try:
+                # Parse and validate request
+                request = self._parse_boss_request(request_data)
+                
+                # Track request size
+                request_size = len(json.dumps(request_data).encode())
+                
+                # Validate domain match
+                if not self._is_valid_domain_request(request_data):
+                    response_data = self._create_domain_mismatch_response(request_id, time.time())
+                    response_size = len(json.dumps(response_data).encode())
+                    self.performance_tracker.track_request_size(tracking_context, request_size, response_size)
+                    return response_data
+                
+                # Check cache first
+                cache_start = time.time()
+                tracking_context['cache_start_time'] = cache_start
+                
+                cached_response = self.cache.get(request)
+                if cached_response:
+                    self.performance_tracker.track_cache_operation(
+                        tracking_context, 
+                        cache_hit=True,
+                        cache_key=self.cache.generate_cache_key(request)
+                    )
+                    response_data = self._format_cached_response(cached_response, request_id, time.time())
+                    response_size = len(json.dumps(response_data).encode())
+                    self.performance_tracker.track_request_size(tracking_context, request_size, response_size)
+                    return response_data
+                else:
+                    self.performance_tracker.track_cache_operation(
+                        tracking_context, 
+                        cache_hit=False,
+                        cache_key=self.cache.generate_cache_key(request)
+                    )
+                
+                # Perform analysis with model tracking
+                tracking_context['model_start_time'] = time.time()
+                analysis_result = await self._perform_analysis_with_tracking(request, tracking_context)
+                
+                # Create response
+                response = self._create_success_response(
+                    request, 
+                    analysis_result, 
+                    request_id, 
+                    time.time()
+                )
+                
+                # Track confidence score
+                self.performance_tracker.track_confidence_score(tracking_context, response.confidence_score)
+                
+                # Cache the response
+                self.cache.set(request, response)
+                
+                # Track response size
+                response_data = response.to_dict()
+                response_size = len(json.dumps(response_data).encode())
+                self.performance_tracker.track_request_size(tracking_context, request_size, response_size)
+                
+                logger.info(f"{self.agent_type.value} completed task: {request_id}")
+                return response_data
+                
+            except Exception as e:
+                logger.error(f"{self.agent_type.value} error: {e}")
+                response_data = self._create_error_response(request_id, str(e), time.time())
+                response_size = len(json.dumps(response_data).encode())
+                self.performance_tracker.track_request_size(tracking_context, 
+                    len(json.dumps(request_data).encode()), response_size)
+                return response_data
     
     def _parse_boss_request(self, request_data: Dict[str, Any]) -> AgentRequest:
         """Parse boss agent request into standard format"""
