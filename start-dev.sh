@@ -20,7 +20,7 @@ cleanup() {
 trap cleanup SIGINT SIGTERM EXIT
 
 echo "📦 Building React frontend..."
-cd frontend-new
+cd frontend-vidalytics
 npm run build
 cd ..
 

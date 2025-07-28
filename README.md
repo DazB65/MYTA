@@ -69,11 +69,11 @@ source ../venv/bin/activate
 uvicorn main:app --reload --host 0.0.0.0 --port 8888
 
 # Frontend development
-cd frontend-new
+cd frontend-vidalytics
 npm run dev
 
 # Build for production
-cd frontend-new
+cd frontend-vidalytics
 npm run build
 ```
 

@@ -20,7 +20,7 @@ cleanup() {
 trap cleanup SIGINT SIGTERM EXIT
 
 echo "⚡ Starting React dev server with hot reload..."
-cd frontend-new
+cd frontend-vidalytics
 npm run dev &
 FRONTEND_PID=$!
 cd ..

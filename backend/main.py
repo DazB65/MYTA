@@ -994,7 +994,7 @@ else:
             'category': LogCategory.SYSTEM.value,
             'metadata': {
                 'expected_path': '../frontend-dist',
-                'recommendation': "Run 'npm run build' in frontend-new/"
+                'recommendation': "Run 'npm run build' in frontend-vidalytics/"
             }
         }
     )

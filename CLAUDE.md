@@ -152,7 +152,7 @@ CreatorMate implements a sophisticated hierarchical agent system with strict com
 - **Domain**: Revenue optimization, sponsorship opportunities, RPM/CPM analysis
 - **Cache TTL**: 2-8 hours based on analysis depth
 
-### Frontend (`/frontend-new/`)
+### Frontend (`/frontend-vidalytics/`)
 
 - **React 18 + TypeScript + Vite** modern development stack
 - **Component-based architecture** with full type safety
@@ -200,7 +200,7 @@ uvicorn main:app --reload --host 0.0.0.0 --port 8888
 
 ```bash
 # Navigate to React frontend directory
-cd frontend-new
+cd frontend-vidalytics
 
 # Install dependencies
 npm install
@@ -415,7 +415,7 @@ To test the application:
 
 1. **Quick Start**: Run `./start-dev.sh` from the project root
 2. **Manual Start**:
-   - Build React frontend: `cd frontend-new && npm run build`
+   - Build React frontend: `cd frontend-vidalytics && npm run build`
    - Start backend: `cd backend && uvicorn main:app --reload --host 0.0.0.0 --port 8888`
 3. **Access the application**: Navigate to `http://localhost:8888`
 4. **Test functionality**:
