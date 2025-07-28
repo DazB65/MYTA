@@ -1,0 +1,16 @@
+{
+  "model": "claude-3-5-sonnet-20241022",
+  "smallFastModel": "claude-3-5-haiku-20241022",
+  "temperature": 0.2,
+  "maxTokens": 8192,
+  "comments": {
+    "description": "Claude Code settings for CreatorMate project",
+    "usage": "This configures Sonnet as the default model for implementation work",
+    "planning_model": "For planning, use claude-opus-4-20250514 by starting a new session without this config",
+    "models": {
+      "opus-4": "claude-opus-4-20250514 - Best for complex planning and architecture",
+      "sonnet": "claude-3-5-sonnet-20241022 - Efficient for implementation",
+      "haiku": "claude-3-5-haiku-20241022 - Fast for simple tasks"
+    }
+  }
+}
