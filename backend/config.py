@@ -92,6 +92,23 @@ class Settings(BaseSettings):
     enable_multi_agent: bool = Field(default=True, description="Enable multi-agent system")
     enable_content_studio: bool = Field(default=True, description="Enable content studio")
     
+    # Backup Configuration
+    backup_enabled: bool = Field(default=True, description="Enable automatic backups")
+    backup_frequency: str = Field(default="daily", description="Backup frequency (hourly, daily, weekly, monthly)")
+    backup_time: str = Field(default="02:00", description="Backup time (HH:MM for daily/weekly/monthly, MM for hourly)")
+    backup_compression: bool = Field(default=True, description="Enable backup compression")
+    backup_max_count: int = Field(default=7, description="Maximum number of backups to retain")
+    backup_cleanup_enabled: bool = Field(default=True, description="Enable automatic cleanup of old backups")
+    backup_directory: str = Field(default="./backups", description="Directory for storing backups")
+    
+    # Backup Alert Configuration
+    backup_email_alerts: bool = Field(default=False, description="Enable email alerts for backups")
+    backup_email_recipients: str = Field(default="", description="Comma-separated list of email recipients")
+    backup_webhook_url: Optional[str] = Field(default=None, description="Webhook URL for backup alerts")
+    backup_alert_on_failure: bool = Field(default=True, description="Send alerts on backup failures")
+    backup_alert_on_success: bool = Field(default=False, description="Send alerts on backup success")
+    backup_alert_on_cleanup: bool = Field(default=False, description="Send alerts on backup cleanup")
+    
     class Config:
         env_file_encoding = 'utf-8'
         case_sensitive = False
@@ -191,6 +208,44 @@ class Settings(BaseSettings):
             headers["Strict-Transport-Security"] = "max-age=31536000; includeSubDomains; preload"
         
         return headers
+    
+    def get_backup_config(self) -> Dict[str, Any]:
+        """Get backup configuration"""
+        from backup_service import BackupFrequency, BackupSchedule, BackupAlert
+        
+        # Parse frequency
+        frequency_map = {
+            "hourly": BackupFrequency.HOURLY,
+            "daily": BackupFrequency.DAILY,
+            "weekly": BackupFrequency.WEEKLY,
+            "monthly": BackupFrequency.MONTHLY
+        }
+        frequency = frequency_map.get(self.backup_frequency.lower(), BackupFrequency.DAILY)
+        
+        # Parse email recipients
+        email_recipients = []
+        if self.backup_email_recipients:
+            email_recipients = [email.strip() for email in self.backup_email_recipients.split(',') if email.strip()]
+        
+        return {
+            "schedule": BackupSchedule(
+                frequency=frequency,
+                time=self.backup_time,
+                enabled=self.backup_enabled,
+                compression=self.backup_compression,
+                max_backups=self.backup_max_count,
+                cleanup_enabled=self.backup_cleanup_enabled
+            ),
+            "alerts": BackupAlert(
+                email_enabled=self.backup_email_alerts,
+                email_recipients=email_recipients,
+                webhook_url=self.backup_webhook_url,
+                alert_on_failure=self.backup_alert_on_failure,
+                alert_on_success=self.backup_alert_on_success,
+                alert_on_cleanup=self.backup_alert_on_cleanup
+            ),
+            "directory": self.backup_directory
+        }
 
 def load_environment_config(env: str = None) -> Settings:
     """Load configuration for specific environment"""

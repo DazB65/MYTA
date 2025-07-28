@@ -1,0 +1,25 @@
+# Testing dependencies for CreatorMate
+pytest==7.4.3
+pytest-asyncio==0.21.1
+pytest-cov==4.1.0
+pytest-mock==3.12.0
+pytest-httpx==0.26.0
+pytest-xdist==3.4.0
+httpx==0.25.2
+factory-boy==3.3.0
+freezegun==1.2.2
+responses==0.24.1
+
+# Test database (sqlite3 is built into Python)
+
+# Coverage and reporting
+coverage[toml]==7.3.2
+pytest-html==4.1.1
+pytest-json-report==1.5.0
+
+# Security testing
+bandit==1.7.5
+safety==2.3.5
+
+# Load testing
+locust==2.17.0

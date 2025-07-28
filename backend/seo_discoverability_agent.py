@@ -14,9 +14,10 @@ import os
 import time
 from googleapiclient.discovery import build
 from googleapiclient.errors import HttpError
-from openai import OpenAI
 from dataclasses import dataclass
 import re
+from boss_agent_auth import SpecializedAgentAuthMixin
+from connection_pool import get_youtube_client
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -55,7 +56,7 @@ class YouTubeSEOAPIClient:
     
     def __init__(self, api_key: str):
         self.api_key = api_key
-        self.youtube = build('youtube', 'v3', developerKey=api_key)
+        self.youtube = get_youtube_client(api_key)
         self.analytics = None  # Would require OAuth for Analytics API
         
     async def get_video_seo_data(self, video_ids: List[str]) -> List[SEOMetrics]:
@@ -421,8 +422,8 @@ class AlgorithmAnalyzer:
 class ClaudeHaikuSEOEngine:
     """Claude 3.5 Haiku integration for cost-effective SEO analysis"""
     
-    def __init__(self, api_key: str):
-        self.client = OpenAI(api_key=api_key)
+    def __init__(self, api_key: str = None):
+        # No longer needs direct client - uses centralized model integration
         self.algorithm_analyzer = AlgorithmAnalyzer()
         
     async def analyze_seo_performance(self, seo_metrics: List[SEOMetrics], channel_context: Dict) -> Dict[str, Any]:
@@ -483,18 +484,20 @@ class ClaudeHaikuSEOEngine:
         """
         
         try:
-            response = await asyncio.get_event_loop().run_in_executor(
-                None,
-                lambda: self.client.chat.completions.create(
-                    model="gpt-4o-mini",  # Using cost-effective model as requested
-                    messages=[{"role": "user", "content": seo_prompt}],
-                    temperature=0.1,
-                    max_tokens=2000
-                )
+            # Use centralized model integration
+            from model_integrations import create_agent_call_to_integration
+            result = await create_agent_call_to_integration(
+                agent_type="seo_discoverability",
+                use_case="seo_analysis",
+                prompt_data={
+                    "prompt": seo_prompt,
+                    "analysis_depth": "standard",
+                    "system_message": "You are an expert YouTube SEO specialist. Provide technical SEO insights and keyword optimization strategies."
+                }
             )
             
             # Parse the response
-            analysis_text = response.choices[0].message.content
+            analysis_text = result["content"] if result["success"] else "{}"
             
             # Try to extract JSON from the response
             try:
@@ -648,20 +651,20 @@ class SEODiscoverabilityCache:
         
         logger.info(f"Cached SEO analysis for key: {cache_key[:8]}...")
 
-class SEODiscoverabilityAgent:
+class SEODiscoverabilityAgent(SpecializedAgentAuthMixin):
     """
     Specialized SEO & Discoverability Agent for YouTube search optimization
     Operates as a sub-agent within the CreatorMate boss agent hierarchy
     """
     
-    def __init__(self, youtube_api_key: str, openai_api_key: str):
+    def __init__(self, youtube_api_key: str, openai_api_key: str = None):
         self.agent_type = "seo_discoverability"
         self.agent_id = "seo_analyzer"
         self.hierarchical_role = "specialized_agent"
         
         # Initialize API clients
         self.youtube_client = YouTubeSEOAPIClient(youtube_api_key)
-        self.seo_engine = ClaudeHaikuSEOEngine(openai_api_key)
+        self.seo_engine = ClaudeHaikuSEOEngine()
         
         # Initialize analyzers
         self.algorithm_analyzer = AlgorithmAnalyzer()
@@ -718,14 +721,6 @@ class SEODiscoverabilityAgent:
             logger.error(f"SEO & Discoverability Agent error: {e}")
             return self._create_error_response(request_id, str(e), start_time)
     
-    def _validate_boss_agent_request(self, request_data: Dict[str, Any]) -> bool:
-        """Validate that request comes from authorized boss agent"""
-        
-        # In production, this would validate JWT tokens or API keys
-        # For now, check for boss agent signature
-        return request_data.get('from_boss_agent', False) or \
-               'boss_agent_callback_url' in request_data or \
-               request_data.get('agent_type') != self.agent_type  # Prevent self-requests
     
     def _parse_boss_request(self, request_data: Dict[str, Any]) -> SEOAnalysisRequest:
         """Parse boss agent request into internal format"""

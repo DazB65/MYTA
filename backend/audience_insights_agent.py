@@ -14,10 +14,11 @@ import os
 import time
 from googleapiclient.discovery import build
 from googleapiclient.errors import HttpError
-from openai import OpenAI
 from dataclasses import dataclass
 import statistics
 from base_agent import BaseSpecializedAgent, AgentType, AgentRequest, AgentAnalysis, AgentInsight, AgentRecommendation
+from boss_agent_auth import SpecializedAgentAuthMixin
+from connection_pool import get_youtube_client
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -472,7 +473,7 @@ class YouTubeAudienceAPIClient:
     
     def __init__(self, api_key: str):
         self.api_key = api_key
-        self.youtube = build('youtube', 'v3', developerKey=api_key)
+        self.youtube = get_youtube_client(api_key)
         self.analytics = None  # Would require OAuth for Analytics API
         
     async def get_channel_demographics(self, channel_id: str, time_period: str) -> Dict[str, Any]:
@@ -868,8 +869,8 @@ class CollaborationAnalyzer:
 class ClaudeSentimentEngine:
     """Claude 3.5 Sonnet integration for sentiment analysis and audience insights"""
     
-    def __init__(self, api_key: str):
-        self.client = OpenAI(api_key=api_key)
+    def __init__(self, api_key: str = None):
+        # No longer needs direct client - uses centralized model integration
         self.collaboration_analyzer = CollaborationAnalyzer()
         
     async def analyze_audience_sentiment(self, comments: List[Dict[str, Any]], audience_context: Dict) -> Dict[str, Any]:
@@ -1145,18 +1146,20 @@ class ClaudeSentimentEngine:
         """
         
         try:
-            response = await asyncio.get_event_loop().run_in_executor(
-                None,
-                lambda: self.client.chat.completions.create(
-                    model="claude-3-5-sonnet-20241022",
-                    messages=[{"role": "user", "content": sentiment_prompt}],
-                    temperature=0.2,
-                    max_tokens=2000
-                )
+            # Use centralized model integration
+            from model_integrations import create_agent_call_to_integration
+            result = await create_agent_call_to_integration(
+                agent_type="audience_insights",
+                use_case="sentiment_analysis",
+                prompt_data={
+                    "prompt": sentiment_prompt,
+                    "analysis_depth": "deep",
+                    "system_message": "You are an expert YouTube audience sentiment analyzer. Provide deep insights into community sentiment and health."
+                }
             )
             
             # Parse the response
-            analysis_text = response.choices[0].message.content
+            analysis_text = result["content"] if result["success"] else "{}"
             
             # Try to extract JSON from the response
             try:
@@ -1213,17 +1216,19 @@ class ClaudeSentimentEngine:
         """
         
         try:
-            response = await asyncio.get_event_loop().run_in_executor(
-                None,
-                lambda: self.client.chat.completions.create(
-                    model="claude-3-5-sonnet-20241022",
-                    messages=[{"role": "user", "content": demographics_prompt}],
-                    temperature=0.2,
-                    max_tokens=1500
-                )
+            # Use centralized model integration
+            from model_integrations import create_agent_call_to_integration
+            result = await create_agent_call_to_integration(
+                agent_type="audience_insights",
+                use_case="demographics_analysis",
+                prompt_data={
+                    "prompt": demographics_prompt,
+                    "analysis_depth": "standard",
+                    "system_message": "You are an expert YouTube audience demographics analyst. Provide actionable insights based on demographic and behavioral data."
+                }
             )
             
-            analysis_text = response.choices[0].message.content
+            analysis_text = result["content"] if result["success"] else "{}"
             
             # Parse response into structured format
             try:
@@ -1356,18 +1361,18 @@ class ClaudeSentimentEngine:
         }
 
 
-class AudienceInsightsAgent(BaseSpecializedAgent):
+class AudienceInsightsAgent(SpecializedAgentAuthMixin, BaseSpecializedAgent):
     """
     Specialized Audience Insights Agent for YouTube audience analysis
     Operates as a sub-agent within the CreatorMate boss agent hierarchy
     """
     
-    def __init__(self, youtube_api_key: str, openai_api_key: str):
+    def __init__(self, youtube_api_key: str, openai_api_key: str = None):
         super().__init__(AgentType.AUDIENCE_INSIGHTS, youtube_api_key, openai_api_key, model_name='claude-3-5-sonnet-20241022')
         
         # Initialize API clients
         self.youtube_client = YouTubeAudienceAPIClient(youtube_api_key)
-        self.sentiment_engine = ClaudeSentimentEngine(openai_api_key)
+        self.sentiment_engine = ClaudeSentimentEngine()
         
         # Initialize analyzers
         self.posting_time_analyzer = PostingTimeAnalyzer()
@@ -1928,29 +1933,12 @@ class AudienceInsightsAgent(BaseSpecializedAgent):
     
     async def process_boss_agent_request(self, request_data: Dict[str, Any]) -> Dict[str, Any]:
         """Process a request from the Boss Agent with authentication validation"""
-        from boss_agent_auth import validate_specialized_agent_request
         
-        # Validate Boss Agent authentication
-        auth_result = validate_specialized_agent_request(request_data)
-        if not auth_result.is_valid:
-            logger.warning(f"Unauthorized access attempt to Audience Insights Agent: {auth_result.error_message}")
-            return {
-                'agent_type': 'audience_insights',
-                'response_id': f"unauth_{request_data.get('request_id', 'unknown')}",
-                'request_id': request_data.get('request_id', ''),
-                'timestamp': datetime.utcnow().isoformat(),
-                'domain_match': False,
-                'analysis': {
-                    'summary': 'Unauthorized request: Boss agent authentication required',
-                    'error_type': 'authentication_error',
-                    'error_message': auth_result.error_message,
-                    'required_auth': 'boss_agent_jwt_token'
-                },
-                'confidence_score': 0.0,
-                'processing_time': 0.0,
-                'for_boss_agent_only': True,
-                'authentication_required': True
-            }
+        request_id = request_data.get('request_id', str(uuid.uuid4()))
+        
+        # Validate Boss Agent authentication using mixin
+        if not self._validate_boss_agent_request(request_data):
+            return self._create_unauthorized_response(request_id)
         
         # Process the authenticated request
         try:

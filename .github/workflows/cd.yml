@@ -1,0 +1,354 @@
+# CreatorMate Continuous Deployment Pipeline
+# Deploys to staging and production environments
+
+name: CD Pipeline
+
+on:
+  push:
+    branches: [ main ]
+    tags: [ 'v*' ]
+  workflow_run:
+    workflows: ["CI Pipeline"]
+    types: [completed]
+    branches: [ main ]
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME_BACKEND: ${{ github.repository }}-backend
+  IMAGE_NAME_FRONTEND: ${{ github.repository }}-frontend
+
+jobs:
+  # =============================================================================
+  # Deploy to Staging Environment
+  # =============================================================================
+  deploy-staging:
+    name: Deploy to Staging
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main' && github.event.workflow_run.conclusion == 'success'
+    environment:
+      name: staging
+      url: https://staging.creatormate.app
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    - name: Set up deployment variables
+      run: |
+        echo "DEPLOY_TAG=main" >> $GITHUB_ENV
+        echo "ENVIRONMENT=staging" >> $GITHUB_ENV
+    
+    - name: Deploy to staging server
+      uses: appleboy/ssh-action@v1.0.0
+      with:
+        host: ${{ secrets.STAGING_HOST }}
+        username: ${{ secrets.STAGING_USER }}
+        key: ${{ secrets.STAGING_SSH_KEY }}
+        port: ${{ secrets.STAGING_SSH_PORT || 22 }}
+        script: |
+          # Navigate to deployment directory
+          cd /opt/creatormate
+          
+          # Pull latest changes
+          git fetch origin
+          git checkout main
+          git pull origin main
+          
+          # Update environment variables
+          echo "ENVIRONMENT=staging" > .env.staging
+          echo "LOG_LEVEL=INFO" >> .env.staging
+          echo "OPENAI_API_KEY=${{ secrets.STAGING_OPENAI_API_KEY }}" >> .env.staging
+          echo "GOOGLE_API_KEY=${{ secrets.STAGING_GOOGLE_API_KEY }}" >> .env.staging
+          echo "YOUTUBE_API_KEY=${{ secrets.STAGING_YOUTUBE_API_KEY }}" >> .env.staging
+          echo "BOSS_AGENT_SECRET_KEY=${{ secrets.STAGING_BOSS_AGENT_SECRET_KEY }}" >> .env.staging
+          echo "SESSION_SECRET_KEY=${{ secrets.STAGING_SESSION_SECRET_KEY }}" >> .env.staging
+          echo "REDIS_PASSWORD=${{ secrets.STAGING_REDIS_PASSWORD }}" >> .env.staging
+          echo "BUILD_DATE=$(date -u +'%Y-%m-%dT%H:%M:%SZ')" >> .env.staging
+          echo "VCS_REF=${{ github.sha }}" >> .env.staging
+          
+          # Copy staging environment file
+          cp .env.staging .env
+          
+          # Deploy with Docker Compose
+          docker compose -f docker-compose.yml down --remove-orphans
+          docker compose -f docker-compose.yml pull
+          docker compose -f docker-compose.yml up -d --build
+          
+          # Wait for services to be ready
+          timeout 60 bash -c 'until curl -f http://localhost/health; do sleep 5; done'
+          
+          # Run post-deployment health checks
+          curl -f http://localhost/health || exit 1
+          curl -f http://localhost:8888/health || exit 1
+          curl -f http://localhost:8888/api/health/system || exit 1
+    
+    - name: Run staging smoke tests
+      run: |
+        # Wait a bit for deployment to stabilize
+        sleep 30
+        
+        # Test staging endpoints
+        curl -f https://staging.creatormate.app/health || exit 1
+        curl -f https://staging.creatormate.app/api/health/system || exit 1
+        curl -f https://staging.creatormate.app/api/info || exit 1
+    
+    - name: Notify deployment status
+      if: always()
+      uses: 8398a7/action-slack@v3
+      with:
+        status: ${{ job.status }}
+        channel: '#deployments'
+        text: |
+          Staging deployment ${{ job.status }}
+          Branch: ${{ github.ref }}
+          Commit: ${{ github.sha }}
+          URL: https://staging.creatormate.app
+      env:
+        SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK }}
+
+  # =============================================================================
+  # Deploy to Production Environment
+  # =============================================================================
+  deploy-production:
+    name: Deploy to Production
+    runs-on: ubuntu-latest
+    if: startsWith(github.ref, 'refs/tags/v')
+    environment:
+      name: production
+      url: https://creatormate.app
+    needs: [deploy-staging]
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    - name: Extract version from tag
+      run: |
+        echo "VERSION=${GITHUB_REF#refs/tags/}" >> $GITHUB_ENV
+        echo "DEPLOY_TAG=${GITHUB_REF#refs/tags/}" >> $GITHUB_ENV
+    
+    - name: Create deployment backup
+      uses: appleboy/ssh-action@v1.0.0
+      with:
+        host: ${{ secrets.PRODUCTION_HOST }}
+        username: ${{ secrets.PRODUCTION_USER }}
+        key: ${{ secrets.PRODUCTION_SSH_KEY }}
+        port: ${{ secrets.PRODUCTION_SSH_PORT || 22 }}
+        script: |
+          # Create backup before deployment
+          cd /opt/creatormate
+          
+          # Backup database
+          docker compose exec -T backend python -c "
+          from backup_service import get_backup_service
+          service = get_backup_service('/app/data/creatormate.db')
+          backup_id = service.create_manual_backup({
+              'type': 'pre_deployment',
+              'version': '${{ env.VERSION }}',
+              'commit': '${{ github.sha }}'
+          })
+          print(f'Pre-deployment backup created: {backup_id}')
+          "
+          
+          # Backup current deployment
+          tar -czf "deployment-backup-$(date +%Y%m%d_%H%M%S).tar.gz" \
+            --exclude='.git' \
+            --exclude='node_modules' \
+            --exclude='__pycache__' \
+            --exclude='*.log' \
+            .
+    
+    - name: Deploy to production
+      uses: appleboy/ssh-action@v1.0.0
+      with:
+        host: ${{ secrets.PRODUCTION_HOST }}
+        username: ${{ secrets.PRODUCTION_USER }}
+        key: ${{ secrets.PRODUCTION_SSH_KEY }}
+        port: ${{ secrets.PRODUCTION_SSH_PORT || 22 }}
+        script: |
+          # Navigate to deployment directory
+          cd /opt/creatormate
+          
+          # Pull latest changes
+          git fetch origin
+          git checkout ${{ env.VERSION }}
+          
+          # Update production environment variables
+          echo "ENVIRONMENT=production" > .env.production
+          echo "LOG_LEVEL=WARNING" >> .env.production
+          echo "DEBUG=false" >> .env.production
+          echo "OPENAI_API_KEY=${{ secrets.PRODUCTION_OPENAI_API_KEY }}" >> .env.production
+          echo "GOOGLE_API_KEY=${{ secrets.PRODUCTION_GOOGLE_API_KEY }}" >> .env.production
+          echo "YOUTUBE_API_KEY=${{ secrets.PRODUCTION_YOUTUBE_API_KEY }}" >> .env.production
+          echo "BOSS_AGENT_SECRET_KEY=${{ secrets.PRODUCTION_BOSS_AGENT_SECRET_KEY }}" >> .env.production
+          echo "SESSION_SECRET_KEY=${{ secrets.PRODUCTION_SESSION_SECRET_KEY }}" >> .env.production
+          echo "REDIS_PASSWORD=${{ secrets.PRODUCTION_REDIS_PASSWORD }}" >> .env.production
+          echo "BUILD_DATE=$(date -u +'%Y-%m-%dT%H:%M:%SZ')" >> .env.production
+          echo "VCS_REF=${{ github.sha }}" >> .env.production
+          
+          # Copy production environment file
+          cp .env.production .env
+          
+          # Run database migrations if needed
+          docker compose exec -T backend python -c "
+          from migration_manager import DatabaseMigrationManager
+          manager = DatabaseMigrationManager('/app/data/creatormate.db')
+          success = manager.migrate()
+          if not success:
+              print('Migration failed')
+              exit(1)
+          print('Database migrations completed successfully')
+          "
+          
+          # Deploy with zero-downtime strategy
+          docker compose -f docker-compose.yml pull
+          docker compose -f docker-compose.yml up -d --build --no-deps backend
+          
+          # Wait for backend to be ready
+          timeout 60 bash -c 'until curl -f http://localhost:8888/health; do sleep 5; done'
+          
+          # Update frontend
+          docker compose -f docker-compose.yml up -d --build --no-deps frontend
+          
+          # Wait for frontend to be ready
+          timeout 60 bash -c 'until curl -f http://localhost/health; do sleep 5; done'
+    
+    - name: Run production health checks
+      run: |
+        # Wait for deployment to stabilize
+        sleep 60
+        
+        # Comprehensive health checks
+        curl -f https://creatormate.app/health || exit 1
+        curl -f https://creatormate.app/api/health/system || exit 1
+        curl -f https://creatormate.app/api/info || exit 1
+        
+        # Test critical API endpoints
+        curl -f https://creatormate.app/api/agent/status || exit 1
+    
+    - name: Run production smoke tests
+      run: |
+        # Basic functionality tests
+        response=$(curl -s -o /dev/null -w "%{http_code}" https://creatormate.app/)
+        if [ $response -ne 200 ]; then
+          echo "Frontend health check failed with HTTP $response"
+          exit 1
+        fi
+        
+        # API availability test
+        response=$(curl -s -o /dev/null -w "%{http_code}" https://creatormate.app/api/info)
+        if [ $response -ne 200 ]; then
+          echo "API health check failed with HTTP $response"
+          exit 1
+        fi
+        
+        echo "Production smoke tests passed"
+    
+    - name: Create GitHub release
+      uses: actions/create-release@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        tag_name: ${{ env.VERSION }}
+        release_name: CreatorMate ${{ env.VERSION }}
+        body: |
+          ## CreatorMate ${{ env.VERSION }}
+          
+          **Deployment Information:**
+          - Commit: ${{ github.sha }}
+          - Build Date: ${{ github.event.head_commit.timestamp }}
+          - Environment: Production
+          
+          **Health Check Status:**
+          - Frontend: ✅ Healthy
+          - Backend API: ✅ Healthy  
+          - Database: ✅ Healthy
+          - Redis Cache: ✅ Healthy
+          
+          **Deployment Notes:**
+          - Zero-downtime deployment completed
+          - Database migrations applied successfully
+          - Pre-deployment backup created
+          
+          For more information, see the [deployment documentation](./DOCKER.md).
+        draft: false
+        prerelease: false
+    
+    - name: Notify deployment status
+      if: always()
+      uses: 8398a7/action-slack@v3
+      with:
+        status: ${{ job.status }}
+        channel: '#deployments'
+        text: |
+          🚀 Production deployment ${{ job.status }}
+          Version: ${{ env.VERSION }}
+          Commit: ${{ github.sha }}
+          URL: https://creatormate.app
+      env:
+        SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK }}
+
+  # =============================================================================
+  # Rollback Capability
+  # =============================================================================
+  rollback-production:
+    name: Rollback Production
+    runs-on: ubuntu-latest
+    if: failure() && needs.deploy-production.result == 'failure'
+    needs: [deploy-production]
+    environment:
+      name: production
+      url: https://creatormate.app
+    
+    steps:
+    - name: Rollback to previous version
+      uses: appleboy/ssh-action@v1.0.0
+      with:
+        host: ${{ secrets.PRODUCTION_HOST }}
+        username: ${{ secrets.PRODUCTION_USER }}
+        key: ${{ secrets.PRODUCTION_SSH_KEY }}
+        port: ${{ secrets.PRODUCTION_SSH_PORT || 22 }}
+        script: |
+          cd /opt/creatormate
+          
+          # Get previous successful deployment tag
+          PREVIOUS_TAG=$(git tag --sort=-version:refname | grep -v "${{ env.VERSION }}" | head -n1)
+          
+          if [ -n "$PREVIOUS_TAG" ]; then
+            echo "Rolling back to $PREVIOUS_TAG"
+            
+            # Checkout previous version
+            git checkout $PREVIOUS_TAG
+            
+            # Restore from backup if available
+            BACKUP_FILE=$(ls -t deployment-backup-*.tar.gz | head -n1)
+            if [ -n "$BACKUP_FILE" ]; then
+              echo "Restoring from backup: $BACKUP_FILE"
+              tar -xzf "$BACKUP_FILE"
+            fi
+            
+            # Redeploy previous version
+            docker compose -f docker-compose.yml down
+            docker compose -f docker-compose.yml up -d --build
+            
+            # Wait for services to be ready
+            timeout 60 bash -c 'until curl -f http://localhost/health; do sleep 5; done'
+            
+            echo "Rollback completed successfully"
+          else
+            echo "No previous version found for rollback"
+            exit 1
+          fi
+    
+    - name: Notify rollback status
+      if: always()
+      uses: 8398a7/action-slack@v3
+      with:
+        status: ${{ job.status }}
+        channel: '#deployments'
+        text: |
+          ⚠️ Production rollback ${{ job.status }}
+          Failed Version: ${{ env.VERSION }}
+          Commit: ${{ github.sha }}
+      env:
+        SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK }}

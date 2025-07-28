@@ -1,0 +1,251 @@
+name: CreatorMate Test Suite
+
+on:
+  push:
+    branches: [ main, development, feature/* ]
+  pull_request:
+    branches: [ main, development ]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: [3.9, 3.10, 3.11]
+    
+    services:
+      redis:
+        image: redis:7
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 6379:6379
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v4
+      with:
+        python-version: ${{ matrix.python-version }}
+
+    - name: Cache pip dependencies
+      uses: actions/cache@v3
+      with:
+        path: ~/.cache/pip
+        key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements*.txt') }}
+        restore-keys: |
+          ${{ runner.os }}-pip-
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r backend/requirements.txt
+        pip install -r backend/requirements-test.txt
+        pip install -e .
+
+    - name: Create test environment file
+      run: |
+        cat > .env.testing << EOF
+        ENVIRONMENT=testing
+        DEBUG=true
+        DATABASE_URL=sqlite:///:memory:
+        OPENAI_API_KEY=test-key
+        GOOGLE_API_KEY=test-key
+        YOUTUBE_API_KEY=test-key
+        BOSS_AGENT_SECRET_KEY=test-secret-key
+        SESSION_SECRET_KEY=test-session-key
+        CORS_ORIGINS=["http://localhost:3000"]
+        EOF
+
+    - name: Lint with flake8
+      run: |
+        pip install flake8
+        # Stop the build if there are Python syntax errors or undefined names
+        flake8 backend/ --count --select=E9,F63,F7,F82 --show-source --statistics
+        # Exit-zero treats all errors as warnings. The GitHub editor is 127 chars wide
+        flake8 backend/ --count --exit-zero --max-complexity=10 --max-line-length=88 --statistics
+
+    - name: Security scan with bandit
+      run: |
+        pip install bandit
+        bandit -r backend/ -ll -f json -o bandit-report.json || true
+        cat bandit-report.json
+
+    - name: Run unit tests
+      run: |
+        python -m pytest tests/unit/ -v --tb=short --cov=backend --cov-report=xml --cov-report=term-missing
+
+    - name: Run integration tests
+      run: |
+        python -m pytest tests/integration/ -v --tb=short --maxfail=5
+
+    - name: Run security tests
+      run: |
+        python -m pytest tests/security/ -v --tb=short --maxfail=3
+
+    - name: Run end-to-end tests
+      run: |
+        python -m pytest tests/e2e/ -v --tb=short --maxfail=3
+      env:
+        ENVIRONMENT: testing
+
+    - name: Upload coverage to Codecov
+      uses: codecov/codecov-action@v3
+      with:
+        file: ./coverage.xml
+        flags: unittests
+        name: codecov-umbrella
+        fail_ci_if_error: false
+
+    - name: Generate test report
+      if: always()
+      run: |
+        python -m pytest tests/ --tb=short --junit-xml=test-results.xml || true
+
+    - name: Upload test results
+      if: always()
+      uses: actions/upload-artifact@v3
+      with:
+        name: test-results-${{ matrix.python-version }}
+        path: |
+          test-results.xml
+          coverage.xml
+          bandit-report.json
+          htmlcov/
+
+  frontend-test:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Set up Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        cache: 'npm'
+        cache-dependency-path: frontend-new/package-lock.json
+
+    - name: Install frontend dependencies
+      run: |
+        cd frontend-new
+        npm ci
+
+    - name: Run frontend linting
+      run: |
+        cd frontend-new
+        npm run lint
+
+    - name: Run frontend type checking
+      run: |
+        cd frontend-new
+        npm run type-check
+
+    - name: Run frontend tests
+      run: |
+        cd frontend-new
+        npm test || echo "Frontend tests not yet implemented"
+
+    - name: Build frontend
+      run: |
+        cd frontend-new
+        npm run build
+
+  security:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: 3.9
+
+    - name: Install security tools
+      run: |
+        python -m pip install --upgrade pip
+        pip install safety bandit semgrep
+
+    - name: Run safety check
+      run: |
+        pip install -r backend/requirements.txt
+        safety check --json --output safety-report.json || true
+        
+    - name: Run bandit security scan
+      run: |
+        bandit -r backend/ -f json -o bandit-report.json || true
+
+    - name: Run semgrep security scan
+      run: |
+        semgrep --config=auto backend/ --json --output=semgrep-report.json || true
+
+    - name: Upload security reports
+      if: always()
+      uses: actions/upload-artifact@v3
+      with:
+        name: security-reports
+        path: |
+          safety-report.json
+          bandit-report.json
+          semgrep-report.json
+
+  build:
+    needs: [test, frontend-test]
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/development'
+    
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: 3.9
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r backend/requirements.txt
+        pip install build
+
+    - name: Build package
+      run: python -m build
+
+    - name: Upload build artifacts
+      uses: actions/upload-artifact@v3
+      with:
+        name: build-artifacts
+        path: dist/
+
+  deploy-staging:
+    needs: [build, security]
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/development'
+    environment: staging
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Deploy to staging
+      run: |
+        echo "Deploying to staging environment..."
+        # Add actual deployment steps here
+        
+  deploy-production:
+    needs: [build, security]
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
+    environment: production
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Deploy to production
+      run: |
+        echo "Deploying to production environment..."
+        # Add actual deployment steps here

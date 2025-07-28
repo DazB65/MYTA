@@ -8,6 +8,7 @@ import Card from '@/components/common/Card'
 import Button from '@/components/common/Button'
 import SupabaseOAuthConnection from '@/components/oauth/SupabaseOAuthConnection'
 import PricingPage from './PricingPage'
+import BackupManagement from '@/components/settings/BackupManagement'
 import validation from '@/utils/validation'
 
 const settingsSchema = z.object({
@@ -67,7 +68,7 @@ const primaryGoals = [
 export default function Settings() {
   const { userId, channelInfo, updateChannelInfo } = useUserStore()
   const [isSubmitting, setIsSubmitting] = useState(false)
-  const [activeTab, setActiveTab] = useState<'channel' | 'oauth' | 'pricing'>('channel')
+  const [activeTab, setActiveTab] = useState<'channel' | 'oauth' | 'pricing' | 'backup'>('channel')
 
   const {
     register,
@@ -132,6 +133,7 @@ export default function Settings() {
   const tabs = [
     { id: 'channel', name: 'Channel Settings', icon: '📺' },
     { id: 'oauth', name: 'YouTube Connection', icon: '🔑' },
+    { id: 'backup', name: 'Database Backup', icon: '💾' },
     { id: 'pricing', name: 'Pricing', icon: '💰' }
   ]
 
@@ -379,6 +381,18 @@ export default function Settings() {
         </div>
       )}
 
+      {/* Backup Tab */}
+      {activeTab === 'backup' && (
+        <div className="space-y-6">
+          <div>
+            <h2 className="text-2xl font-bold mb-2">Database Backup Management</h2>
+            <p className="text-gray-300">
+              Manage your database backups, schedules, and restore points.
+            </p>
+          </div>
+          <BackupManagement />
+        </div>
+      )}
 
       {/* Pricing Tab */}
       {activeTab === 'pricing' && (

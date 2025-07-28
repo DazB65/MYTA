@@ -216,6 +216,15 @@ class OAuthManager:
             else:
                 expires_at = credentials.expiry
             
+            # Use the actual scopes granted by Google (not just what we requested)
+            granted_scopes = getattr(credentials, 'granted_scopes', None)
+            if granted_scopes:
+                # Google granted these scopes
+                scope_string = " ".join(granted_scopes) if isinstance(granted_scopes, list) else granted_scopes
+            else:
+                # Fallback to requested scopes if granted_scopes not available
+                scope_string = " ".join(self.scopes)
+            
             # Create token object
             oauth_token = OAuthToken(
                 user_id=user_id,
@@ -223,7 +232,7 @@ class OAuthManager:
                 refresh_token=credentials.refresh_token,
                 token_type="Bearer",
                 expires_at=expires_at,
-                scope=" ".join(self.scopes),
+                scope=scope_string,
                 created_at=datetime.now(),
                 updated_at=datetime.now()
             )

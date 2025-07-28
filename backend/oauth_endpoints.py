@@ -109,34 +109,37 @@ async def oauth_callback(request: Request) -> RedirectResponse:
         state = request.query_params.get("state")
         error = request.query_params.get("error")
         
+        logger.info(f"🔄 OAuth callback received - code: {'present' if code else 'missing'}, state: {'present' if state else 'missing'}, error: {error}")
+        
         # Check for errors
         if error:
-            logger.error(f"OAuth callback error: {error}")
+            logger.error(f"❌ OAuth callback error from Google: {error}")
             return RedirectResponse(
                 url=f"/?oauth_error={error}",
                 status_code=302
             )
         
         if not code or not state:
-            logger.error("OAuth callback missing code or state")
+            logger.error(f"❌ OAuth callback missing parameters - code: {'present' if code else 'missing'}, state: {'present' if state else 'missing'}")
             return RedirectResponse(
                 url="/?oauth_error=missing_parameters",
                 status_code=302
             )
         
         # Process OAuth callback
+        logger.info(f"🔄 Processing OAuth callback with state: {state[:10]}...")
         oauth_manager = get_oauth_manager()
         token = await oauth_manager.handle_callback(code, state)
         
         if not token:
-            logger.error("Failed to process OAuth callback")
+            logger.error("❌ Failed to process OAuth callback - token exchange failed")
             return RedirectResponse(
                 url="/?oauth_error=callback_failed",
                 status_code=302
             )
         
         # Success - redirect to main app
-        logger.info(f"OAuth callback successful for user {token.user_id}")
+        logger.info(f"✅ OAuth callback successful for user {token.user_id}")
         return RedirectResponse(
             url=f"/?oauth_success=true&user_id={token.user_id}",
             status_code=302

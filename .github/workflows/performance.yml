@@ -1,0 +1,474 @@
+# CreatorMate Performance Monitoring and Testing
+# Monitors application performance and runs load tests
+
+name: Performance Monitoring
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+  schedule:
+    # Run performance tests weekly on Sundays at 3 AM UTC
+    - cron: '0 3 * * 0'
+  workflow_dispatch:
+    inputs:
+      test_duration:
+        description: 'Load test duration in seconds'
+        required: false
+        default: '300'
+      concurrent_users:
+        description: 'Number of concurrent users'
+        required: false
+        default: '50'
+
+env:
+  TEST_DURATION: ${{ github.event.inputs.test_duration || '300' }}
+  CONCURRENT_USERS: ${{ github.event.inputs.concurrent_users || '50' }}
+
+jobs:
+  # =============================================================================
+  # Frontend Performance Testing
+  # =============================================================================
+  frontend-performance:
+    name: Frontend Performance Tests
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    - name: Set up Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        cache: 'npm'
+        cache-dependency-path: frontend-new/package-lock.json
+    
+    - name: Install dependencies
+      run: |
+        cd frontend-new
+        npm ci
+    
+    - name: Build production bundle
+      run: |
+        cd frontend-new
+        npm run build
+    
+    - name: Analyze bundle size
+      run: |
+        cd frontend-new
+        npm install -g bundlesize
+        ls -la dist/assets/
+        
+        # Calculate bundle sizes
+        echo "# Bundle Size Analysis" > bundle-analysis.md
+        echo "" >> bundle-analysis.md
+        echo "| File | Size | Gzipped |" >> bundle-analysis.md
+        echo "|------|------|---------|" >> bundle-analysis.md
+        
+        for file in dist/assets/*.js; do
+          if [ -f "$file" ]; then
+            original_size=$(du -h "$file" | cut -f1)
+            gzipped_size=$(gzip -c "$file" | wc -c | numfmt --to=iec)
+            echo "| $(basename "$file") | $original_size | ${gzipped_size}B |" >> bundle-analysis.md
+          fi
+        done
+        
+        for file in dist/assets/*.css; do
+          if [ -f "$file" ]; then
+            original_size=$(du -h "$file" | cut -f1)
+            gzipped_size=$(gzip -c "$file" | wc -c | numfmt --to=iec)
+            echo "| $(basename "$file") | $original_size | ${gzipped_size}B |" >> bundle-analysis.md
+          fi
+        done
+    
+    - name: Install Lighthouse CI
+      run: npm install -g @lhci/cli@0.12.x
+    
+    - name: Run Lighthouse CI
+      run: |
+        cd frontend-new
+        
+        # Start a local server to serve the built files
+        npx serve -s dist -l 3000 &
+        SERVER_PID=$!
+        
+        # Wait for server to start
+        sleep 10
+        
+        # Run Lighthouse
+        lhci autorun --upload.target=temporary-public-storage --collect.url=http://localhost:3000 || true
+        
+        # Kill the server
+        kill $SERVER_PID
+    
+    - name: Upload performance results
+      uses: actions/upload-artifact@v3
+      with:
+        name: frontend-performance-results
+        path: |
+          frontend-new/bundle-analysis.md
+          frontend-new/.lighthouseci/
+
+  # =============================================================================
+  # Backend Load Testing
+  # =============================================================================
+  backend-load-testing:
+    name: Backend Load Testing
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    - name: Create test environment
+      run: |
+        cat > .env << EOF
+        ENVIRONMENT=testing
+        LOG_LEVEL=WARNING
+        OPENAI_API_KEY=test_openai_key
+        GOOGLE_API_KEY=test_google_key
+        YOUTUBE_API_KEY=test_youtube_key
+        BOSS_AGENT_SECRET_KEY=test_boss_secret
+        SESSION_SECRET_KEY=test_session_secret
+        REDIS_PASSWORD=test_redis_password
+        BUILD_DATE=$(date -u +'%Y-%m-%dT%H:%M:%SZ')
+        VCS_REF=${{ github.sha }}
+        EOF
+    
+    - name: Start services
+      run: |
+        docker compose -f docker-compose.yml up -d --wait
+      timeout-minutes: 5
+    
+    - name: Wait for services to be ready
+      run: |
+        timeout 60 bash -c 'until curl -f http://localhost:8888/health; do sleep 5; done'
+    
+    - name: Install load testing tools
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y apache2-utils
+        
+        # Install Artillery for advanced load testing
+        npm install -g artillery@latest
+    
+    - name: Create Artillery test configuration
+      run: |
+        cat > artillery-config.yml << EOF
+        config:
+          target: 'http://localhost:8888'
+          phases:
+            - duration: 60
+              arrivalRate: 10
+            - duration: 120
+              arrivalRate: 20
+            - duration: 60
+              arrivalRate: 5
+          processor: "./test-functions.js"
+        scenarios:
+          - name: "Health Check Load Test"
+            weight: 40
+            flow:
+              - get:
+                  url: "/health"
+          - name: "API Info Load Test"
+            weight: 30
+            flow:
+              - get:
+                  url: "/api/info"
+          - name: "System Health Load Test"
+            weight: 20
+            flow:
+              - get:
+                  url: "/api/health/system"
+          - name: "Agent Status Load Test"
+            weight: 10
+            flow:
+              - get:
+                  url: "/api/agent/status"
+        EOF
+        
+        # Create test functions file
+        cat > test-functions.js << EOF
+        module.exports = {
+          // Custom test functions can be added here
+        };
+        EOF
+    
+    - name: Run Apache Bench tests
+      run: |
+        echo "# Load Test Results" > load-test-results.md
+        echo "" >> load-test-results.md
+        echo "**Test Configuration:**" >> load-test-results.md
+        echo "- Duration: ${{ env.TEST_DURATION }} seconds" >> load-test-results.md
+        echo "- Concurrent Users: ${{ env.CONCURRENT_USERS }}" >> load-test-results.md
+        echo "- Timestamp: $(date -u +'%Y-%m-%d %H:%M:%S UTC')" >> load-test-results.md
+        echo "" >> load-test-results.md
+        
+        # Health endpoint test
+        echo "## Health Endpoint Test" >> load-test-results.md
+        echo "\`\`\`" >> load-test-results.md
+        ab -n 1000 -c 50 -g health-test.data http://localhost:8888/health | tee -a load-test-results.md
+        echo "\`\`\`" >> load-test-results.md
+        echo "" >> load-test-results.md
+        
+        # API info endpoint test
+        echo "## API Info Endpoint Test" >> load-test-results.md
+        echo "\`\`\`" >> load-test-results.md
+        ab -n 500 -c 25 -g api-info-test.data http://localhost:8888/api/info | tee -a load-test-results.md
+        echo "\`\`\`" >> load-test-results.md
+        echo "" >> load-test-results.md
+    
+    - name: Run Artillery load tests
+      run: |
+        echo "## Artillery Load Test Results" >> load-test-results.md
+        echo "\`\`\`" >> load-test-results.md
+        artillery run artillery-config.yml --output artillery-report.json | tee -a load-test-results.md
+        echo "\`\`\`" >> load-test-results.md
+        
+        # Generate HTML report
+        artillery report artillery-report.json --output artillery-report.html
+    
+    - name: Collect performance metrics
+      run: |
+        echo "## System Resource Usage" >> load-test-results.md
+        echo "\`\`\`" >> load-test-results.md
+        docker stats --no-stream | tee -a load-test-results.md
+        echo "\`\`\`" >> load-test-results.md
+        
+        # Get container logs for any errors
+        echo "## Service Logs (Last 50 lines)" >> load-test-results.md
+        echo "### Backend Logs" >> load-test-results.md
+        echo "\`\`\`" >> load-test-results.md
+        docker compose logs --tail=50 backend | tee -a load-test-results.md
+        echo "\`\`\`" >> load-test-results.md
+    
+    - name: Upload load test results
+      uses: actions/upload-artifact@v3
+      if: always()
+      with:
+        name: backend-load-test-results
+        path: |
+          load-test-results.md
+          artillery-report.json
+          artillery-report.html
+          *.data
+    
+    - name: Stop services
+      if: always()
+      run: |
+        docker compose down -v
+
+  # =============================================================================
+  # Database Performance Testing
+  # =============================================================================
+  database-performance:
+    name: Database Performance Tests
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.9'
+    
+    - name: Install dependencies
+      run: |
+        cd backend
+        pip install --upgrade pip
+        pip install -r requirements.txt
+        pip install -r requirements-test.txt
+    
+    - name: Create performance test script
+      run: |
+        cd backend
+        cat > db_performance_test.py << 'EOF'
+        import time
+        import sqlite3
+        import statistics
+        from contextlib import contextmanager
+        
+        @contextmanager
+        def timer():
+            start = time.time()
+            yield
+            end = time.time()
+            return end - start
+        
+        def test_database_performance():
+            # Create test database
+            conn = sqlite3.connect(':memory:')
+            cursor = conn.cursor()
+            
+            # Create test tables
+            cursor.execute('''
+                CREATE TABLE users (
+                    id INTEGER PRIMARY KEY,
+                    username TEXT NOT NULL,
+                    email TEXT NOT NULL,
+                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+                )
+            ''')
+            
+            cursor.execute('''
+                CREATE TABLE channel_info (
+                    id INTEGER PRIMARY KEY,
+                    user_id INTEGER,
+                    name TEXT,
+                    subscriber_count INTEGER,
+                    FOREIGN KEY (user_id) REFERENCES users (id)
+                )
+            ''')
+            
+            # Insert test data
+            insert_times = []
+            for i in range(1000):
+                start = time.time()
+                cursor.execute(
+                    "INSERT INTO users (username, email) VALUES (?, ?)",
+                    (f"user{i}", f"user{i}@example.com")
+                )
+                insert_times.append(time.time() - start)
+            
+            conn.commit()
+            
+            # Query performance tests
+            query_times = []
+            for i in range(100):
+                start = time.time()
+                cursor.execute("SELECT * FROM users WHERE id = ?", (i + 1,))
+                cursor.fetchone()
+                query_times.append(time.time() - start)
+            
+            # Join query test
+            join_times = []
+            for i in range(50):
+                cursor.execute(
+                    "INSERT INTO channel_info (user_id, name, subscriber_count) VALUES (?, ?, ?)",
+                    (i + 1, f"Channel {i}", i * 100)
+                )
+            
+            for i in range(50):
+                start = time.time()
+                cursor.execute('''
+                    SELECT u.username, c.name, c.subscriber_count 
+                    FROM users u 
+                    JOIN channel_info c ON u.id = c.user_id 
+                    WHERE u.id = ?
+                ''', (i + 1,))
+                cursor.fetchone()
+                join_times.append(time.time() - start)
+            
+            conn.close()
+            
+            # Performance report
+            print("# Database Performance Test Results")
+            print(f"- Insert operations: {len(insert_times)}")
+            print(f"- Average insert time: {statistics.mean(insert_times):.6f}s")
+            print(f"- Max insert time: {max(insert_times):.6f}s")
+            print(f"- Simple query operations: {len(query_times)}")
+            print(f"- Average query time: {statistics.mean(query_times):.6f}s")
+            print(f"- Max query time: {max(query_times):.6f}s")
+            print(f"- Join query operations: {len(join_times)}")
+            print(f"- Average join time: {statistics.mean(join_times):.6f}s")
+            print(f"- Max join time: {max(join_times):.6f}s")
+        
+        if __name__ == "__main__":
+            test_database_performance()
+        EOF
+    
+    - name: Run database performance tests
+      run: |
+        cd backend
+        python db_performance_test.py > db-performance-results.md
+    
+    - name: Upload database performance results
+      uses: actions/upload-artifact@v3
+      with:
+        name: database-performance-results
+        path: backend/db-performance-results.md
+
+  # =============================================================================
+  # Performance Summary and Monitoring
+  # =============================================================================
+  performance-summary:
+    name: Performance Summary
+    runs-on: ubuntu-latest
+    needs: [frontend-performance, backend-load-testing, database-performance]
+    if: always()
+    
+    steps:
+    - name: Download all performance results
+      uses: actions/download-artifact@v3
+    
+    - name: Generate performance summary
+      run: |
+        echo "# Performance Test Summary Report" > performance-summary.md
+        echo "" >> performance-summary.md
+        echo "**Test Date:** $(date -u +'%Y-%m-%d %H:%M:%S UTC')" >> performance-summary.md
+        echo "**Commit:** ${{ github.sha }}" >> performance-summary.md
+        echo "**Branch:** ${{ github.ref }}" >> performance-summary.md
+        echo "" >> performance-summary.md
+        
+        echo "## Test Results Overview" >> performance-summary.md
+        echo "" >> performance-summary.md
+        echo "| Test Category | Status | Details |" >> performance-summary.md
+        echo "|---------------|--------|---------|" >> performance-summary.md
+        echo "| Frontend Performance | ${{ needs.frontend-performance.result }} | Bundle analysis and Lighthouse tests |" >> performance-summary.md
+        echo "| Backend Load Testing | ${{ needs.backend-load-testing.result }} | Apache Bench and Artillery load tests |" >> performance-summary.md
+        echo "| Database Performance | ${{ needs.database-performance.result }} | Database operation benchmarks |" >> performance-summary.md
+        echo "" >> performance-summary.md
+        
+        # Add detailed results if available
+        if [ -d "frontend-performance-results" ]; then
+          echo "## Frontend Performance Details" >> performance-summary.md
+          if [ -f "frontend-performance-results/bundle-analysis.md" ]; then
+            cat frontend-performance-results/bundle-analysis.md >> performance-summary.md
+          fi
+        fi
+        
+        if [ -d "backend-load-test-results" ]; then
+          echo "## Backend Load Test Details" >> performance-summary.md
+          if [ -f "backend-load-test-results/load-test-results.md" ]; then
+            cat backend-load-test-results/load-test-results.md >> performance-summary.md
+          fi
+        fi
+        
+        if [ -d "database-performance-results" ]; then
+          echo "## Database Performance Details" >> performance-summary.md
+          if [ -f "database-performance-results/db-performance-results.md" ]; then
+            cat database-performance-results/db-performance-results.md >> performance-summary.md
+          fi
+        fi
+        
+        echo "" >> performance-summary.md
+        echo "---" >> performance-summary.md
+        echo "*Generated by CreatorMate Performance Monitoring Pipeline*" >> performance-summary.md
+    
+    - name: Upload performance summary
+      uses: actions/upload-artifact@v3
+      with:
+        name: performance-summary
+        path: performance-summary.md
+    
+    - name: Comment performance summary on PR
+      if: github.event_name == 'pull_request'
+      uses: actions/github-script@v6
+      with:
+        script: |
+          const fs = require('fs');
+          if (fs.existsSync('performance-summary.md')) {
+            const summary = fs.readFileSync('performance-summary.md', 'utf8');
+            
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: `## 📊 Performance Test Results\n\n${summary}`
+            });
+          }

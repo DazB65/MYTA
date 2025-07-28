@@ -2,8 +2,9 @@ import { useState, useEffect } from 'react'
 import Card from '@/components/common/Card'
 import Button from '@/components/common/Button'
 import { formatNumber } from '@/utils'
-import { useSupabaseOAuthStore } from '@/store/supabaseOAuthStore'
+import { useOAuthStore } from '@/store/oauthStore'
 import { Loader, AlertCircle } from 'lucide-react'
+import { errorHandler } from '@/utils/errorHandler'
 
 interface VideoData {
   id: string
@@ -88,9 +89,7 @@ const formatPercentage = (value: number | undefined): string => {
 // formatCurrency removed - no longer needed for real data only display
 
 export default function Videos() {
-  const { isAuthenticated, checkStatus } = useSupabaseOAuthStore()
-  
-  // TEMPORARY FIX: Force use default_user for consistency with Pillars page
+  const { isAuthenticated, checkStatus, initiateOAuth } = useOAuthStore()
   const actualUserId = "default_user"
   const [videos, setVideos] = useState<VideoData[]>([])
   const [displayedVideos, setDisplayedVideos] = useState<VideoData[]>([])
@@ -104,15 +103,15 @@ export default function Videos() {
   const [expandedVideo, setExpandedVideo] = useState<string | null>(null)
 
   useEffect(() => {
-    // Check OAuth status when component mounts
+    // Check OAuth status and fetch videos/pillars on mount
     checkStatus()
-  }, [])
-
-  useEffect(() => {
-    // Always fetch videos and pillars on mount - API works with or without OAuth
-    fetchVideos()
     fetchPillars()
-  }, []) // Run once on mount
+    
+    // If authenticated, fetch videos
+    if (isAuthenticated) {
+      fetchVideos()
+    }
+  }, [checkStatus, isAuthenticated]) // Run when authentication changes
 
   const fetchPillars = async () => {
     try {
@@ -173,8 +172,12 @@ export default function Videos() {
         throw new Error('Failed to allocate video to pillar')
       }
     } catch (error) {
-      console.error('❌ Error allocating video:', error)
-      alert('Failed to allocate video to pillar. Please try again.')
+      const appError = errorHandler.handle(error as Error, {
+        component: 'Videos',
+        action: 'allocateVideo',
+        additionalData: { videoId, pillarId }
+      });
+      errorHandler.showUserError(appError);
     } finally {
       setAllocatingVideo(null)
     }
@@ -199,8 +202,12 @@ export default function Videos() {
         throw new Error('Failed to remove video allocation')
       }
     } catch (error) {
-      console.error('❌ Error removing allocation:', error)
-      alert('Failed to remove video allocation. Please try again.')
+      const appError = errorHandler.handle(error as Error, {
+        component: 'Videos',
+        action: 'removeAllocation',
+        additionalData: { videoId }
+      });
+      errorHandler.showUserError(appError);
     } finally {
       setAllocatingVideo(null)
     }
@@ -211,17 +218,6 @@ export default function Videos() {
     setError(null)
     
     try {
-      // First check if user has a valid channel configured
-      const statusResponse = await fetch(`/api/youtube/channel-status/${actualUserId}`)
-      if (statusResponse.ok) {
-        const statusData = await statusResponse.json()
-        if (!statusData.data?.has_channel) {
-          setError(`No YouTube channel connected. ${statusData.data?.suggestions?.[0] || 'Please connect your YouTube channel first.'}`)
-          setVideos([])
-          setLoading(false)
-          return
-        }
-      }
 
       // Use the simpler my-videos endpoint 
       const response = await fetch(`/api/youtube/my-videos/${actualUserId}?count=50`)
@@ -466,7 +462,7 @@ export default function Videos() {
               Connect your YouTube account to access detailed video analytics and data.
             </p>
             <Button 
-              onClick={() => window.open(`/api/youtube/debug/oauth-redirect/${actualUserId}`, '_blank')}
+              onClick={() => initiateOAuth()}
               variant="primary"
             >
               Connect YouTube Account
@@ -486,12 +482,15 @@ export default function Videos() {
             <h3 className="text-lg font-semibold mb-2 text-red-400">Failed to Load Videos</h3>
             <p className="text-gray-300 mb-4 font-medium">{error}</p>
             <div className="flex justify-center gap-3">
-              <Button onClick={fetchVideos} variant="secondary">
+              <Button 
+                onClick={fetchVideos}
+                variant="secondary"
+              >
                 Try Again
               </Button>
               {error.includes('No YouTube channel connected') && (
                 <Button 
-                  onClick={() => window.open(`/api/youtube/debug/oauth-redirect/${actualUserId}`, '_blank')}
+                  onClick={() => initiateOAuth()}
                   variant="primary"
                 >
                   Connect YouTube Channel

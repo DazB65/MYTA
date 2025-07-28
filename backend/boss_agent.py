@@ -11,17 +11,19 @@ from typing import Dict, List, Optional, Any, Tuple
 from dataclasses import dataclass, asdict
 from enum import Enum
 import logging
-from openai import OpenAI
 import os
 from agent_cache import get_agent_cache
+from agent_model_adapter import migrate_openai_call_to_integration
 from enhanced_user_context import get_enhanced_context_manager
 from realtime_data_pipeline import get_data_pipeline
 from boss_agent_auth import get_boss_agent_authenticator
 from data_access_monitor import get_data_access_monitor
+# Use centralized model integration
+from model_integrations import create_agent_call_to_integration, get_model_integration
 
 # Configure advanced logging
 from logging_config import get_logger, LogCategory, log_performance_metrics
-from monitoring_middleware import get_agent_monitor, monitor_agent_operation
+from monitoring_middleware import monitor_agent_operation
 
 logger = get_logger(__name__, LogCategory.AGENT)
 
@@ -101,8 +103,9 @@ class AgentResponse:
 class IntentClassifier:
     """Classifies user messages into query intents"""
     
-    def __init__(self, openai_client: OpenAI):
-        self.client = openai_client
+    def __init__(self):
+        # No longer needs OpenAI client - uses centralized model integration
+        pass
         
     async def classify_intent(self, message: str, context: Dict) -> Tuple[QueryType, Dict]:
         """
@@ -179,17 +182,11 @@ class IntentClassifier:
         """
         
         try:
-            response = await asyncio.get_event_loop().run_in_executor(
-                None,
-                lambda: self.client.chat.completions.create(
-                    model="gpt-4o",
-                    messages=[{"role": "user", "content": classification_prompt}],
-                    temperature=0.05,
-                    max_tokens=500
-                )
+            # Use model integration system for better model selection and fallbacks
+            messages = [{"role": "user", "content": classification_prompt}]
+            raw_content = await migrate_openai_call_to_integration(
+                "boss_agent", messages, "quick"
             )
-            
-            raw_content = response.choices[0].message.content
             logger.info(f"GPT-4o classification response: {raw_content}")
             
             # Try to extract JSON from the response
@@ -223,9 +220,9 @@ class IntentClassifier:
 class SpecializedAgent:
     """Base class for specialized agents"""
     
-    def __init__(self, agent_id: str, openai_client: OpenAI):
+    def __init__(self, agent_id: str):
         self.agent_id = agent_id
-        self.client = openai_client
+        # No longer needs OpenAI client - uses centralized model integration
         
     async def process_request(self, request: AgentRequest) -> AgentResponse:
         """Process an agent request and return response"""
@@ -271,8 +268,8 @@ class SpecializedAgent:
 class ContentAnalysisAgent(SpecializedAgent):
     """Analyzes video content performance using the specialized Content Analysis Agent"""
     
-    def __init__(self, openai_client: OpenAI):
-        super().__init__("content_analyzer", openai_client)
+    def __init__(self):
+        super().__init__("content_analyzer")
         # Import the specialized agent
         from content_analysis_agent import get_content_analysis_agent
         self.specialized_agent = get_content_analysis_agent()
@@ -420,8 +417,8 @@ class ContentAnalysisAgent(SpecializedAgent):
 class AudienceInsightsAgent(SpecializedAgent):
     """Analyzes audience behavior and demographics using the specialized Audience Insights Agent"""
     
-    def __init__(self, openai_client: OpenAI):
-        super().__init__("audience_analyzer", openai_client)
+    def __init__(self):
+        super().__init__("audience_analyzer")
         # Import the specialized agent
         from audience_insights_agent import get_audience_insights_agent
         self.specialized_agent = get_audience_insights_agent()
@@ -547,8 +544,8 @@ class AudienceInsightsAgent(SpecializedAgent):
 class SEOOptimizationAgent(SpecializedAgent):
     """Handles SEO and discoverability optimization using the specialized SEO & Discoverability Agent"""
     
-    def __init__(self, openai_client: OpenAI):
-        super().__init__("seo_optimizer", openai_client)
+    def __init__(self):
+        super().__init__("seo_optimizer")
         # Import the specialized agent
         from seo_discoverability_agent import get_seo_discoverability_agent
         self.specialized_agent = get_seo_discoverability_agent()
@@ -661,8 +658,8 @@ class SEOOptimizationAgent(SpecializedAgent):
 class CompetitiveAnalysisAgent(SpecializedAgent):
     """Analyzes competitor performance and market positioning using the specialized Competitive Analysis Agent"""
     
-    def __init__(self, openai_client: OpenAI):
-        super().__init__("competitor_analyzer", openai_client)
+    def __init__(self):
+        super().__init__("competitor_analyzer")
         # Import the specialized agent
         from competitive_analysis_agent import get_competitive_analysis_agent
         self.specialized_agent = get_competitive_analysis_agent()
@@ -775,8 +772,8 @@ class CompetitiveAnalysisAgent(SpecializedAgent):
 class MonetizationAgent(SpecializedAgent):
     """Analyzes monetization opportunities and revenue optimization using the specialized Monetization Strategy Agent"""
     
-    def __init__(self, openai_client: OpenAI):
-        super().__init__("monetization_optimizer", openai_client)
+    def __init__(self):
+        super().__init__("monetization_optimizer")
         # Import the specialized agent
         from monetization_strategy_agent import get_monetization_strategy_agent
         self.specialized_agent = get_monetization_strategy_agent()
@@ -889,8 +886,9 @@ class MonetizationAgent(SpecializedAgent):
 class VoiceAnalyzer:
     """Analyzes and matches content voice and style"""
 
-    def __init__(self, openai_client: OpenAI):
-        self.client = openai_client
+    def __init__(self):
+        # No longer needs OpenAI client - uses centralized model integration
+        pass
 
     async def analyze_channel_voice(self, channel_content: List[Dict], channel_context: Dict) -> Dict[str, Any]:
         """Analyze channel's voice and writing style"""
@@ -924,18 +922,19 @@ class VoiceAnalyzer:
             Return structured JSON with style profile.
             """
 
-            response = await asyncio.get_event_loop().run_in_executor(
-                None,
-                lambda: self.client.chat.completions.create(
-                    model="gpt-4o",
-                    messages=[{"role": "user", "content": analysis_prompt}],
-                    temperature=0.2,
-                    max_tokens=1000
-                )
+            # Use centralized model integration
+            result = await create_agent_call_to_integration(
+                agent_type="boss_agent",
+                use_case="voice_analysis", 
+                prompt_data={
+                    "prompt": analysis_prompt,
+                    "analysis_depth": "standard",
+                    "system_message": "You are an expert voice and writing style analyzer for YouTube content creators."
+                }
             )
 
             # Parse response
-            analysis_text = response.choices[0].message.content
+            analysis_text = result["content"] if result["success"] else ""
             try:
                 import re
                 json_match = re.search(r'\{.*\}', analysis_text, re.DOTALL)
@@ -977,17 +976,18 @@ class VoiceAnalyzer:
             Generate the content in their voice.
             """
 
-            response = await asyncio.get_event_loop().run_in_executor(
-                None,
-                lambda: self.client.chat.completions.create(
-                    model="gpt-4o",
-                    messages=[{"role": "user", "content": generation_prompt}],
-                    temperature=0.7,
-                    max_tokens=1500
-                )
+            # Use centralized model integration
+            result = await create_agent_call_to_integration(
+                agent_type="boss_agent",
+                use_case="content_generation",
+                prompt_data={
+                    "prompt": generation_prompt,
+                    "analysis_depth": "deep",
+                    "system_message": "You are an expert content creator who can match any writing style and voice perfectly."
+                }
             )
 
-            generated_content = response.choices[0].message.content
+            generated_content = result["content"] if result["success"] else "Content generation failed"
 
             # Verify style match
             match_score = await self._verify_style_match(
@@ -1032,17 +1032,18 @@ class VoiceAnalyzer:
             Return only the average score as a number.
             """
 
-            response = await asyncio.get_event_loop().run_in_executor(
-                None,
-                lambda: self.client.chat.completions.create(
-                    model="gpt-4o",
-                    messages=[{"role": "user", "content": verification_prompt}],
-                    temperature=0.1,
-                    max_tokens=100
-                )
+            # Use centralized model integration
+            result = await create_agent_call_to_integration(
+                agent_type="boss_agent",
+                use_case="style_verification",
+                prompt_data={
+                    "prompt": verification_prompt,
+                    "analysis_depth": "quick",
+                    "system_message": "You are a precise style match analyzer. Return only numeric scores."
+                }
             )
 
-            score_text = response.choices[0].message.content
+            score_text = result["content"] if result["success"] else "0.7"
             try:
                 score = float(score_text.strip())
                 return min(100, max(0, score)) / 100  # Normalize to 0-1
@@ -1111,17 +1112,18 @@ class BossAgent:
     }
     
     def __init__(self, openai_api_key: str):
-        self.client = OpenAI(api_key=openai_api_key)
-        self.intent_classifier = IntentClassifier(self.client)
-        self.voice_analyzer = VoiceAnalyzer(self.client)
+        # Store API key for backward compatibility but use centralized integration
+        self.openai_api_key = openai_api_key
+        self.intent_classifier = IntentClassifier()
+        self.voice_analyzer = VoiceAnalyzer()
         
         # Initialize specialized agents
         self.agents = {
-            QueryType.CONTENT_ANALYSIS: ContentAnalysisAgent(self.client),
-            QueryType.AUDIENCE_INSIGHTS: AudienceInsightsAgent(self.client),
-            QueryType.SEO_OPTIMIZATION: SEOOptimizationAgent(self.client),
-            QueryType.COMPETITIVE_ANALYSIS: CompetitiveAnalysisAgent(self.client),
-            QueryType.MONETIZATION: MonetizationAgent(self.client)
+            QueryType.CONTENT_ANALYSIS: ContentAnalysisAgent(),
+            QueryType.AUDIENCE_INSIGHTS: AudienceInsightsAgent(),
+            QueryType.SEO_OPTIMIZATION: SEOOptimizationAgent(),
+            QueryType.COMPETITIVE_ANALYSIS: CompetitiveAnalysisAgent(),
+            QueryType.MONETIZATION: MonetizationAgent()
         }
         
         self.cache = get_agent_cache()
@@ -1880,14 +1882,10 @@ class BossAgent:
             
             prompt = fallback_prompts.get(agent_type, "Provide general YouTube growth advice.")
             
-            response = await asyncio.get_event_loop().run_in_executor(
-                None,
-                lambda: self.client.chat.completions.create(
-                    model="gpt-4o",
-                    messages=[{"role": "user", "content": prompt}],
-                    temperature=0.3,
-                    max_tokens=300
-                )
+            # Use model integration for better fallback handling
+            messages = [{"role": "user", "content": prompt}]
+            response_content = await migrate_openai_call_to_integration(
+                "boss_agent", messages, "quick"
             )
             
             processing_time = (datetime.now() - start_time).total_seconds()
@@ -1899,7 +1897,7 @@ class BossAgent:
                 success=True,
                 data={
                     "analysis_type": f"{agent_type.value}_fallback",
-                    "insights": response.choices[0].message.content,
+                    "insights": response_content,
                     "recommendations": ["Review and optimize based on analytics data"],
                     "fallback_response": True
                 },
@@ -2019,17 +2017,18 @@ class BossAgent:
         """
         
         try:
-            synthesis_response = await asyncio.get_event_loop().run_in_executor(
-                None,
-                lambda: self.client.chat.completions.create(
-                    model="gpt-4o",
-                    messages=[{"role": "user", "content": synthesis_prompt}],
-                    temperature=0.2,
-                    max_tokens=800
-                )
+            # Use centralized model integration
+            result = await create_agent_call_to_integration(
+                agent_type="boss_agent",
+                use_case="response_synthesis",
+                prompt_data={
+                    "prompt": synthesis_prompt,
+                    "analysis_depth": "standard",
+                    "system_message": "You are the main CreatorMate AI orchestrating agent responses."
+                }
             )
             
-            synthesized_response = synthesis_response.choices[0].message.content
+            synthesized_response = result["content"] if result["success"] else "Unable to synthesize response"
             
         except Exception as e:
             logger.error(f"Response synthesis failed: {e}")

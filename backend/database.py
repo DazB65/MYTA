@@ -5,7 +5,6 @@ Handles SQLite database operations for user context and channel information
 
 import sqlite3
 import json
-import os
 from datetime import datetime
 from typing import Dict, List, Optional
 import logging

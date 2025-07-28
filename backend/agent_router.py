@@ -3,21 +3,19 @@ Agent Router for CreatorMate
 Contains all agent-related API endpoints extracted from main.py
 """
 
-from fastapi import APIRouter, HTTPException, Depends, Security, Request
+from fastapi import APIRouter, HTTPException, Depends, Request
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from fastapi.responses import JSONResponse
 from datetime import datetime
 import logging
 import traceback
 import uuid
-from typing import Dict, Any, List
-from slowapi import Limiter
-from slowapi.util import get_remote_address
+from typing import Dict, Any
 
 # Import models
 from api_models import (
     ChatMessage, QuickActionRequest, AgentTaskRequest, AgentCallbackRequest,
-    ModelStatusResponse, StandardResponse, ChatResponse, ErrorResponse,
+    ModelStatusResponse, StandardResponse, ChatResponse,
     ChannelInfo, create_error_response, create_success_response
 )
 
@@ -29,18 +27,17 @@ from agent_cache import get_agent_cache
 from model_integrations import get_model_integration, generate_agent_response
 from boss_agent_auth import get_boss_agent_authenticator, validate_specialized_agent_request
 
-# Import standardized agents (v1) - COMMENTED OUT due to missing process functions
-# TODO: These imports need to be fixed or the functions need to be implemented
-# from content_analysis_agent import process_content_analysis_request
-# from audience_insights_agent import process_audience_insights_request  
-# from seo_discoverability_agent import process_seo_request
-# from competitive_analysis_agent import process_competitive_analysis_request
-# from monetization_strategy_agent import process_monetization_strategy_request
+# Import agent adapters
+from agent_adapters import (
+    process_content_analysis_request,
+    process_audience_insights_request,
+    process_seo_request,
+    process_competitive_analysis_request,
+    process_monetization_strategy_request
+)
 
 # Configure advanced logging
 from logging_config import get_logger, LogCategory
-from monitoring_middleware import get_agent_monitor, monitor_agent_operation
-
 logger = get_logger(__name__, LogCategory.AGENT)
 
 # Create router
@@ -479,195 +476,6 @@ async def handle_standard_quick_action(action_request: QuickActionRequest, conte
         logger.error(traceback.format_exc())
         raise HTTPException(status_code=500, detail="Failed to process quick action")
 
-async def handle_standard_quick_action(action_request: QuickActionRequest, context: Dict) -> StandardResponse:
-    """Handle quick actions with existing logic"""
-    try:
-        ch = context["channel_info"]
-        
-        # Calculate performance insights for better targeting
-        subscriber_tier = "new" if ch['subscriber_count'] < 1000 else "growing" if ch['subscriber_count'] < 10000 else "established" if ch['subscriber_count'] < 100000 else "large"
-        ctr_performance = "low" if ch['ctr'] < 3 else "average" if ch['ctr'] < 6 else "good" if ch['ctr'] < 10 else "excellent"
-        retention_performance = "low" if ch['retention'] < 30 else "average" if ch['retention'] < 50 else "good" if ch['retention'] < 70 else "excellent"
-        
-        # Define action prompts based on the action type (excluding enhanced actions)
-        action_prompts = {
-            "generate_script": f"""
-            As a {ch['niche']} YouTube expert, create a video script specifically for {ch['name']}.
-            
-            CHANNEL-SPECIFIC REQUIREMENTS:
-            🎯 Niche: {ch['niche']} (script must match {ch['niche']} audience expectations)
-            👥 Audience Size: {subscriber_tier.title()} channel ({ch['subscriber_count']:,} subs)
-            📊 Current CTR: {ch['ctr']}% ({ctr_performance}) - hook must be {ch['niche']}-specific to improve this
-            ⏱️ Retention: {ch['retention']}% ({retention_performance}) - structure for {ch['niche']} viewer attention span
-            🎬 Content Style: {ch['content_type']}
-            🎯 Channel Goal: {ch['primary_goal']}
-            
-            Topic/Context: {action_request.context}
-            
-            Create a {ch['niche']}-optimized script with:
-            1. HOOK (0-15 sec): Specific to {ch['niche']} audience pain points/interests
-            2. INTRODUCTION (15-30 sec): Establish credibility in {ch['niche']}
-            3. MAIN CONTENT: Structure for {ch['niche']} viewers (attention patterns)
-            4. ENGAGEMENT PROMPTS: {ch['niche']}-specific questions/calls
-            5. CTA: Appropriate for {subscriber_tier} channels in {ch['niche']}
-            6. OUTRO: {ch['niche']} community building
-            
-            Make it sound like a successful {ch['niche']} creator with {ch['subscriber_count']:,} subscribers would speak.
-            """,
-            
-            "optimize_title": f"""
-            As a {ch['niche']} YouTube SEO specialist, optimize titles for {ch['name']}.
-            
-            TITLE OPTIMIZATION TARGET:
-            🎯 Channel: {ch['name']} ({ch['niche']} niche)
-            📊 Current CTR: {ch['ctr']}% ({ctr_performance}) - need {ch['niche']}-optimized titles
-            👥 Audience: {subscriber_tier.title()} {ch['niche']} channel ({ch['subscriber_count']:,} subs)
-            🎯 Goal: {ch['primary_goal']}
-            
-            Current Title/Topic: {action_request.context}
-            
-            Provide 5 optimized title variations that could improve CTR from {ch['ctr']}% to 6-8%.
-            """,
-            
-            "get_ideas": f"""
-            As a {ch['niche']} content strategist, generate 10 video ideas for {ch['name']}.
-            Context: {action_request.context}
-            Focus on {ch['niche']} audience with {ch['subscriber_count']:,} subscribers.
-            """,
-            
-            "thumbnail_ideas": f"""
-            As a {ch['niche']} thumbnail specialist, design 3 thumbnail concepts for {ch['name']}.
-            Video Topic: {action_request.context}
-            Target CTR improvement from {ch['ctr']}% to 6-8%.
-            """,
-            
-            "analyze_viral": f"""
-            As a viral content expert for {ch['niche']}, analyze viral potential for {ch['name']}.
-            
-            VIRAL ANALYSIS TARGET:
-            🎯 Channel: {ch['name']} ({ch['niche']} niche)
-            👥 Audience: {subscriber_tier.title()} {ch['niche']} channel ({ch['subscriber_count']:,} subs)
-            📊 Current CTR: {ch['ctr']}% ({ctr_performance})
-            ⏱️ Retention: {ch['retention']}% ({retention_performance})
-            
-            Content to Analyze: {action_request.context}
-            
-            Provide:
-            1. Viral Score (0-100)
-            2. Key Viral Elements Analysis
-            3. Viral Pattern Matches
-            4. Improvement Suggestions
-            5. Predicted Performance Range
-            """,
-            
-            "find_collabs": f"""
-            As a {ch['niche']} collaboration strategist, identify optimal partners for {ch['name']}.
-            
-            COLLABORATION TARGET:
-            🎯 Channel: {ch['name']} ({ch['niche']} niche)
-            👥 Size: {subscriber_tier.title()} channel ({ch['subscriber_count']:,} subs)
-            🎯 Goal: {ch['primary_goal']}
-            🎬 Style: {ch['content_type']}
-            
-            Context: {action_request.context}
-            
-            Provide:
-            1. Ideal Collaboration Types
-            2. Partner Channel Size Range
-            3. Specific Niche Segments
-            4. Collaboration Format Ideas
-            5. Outreach Strategy
-            """,
-            
-            "check_algorithm": f"""
-            As a YouTube algorithm specialist for {ch['niche']}, analyze algorithm favorability for {ch['name']}.
-            
-            ALGORITHM ANALYSIS TARGET:
-            🎯 Channel: {ch['name']} ({ch['niche']} niche)
-            📊 CTR: {ch['ctr']}% ({ctr_performance})
-            ⏱️ Retention: {ch['retention']}% ({retention_performance})
-            👥 Audience: {subscriber_tier.title()} {ch['niche']} channel ({ch['subscriber_count']:,} subs)
-            
-            Content to Check: {action_request.context}
-            
-            Provide:
-            1. Algorithm Score (0-100)
-            2. Key Algorithm Factors
-            3. Optimization Opportunities
-            4. Risk Factors
-            5. Recommended Actions
-            """,
-            
-            "repurpose_content": f"""
-            As a content repurposing strategist for {ch['niche']}, analyze repurposing opportunities for {ch['name']}.
-            
-            REPURPOSING TARGET:
-            🎯 Channel: {ch['name']} ({ch['niche']} niche)
-            👥 Audience: {subscriber_tier.title()} {ch['niche']} channel
-            🎬 Content: {ch['content_type']}
-            
-            Content to Repurpose: {action_request.context}
-            
-            Provide:
-            1. Short-Form Opportunities (Shorts/Clips)
-            2. Cross-Platform Ideas
-            3. Series Potential
-            4. Content Breakdown Strategy
-            5. Timeline & Action Steps
-            """,
-            
-            "trending_ideas": f"""
-            As a trend analyst for {ch['niche']}, identify trending opportunities for {ch['name']}.
-            
-            TREND ANALYSIS TARGET:
-            🎯 Channel: {ch['name']} ({ch['niche']} niche)
-            👥 Size: {subscriber_tier.title()} channel ({ch['subscriber_count']:,} subs)
-            🎬 Style: {ch['content_type']}
-            
-            Context: {action_request.context}
-            
-            Provide:
-            1. Current {ch['niche']} Trends
-            2. Emerging Topics
-            3. Content Opportunities
-            4. Timing Recommendations
-            5. Implementation Strategy
-            """
-        }
-        
-        # Get the prompt for the requested action
-        if action_request.action not in action_prompts:
-            raise HTTPException(status_code=400, detail=f"Unknown action: {action_request.action}")
-        
-        prompt = action_prompts[action_request.action]
-        
-        # Process through boss agent system for consistency
-        user_context = get_user_context(action_request.user_id)
-        boss_response = await process_user_message(prompt, user_context)
-        
-        if boss_response.get("success", False):
-            response = boss_response["response"]
-            logger.info(f"✅ Standard quick action '{action_request.action}' completed via boss agent")
-        else:
-            # Fallback to direct AI service
-            response = await get_ai_response(prompt, action_request.user_id)
-            logger.info(f"✅ Standard quick action '{action_request.action}' completed via fallback AI")
-        
-        if not response:
-            raise HTTPException(status_code=500, detail="Failed to generate response for quick action")
-        
-        return create_success_response(
-            message=f"Quick action '{action_request.action}' completed successfully",
-            data={"response": response, "action": action_request.action}
-        )
-    
-    except HTTPException:
-        raise
-    except Exception as e:
-        logger.error(f"Error in standard quick action handling: {e}")
-        logger.error(traceback.format_exc())
-        raise HTTPException(status_code=500, detail="Failed to process quick action")
-
 # =============================================================================
 # Specialized Agent Task Endpoints
 # =============================================================================
@@ -677,8 +485,24 @@ async def content_analysis_task(request: AgentTaskRequest, auth=Depends(verify_a
     """Endpoint for Boss Agent to request content analysis"""
     try:
         logger.info(f"Processing content analysis task: {request.request_id}")
-        # TODO: Fix import - process_content_analysis_request not available
-        return create_error_response("Content analysis temporarily unavailable", "Function not implemented")
+        
+        # Convert request to format expected by agent
+        agent_request_data = {
+            "request_id": request.request_id,
+            "query_type": request.query_type,
+            "context": request.context,
+            "token_budget": request.token_budget,
+            "analysis_depth": request.analysis_depth,
+            "boss_agent_token": auth.request_id  # Pass through the authenticated token
+        }
+        
+        # Process through specialized agent
+        result = await process_content_analysis_request(agent_request_data)
+        
+        if result.get("success", False) or result.get("domain_match", True):
+            return result
+        else:
+            return create_error_response("Content analysis failed", result.get("error", "Unknown error"))
     except Exception as e:
         logger.error(f"Content analysis task error: {e}")
         return create_error_response("Content analysis failed", str(e))
@@ -688,8 +512,24 @@ async def audience_insights_task(request: AgentTaskRequest, auth=Depends(verify_
     """Endpoint for Boss Agent to request audience insights"""
     try:
         logger.info(f"Processing audience insights task: {request.request_id}")
-        # TODO: Fix import - process_audience_insights_request not available
-        return create_error_response("Audience insights temporarily unavailable", "Function not implemented")
+        
+        # Convert request to format expected by agent
+        agent_request_data = {
+            "request_id": request.request_id,
+            "query_type": request.query_type,
+            "context": request.context,
+            "token_budget": request.token_budget,
+            "analysis_depth": request.analysis_depth,
+            "boss_agent_token": auth.request_id
+        }
+        
+        # Process through specialized agent
+        result = await process_audience_insights_request(agent_request_data)
+        
+        if result.get("success", False) or result.get("domain_match", True):
+            return result
+        else:
+            return create_error_response("Audience insights failed", result.get("error", "Unknown error"))
     except Exception as e:
         logger.error(f"Audience insights task error: {e}")
         return create_error_response("Audience insights failed", str(e))
@@ -699,8 +539,24 @@ async def seo_discoverability_task(request: AgentTaskRequest, auth=Depends(verif
     """Endpoint for Boss Agent to request SEO analysis"""
     try:
         logger.info(f"Processing SEO discoverability task: {request.request_id}")
-        # TODO: Fix import - process_seo_request not available
-        return create_error_response("SEO analysis temporarily unavailable", "Function not implemented")
+        
+        # Convert request to format expected by agent
+        agent_request_data = {
+            "request_id": request.request_id,
+            "query_type": request.query_type,
+            "context": request.context,
+            "token_budget": request.token_budget,
+            "analysis_depth": request.analysis_depth,
+            "boss_agent_token": auth.request_id
+        }
+        
+        # Process through specialized agent
+        result = await process_seo_request(agent_request_data)
+        
+        if result.get("success", False) or result.get("domain_match", True):
+            return result
+        else:
+            return create_error_response("SEO analysis failed", result.get("error", "Unknown error"))
     except Exception as e:
         logger.error(f"SEO discoverability task error: {e}")
         return create_error_response("SEO analysis failed", str(e))
@@ -710,8 +566,24 @@ async def competitive_analysis_task(request: AgentTaskRequest, auth=Depends(veri
     """Endpoint for Boss Agent to request competitive analysis"""
     try:
         logger.info(f"Processing competitive analysis task: {request.request_id}")
-        # TODO: Fix import - process_competitive_analysis_request not available
-        return create_error_response("Competitive analysis temporarily unavailable", "Function not implemented")
+        
+        # Convert request to format expected by agent
+        agent_request_data = {
+            "request_id": request.request_id,
+            "query_type": request.query_type,
+            "context": request.context,
+            "token_budget": request.token_budget,
+            "analysis_depth": request.analysis_depth,
+            "boss_agent_token": auth.request_id
+        }
+        
+        # Process through specialized agent
+        result = await process_competitive_analysis_request(agent_request_data)
+        
+        if result.get("success", False) or result.get("domain_match", True):
+            return result
+        else:
+            return create_error_response("Competitive analysis failed", result.get("error", "Unknown error"))
     except Exception as e:
         logger.error(f"Competitive analysis task error: {e}")
         return create_error_response("Competitive analysis failed", str(e))
@@ -721,8 +593,24 @@ async def monetization_strategy_task(request: AgentTaskRequest, auth=Depends(ver
     """Endpoint for Boss Agent to request monetization analysis"""
     try:
         logger.info(f"Processing monetization strategy task: {request.request_id}")
-        # TODO: Fix import - process_monetization_strategy_request not available
-        return create_error_response("Monetization analysis temporarily unavailable", "Function not implemented")
+        
+        # Convert request to format expected by agent
+        agent_request_data = {
+            "request_id": request.request_id,
+            "query_type": request.query_type,
+            "context": request.context,
+            "token_budget": request.token_budget,
+            "analysis_depth": request.analysis_depth,
+            "boss_agent_token": auth.request_id
+        }
+        
+        # Process through specialized agent
+        result = await process_monetization_strategy_request(agent_request_data)
+        
+        if result.get("success", False) or result.get("domain_match", True):
+            return result
+        else:
+            return create_error_response("Monetization analysis failed", result.get("error", "Unknown error"))
     except Exception as e:
         logger.error(f"Monetization strategy task error: {e}")
         return create_error_response("Monetization analysis failed", str(e))
@@ -805,12 +693,16 @@ async def get_model_status():
     """Get status of all model integrations"""
     try:
         model_integration = get_model_integration()
-        status_data = model_integration.get_integration_status()
+        model_status = model_integration.get_model_status()
+        available_models = model_integration.get_available_models()
+        
+        # Count active integrations
+        active_integrations = [provider for provider, status in model_status.items() if status["available"]]
         
         return ModelStatusResponse(
-            available_models=status_data.get("available_models", {}),
-            model_status=status_data.get("model_status", {}),
-            active_integrations=status_data.get("active_integrations", [])
+            available_models=available_models,
+            model_status=model_status,
+            active_integrations=active_integrations
         )
     
     except Exception as e:

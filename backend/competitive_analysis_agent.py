@@ -14,9 +14,10 @@ import os
 import time
 from googleapiclient.discovery import build
 from googleapiclient.errors import HttpError
-import google.generativeai as genai
 from dataclasses import dataclass
 import statistics
+from boss_agent_auth import SpecializedAgentAuthMixin
+from connection_pool import get_youtube_client
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -54,7 +55,7 @@ class YouTubeCompetitiveAPIClient:
     
     def __init__(self, api_key: str):
         self.api_key = api_key
-        self.youtube = build('youtube', 'v3', developerKey=api_key)
+        self.youtube = get_youtube_client(api_key)
         
     async def get_competitor_data(self, competitor_channels: List[str], time_period: str) -> List[CompetitorMetrics]:
         """Retrieve competitor channel data"""
@@ -400,16 +401,9 @@ class YouTubeCompetitiveAPIClient:
 class GeminiCompetitiveEngine:
     """Gemini 2.5 Pro integration for competitive analysis and visual comparison"""
     
-    def __init__(self, api_key: str):
-        genai.configure(api_key=api_key)
-        self.model = genai.GenerativeModel(
-            'gemini-2.0-flash-exp',
-            generation_config=genai.GenerationConfig(
-                temperature=0.1,  # Precise competitive analysis
-                top_p=0.9,
-                top_k=40
-            )
-        )
+    def __init__(self, api_key: str = None):
+        # No longer needs direct model - uses centralized integration
+        pass
         
     async def analyze_competitive_landscape(self, competitor_data: List[CompetitorMetrics], channel_context: Dict, niche_trends: Dict) -> Dict[str, Any]:
         """Analyze competitive landscape using Gemini"""
@@ -465,13 +459,20 @@ class GeminiCompetitiveEngine:
         """
         
         try:
-            response = await asyncio.get_event_loop().run_in_executor(
-                None,
-                lambda: self.model.generate_content(competitive_prompt)
+            # Use centralized model integration
+            from model_integrations import create_agent_call_to_integration
+            result = await create_agent_call_to_integration(
+                agent_type="competitive_analysis",
+                use_case="competitive_landscape",
+                prompt_data={
+                    "prompt": competitive_prompt,
+                    "analysis_depth": "deep",
+                    "system_message": "You are a strategic YouTube market analyst specializing in competitive analysis and market positioning."
+                }
             )
             
             # Parse the response
-            analysis_text = response.text
+            analysis_text = result["content"] if result["success"] else "{}"
             
             # Try to extract JSON from the response
             try:
@@ -631,20 +632,20 @@ class CompetitiveAnalysisCache:
         
         logger.info(f"Cached competitive analysis for key: {cache_key[:8]}...")
 
-class CompetitiveAnalysisAgent:
+class CompetitiveAnalysisAgent(SpecializedAgentAuthMixin):
     """
     Specialized Competitive Analysis Agent for YouTube market positioning
     Operates as a sub-agent within the CreatorMate boss agent hierarchy
     """
     
-    def __init__(self, youtube_api_key: str, gemini_api_key: str):
+    def __init__(self, youtube_api_key: str, gemini_api_key: str = None):
         self.agent_type = "competitive_analysis"
         self.agent_id = "competitive_analyzer"
         self.hierarchical_role = "specialized_agent"
         
         # Initialize API clients
         self.youtube_client = YouTubeCompetitiveAPIClient(youtube_api_key)
-        self.competitive_engine = GeminiCompetitiveEngine(gemini_api_key)
+        self.competitive_engine = GeminiCompetitiveEngine()
         
         # Initialize cache
         self.cache = CompetitiveAnalysisCache()
@@ -698,14 +699,6 @@ class CompetitiveAnalysisAgent:
             logger.error(f"Competitive Analysis Agent error: {e}")
             return self._create_error_response(request_id, str(e), start_time)
     
-    def _validate_boss_agent_request(self, request_data: Dict[str, Any]) -> bool:
-        """Validate that request comes from authorized boss agent"""
-        
-        # In production, this would validate JWT tokens or API keys
-        # For now, check for boss agent signature
-        return request_data.get('from_boss_agent', False) or \
-               'boss_agent_callback_url' in request_data or \
-               request_data.get('agent_type') != self.agent_type  # Prevent self-requests
     
     def _parse_boss_request(self, request_data: Dict[str, Any]) -> CompetitiveAnalysisRequest:
         """Parse boss agent request into internal format"""

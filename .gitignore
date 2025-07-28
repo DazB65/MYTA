@@ -114,3 +114,14 @@ dist/
 *.env.local
 .env.*.local
 .env*
+venv/
+# Python specific ignores
+venv/
+__pycache__/
+*.pyc
+
+# Log files
+logs/
+*.log
+# Node.js / Frontend dependencies
+node_modules/

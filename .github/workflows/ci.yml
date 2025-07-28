@@ -1,0 +1,456 @@
+# CreatorMate Continuous Integration Pipeline
+# Runs on every push and pull request to ensure code quality
+
+name: CI Pipeline
+
+on:
+  push:
+    branches: [ main, develop, 'feature/*' ]
+  pull_request:
+    branches: [ main, develop ]
+
+env:
+  PYTHON_VERSION: '3.9'
+  NODE_VERSION: '18'
+  REGISTRY: ghcr.io
+  IMAGE_NAME_BACKEND: ${{ github.repository }}-backend
+  IMAGE_NAME_FRONTEND: ${{ github.repository }}-frontend
+
+jobs:
+  # =============================================================================
+  # Code Quality and Security Checks
+  # =============================================================================
+  code-quality:
+    name: Code Quality & Security
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+    
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: ${{ env.PYTHON_VERSION }}
+    
+    - name: Cache Python dependencies
+      uses: actions/cache@v3
+      with:
+        path: ~/.cache/pip
+        key: ${{ runner.os }}-pip-${{ hashFiles('backend/requirements*.txt') }}
+        restore-keys: |
+          ${{ runner.os }}-pip-
+    
+    - name: Install Python dependencies
+      run: |
+        cd backend
+        pip install --upgrade pip
+        pip install -r requirements.txt
+        pip install -r requirements-dev.txt
+    
+    - name: Python linting with flake8
+      run: |
+        cd backend
+        flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
+        flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
+    
+    - name: Python code formatting with black
+      run: |
+        cd backend
+        black --check --diff .
+    
+    - name: Python import sorting with isort
+      run: |
+        cd backend
+        isort --check-only --diff .
+    
+    - name: Python type checking with mypy
+      run: |
+        cd backend
+        mypy . --ignore-missing-imports
+      continue-on-error: true
+    
+    - name: Security scan with bandit
+      run: |
+        cd backend
+        pip install bandit[toml]
+        bandit -r . -f json -o bandit-report.json
+        bandit -r . -f txt
+      continue-on-error: true
+    
+    - name: Upload security scan results
+      uses: actions/upload-artifact@v3
+      if: always()
+      with:
+        name: security-scan-results
+        path: backend/bandit-report.json
+
+  # =============================================================================
+  # Backend Testing
+  # =============================================================================
+  backend-tests:
+    name: Backend Tests
+    runs-on: ubuntu-latest
+    
+    services:
+      redis:
+        image: redis:7-alpine
+        ports:
+          - 6379:6379
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: ${{ env.PYTHON_VERSION }}
+    
+    - name: Cache Python dependencies
+      uses: actions/cache@v3
+      with:
+        path: ~/.cache/pip
+        key: ${{ runner.os }}-pip-${{ hashFiles('backend/requirements*.txt') }}
+        restore-keys: |
+          ${{ runner.os }}-pip-
+    
+    - name: Install dependencies
+      run: |
+        cd backend
+        pip install --upgrade pip
+        pip install -r requirements.txt
+        pip install -r requirements-test.txt
+    
+    - name: Create test environment file
+      run: |
+        cd backend
+        cat > .env.testing << EOF
+        ENVIRONMENT=testing
+        LOG_LEVEL=DEBUG
+        DEBUG=true
+        OPENAI_API_KEY=test_openai_key
+        GOOGLE_API_KEY=test_google_key
+        YOUTUBE_API_KEY=test_youtube_key
+        BOSS_AGENT_SECRET_KEY=test_boss_secret
+        SESSION_SECRET_KEY=test_session_secret
+        DATABASE_URL=sqlite:///test_db.sqlite
+        REDIS_URL=redis://localhost:6379/1
+        EOF
+    
+    - name: Run unit tests
+      run: |
+        cd backend
+        python -m pytest tests/unit/ -v --cov=. --cov-report=xml --cov-report=html --junitxml=junit.xml
+      env:
+        PYTHONPATH: ${{ github.workspace }}/backend
+    
+    - name: Run integration tests
+      run: |
+        cd backend
+        python -m pytest tests/integration/ -v --junitxml=integration-junit.xml
+      env:
+        PYTHONPATH: ${{ github.workspace }}/backend
+    
+    - name: Upload test results
+      uses: actions/upload-artifact@v3
+      if: always()
+      with:
+        name: backend-test-results
+        path: |
+          backend/junit.xml
+          backend/integration-junit.xml
+          backend/htmlcov/
+          backend/coverage.xml
+    
+    - name: Upload coverage to Codecov
+      uses: codecov/codecov-action@v3
+      with:
+        file: backend/coverage.xml
+        flags: backend
+        name: backend-coverage
+
+  # =============================================================================
+  # Frontend Testing and Building
+  # =============================================================================
+  frontend-tests:
+    name: Frontend Tests & Build
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    - name: Set up Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ env.NODE_VERSION }}
+        cache: 'npm'
+        cache-dependency-path: frontend-new/package-lock.json
+    
+    - name: Install dependencies
+      run: |
+        cd frontend-new
+        npm ci
+    
+    - name: Run linting
+      run: |
+        cd frontend-new
+        npm run lint
+    
+    - name: Run type checking
+      run: |
+        cd frontend-new
+        npm run type-check
+    
+    - name: Run unit tests
+      run: |
+        cd frontend-new
+        npm run test:ci
+    
+    - name: Run build
+      run: |
+        cd frontend-new
+        npm run build
+      env:
+        VITE_API_BASE_URL: http://localhost:8888
+    
+    - name: Upload build artifacts
+      uses: actions/upload-artifact@v3
+      with:
+        name: frontend-build
+        path: frontend-new/dist/
+
+  # =============================================================================
+  # Docker Image Building and Security Scanning
+  # =============================================================================
+  docker-build:
+    name: Docker Build & Security Scan
+    runs-on: ubuntu-latest
+    needs: [code-quality, backend-tests, frontend-tests]
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v3
+    
+    - name: Log in to Container Registry
+      if: github.event_name != 'pull_request'
+      uses: docker/login-action@v3
+      with:
+        registry: ${{ env.REGISTRY }}
+        username: ${{ github.actor }}
+        password: ${{ secrets.GITHUB_TOKEN }}
+    
+    - name: Extract metadata for backend
+      id: meta-backend
+      uses: docker/metadata-action@v5
+      with:
+        images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME_BACKEND }}
+        tags: |
+          type=ref,event=branch
+          type=ref,event=pr
+          type=sha,prefix=sha-
+          type=raw,value=latest,enable={{is_default_branch}}
+    
+    - name: Build backend Docker image
+      uses: docker/build-push-action@v5
+      with:
+        context: ./backend
+        file: ./backend/Dockerfile
+        target: production
+        push: ${{ github.event_name != 'pull_request' }}
+        tags: ${{ steps.meta-backend.outputs.tags }}
+        labels: ${{ steps.meta-backend.outputs.labels }}
+        cache-from: type=gha
+        cache-to: type=gha,mode=max
+        build-args: |
+          BUILD_DATE=${{ fromJSON(steps.meta-backend.outputs.json).labels['org.opencontainers.image.created'] }}
+          VCS_REF=${{ fromJSON(steps.meta-backend.outputs.json).labels['org.opencontainers.image.revision'] }}
+    
+    - name: Extract metadata for frontend
+      id: meta-frontend
+      uses: docker/metadata-action@v5
+      with:
+        images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME_FRONTEND }}
+        tags: |
+          type=ref,event=branch
+          type=ref,event=pr
+          type=sha,prefix=sha-
+          type=raw,value=latest,enable={{is_default_branch}}
+    
+    - name: Build frontend Docker image
+      uses: docker/build-push-action@v5
+      with:
+        context: ./frontend-new
+        file: ./frontend-new/Dockerfile
+        target: production
+        push: ${{ github.event_name != 'pull_request' }}
+        tags: ${{ steps.meta-frontend.outputs.tags }}
+        labels: ${{ steps.meta-frontend.outputs.labels }}
+        cache-from: type=gha
+        cache-to: type=gha,mode=max
+        build-args: |
+          BUILD_DATE=${{ fromJSON(steps.meta-frontend.outputs.json).labels['org.opencontainers.image.created'] }}
+          VCS_REF=${{ fromJSON(steps.meta-frontend.outputs.json).labels['org.opencontainers.image.revision'] }}
+          VITE_API_BASE_URL=http://localhost:8888
+    
+    - name: Run Trivy vulnerability scanner on backend
+      uses: aquasecurity/trivy-action@master
+      with:
+        image-ref: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME_BACKEND }}:${{ github.sha }}
+        format: 'sarif'
+        output: 'backend-trivy-results.sarif'
+      continue-on-error: true
+    
+    - name: Run Trivy vulnerability scanner on frontend
+      uses: aquasecurity/trivy-action@master
+      with:
+        image-ref: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME_FRONTEND }}:${{ github.sha }}
+        format: 'sarif'
+        output: 'frontend-trivy-results.sarif'
+      continue-on-error: true
+    
+    - name: Upload Trivy scan results to GitHub Security tab
+      uses: github/codeql-action/upload-sarif@v2
+      if: always()
+      with:
+        sarif_file: '.'
+
+  # =============================================================================
+  # End-to-End Testing
+  # =============================================================================
+  e2e-tests:
+    name: End-to-End Tests
+    runs-on: ubuntu-latest
+    needs: [docker-build]
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    - name: Create test environment file
+      run: |
+        cat > .env << EOF
+        ENVIRONMENT=testing
+        LOG_LEVEL=INFO
+        OPENAI_API_KEY=test_openai_key
+        GOOGLE_API_KEY=test_google_key
+        YOUTUBE_API_KEY=test_youtube_key
+        BOSS_AGENT_SECRET_KEY=test_boss_secret
+        SESSION_SECRET_KEY=test_session_secret
+        REDIS_PASSWORD=test_redis_password
+        BUILD_DATE=$(date -u +'%Y-%m-%dT%H:%M:%SZ')
+        VCS_REF=${{ github.sha }}
+        EOF
+    
+    - name: Start services with Docker Compose
+      run: |
+        docker compose -f docker-compose.yml up -d --wait
+      timeout-minutes: 5
+    
+    - name: Wait for services to be ready
+      run: |
+        timeout 60 bash -c 'until curl -f http://localhost/health; do sleep 5; done'
+        timeout 60 bash -c 'until curl -f http://localhost:8888/health; do sleep 5; done'
+    
+    - name: Run API health checks
+      run: |
+        # Test frontend
+        curl -f http://localhost/ || exit 1
+        
+        # Test backend health
+        curl -f http://localhost:8888/health || exit 1
+        
+        # Test detailed health
+        curl -f http://localhost:8888/api/health/system || exit 1
+        
+        # Test API info
+        curl -f http://localhost:8888/api/info || exit 1
+    
+    - name: Check service logs
+      if: failure()
+      run: |
+        echo "=== Backend Logs ==="
+        docker compose logs backend
+        echo "=== Frontend Logs ==="
+        docker compose logs frontend
+        echo "=== Redis Logs ==="
+        docker compose logs redis
+    
+    - name: Stop services
+      if: always()
+      run: |
+        docker compose down -v
+
+  # =============================================================================
+  # Performance and Load Testing
+  # =============================================================================
+  performance-tests:
+    name: Performance Tests
+    runs-on: ubuntu-latest
+    needs: [docker-build]
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    - name: Create test environment file
+      run: |
+        cat > .env << EOF
+        ENVIRONMENT=testing
+        LOG_LEVEL=WARNING
+        OPENAI_API_KEY=test_openai_key
+        GOOGLE_API_KEY=test_google_key
+        YOUTUBE_API_KEY=test_youtube_key
+        BOSS_AGENT_SECRET_KEY=test_boss_secret
+        SESSION_SECRET_KEY=test_session_secret
+        REDIS_PASSWORD=test_redis_password
+        BUILD_DATE=$(date -u +'%Y-%m-%dT%H:%M:%SZ')
+        VCS_REF=${{ github.sha }}
+        EOF
+    
+    - name: Start services
+      run: |
+        docker compose -f docker-compose.yml up -d --wait
+      timeout-minutes: 5
+    
+    - name: Install Apache Bench
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y apache2-utils
+    
+    - name: Run performance tests
+      run: |
+        # Test frontend performance
+        ab -n 100 -c 10 http://localhost/ > frontend-perf.txt
+        
+        # Test backend health endpoint performance
+        ab -n 200 -c 20 http://localhost:8888/health > backend-health-perf.txt
+        
+        # Test backend API info performance
+        ab -n 100 -c 10 http://localhost:8888/api/info > backend-api-perf.txt
+    
+    - name: Upload performance results
+      uses: actions/upload-artifact@v3
+      with:
+        name: performance-test-results
+        path: |
+          frontend-perf.txt
+          backend-health-perf.txt
+          backend-api-perf.txt
+    
+    - name: Stop services
+      if: always()
+      run: |
+        docker compose down -v

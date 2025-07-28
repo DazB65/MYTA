@@ -14,10 +14,12 @@ import os
 import time
 from googleapiclient.discovery import build
 from googleapiclient.errors import HttpError
-import google.generativeai as genai
 from dataclasses import dataclass
 from youtube_api_integration import get_youtube_integration
 from base_agent import BaseSpecializedAgent, AgentType, AgentRequest, AgentAnalysis, AgentInsight, AgentRecommendation
+from boss_agent_auth import SpecializedAgentAuthMixin
+from connection_pool import get_youtube_client
+from agent_model_adapter import get_agent_model_adapter
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -63,7 +65,7 @@ class YouTubeAPIClient:
     
     def __init__(self, api_key: str):
         self.api_key = api_key
-        self.youtube = build('youtube', 'v3', developerKey=api_key)
+        self.youtube = get_youtube_client(api_key)
         self.analytics = None  # Would require OAuth for Analytics API
         
     async def get_video_metrics(self, video_ids: List[str]) -> List[ContentMetrics]:
@@ -868,16 +870,8 @@ class HistoricalPatternAnalyzer:
 class GeminiAnalysisEngine:
     """Gemini 2.5 Pro integration for content analysis"""
     
-    def __init__(self, api_key: str):
-        genai.configure(api_key=api_key)
-        self.model = genai.GenerativeModel(
-            'gemini-2.0-flash-exp',
-            generation_config=genai.GenerationConfig(
-                temperature=0.2,  # Consistent, focused analysis
-                top_p=0.9,
-                top_k=40
-            )
-        )
+    def __init__(self, api_key: str = None):
+        # No longer needs direct model - uses centralized integration
         self.viral_analyzer = ViralPotentialAnalyzer()
         
     async def analyze_content_performance(self, metrics: List[ContentMetrics], channel_context: Dict, include_hook_analysis: bool = True) -> Dict[str, Any]:
@@ -942,13 +936,14 @@ class GeminiAnalysisEngine:
         """
         
         try:
-            response = await asyncio.get_event_loop().run_in_executor(
-                None,
-                lambda: self.model.generate_content(analysis_prompt)
+            # Use model integration system for better model selection and fallbacks
+            adapter = get_agent_model_adapter()
+            analysis_text = await adapter.generate_simple_response(
+                "content_analysis", 
+                analysis_prompt,
+                "You are a YouTube content analysis specialist. Provide detailed video performance insights.",
+                "deep"
             )
-            
-            # Parse the response
-            analysis_text = response.text
             
             # Try to extract JSON from the response
             try:
@@ -1004,13 +999,14 @@ class GeminiAnalysisEngine:
         """
         
         try:
-            response = await asyncio.get_event_loop().run_in_executor(
-                None,
-                lambda: self.model.generate_content(hook_prompt)
+            # Use centralized model integration
+            adapter = get_agent_model_adapter()
+            hook_text = await adapter.generate_simple_response(
+                "content_analysis",
+                hook_prompt,
+                "You are a YouTube hook analysis specialist. Analyze video hooks for effectiveness.",
+                "standard"
             )
-            
-            # Parse the response
-            hook_text = response.text
             
             # Try to extract JSON from the response
             try:
@@ -1250,18 +1246,18 @@ class GeminiAnalysisEngine:
         }
 
 
-class ContentAnalysisAgent(BaseSpecializedAgent):
+class ContentAnalysisAgent(SpecializedAgentAuthMixin, BaseSpecializedAgent):
     """
     Specialized Content Analysis Agent for YouTube content performance analysis
     Operates as a sub-agent within the CreatorMate boss agent hierarchy
     """
     
-    def __init__(self, youtube_api_key: str, gemini_api_key: str):
+    def __init__(self, youtube_api_key: str, gemini_api_key: str = None):
         super().__init__(AgentType.CONTENT_ANALYSIS, youtube_api_key, gemini_api_key, model_name='gemini-2.0-flash-exp')
         
         # Initialize API clients
         self.youtube_client = YouTubeAPIClient(youtube_api_key)
-        self.gemini_engine = GeminiAnalysisEngine(gemini_api_key)
+        self.gemini_engine = GeminiAnalysisEngine()
         
         # Initialize analyzers
         self.viral_analyzer = ViralPotentialAnalyzer()
@@ -1903,29 +1899,12 @@ class ContentAnalysisAgent(BaseSpecializedAgent):
     
     async def process_boss_agent_request(self, request_data: Dict[str, Any]) -> Dict[str, Any]:
         """Process a request from the Boss Agent with authentication validation"""
-        from boss_agent_auth import validate_specialized_agent_request
         
-        # Validate Boss Agent authentication
-        auth_result = validate_specialized_agent_request(request_data)
-        if not auth_result.is_valid:
-            logger.warning(f"Unauthorized access attempt to Content Analysis Agent: {auth_result.error_message}")
-            return {
-                'agent_type': 'content_analysis',
-                'response_id': f"unauth_{request_data.get('request_id', 'unknown')}",
-                'request_id': request_data.get('request_id', ''),
-                'timestamp': datetime.utcnow().isoformat(),
-                'domain_match': False,
-                'analysis': {
-                    'summary': 'Unauthorized request: Boss agent authentication required',
-                    'error_type': 'authentication_error',
-                    'error_message': auth_result.error_message,
-                    'required_auth': 'boss_agent_jwt_token'
-                },
-                'confidence_score': 0.0,
-                'processing_time': 0.0,
-                'for_boss_agent_only': True,
-                'authentication_required': True
-            }
+        request_id = request_data.get('request_id', str(uuid.uuid4()))
+        
+        # Validate Boss Agent authentication using mixin
+        if not self._validate_boss_agent_request(request_data):
+            return self._create_unauthorized_response(request_id)
         
         # Convert to legacy format and process
         try:

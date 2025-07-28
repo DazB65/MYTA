@@ -325,6 +325,83 @@ class ContentCardsListResponse(BaseModel):
     total_count: int
     status_counts: Dict[str, int]
 
+# =============================================================================
+# Backup API Models
+# =============================================================================
+
+class BackupCreateRequest(BaseModel):
+    """Request model for creating a manual backup"""
+    description: Optional[str] = None
+    metadata: Optional[Dict[str, Any]] = None
+    
+    class Config:
+        str_strip_whitespace = True
+
+class BackupScheduleRequest(BaseModel):
+    """Request model for updating backup schedule"""
+    frequency: str  # hourly, daily, weekly, monthly
+    time: str  # HH:MM format for daily/weekly/monthly, MM for hourly
+    enabled: bool = True
+    compression: bool = True
+    max_backups: int = 10
+    cleanup_enabled: bool = True
+    
+    class Config:
+        str_strip_whitespace = True
+
+class BackupAlertRequest(BaseModel):
+    """Request model for updating backup alert configuration"""
+    email_enabled: bool = False
+    email_recipients: Optional[List[str]] = None
+    webhook_url: Optional[str] = None
+    alert_on_failure: bool = True
+    alert_on_success: bool = False
+    alert_on_cleanup: bool = False
+    
+    class Config:
+        str_strip_whitespace = True
+
+class BackupInfoResponse(BaseModel):
+    """Response model for backup information"""
+    backup_id: str
+    filename: str
+    size_mb: float
+    created_at: str
+    database_version: str
+    backup_type: str
+    compression: bool
+    metadata: Dict[str, Any]
+
+class BackupStatusResponse(BaseModel):
+    """Response model for backup service status"""
+    running: bool
+    schedule: Dict[str, Any]
+    alerts: Dict[str, Any]
+    last_check: str
+
+class BackupHealthResponse(BaseModel):
+    """Response model for backup health check"""
+    timestamp: str
+    overall_status: str
+    checks: Dict[str, Any]
+    failed_checks: Optional[List[str]] = None
+    error: Optional[str] = None
+
+class BackupRestoreRequest(BaseModel):
+    """Request model for backup restore operation"""
+    verify_integrity: bool = True
+    
+    class Config:
+        str_strip_whitespace = True
+
+class BackupCleanupRequest(BaseModel):
+    """Request model for backup cleanup operation"""
+    keep_days: int = 30
+    keep_count: int = 10
+    
+    class Config:
+        str_strip_whitespace = True
+
 def validate_request_model(model_class: BaseModel, data: Dict[str, Any]) -> BaseModel:
     """Validate request data against Pydantic model"""
     try:

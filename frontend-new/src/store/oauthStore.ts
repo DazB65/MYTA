@@ -46,15 +46,28 @@ export const useOAuthStore = create<OAuthState>()(
       status: null,
       isLoading: false,
       error: null,
-      userId: 'default_user', // Will be loaded asynchronously from secure storage
+      userId: 'default_user', // Will be updated in initialize()
       isAuthenticating: false,
       authenticatedChannelData: null,
 
       // Initialize store by loading user data from secure storage
       initialize: async () => {
         try {
+          // First try to get user ID from localStorage (same as userStore)
+          let userId = localStorage.getItem('creatormate_user_id');
+          
+          if (!userId) {
+            // Generate and store a new user ID if none exists
+            userId = 'user_' + Math.random().toString(36).substring(2, 15);
+            localStorage.setItem('creatormate_user_id', userId);
+          }
+          
+          set({ userId });
+          
+          // Also try secure storage (fallback)
           const userData = await secureTokenStorage.getUserData();
-          if (userData?.userId) {
+          if (userData?.userId && userData.userId !== userId) {
+            console.log('🔄 OAuth: Using secure storage user ID:', userData.userId);
             set({ userId: userData.userId });
           }
         } catch (error) {
@@ -94,17 +107,21 @@ export const useOAuthStore = create<OAuthState>()(
       // Initiate OAuth flow
       initiateOAuth: async (returnUrl?: string) => {
         const { userId } = get();
+        console.log('🎯 Store: Starting OAuth for user', userId, 'returnUrl:', returnUrl);
         set({ isAuthenticating: true, error: null });
 
         try {
+          console.log('🎯 Store: Calling oauthService.initiateOAuth');
           const authUrl = await oauthService.initiateOAuth({
             user_id: userId,
             return_url: returnUrl
           });
 
+          console.log('🎯 Store: Got authorization URL, redirecting...', authUrl);
           // Redirect to Google OAuth
           window.location.href = authUrl;
         } catch (error) {
+          console.error('🎯 Store: OAuth initiation failed', error);
           set({
             isAuthenticating: false,
             error: error instanceof Error ? error.message : 'Failed to initiate OAuth'

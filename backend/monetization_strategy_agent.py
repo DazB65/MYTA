@@ -14,9 +14,9 @@ import os
 import time
 from googleapiclient.discovery import build
 from googleapiclient.errors import HttpError
-from openai import OpenAI
 from dataclasses import dataclass
 import statistics
+from boss_agent_auth import SpecializedAgentAuthMixin
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -445,8 +445,9 @@ class YouTubeMonetizationAPIClient:
 class ClaudeHaikuMonetizationEngine:
     """Claude 3.5 Haiku integration for cost-effective monetization analysis"""
     
-    def __init__(self, api_key: str):
-        self.client = OpenAI(api_key=api_key)
+    def __init__(self, api_key: str = None):
+        # No longer needs direct client - uses centralized model integration
+        pass
         
     async def analyze_monetization_strategy(self, revenue_metrics: RevenueMetrics, channel_context: Dict, sponsorship_opportunities: List[Dict]) -> Dict[str, Any]:
         """Analyze monetization strategy using Claude 3.5 Haiku"""
@@ -502,18 +503,20 @@ class ClaudeHaikuMonetizationEngine:
         """
         
         try:
-            response = await asyncio.get_event_loop().run_in_executor(
-                None,
-                lambda: self.client.chat.completions.create(
-                    model="gpt-4o-mini",  # Using cost-effective model
-                    messages=[{"role": "user", "content": monetization_prompt}],
-                    temperature=0.2,
-                    max_tokens=2200
-                )
+            # Use centralized model integration
+            from model_integrations import create_agent_call_to_integration
+            result = await create_agent_call_to_integration(
+                agent_type="monetization_strategy",
+                use_case="revenue_optimization",
+                prompt_data={
+                    "prompt": monetization_prompt,
+                    "analysis_depth": "standard",
+                    "system_message": "You are a YouTube monetization and revenue optimization specialist. Provide actionable business insights."
+                }
             )
             
             # Parse the response
-            analysis_text = response.choices[0].message.content
+            analysis_text = result["content"] if result["success"] else "{}"
             
             # Try to extract JSON from the response
             try:
@@ -673,20 +676,20 @@ class MonetizationStrategyCache:
         
         logger.info(f"Cached monetization analysis for key: {cache_key[:8]}...")
 
-class MonetizationStrategyAgent:
+class MonetizationStrategyAgent(SpecializedAgentAuthMixin):
     """
     Specialized Monetization Strategy Agent for YouTube revenue optimization
     Operates as a sub-agent within the CreatorMate boss agent hierarchy
     """
     
-    def __init__(self, youtube_api_key: str, openai_api_key: str):
+    def __init__(self, youtube_api_key: str, openai_api_key: str = None):
         self.agent_type = "monetization_strategy"
         self.agent_id = "monetization_analyzer"
         self.hierarchical_role = "specialized_agent"
         
         # Initialize API clients
         self.youtube_client = YouTubeMonetizationAPIClient(youtube_api_key)
-        self.monetization_engine = ClaudeHaikuMonetizationEngine(openai_api_key)
+        self.monetization_engine = ClaudeHaikuMonetizationEngine()
         
         # Initialize cache
         self.cache = MonetizationStrategyCache()

@@ -13,7 +13,19 @@ import openai
 from openai import OpenAI
 import time
 
-from security_config import get_api_key
+from config import get_settings
+from constants import DEFAULT_TEMPERATURE, MAX_TOKENS_PER_REQUEST
+
+def get_api_key(provider: str) -> str:
+    """Get API key for specific provider"""
+    settings = get_settings()
+    if provider == "openai":
+        return settings.openai_api_key
+    elif provider == "anthropic":
+        return settings.anthropic_api_key  
+    elif provider == "google":
+        return settings.google_api_key
+    return None
 
 # Configure logging
 logger = logging.getLogger(__name__)
@@ -91,7 +103,7 @@ class ModelIntegration:
                 provider=ModelProvider.ANTHROPIC,
                 model_name=ModelType.CLAUDE_SONNET.value,
                 max_tokens=2000,
-                temperature=0.3,
+                temperature=DEFAULT_TEMPERATURE,
                 fallback_model=ModelConfig(
                     provider=ModelProvider.OPENAI,
                     model_name=ModelType.GPT_4O.value,
@@ -105,7 +117,7 @@ class ModelIntegration:
                 provider=ModelProvider.GOOGLE,
                 model_name=ModelType.GEMINI_PRO.value,
                 max_tokens=4000,
-                temperature=0.2,
+                temperature=DEFAULT_TEMPERATURE,
                 fallback_model=ModelConfig(
                     provider=ModelProvider.ANTHROPIC,
                     model_name=ModelType.CLAUDE_SONNET.value,
@@ -119,7 +131,7 @@ class ModelIntegration:
                 provider=ModelProvider.ANTHROPIC,
                 model_name=ModelType.CLAUDE_SONNET.value,
                 max_tokens=3000,
-                temperature=0.2,
+                temperature=DEFAULT_TEMPERATURE,
                 fallback_model=ModelConfig(
                     provider=ModelProvider.ANTHROPIC,
                     model_name=ModelType.CLAUDE_HAIKU.value,
@@ -133,7 +145,7 @@ class ModelIntegration:
                 provider=ModelProvider.ANTHROPIC,
                 model_name=ModelType.CLAUDE_HAIKU.value,
                 max_tokens=2000,
-                temperature=0.1,
+                temperature=DEFAULT_TEMPERATURE,
                 fallback_model=ModelConfig(
                     provider=ModelProvider.OPENAI,
                     model_name=ModelType.GPT_4O_MINI.value,
@@ -147,7 +159,7 @@ class ModelIntegration:
                 provider=ModelProvider.GOOGLE,
                 model_name=ModelType.GEMINI_PRO.value,
                 max_tokens=5000,
-                temperature=0.2,
+                temperature=DEFAULT_TEMPERATURE,
                 fallback_model=ModelConfig(
                     provider=ModelProvider.ANTHROPIC,
                     model_name=ModelType.CLAUDE_SONNET.value,
@@ -161,7 +173,7 @@ class ModelIntegration:
                 provider=ModelProvider.ANTHROPIC,
                 model_name=ModelType.CLAUDE_HAIKU.value,
                 max_tokens=2500,
-                temperature=0.2,
+                temperature=DEFAULT_TEMPERATURE,
                 fallback_model=ModelConfig(
                     provider=ModelProvider.ANTHROPIC,
                     model_name=ModelType.CLAUDE_SONNET.value,
@@ -519,3 +531,116 @@ async def generate_agent_response(
         messages.insert(1, {"role": "system", "content": context_str})
     
     return await integration.generate_response(agent_type, messages, analysis_depth)
+
+async def create_agent_call_to_integration(
+    agent_type: str, 
+    use_case: str, 
+    prompt_data: dict
+) -> dict:
+    """
+    Simple developer API for centralized AI model integration
+    
+    Args:
+        agent_type: Type of agent (boss_agent, content_analysis, etc.)
+        use_case: Specific use case (content_analysis, audience_insights, seo_optimization, etc.)
+        prompt_data: Dictionary containing prompt, context, analysis_depth, etc.
+        
+    Returns:
+        Dict with response, model info, tokens used, and success status
+    """
+    try:
+        integration = get_model_integration()
+        
+        # Extract prompt data
+        prompt = prompt_data.get('prompt', '')
+        context = prompt_data.get('context', {})
+        analysis_depth = prompt_data.get('analysis_depth', 'standard')
+        system_message = prompt_data.get('system_message', 'You are a specialized AI assistant for YouTube content creators.')
+        
+        # Create messages in OpenAI format
+        messages = [
+            {"role": "system", "content": system_message},
+            {"role": "user", "content": prompt}
+        ]
+        
+        # Add context if provided
+        if context:
+            context_str = f"Context: {context}"
+            messages.insert(1, {"role": "system", "content": context_str})
+        
+        # Generate response using centralized integration
+        response = await integration.generate_response(agent_type, messages, analysis_depth)
+        
+        # Return standardized response format
+        return {
+            "success": response.success,
+            "content": response.content,
+            "provider": response.provider.value,
+            "model": response.model,
+            "tokens_used": response.tokens_used,
+            "processing_time": response.processing_time,
+            "error_message": response.error_message,
+            "agent_type": agent_type,
+            "use_case": use_case
+        }
+        
+    except Exception as e:
+        logger.error(f"Error in create_agent_call_to_integration: {e}")
+        return {
+            "success": False,
+            "content": "",
+            "provider": "unknown",
+            "model": "unknown",
+            "tokens_used": 0,
+            "processing_time": 0,
+            "error_message": str(e),
+            "agent_type": agent_type,
+            "use_case": use_case
+        }
+
+def get_integration_status() -> Dict[str, Any]:
+    """
+    Get comprehensive status of all model integrations
+    Required by agent_router.py
+    
+    Returns:
+        Dict with detailed status of all providers and models
+    """
+    try:
+        integration = get_model_integration()
+        model_status = integration.get_model_status()
+        
+        # Count total available models
+        total_models = sum(len(provider["models"]) for provider in model_status.values())
+        available_providers = sum(1 for provider in model_status.values() if provider["available"])
+        
+        return {
+            "status": "healthy" if available_providers > 0 else "degraded",
+            "available_providers": available_providers,
+            "total_providers": len(model_status),
+            "total_models": total_models,
+            "providers": model_status,
+            "agent_configurations": {
+                agent_type: {
+                    "primary_model": f"{config.provider.value}:{config.model_name}",
+                    "fallback_model": f"{config.fallback_model.provider.value}:{config.fallback_model.model_name}" if config.fallback_model else None,
+                    "max_tokens": config.max_tokens,
+                    "temperature": config.temperature
+                }
+                for agent_type, config in integration.model_configs.items()
+            },
+            "timestamp": time.time()
+        }
+        
+    except Exception as e:
+        logger.error(f"Error getting integration status: {e}")
+        return {
+            "status": "error",
+            "available_providers": 0,
+            "total_providers": 0,
+            "total_models": 0,
+            "providers": {},
+            "agent_configurations": {},
+            "error_message": str(e),
+            "timestamp": time.time()
+        }

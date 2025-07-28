@@ -98,13 +98,17 @@ class OAuthService {
    * Initiate OAuth authorization flow
    */
   async initiateOAuth(request: OAuthInitRequest): Promise<string> {
+    console.log('🚀 OAuth: Initiating OAuth flow...', request);
+    
     if (this.isAuthenticating) {
+      console.log('⚠️ OAuth: Already authenticating, aborting');
       throw new Error('OAuth flow already in progress');
     }
 
     this.isAuthenticating = true;
 
     try {
+      console.log('📡 OAuth: Making request to /auth/initiate');
       const response = await fetch(`${this.baseUrl}/auth/initiate`, {
         method: 'POST',
         headers: {
@@ -116,22 +120,30 @@ class OAuthService {
         })
       });
 
+      console.log('📡 OAuth: Response received', response.status, response.statusText);
+
       if (!response.ok) {
+        const errorText = await response.text();
+        console.error('❌ OAuth: Request failed', response.status, errorText);
         throw new Error(`HTTP ${response.status}: ${response.statusText}`);
       }
 
       const data: OAuthInitResponse = await response.json();
+      console.log('✅ OAuth: Response data', data);
 
       if (data.authorization_url) {
         // Store state for validation
         localStorage.setItem('oauth_state', data.state);
         localStorage.setItem('oauth_return_url', request.return_url || window.location.href);
         
+        console.log('🔄 OAuth: About to redirect to', data.authorization_url);
         return data.authorization_url;
       } else {
+        console.error('❌ OAuth: No authorization URL in response');
         throw new Error(data.message || 'Failed to initiate OAuth');
       }
     } catch (error) {
+      console.error('💥 OAuth: Error in initiateOAuth', error);
       this.isAuthenticating = false;
       throw error;
     }
@@ -141,10 +153,15 @@ class OAuthService {
    * Handle OAuth callback parameters
    */
   handleOAuthCallback(): { success: boolean; error?: string; userId?: string } {
+    console.log('🔍 OAuth: Current URL:', window.location.href);
+    console.log('🔍 OAuth: URL search params:', window.location.search);
+    
     const urlParams = new URLSearchParams(window.location.search);
     const oauthSuccess = urlParams.get('oauth_success');
     const oauthError = urlParams.get('oauth_error');
     const userId = urlParams.get('user_id');
+    
+    console.log('🔍 OAuth: Parsed params - success:', oauthSuccess, 'error:', oauthError, 'userId:', userId);
 
     if (oauthSuccess === 'true') {
       // Clean up URL parameters
