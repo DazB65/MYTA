@@ -104,6 +104,9 @@ temp/.env
 frontend-dist/
 dist/
 
+# Legacy frontend directory (no longer used)
+frontend-new/
+
 # Claude Code specific
 .kiro/
 
