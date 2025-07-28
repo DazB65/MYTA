@@ -110,3 +110,7 @@ dist/
 # Development backup files
 *_original_backup.*
 *_v2.*
+
+*.env.local
+.env.*.local
+.env*

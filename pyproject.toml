@@ -1,0 +1,126 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "creatormate"
+version = "1.0.0"
+description = "AI-powered YouTube content creation assistant"
+authors = [{name = "CreatorMate Team"}]
+license = {text = "MIT"}
+dependencies = [
+    "fastapi>=0.104.1",
+    "uvicorn[standard]>=0.24.0",
+    "python-dotenv>=1.0.0",
+    "pydantic>=2.5.0",
+    "pydantic-settings>=2.1.0",
+]
+
+[project.optional-dependencies]
+test = [
+    "pytest>=7.4.3",
+    "pytest-asyncio>=0.21.1",
+    "pytest-cov>=4.1.0",
+    "pytest-mock>=3.12.0",
+    "pytest-httpx>=0.26.0",
+    "pytest-xdist>=3.4.0",
+    "httpx>=0.25.2",
+    "factory-boy>=3.3.0",
+    "freezegun>=1.2.2",
+    "responses>=0.24.1",
+    "coverage[toml]>=7.3.2",
+    "pytest-html>=4.1.1",
+    "pytest-json-report>=1.5.0",
+    "bandit>=1.7.5",
+    "safety>=2.3.5",
+    "locust>=2.17.0",
+]
+
+[tool.pytest.ini_options]
+minversion = "7.0"
+addopts = [
+    "--strict-markers",
+    "--strict-config", 
+    "--verbose",
+    "--tb=short",
+    "--cov=backend",
+    "--cov-report=html:htmlcov",
+    "--cov-report=xml:coverage.xml", 
+    "--cov-report=term-missing",
+    "--cov-fail-under=80",
+]
+testpaths = ["tests"]
+python_files = ["test_*.py", "*_test.py"]
+python_classes = ["Test*"]
+python_functions = ["test_*"]
+markers = [
+    "unit: Unit tests",
+    "integration: Integration tests", 
+    "e2e: End-to-end tests",
+    "security: Security tests",
+    "performance: Performance tests",
+    "slow: Tests that take a long time to run",
+    "agent: Agent-specific tests",
+    "auth: Authentication tests",
+    "api: API endpoint tests",
+    "database: Database tests",
+]
+filterwarnings = [
+    "ignore::DeprecationWarning",
+    "ignore::PendingDeprecationWarning",
+    "ignore::UserWarning",
+]
+asyncio_mode = "auto"
+
+[tool.coverage.run]
+source = ["backend"]
+omit = [
+    "*/tests/*",
+    "*/venv/*",
+    "*/__pycache__/*",
+    "*/migrations/*",
+    "*/test_*.py",
+    "*/*_test.py",
+]
+
+[tool.coverage.report]
+exclude_lines = [
+    "pragma: no cover",
+    "def __repr__",
+    "if self.debug:",
+    "if settings.DEBUG",
+    "raise AssertionError",
+    "raise NotImplementedError",
+    "if 0:",
+    "if __name__ == .__main__.:",
+    "class .*\\bProtocol\\):",
+    "@(abc\\.)?abstractmethod",
+]
+
+[tool.coverage.html]
+directory = "htmlcov"
+
+[tool.bandit]
+exclude_dirs = ["tests", "venv"]
+skips = ["B101", "B601"]  # Skip assert_used and shell injection in tests
+
+[tool.black]
+line-length = 88
+target-version = ['py39']
+include = '\.pyi?$'
+extend-exclude = '''
+/(
+  # directories
+  \.eggs
+  | \.git
+  | \.hg
+  | \.mypy_cache
+  | \.tox
+  | \.venv
+  | venv
+  | _build
+  | buck-out
+  | build
+  | dist
+)/
+'''

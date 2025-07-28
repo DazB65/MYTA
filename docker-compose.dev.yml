@@ -1,0 +1,189 @@
+# CreatorMate Development Docker Compose
+# Development configuration with hot reloading and debugging
+
+services:
+  # =============================================================================
+  # Backend Service (Development)
+  # =============================================================================
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+      target: development
+      args:
+        BUILD_ENV: development
+    container_name: creatormate-backend-dev
+    restart: unless-stopped
+    ports:
+      - "8888:8888"
+      - "5678:5678"  # Debug port
+    environment:
+      # Development settings
+      - ENVIRONMENT=development
+      - LOG_LEVEL=DEBUG
+      - DEBUG=true
+      - RELOAD=true
+      
+      # API Keys (load from .env file)
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - GOOGLE_API_KEY=${GOOGLE_API_KEY}
+      - YOUTUBE_API_KEY=${YOUTUBE_API_KEY}
+      - BOSS_AGENT_SECRET_KEY=${BOSS_AGENT_SECRET_KEY:-dev-secret-key}
+      
+      # Database configuration
+      - DATABASE_URL=sqlite:///app/data/creatormate_dev.db
+      
+      # Redis configuration  
+      - REDIS_URL=redis://redis:6379/0
+      
+      # Security settings (relaxed for development)
+      - CORS_ORIGINS=http://localhost:3000,http://localhost:5173,http://localhost:80
+      - SESSION_SECRET_KEY=${SESSION_SECRET_KEY:-dev-session-secret}
+      
+      # Development features
+      - ENABLE_DEBUG_ROUTES=true
+      - ENABLE_API_DOCS=true
+    volumes:
+      # Mount source code for hot reloading
+      - ./backend:/app:rw
+      - backend_dev_data:/app/data
+      - backend_dev_logs:/app/logs
+      - backend_dev_backups:/app/backups
+      # Exclude Python cache and virtual environment
+      - /app/__pycache__
+      - /app/.pytest_cache
+      - /app/venv
+    networks:
+      - creatormate_dev_network
+    depends_on:
+      - redis
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8888/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+
+  # =============================================================================
+  # Frontend Service (Development)
+  # =============================================================================
+  frontend:
+    build:
+      context: ./frontend-new
+      dockerfile: Dockerfile
+      target: development
+      args:
+        BUILD_ENV: development
+    container_name: creatormate-frontend-dev
+    restart: unless-stopped
+    ports:
+      - "5173:5173"  # Vite dev server port
+    environment:
+      - NODE_ENV=development
+      - VITE_API_BASE_URL=http://localhost:8888
+      - CHOKIDAR_USEPOLLING=true
+      - HMR_HOST=localhost
+      - HMR_PORT=5173
+    volumes:
+      # Mount source code for hot reloading
+      - ./frontend-new:/app:rw
+      # Exclude node_modules to prevent conflicts
+      - /app/node_modules
+      - /app/dist
+      - /app/.vite
+    networks:
+      - creatormate_dev_network
+    depends_on:
+      - backend
+    stdin_open: true
+    tty: true
+
+  # =============================================================================
+  # Redis Service (Development)
+  # =============================================================================
+  redis:
+    image: redis:7-alpine
+    container_name: creatormate-redis-dev
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    command: redis-server --appendonly yes --requirepass ${REDIS_PASSWORD:-dev_redis_password}
+    volumes:
+      - redis_dev_data:/data
+    networks:
+      - creatormate_dev_network
+    healthcheck:
+      test: ["CMD", "redis-cli", "--raw", "incr", "ping"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # =============================================================================
+  # Development Tools
+  # =============================================================================
+  
+  # Database Administration (optional)
+  adminer:
+    image: adminer:latest
+    container_name: creatormate-adminer-dev
+    restart: unless-stopped
+    ports:
+      - "8080:8080"
+    environment:
+      - ADMINER_DEFAULT_SERVER=backend
+    networks:
+      - creatormate_dev_network
+    profiles:
+      - tools
+
+  # Redis Admin (optional)
+  redis-commander:
+    image: rediscommander/redis-commander:latest
+    container_name: creatormate-redis-admin-dev
+    restart: unless-stopped
+    ports:
+      - "8081:8081"
+    environment:
+      - REDIS_HOSTS=local:redis:6379:0:${REDIS_PASSWORD:-dev_redis_password}
+      - HTTP_USER=admin
+      - HTTP_PASSWORD=${REDIS_ADMIN_PASSWORD:-admin}
+    networks:
+      - creatormate_dev_network
+    depends_on:
+      - redis
+    profiles:
+      - tools
+
+  # Mailhog for email testing (optional)
+  mailhog:
+    image: mailhog/mailhog:latest
+    container_name: creatormate-mailhog-dev
+    restart: unless-stopped
+    ports:
+      - "1025:1025"  # SMTP port
+      - "8025:8025"  # Web UI port
+    networks:
+      - creatormate_dev_network
+    profiles:
+      - tools
+
+# =============================================================================
+# Networks
+# =============================================================================
+networks:
+  creatormate_dev_network:
+    driver: bridge
+    name: creatormate_dev_network
+
+# =============================================================================
+# Volumes
+# =============================================================================
+volumes:
+  backend_dev_data:
+    name: creatormate_backend_dev_data
+  backend_dev_logs:
+    name: creatormate_backend_dev_logs
+  backend_dev_backups:
+    name: creatormate_backend_dev_backups
+  redis_dev_data:
+    name: creatormate_redis_dev_data
