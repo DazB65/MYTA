@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+  <html lang="en">
+  <head>
+      <meta charset="UTF-8">
+      <meta name="viewport" 
+  content="width=device-width, initial-scale=1.0">
+      <title>Welcome to Vidalytics</title>
+      <style>
+          :root {
+              --background-dark: #2d3748;
+              --card-background: #ffffff;
+              --text-primary: #111827;
+              --text-secondary: #6B7280;
+              --text-light: #ffffff;
+              --border-color: #D1D5DB;
+              --button-secondary-bg: #f3f4f6;
+              --button-gradient:
+  linear-gradient(90deg, #EC4899, #8B5CF6);
+              --radius-sm: 8px;
+              --radius-lg: 24px;
+              --shadow-lg: 0 10px 15px -3px rgba(0,
+  0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+          }
+
+          * {
+              margin: 0;
+              padding: 0;
+              box-sizing: border-box;
+          }
+
+          body {
+              background-color:
+  var(--background-dark);
+              display: flex;
+              align-items: center;
+              justify-content: center;
+              min-height: 100vh;
+              font-family: -apple-system,
+  BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica,
+   Arial, sans-serif;
+              padding: 20px;
+          }
+
+          main {
+              background-color:
+  var(--card-background);
+              border-radius: var(--radius-lg);
+              box-shadow: var(--shadow-lg);
+              display: grid;
+              grid-template-columns: 1fr 1fr;
+              max-width: 1000px;
+              width: 100%;
+              overflow: hidden;
+          }
+
+          .form-container {
+              padding: 48px;
+          }
+
+          .form-container a {
+              color: var(--text-secondary);
+              text-decoration: none;
+              font-size: 14px;
+              display: inline-block;
+              margin-bottom: 24px;
+          }
+
+          .form-container a:hover {
+              color: var(--text-primary);
+          }
+
+          h1 {
+              color: var(--text-primary);
+              font-size: 32px;
+              font-weight: 700;
+              margin-bottom: 12px;
+          }
+
+          .form-container > p {
+              color: var(--text-secondary);
+              font-size: 16px;
+              margin-bottom: 32px;
+          }
+
+          form {
+              display: flex;
+              flex-direction: column;
+              gap: 24px;
+          }
+
+          .form-group {
+              display: flex;
+              flex-direction: column;
+              gap: 8px;
+          }
+
+          label {
+              color: var(--text-primary);
+              font-size: 12px;
+              font-weight: 600;
+              text-transform: uppercase;
+              letter-spacing: 0.05em;
+          }
+
+          input, select {
+              border: 1px solid var(--border-color);
+              border-radius: var(--radius-sm);
+              padding: 12px 16px;
+              font-size: 16px;
+              color: var(--text-primary);
+              background-color:
+  var(--card-background);
+              width: 100%;
+          }
+
+          input::placeholder {
+              color: var(--text-secondary);
+          }
+
+          select {
+              cursor: pointer;
+          }
+
+          input:focus, select:focus {
+              outline: none;
+              border-color: #8B5CF6;
+          }
+
+          h2 {
+              color: var(--text-primary);
+              font-size: 18px;
+              font-weight: 600;
+              margin-top: 32px;
+              margin-bottom: 16px;
+          }
+
+          button {
+              border: none;
+              border-radius: var(--radius-sm);
+              padding: 14px 24px;
+              font-size: 16px;
+              font-weight: 600;
+              cursor: pointer;
+              transition: transform 0.2s;
+          }
+
+          button:hover {
+              transform: translateY(-1px);
+          }
+
+          button:active {
+              transform: translateY(0);
+          }
+
+          .secondary-button {
+              background-color:
+  var(--button-secondary-bg);
+              color: var(--text-primary);
+              margin-bottom: 32px;
+          }
+
+          .primary-button {
+              background: var(--button-gradient);
+              color: var(--text-light);
+              margin-top: 8px;
+          }
+
+          .image-container {
+              display: flex;
+              align-items: center;
+              justify-content: center;
+              background-color: #f9fafb;
+              padding: 48px;
+          }
+
+          .image-container img {
+              max-width: 100%;
+              height: auto;
+              object-fit: contain;
+          }
+
+          @media (max-width: 800px) {
+              main {
+                  grid-template-columns: 1fr;
+              }
+
+              .image-container {
+                  display: none;
+              }
+
+              .form-container {
+                  padding: 32px;
+              }
+
+              h1 {
+                  font-size: 28px;
+              }
+          }
+      </style>
+  </head>
+  <body>
+      <main>
+          <section class="form-container">
+              <a href="#">← Back</a>
+              <h1>Welcome to ✨Vidalytics</h1>
+              <p>Let's set up your channel
+  profile...</p>
+
+              <form>
+                  <div class="form-group">
+                      <label>YOUR WEBSITE
+  URL</label>
+                      <input type="text" 
+  placeholder="www.websiteurl.com">
+                  </div>
+
+                  <div class="form-group">
+                      <label>CATEGORY</label>
+                      <select>
+                          <option>Select</option>
+                      </select>
+                  </div>
+
+                  <div class="form-group">
+                      <label>MY
+  LANGUAGE/ACCENT</label>
+                      <select>
+                          <option>Select</option>
+                      </select>
+                  </div>
+
+                  <div class="form-group">
+                      <label>TARGET AUDIENCE</label>
+                      <select>
+                          <option>Select</option>
+                      </select>
+                  </div>
+
+                  <h2>Connect Your YouTube
+  Channel</h2>
+                  <button type="button" 
+  class="secondary-button">Connect ▶️ YouTube
+  Account</button>
+
+                  <button type="submit" 
+  class="primary-button">Complete Setup</button>
+              </form>
+          </section>
+
+          <aside class="image-container">
+              <img src="./public/BossAgent.png" 
+  alt="Friendly robot assistant pointing at data 
+  charts">
+          </aside>
+      </main>
+  </body>
+  </html>
