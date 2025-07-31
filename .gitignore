@@ -130,3 +130,11 @@ logs/
 *.log
 # Node.js / Frontend dependencies
 node_modules/
+*storybook.log
+storybook-static
+# macOS system file
+.DS_Store
+
+# Temporary Virtual Environment
+temp_venv/
+
