@@ -20,10 +20,11 @@ from agent_performance_models import (
     PerformanceAlert, AgentType, ModelProvider, RequestStatus, AlertSeverity,
     ModelUsage, MonitoringConfiguration, get_performance_tables_schema
 )
-from database import get_db_connection
+from database import get_database_manager
+import sqlite3
 from logging_config import get_logger, LogCategory
 
-logger = get_logger(__name__, LogCategory.MONITORING)
+logger = get_logger(__name__, LogCategory.PERFORMANCE)
 
 class PerformanceTracker:
     """Central performance tracking system for multi-agent monitoring"""
@@ -48,7 +49,8 @@ class PerformanceTracker:
     def _init_database(self):
         """Initialize performance tracking database schema"""
         try:
-            with get_db_connection() as conn:
+            db_manager = get_database_manager()
+            with sqlite3.connect(db_manager.db_path) as conn:
                 cursor = conn.cursor()
                 
                 # Create all performance tracking tables
@@ -255,7 +257,8 @@ class PerformanceTracker:
                 self._last_flush = datetime.now()
             
             # Insert into database
-            with get_db_connection() as conn:
+            db_manager = get_database_manager()
+            with sqlite3.connect(db_manager.db_path) as conn:
                 cursor = conn.cursor()
                 
                 for metric in metrics_to_flush:
@@ -352,7 +355,8 @@ class PerformanceTracker:
         """Record a performance alert"""
         
         try:
-            with get_db_connection() as conn:
+            db_manager = get_database_manager()
+            with sqlite3.connect(db_manager.db_path) as conn:
                 cursor = conn.cursor()
                 
                 cursor.execute("""
@@ -390,7 +394,8 @@ class PerformanceTracker:
         """Get agent health metrics for specified time window"""
         
         try:
-            with get_db_connection() as conn:
+            db_manager = get_database_manager()
+            with sqlite3.connect(db_manager.db_path) as conn:
                 cursor = conn.cursor()
                 
                 # Calculate time window

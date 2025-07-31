@@ -17,7 +17,7 @@ from auth_middleware import get_current_user, AuthToken
 from api_models import create_success_response, create_error_response
 from logging_config import get_logger, LogCategory
 
-logger = get_logger(__name__, LogCategory.MONITORING)
+logger = get_logger(__name__, LogCategory.PERFORMANCE)
 
 # Create router
 router = APIRouter(

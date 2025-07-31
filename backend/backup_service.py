@@ -13,8 +13,8 @@ from typing import Dict, List, Optional, Callable
 from dataclasses import dataclass
 from enum import Enum
 import smtplib
-from email.mime.text import MimeText
-from email.mime.multipart import MimeMultipart
+from email.mime.text import MIMEText
+from email.mime.multipart import MIMEMultipart
 import json
 
 from migration_manager import get_migration_manager, BackupInfo

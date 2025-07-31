@@ -3,7 +3,7 @@ Agent Router for CreatorMate
 Contains all agent-related API endpoints extracted from main.py
 """
 
-from fastapi import APIRouter, HTTPException, Depends, Request
+from fastapi import APIRouter, HTTPException, Depends, Request, Security
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from fastapi.responses import JSONResponse
 from datetime import datetime
