@@ -1,5 +1,5 @@
 """
-Boss Agent Authentication System for CreatorMate
+Boss Agent Authentication System for Vidalytics
 Implements JWT-based authentication for hierarchical agent communication
 """
 
@@ -56,7 +56,7 @@ class BossAgentAuthenticator:
         
         payload = {
             # Standard JWT claims
-            'iss': 'CreatorMate_Boss_Agent',  # Issuer
+            'iss': 'Vidalytics_Boss_Agent',  # Issuer
             'sub': self.credentials.agent_id,  # Subject
             'aud': 'specialized_agents',  # Audience
             'iat': now_timestamp,  # Issued at

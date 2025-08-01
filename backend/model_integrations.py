@@ -1,5 +1,5 @@
 """
-Multi-Model API Integration for CreatorMate Agent System
+Multi-Model API Integration for Vidalytics Agent System
 Handles OpenAI, Anthropic Claude, and Google Gemini integrations with fallback logic
 """
 

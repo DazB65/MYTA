@@ -101,7 +101,7 @@ export default function Onboarding() {
       updateChannelInfo(channelInfo)
       
       // Mark as onboarded
-      localStorage.setItem('creatormate_onboarded', 'true')
+      localStorage.setItem('Vidalytics_onboarded', 'true')
       setOnboarded(true)
     } catch (error) {
       console.error('Onboarding failed:', error)
@@ -124,10 +124,10 @@ export default function Onboarding() {
       <Card className="w-full max-w-2xl">
         <div className="text-center mb-8">
           <div className="w-40 h-40 flex items-center justify-center mx-auto mb-6">
-            <img src="/assets/images/CM Text White.svg" alt="CreatorMate" className="w-full h-full object-contain" />
+            <img src="/assets/images/CM Text White.svg" alt="Vidalytics" className="w-full h-full object-contain" />
           </div>
           <h1 className="text-3xl font-bold bg-gradient-to-r from-primary-400 to-purple-400 bg-clip-text text-transparent">
-            Welcome to CreatorMate
+            Welcome to Vidalytics
           </h1>
           <p className="text-dark-400 mt-2">
             Let's set up your channel profile to get personalized AI assistance

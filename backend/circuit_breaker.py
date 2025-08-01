@@ -1,5 +1,5 @@
 """
-Circuit Breaker Pattern Implementation for CreatorMate
+Circuit Breaker Pattern Implementation for Vidalytics
 Provides fault tolerance for external API calls
 """
 

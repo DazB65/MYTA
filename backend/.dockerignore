@@ -1,4 +1,4 @@
-# CreatorMate Backend - Docker ignore file
+# Vidalytics Backend - Docker ignore file
 
 # Python
 __pycache__/

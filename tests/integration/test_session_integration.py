@@ -363,7 +363,7 @@ class TestSessionAPIIntegration:
         assert data["data"]["user_id"] == "test_user"
         
         # Verify session cookie is set
-        assert "creatormate_session" in response.cookies
+        assert "Vidalytics_session" in response.cookies
     
     def test_login_and_get_current_session(self, client):
         """Test login and get current session"""
@@ -374,12 +374,12 @@ class TestSessionAPIIntegration:
         })
         
         assert login_response.status_code == 200
-        session_cookie = login_response.cookies["creatormate_session"]
+        session_cookie = login_response.cookies["Vidalytics_session"]
         
         # Get current session
         response = client.get(
             "/api/session/current",
-            cookies={"creatormate_session": session_cookie}
+            cookies={"Vidalytics_session": session_cookie}
         )
         
         assert response.status_code == 200
@@ -404,12 +404,12 @@ class TestSessionAPIIntegration:
             "user_id": "logout_test"
         })
         
-        session_cookie = login_response.cookies["creatormate_session"]
+        session_cookie = login_response.cookies["Vidalytics_session"]
         
         # Logout
         response = client.post(
             "/api/session/logout",
-            cookies={"creatormate_session": session_cookie}
+            cookies={"Vidalytics_session": session_cookie}
         )
         
         assert response.status_code == 200
@@ -419,7 +419,7 @@ class TestSessionAPIIntegration:
         # Verify session is invalid after logout
         current_response = client.get(
             "/api/session/current",
-            cookies={"creatormate_session": session_cookie}
+            cookies={"Vidalytics_session": session_cookie}
         )
         
         assert current_response.status_code == 401
@@ -436,12 +436,12 @@ class TestSessionAPIIntegration:
                 "metadata": {"device": device}
             })
             assert response.status_code == 200
-            sessions.append(response.cookies["creatormate_session"])
+            sessions.append(response.cookies["Vidalytics_session"])
         
         # List sessions using the last session
         response = client.get(
             "/api/session/list",
-            cookies={"creatormate_session": sessions[-1]}
+            cookies={"Vidalytics_session": sessions[-1]}
         )
         
         assert response.status_code == 200
@@ -462,19 +462,19 @@ class TestSessionAPIIntegration:
             "user_id": user_id,
             "metadata": {"name": "session1"}
         })
-        session1_cookie = session1_response.cookies["creatormate_session"]
+        session1_cookie = session1_response.cookies["Vidalytics_session"]
         session1_id = session1_response.json()["data"]["session_id"]
         
         session2_response = client.post("/api/session/login", json={
             "user_id": user_id,
             "metadata": {"name": "session2"}
         })
-        session2_cookie = session2_response.cookies["creatormate_session"]
+        session2_cookie = session2_response.cookies["Vidalytics_session"]
         
         # Revoke session1 using session2
         response = client.delete(
             f"/api/session/revoke/{session1_id}",
-            cookies={"creatormate_session": session2_cookie}
+            cookies={"Vidalytics_session": session2_cookie}
         )
         
         assert response.status_code == 200
@@ -484,14 +484,14 @@ class TestSessionAPIIntegration:
         # Verify session1 is invalid
         invalid_response = client.get(
             "/api/session/current",
-            cookies={"creatormate_session": session1_cookie}
+            cookies={"Vidalytics_session": session1_cookie}
         )
         assert invalid_response.status_code == 401
         
         # Verify session2 is still valid
         valid_response = client.get(
             "/api/session/current",
-            cookies={"creatormate_session": session2_cookie}
+            cookies={"Vidalytics_session": session2_cookie}
         )
         assert valid_response.status_code == 200
     
@@ -506,12 +506,12 @@ class TestSessionAPIIntegration:
                 "user_id": user_id,
                 "metadata": {"session_number": i}
             })
-            sessions.append(response.cookies["creatormate_session"])
+            sessions.append(response.cookies["Vidalytics_session"])
         
         # Logout from all sessions using the last session
         response = client.post(
             "/api/session/logout-all",
-            cookies={"creatormate_session": sessions[-1]}
+            cookies={"Vidalytics_session": sessions[-1]}
         )
         
         assert response.status_code == 200
@@ -523,14 +523,14 @@ class TestSessionAPIIntegration:
         for session_cookie in sessions[:-1]:
             invalid_response = client.get(
                 "/api/session/current",
-                cookies={"creatormate_session": session_cookie}
+                cookies={"Vidalytics_session": session_cookie}
             )
             assert invalid_response.status_code == 401
         
         # Verify last session is still valid
         valid_response = client.get(
             "/api/session/current",
-            cookies={"creatormate_session": sessions[-1]}
+            cookies={"Vidalytics_session": sessions[-1]}
         )
         assert valid_response.status_code == 200
     
@@ -542,7 +542,7 @@ class TestSessionAPIIntegration:
             "metadata": {"initial": "data"}
         })
         
-        session_cookie = login_response.cookies["creatormate_session"]
+        session_cookie = login_response.cookies["Vidalytics_session"]
         
         # Update session
         response = client.put(
@@ -551,7 +551,7 @@ class TestSessionAPIIntegration:
                 "metadata": {"updated": "data", "new_field": "value"},
                 "permissions": ["user", "premium"]
             },
-            cookies={"creatormate_session": session_cookie}
+            cookies={"Vidalytics_session": session_cookie}
         )
         
         assert response.status_code == 200
@@ -561,7 +561,7 @@ class TestSessionAPIIntegration:
         # Verify session was updated
         current_response = client.get(
             "/api/session/current",
-            cookies={"creatormate_session": session_cookie}
+            cookies={"Vidalytics_session": session_cookie}
         )
         
         assert current_response.status_code == 200

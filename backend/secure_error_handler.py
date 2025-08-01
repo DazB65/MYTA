@@ -1,5 +1,5 @@
 """
-Secure Error Handler for CreatorMate
+Secure Error Handler for Vidalytics
 Prevents information disclosure through error messages
 """
 

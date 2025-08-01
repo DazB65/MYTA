@@ -1,5 +1,5 @@
 """
-Data Access Chain Monitor for CreatorMate
+Data Access Chain Monitor for Vidalytics
 Provides comprehensive debugging and monitoring for the data access pipeline
 """
 
@@ -57,7 +57,7 @@ class UserDataAccessSummary:
 class DataAccessMonitor:
     """Monitors and debugs the entire data access chain"""
     
-    def __init__(self, db_path: str = "creatormate.db"):
+    def __init__(self, db_path: str = "Vidalytics.db"):
         self.db_path = db_path
         self.events: List[DataAccessEvent] = []
         self.max_events_memory = 1000  # Keep last 1000 events in memory

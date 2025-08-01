@@ -1,5 +1,5 @@
 """
-CreatorMate Multi-Agent API - Refactored Main Application
+Vidalytics Multi-Agent API - Refactored Main Application
 Modular FastAPI application with separated routers for better maintainability
 """
 
@@ -80,10 +80,10 @@ logger = get_logger(__name__, LogCategory.SYSTEM)
 
 # Create FastAPI app with comprehensive documentation
 app = FastAPI(
-    title="CreatorMate Multi-Agent API",
+    title="Vidalytics Multi-Agent API",
     version="2.0.0",
     description="""
-    **CreatorMate** is a sophisticated hierarchical multi-agent system designed for YouTube content creators 
+    **Vidalytics** is a sophisticated hierarchical multi-agent system designed for YouTube content creators 
     to optimize their channel performance, content strategy, and audience engagement.
     
     ## Key Features
@@ -116,9 +116,9 @@ app = FastAPI(
     redoc_url="/redoc" if getattr(settings, "enable_api_docs", True) else None,
     openapi_url="/openapi.json" if getattr(settings, "enable_api_docs", True) else None,
     contact={
-        "name": "CreatorMate Support",
-        "url": "https://github.com/creatormate/api",
-        "email": "support@creatormate.com"
+        "name": "Vidalytics Support",
+        "url": "https://github.com/Vidalytics/api",
+        "email": "support@Vidalytics.com"
     },
     license_info={
         "name": "MIT License",
@@ -130,7 +130,7 @@ app = FastAPI(
             "description": "Development server"
         },
         {
-            "url": "https://api.creatormate.com",
+            "url": "https://api.Vidalytics.com",
             "description": "Production server"
         }
     ],
@@ -186,10 +186,10 @@ app.add_exception_handler(RateLimitExceeded, custom_rate_limit_handler)
 
 @app.on_event("startup")
 async def startup_event():
-    """Initialize the CreatorMate multi-agent system"""
+    """Initialize the Vidalytics multi-agent system"""
     try:
         logger.info(
-            "Starting CreatorMate Multi-Agent System",
+            "Starting Vidalytics Multi-Agent System",
             extra={
                 'category': LogCategory.SYSTEM.value,
                 'metadata': {
@@ -200,8 +200,8 @@ async def startup_event():
             }
         )
         
-        from api_startup import initialize_creatormate_system
-        initialization_result = await initialize_creatormate_system()
+        from api_startup import initialize_Vidalytics_system
+        initialization_result = await initialize_Vidalytics_system()
         
         # Initialize performance tracking system
         try:
@@ -286,7 +286,7 @@ async def startup_event():
         
         if initialization_result["overall_status"] == "success":
             logger.info(
-                "CreatorMate Multi-Agent System started successfully",
+                "Vidalytics Multi-Agent System started successfully",
                 extra={
                     'category': LogCategory.SYSTEM.value,
                     'metadata': initialization_result
@@ -294,7 +294,7 @@ async def startup_event():
             )
         else:
             logger.warning(
-                f"CreatorMate started with warnings: {initialization_result['overall_status']}",
+                f"Vidalytics started with warnings: {initialization_result['overall_status']}",
                 extra={
                     'category': LogCategory.SYSTEM.value,
                     'metadata': initialization_result
@@ -303,7 +303,7 @@ async def startup_event():
             
     except Exception as e:
         logger.error(
-            "Failed to initialize CreatorMate system",
+            "Failed to initialize Vidalytics system",
             extra={
                 'category': LogCategory.ERROR.value,
                 'metadata': {
@@ -318,7 +318,7 @@ async def startup_event():
 async def shutdown_event():
     """Clean up resources on shutdown"""
     try:
-        logger.info("Shutting down CreatorMate Multi-Agent System")
+        logger.info("Shutting down Vidalytics Multi-Agent System")
         
         # Stop backup service
         try:
@@ -342,7 +342,7 @@ async def shutdown_event():
         from connection_pool import cleanup_connections
         await cleanup_connections()
         
-        logger.info("CreatorMate shutdown completed successfully")
+        logger.info("Vidalytics shutdown completed successfully")
         
     except Exception as e:
         logger.error(f"Error during shutdown: {e}", exc_info=True)
@@ -894,7 +894,7 @@ def health_check(request: Request):
     response = JSONResponse(content={
         "status": "healthy",
         "timestamp": datetime.now().isoformat(),
-        "service": "CreatorMate Multi-Agent API",
+        "service": "Vidalytics Multi-Agent API",
         "version": "2.0.0"
     })
     return add_security_headers(response)
@@ -1009,7 +1009,7 @@ def get_app_info():
     return create_success_response(
         "Application info retrieved",
         {
-            "name": "CreatorMate Multi-Agent API",
+            "name": "Vidalytics Multi-Agent API",
             "version": "2.0.0",
             "description": "Hierarchical multi-agent system for YouTube analytics and optimization",
             "architecture": "modular_fastapi_with_routers",

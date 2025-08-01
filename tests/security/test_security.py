@@ -1,5 +1,5 @@
 """
-Security tests for CreatorMate application
+Security tests for Vidalytics application
 """
 import pytest
 import json

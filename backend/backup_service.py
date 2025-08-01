@@ -1,5 +1,5 @@
 """
-Automated Database Backup Service for CreatorMate
+Automated Database Backup Service for Vidalytics
 Handles scheduled backups, monitoring, and maintenance
 """
 
@@ -63,7 +63,7 @@ class BackupMonitor:
         if not self.alert_config.alert_on_success:
             return
         
-        subject = f"CreatorMate: Backup completed successfully - {backup_info.backup_id}"
+        subject = f"Vidalytics: Backup completed successfully - {backup_info.backup_id}"
         message = self._format_success_message(backup_info)
         self._send_alert(subject, message)
     
@@ -72,7 +72,7 @@ class BackupMonitor:
         if not self.alert_config.alert_on_failure:
             return
         
-        subject = f"CreatorMate: Backup failed - {backup_type}"
+        subject = f"Vidalytics: Backup failed - {backup_type}"
         message = self._format_failure_message(error_message, backup_type)
         self._send_alert(subject, message)
     
@@ -81,7 +81,7 @@ class BackupMonitor:
         if not self.alert_config.alert_on_cleanup:
             return
         
-        subject = f"CreatorMate: Backup cleanup completed - {deleted_count} backups removed"
+        subject = f"Vidalytics: Backup cleanup completed - {deleted_count} backups removed"
         message = self._format_cleanup_message(deleted_count, total_size_freed)
         self._send_alert(subject, message)
     
@@ -110,7 +110,7 @@ Backup Type: {backup_type}
 Error: {error_message}
 Timestamp: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}
 
-Please check the CreatorMate logs for more details and resolve the issue.
+Please check the Vidalytics logs for more details and resolve the issue.
 This backup failure may affect data recovery capabilities.
 """
     
@@ -157,7 +157,7 @@ Old backups have been automatically cleaned up to maintain storage efficiency.
                 "subject": subject,
                 "message": message,
                 "timestamp": datetime.now().isoformat(),
-                "service": "CreatorMate Backup Service"
+                "service": "Vidalytics Backup Service"
             }
             
             response = requests.post(
@@ -671,7 +671,7 @@ _backup_service: Optional[BackupService] = None
 
 
 def get_backup_service(
-    db_path: str = "creatormate.db",
+    db_path: str = "Vidalytics.db",
     schedule_config: BackupSchedule = None,
     alert_config: BackupAlert = None
 ) -> BackupService:

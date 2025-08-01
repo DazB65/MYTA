@@ -1,5 +1,5 @@
 """
-API Startup and Initialization for CreatorMate Multi-Agent System
+API Startup and Initialization for Vidalytics Multi-Agent System
 Handles system initialization, health checks, and startup validation
 """
 
@@ -12,8 +12,8 @@ from datetime import datetime
 # Configure logging
 logger = logging.getLogger(__name__)
 
-class CreatorMateStartup:
-    """Handles startup initialization for the CreatorMate API"""
+class VidalyticsStartup:
+    """Handles startup initialization for the Vidalytics API"""
     
     def __init__(self):
         self.startup_time = datetime.now()
@@ -30,7 +30,7 @@ class CreatorMateStartup:
     
     async def initialize_system(self) -> Dict[str, Any]:
         """Initialize all system components"""
-        logger.info("Starting CreatorMate Multi-Agent System initialization...")
+        logger.info("Starting Vidalytics Multi-Agent System initialization...")
         
         initialization_results = {
             "startup_time": self.startup_time.isoformat(),
@@ -53,10 +53,10 @@ class CreatorMateStartup:
         
         if all_critical_ok:
             initialization_results["overall_status"] = "success"
-            logger.info("✅ CreatorMate system initialization successful")
+            logger.info("✅ Vidalytics system initialization successful")
         else:
             initialization_results["overall_status"] = "partial"
-            logger.warning("⚠️ CreatorMate system initialization completed with warnings")
+            logger.warning("⚠️ Vidalytics system initialization completed with warnings")
         
         self.initialization_status = initialization_results
         return initialization_results
@@ -425,15 +425,15 @@ class CreatorMateStartup:
 # Global startup instance
 _startup_manager = None
 
-def get_startup_manager() -> CreatorMateStartup:
+def get_startup_manager() -> VidalyticsStartup:
     """Get or create global startup manager"""
     global _startup_manager
     if _startup_manager is None:
-        _startup_manager = CreatorMateStartup()
+        _startup_manager = VidalyticsStartup()
     return _startup_manager
 
-async def initialize_creatormate_system():
-    """Initialize the CreatorMate system"""
+async def initialize_Vidalytics_system():
+    """Initialize the Vidalytics system"""
     startup_manager = get_startup_manager()
     return await startup_manager.initialize_system()
 

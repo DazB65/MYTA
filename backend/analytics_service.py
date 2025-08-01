@@ -1,5 +1,5 @@
 """
-YouTube Analytics Service for CreatorMate
+YouTube Analytics Service for Vidalytics
 Provides real-time channel analytics and performance insights
 """
 

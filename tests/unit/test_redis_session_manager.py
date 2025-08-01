@@ -194,8 +194,8 @@ class TestRedisSessionConfig:
         assert config.session_timeout == timedelta(hours=8)
         assert config.refresh_threshold == timedelta(hours=1)
         assert config.max_sessions_per_user == 10
-        assert config.key_prefix == "creatormate:session:"
-        assert config.user_sessions_prefix == "creatormate:user_sessions:"
+        assert config.key_prefix == "Vidalytics:session:"
+        assert config.user_sessions_prefix == "Vidalytics:user_sessions:"
     
     def test_config_with_settings(self):
         """Test configuration with custom settings"""
@@ -267,12 +267,12 @@ class TestRedisSessionManager:
     def test_get_session_key(self, session_manager):
         """Test session key generation"""
         key = session_manager._get_session_key("test_session_123")
-        assert key == "creatormate:session:test_session_123"
+        assert key == "Vidalytics:session:test_session_123"
     
     def test_get_user_sessions_key(self, session_manager):
         """Test user sessions key generation"""
         key = session_manager._get_user_sessions_key("test_user")
-        assert key == "creatormate:user_sessions:test_user"
+        assert key == "Vidalytics:user_sessions:test_user"
     
     @pytest.mark.asyncio
     async def test_create_session(self, session_manager, mock_redis):

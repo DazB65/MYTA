@@ -1,5 +1,5 @@
 """
-Comprehensive Health Check System for CreatorMate
+Comprehensive Health Check System for Vidalytics
 Monitors system health, dependencies, and performance metrics
 """
 
@@ -108,7 +108,7 @@ class BaseHealthCheck:
 class DatabaseHealthCheck(BaseHealthCheck):
     """Check database connectivity and performance"""
     
-    def __init__(self, db_path: str = "creatormate.db"):
+    def __init__(self, db_path: str = "Vidalytics.db"):
         super().__init__("database", timeout=5.0)
         self.db_path = db_path
     

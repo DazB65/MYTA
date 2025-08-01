@@ -1,5 +1,5 @@
 """
-Insights Engine for CreatorMate
+Insights Engine for Vidalytics
 Generates dynamic insights based on user context and channel data
 """
 

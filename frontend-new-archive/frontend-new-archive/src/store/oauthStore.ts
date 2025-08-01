@@ -54,12 +54,12 @@ export const useOAuthStore = create<OAuthState>()(
       initialize: async () => {
         try {
           // First try to get user ID from localStorage (same as userStore)
-          let userId = localStorage.getItem('creatormate_user_id');
+          let userId = localStorage.getItem('Vidalytics_user_id');
           
           if (!userId) {
             // Generate and store a new user ID if none exists
             userId = 'user_' + Math.random().toString(36).substring(2, 15);
-            localStorage.setItem('creatormate_user_id', userId);
+            localStorage.setItem('Vidalytics_user_id', userId);
           }
           
           set({ userId });

@@ -1,5 +1,5 @@
 """
-Session Middleware for CreatorMate
+Session Middleware for Vidalytics
 Integrates Redis session management with FastAPI requests
 """
 
@@ -33,7 +33,7 @@ class SessionMiddleware(BaseHTTPMiddleware):
         self.security = HTTPBearer(auto_error=False)
         
         # Session cookie settings
-        self.cookie_name = "creatormate_session"
+        self.cookie_name = "Vidalytics_session"
         self.cookie_secure = not self.settings.is_development()
         self.cookie_httponly = True
         self.cookie_samesite = "strict"

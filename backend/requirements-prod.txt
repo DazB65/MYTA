@@ -1,4 +1,4 @@
-# Production-specific dependencies for CreatorMate Backend
+# Production-specific dependencies for Vidalytics Backend
 
 # Production WSGI server (alternative to uvicorn for production)
 gunicorn==21.2.0

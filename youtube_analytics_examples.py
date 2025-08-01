@@ -1,4 +1,4 @@
-# YouTube Analytics API Data Examples for CreatorMate
+# YouTube Analytics API Data Examples for Vidalytics
 # This file shows the rich data we can now access with OAuth
 
 from datetime import datetime, timedelta

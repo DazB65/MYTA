@@ -1,5 +1,5 @@
 """
-Comprehensive Health Check System for CreatorMate
+Comprehensive Health Check System for Vidalytics
 Provides detailed health monitoring for all system components
 """
 
@@ -272,7 +272,7 @@ class HealthChecker:
         
         try:
             # Get database path
-            db_path = getattr(self.settings, 'database_path', 'creatormate.db')
+            db_path = getattr(self.settings, 'database_path', 'Vidalytics.db')
             if not os.path.isabs(db_path):
                 db_path = os.path.join(os.getcwd(), db_path)
             

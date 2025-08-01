@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Comprehensive test runner for CreatorMate
+Comprehensive test runner for Vidalytics
 Provides different test execution modes and reporting
 """
 import os
@@ -234,7 +234,7 @@ def clean_test_artifacts():
 
 def main():
     """Main test runner function"""
-    parser = argparse.ArgumentParser(description="CreatorMate Test Runner")
+    parser = argparse.ArgumentParser(description="Vidalytics Test Runner")
     parser.add_argument("--install", action="store_true", help="Install test dependencies")
     parser.add_argument("--unit", action="store_true", help="Run unit tests only")
     parser.add_argument("--integration", action="store_true", help="Run integration tests only")
@@ -258,7 +258,7 @@ def main():
                args.lint, args.clean]):
         args.all = True
     
-    print(f"🧪 CreatorMate Test Runner")
+    print(f"🧪 Vidalytics Test Runner")
     print(f"Started at: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
     print(f"Working directory: {Path.cwd()}")
     

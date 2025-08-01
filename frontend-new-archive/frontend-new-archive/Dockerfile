@@ -1,4 +1,4 @@
-# CreatorMate Frontend Dockerfile
+# Vidalytics Frontend Dockerfile
 # Multi-stage build for React TypeScript application
 
 # =============================================================================
@@ -13,9 +13,9 @@ ARG VCS_REF
 ARG VITE_API_BASE_URL=http://localhost:8888
 
 # Set metadata labels
-LABEL maintainer="CreatorMate Team" \
-      org.opencontainers.image.title="CreatorMate Frontend" \
-      org.opencontainers.image.description="React TypeScript frontend for CreatorMate" \
+LABEL maintainer="Vidalytics Team" \
+      org.opencontainers.image.title="Vidalytics Frontend" \
+      org.opencontainers.image.description="React TypeScript frontend for Vidalytics" \
       org.opencontainers.image.version="2.0.0" \
       org.opencontainers.image.created=$BUILD_DATE \
       org.opencontainers.image.revision=$VCS_REF

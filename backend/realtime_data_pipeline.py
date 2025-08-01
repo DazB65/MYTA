@@ -1,5 +1,5 @@
 """
-Real-Time Data Pipeline for CreatorMate
+Real-Time Data Pipeline for Vidalytics
 Handles background data refresh, monitoring, and intelligent caching
 """
 
@@ -64,7 +64,7 @@ class PerformanceAlert:
 class RealTimeDataPipeline:
     """Real-time data pipeline for YouTube analytics"""
     
-    def __init__(self, db_path: str = "creatormate.db"):
+    def __init__(self, db_path: str = "Vidalytics.db"):
         self.db_path = db_path
         self.config = DataPipelineConfig()
         self.analytics_service = get_analytics_service()

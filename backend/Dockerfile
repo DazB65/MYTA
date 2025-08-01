@@ -1,4 +1,4 @@
-# CreatorMate Backend Dockerfile
+# Vidalytics Backend Dockerfile
 # Multi-stage build for Python FastAPI application
 
 # =============================================================================
@@ -12,13 +12,13 @@ ARG BUILD_DATE
 ARG VCS_REF
 
 # Set metadata labels
-LABEL maintainer="CreatorMate Team" \
-      org.opencontainers.image.title="CreatorMate Backend" \
+LABEL maintainer="Vidalytics Team" \
+      org.opencontainers.image.title="Vidalytics Backend" \
       org.opencontainers.image.description="Multi-agent YouTube analytics API" \
       org.opencontainers.image.version="2.0.0" \
       org.opencontainers.image.created=$BUILD_DATE \
       org.opencontainers.image.revision=$VCS_REF \
-      org.opencontainers.image.source="https://github.com/your-org/creatormate"
+      org.opencontainers.image.source="https://github.com/your-org/Vidalytics"
 
 # Install system dependencies for building
 RUN apt-get update && apt-get install -y \
@@ -58,7 +58,7 @@ RUN apt-get update && apt-get install -y \
     && apt-get clean
 
 # Create non-root user for security
-RUN groupadd -r creatormate && useradd -r -g creatormate creatormate
+RUN groupadd -r Vidalytics && useradd -r -g Vidalytics Vidalytics
 
 # Set working directory
 WORKDIR /app
@@ -68,11 +68,11 @@ COPY --from=builder /opt/venv /opt/venv
 ENV PATH="/opt/venv/bin:$PATH"
 
 # Copy application code
-COPY --chown=creatormate:creatormate . .
+COPY --chown=Vidalytics:Vidalytics . .
 
 # Create necessary directories
 RUN mkdir -p logs backups /app/data && \
-    chown -R creatormate:creatormate /app
+    chown -R Vidalytics:Vidalytics /app
 
 # Set environment variables
 ENV PYTHONPATH=/app \
@@ -87,7 +87,7 @@ HEALTHCHECK --interval=30s --timeout=10s --start-period=60s --retries=3 \
     CMD curl -f http://localhost:8888/health || exit 1
 
 # Switch to non-root user
-USER creatormate
+USER Vidalytics
 
 # Expose port
 EXPOSE 8888
@@ -122,7 +122,7 @@ ENV ENVIRONMENT=development \
     RELOAD=true
 
 # Switch back to non-root user
-USER creatormate
+USER Vidalytics
 
 # Development start command with auto-reload
 CMD ["python", "-m", "uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8888", "--reload", "--log-level", "debug"]

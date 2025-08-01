@@ -1,5 +1,5 @@
 """
-Standardized Error Response System for CreatorMate
+Standardized Error Response System for Vidalytics
 Provides consistent error handling and response formats across all agents and endpoints
 """
 
@@ -200,7 +200,7 @@ class StandardizedErrorHandler:
         ErrorCategory.TIMEOUT: 504
     }
     
-    def __init__(self, service_name: str = "CreatorMate"):
+    def __init__(self, service_name: str = "Vidalytics"):
         self.service_name = service_name
         self.error_counts = {category: 0 for category in ErrorCategory}
     
@@ -320,7 +320,7 @@ class CommonErrors:
                 .message("Authentication is required to access this resource")
                 .severity(ErrorSeverity.MEDIUM)
                 .request_id(request_id)
-                .documentation("https://docs.creatormate.ai/authentication")
+                .documentation("https://docs.Vidalytics.ai/authentication")
                 .build())
     
     @staticmethod
@@ -408,7 +408,7 @@ class CommonErrors:
                 .message(f"Database operation failed: {operation}")
                 .severity(ErrorSeverity.CRITICAL)
                 .request_id(request_id)
-                .support_reference("database_team@creatormate.ai")
+                .support_reference("database_team@Vidalytics.ai")
                 .build())
     
     @staticmethod

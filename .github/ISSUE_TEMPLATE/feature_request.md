@@ -1,6 +1,6 @@
 ---
 name: Feature Request
-about: Suggest a new feature or enhancement for CreatorMate
+about: Suggest a new feature or enhancement for Vidalytics
 title: '[FEATURE] '
 labels: ['enhancement', 'needs-triage']
 assignees: ''

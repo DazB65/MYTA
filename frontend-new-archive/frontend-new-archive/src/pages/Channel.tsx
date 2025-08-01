@@ -42,7 +42,7 @@ export default function Channel() {
       <div>
         <h1 className="text-3xl font-bold mb-2">Channel Overview</h1>
         <p className="text-dark-400">
-          Welcome to your CreatorMate channel hub. Monitor your channel performance and get AI-powered insights.
+          Welcome to your Vidalytics channel hub. Monitor your channel performance and get AI-powered insights.
         </p>
       </div>
 
@@ -96,7 +96,7 @@ export default function Channel() {
           <div className="w-16 h-16 rounded-full bg-gradient-to-br from-primary-500 to-purple-500 flex items-center justify-center p-2">
             <img 
               src="/assets/images/CM Logo White.svg" 
-              alt="CreatorMate" 
+              alt="Vidalytics" 
               className="w-full h-full"
             />
           </div>

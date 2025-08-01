@@ -1,5 +1,5 @@
 """
-Enhanced Database Management for CreatorMate
+Enhanced Database Management for Vidalytics
 Provides connection pooling, query optimization, and monitoring
 """
 

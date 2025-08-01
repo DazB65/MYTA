@@ -1,5 +1,5 @@
 """
-Connection Pool Manager for CreatorMate
+Connection Pool Manager for Vidalytics
 Implements connection pooling for API clients to improve performance and resource management
 """
 

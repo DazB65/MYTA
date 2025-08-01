@@ -1,5 +1,5 @@
 """
-Audience Insights Agent for CreatorMate
+Audience Insights Agent for Vidalytics
 Specialized sub-agent that analyzes YouTube audience demographics, behavior, and sentiment for the boss agent
 """
 
@@ -1364,7 +1364,7 @@ class ClaudeSentimentEngine:
 class AudienceInsightsAgent(SpecializedAgentAuthMixin, BaseSpecializedAgent):
     """
     Specialized Audience Insights Agent for YouTube audience analysis
-    Operates as a sub-agent within the CreatorMate boss agent hierarchy
+    Operates as a sub-agent within the Vidalytics boss agent hierarchy
     """
     
     def __init__(self, youtube_api_key: str, openai_api_key: str = None):

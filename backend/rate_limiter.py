@@ -1,5 +1,5 @@
 """
-Rate limiting middleware for CreatorMate API
+Rate limiting middleware for Vidalytics API
 Implements configurable rate limiting to prevent abuse
 """
 

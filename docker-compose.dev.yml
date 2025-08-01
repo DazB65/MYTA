@@ -1,4 +1,4 @@
-# CreatorMate Development Docker Compose
+# Vidalytics Development Docker Compose
 # Development configuration with hot reloading and debugging
 
 services:
@@ -12,7 +12,7 @@ services:
       target: development
       args:
         BUILD_ENV: development
-    container_name: creatormate-backend-dev
+    container_name: Vidalytics-backend-dev
     restart: unless-stopped
     ports:
       - "8888:8888"
@@ -31,7 +31,7 @@ services:
       - BOSS_AGENT_SECRET_KEY=${BOSS_AGENT_SECRET_KEY:-dev-secret-key}
       
       # Database configuration
-      - DATABASE_URL=sqlite:///app/data/creatormate_dev.db
+      - DATABASE_URL=sqlite:///app/data/Vidalytics_dev.db
       
       # Redis configuration  
       - REDIS_URL=redis://redis:6379/0
@@ -54,7 +54,7 @@ services:
       - /app/.pytest_cache
       - /app/venv
     networks:
-      - creatormate_dev_network
+      - Vidalytics_dev_network
     depends_on:
       - redis
     healthcheck:
@@ -74,7 +74,7 @@ services:
       target: development
       args:
         BUILD_ENV: development
-    container_name: creatormate-frontend-dev
+    container_name: Vidalytics-frontend-dev
     restart: unless-stopped
     ports:
       - "5173:5173"  # Vite dev server port
@@ -92,7 +92,7 @@ services:
       - /app/dist
       - /app/.vite
     networks:
-      - creatormate_dev_network
+      - Vidalytics_dev_network
     depends_on:
       - backend
     stdin_open: true
@@ -103,7 +103,7 @@ services:
   # =============================================================================
   redis:
     image: redis:7-alpine
-    container_name: creatormate-redis-dev
+    container_name: Vidalytics-redis-dev
     restart: unless-stopped
     ports:
       - "6379:6379"
@@ -111,7 +111,7 @@ services:
     volumes:
       - redis_dev_data:/data
     networks:
-      - creatormate_dev_network
+      - Vidalytics_dev_network
     healthcheck:
       test: ["CMD", "redis-cli", "--raw", "incr", "ping"]
       interval: 30s
@@ -125,21 +125,21 @@ services:
   # Database Administration (optional)
   adminer:
     image: adminer:latest
-    container_name: creatormate-adminer-dev
+    container_name: Vidalytics-adminer-dev
     restart: unless-stopped
     ports:
       - "8080:8080"
     environment:
       - ADMINER_DEFAULT_SERVER=backend
     networks:
-      - creatormate_dev_network
+      - Vidalytics_dev_network
     profiles:
       - tools
 
   # Redis Admin (optional)
   redis-commander:
     image: rediscommander/redis-commander:latest
-    container_name: creatormate-redis-admin-dev
+    container_name: Vidalytics-redis-admin-dev
     restart: unless-stopped
     ports:
       - "8081:8081"
@@ -148,7 +148,7 @@ services:
       - HTTP_USER=admin
       - HTTP_PASSWORD=${REDIS_ADMIN_PASSWORD:-admin}
     networks:
-      - creatormate_dev_network
+      - Vidalytics_dev_network
     depends_on:
       - redis
     profiles:
@@ -157,13 +157,13 @@ services:
   # Mailhog for email testing (optional)
   mailhog:
     image: mailhog/mailhog:latest
-    container_name: creatormate-mailhog-dev
+    container_name: Vidalytics-mailhog-dev
     restart: unless-stopped
     ports:
       - "1025:1025"  # SMTP port
       - "8025:8025"  # Web UI port
     networks:
-      - creatormate_dev_network
+      - Vidalytics_dev_network
     profiles:
       - tools
 
@@ -171,19 +171,19 @@ services:
 # Networks
 # =============================================================================
 networks:
-  creatormate_dev_network:
+  Vidalytics_dev_network:
     driver: bridge
-    name: creatormate_dev_network
+    name: Vidalytics_dev_network
 
 # =============================================================================
 # Volumes
 # =============================================================================
 volumes:
   backend_dev_data:
-    name: creatormate_backend_dev_data
+    name: Vidalytics_backend_dev_data
   backend_dev_logs:
-    name: creatormate_backend_dev_logs
+    name: Vidalytics_backend_dev_logs
   backend_dev_backups:
-    name: creatormate_backend_dev_backups
+    name: Vidalytics_backend_dev_backups
   redis_dev_data:
-    name: creatormate_redis_dev_data
+    name: Vidalytics_redis_dev_data

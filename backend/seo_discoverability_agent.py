@@ -1,5 +1,5 @@
 """
-SEO & Discoverability Agent for CreatorMate
+SEO & Discoverability Agent for Vidalytics
 Specialized sub-agent that analyzes YouTube searchability and discoverability for the boss agent
 """
 
@@ -654,7 +654,7 @@ class SEODiscoverabilityCache:
 class SEODiscoverabilityAgent(SpecializedAgentAuthMixin):
     """
     Specialized SEO & Discoverability Agent for YouTube search optimization
-    Operates as a sub-agent within the CreatorMate boss agent hierarchy
+    Operates as a sub-agent within the Vidalytics boss agent hierarchy
     """
     
     def __init__(self, youtube_api_key: str, openai_api_key: str = None):

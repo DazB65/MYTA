@@ -1,5 +1,5 @@
 """
-Content Cards Router for CreatorMate
+Content Cards Router for Vidalytics
 Contains all content cards-related API endpoints for the Content Studio feature
 Uses local SQLite storage as a fallback when Supabase is not configured
 """

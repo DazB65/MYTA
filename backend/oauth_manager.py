@@ -1,5 +1,5 @@
 """
-OAuth 2.0 Token Management for CreatorMate
+OAuth 2.0 Token Management for Vidalytics
 Handles YouTube OAuth flow, token storage, and refresh mechanisms
 """
 
@@ -80,7 +80,7 @@ class OAuthState:
 class OAuthManager:
     """Manages OAuth 2.0 flow for YouTube API access"""
     
-    def __init__(self, db_path: str = "creatormate.db"):
+    def __init__(self, db_path: str = "Vidalytics.db"):
         self.db_path = db_path
         
         # Use secure configuration

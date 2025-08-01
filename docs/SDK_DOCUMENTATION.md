@@ -1,8 +1,8 @@
-# CreatorMate SDK Documentation
+# Vidalytics SDK Documentation
 
 ## Overview
 
-The CreatorMate SDK provides easy-to-use client libraries for integrating with the CreatorMate API. Available in multiple programming languages, the SDK handles authentication, rate limiting, error handling, and provides strongly-typed interfaces for all API operations.
+The Vidalytics SDK provides easy-to-use client libraries for integrating with the Vidalytics API. Available in multiple programming languages, the SDK handles authentication, rate limiting, error handling, and provides strongly-typed interfaces for all API operations.
 
 ## Table of Contents
 
@@ -20,27 +20,27 @@ The CreatorMate SDK provides easy-to-use client libraries for integrating with t
 ### Python SDK
 
 ```bash
-pip install creatormate-sdk
+pip install Vidalytics-sdk
 ```
 
 ### JavaScript/TypeScript SDK
 
 ```bash
-npm install @creatormate/sdk
+npm install @Vidalytics/sdk
 # or
-yarn add @creatormate/sdk
+yarn add @Vidalytics/sdk
 ```
 
 ### Go SDK
 
 ```bash
-go get github.com/creatormate/sdk-go
+go get github.com/Vidalytics/sdk-go
 ```
 
 ### PHP SDK
 
 ```bash
-composer require creatormate/sdk
+composer require Vidalytics/sdk
 ```
 
 ## Quick Start
@@ -48,13 +48,13 @@ composer require creatormate/sdk
 ### Python
 
 ```python
-from creatormate_sdk import CreatorMateClient
+from Vidalytics_sdk import VidalyticsClient
 import asyncio
 
 async def main():
     # Initialize client
-    client = CreatorMateClient(
-        base_url="http://localhost:8888",  # or https://api.creatormate.com
+    client = VidalyticsClient(
+        base_url="http://localhost:8888",  # or https://api.Vidalytics.com
         user_id="your_user_id"
     )
     
@@ -92,9 +92,9 @@ asyncio.run(main())
 ### JavaScript/TypeScript
 
 ```typescript
-import { CreatorMateClient } from '@creatormate/sdk';
+import { VidalyticsClient } from '@Vidalytics/sdk';
 
-const client = new CreatorMateClient({
+const client = new VidalyticsClient({
   baseUrl: 'http://localhost:8888',
   userId: 'your_user_id'
 });
@@ -143,12 +143,12 @@ import (
     "fmt"
     "log"
     
-    "github.com/creatormate/sdk-go"
+    "github.com/Vidalytics/sdk-go"
 )
 
 func main() {
     // Initialize client
-    client := creatormate.NewClient(&creatormate.Config{
+    client := Vidalytics.NewClient(&Vidalytics.Config{
         BaseURL: "http://localhost:8888",
         UserID:  "your_user_id",
     })
@@ -156,7 +156,7 @@ func main() {
     ctx := context.Background()
     
     // Login
-    session, err := client.Auth.Login(ctx, &creatormate.LoginRequest{
+    session, err := client.Auth.Login(ctx, &Vidalytics.LoginRequest{
         Password: "your_password",
     })
     if err != nil {
@@ -165,7 +165,7 @@ func main() {
     fmt.Printf("Logged in as: %s\n", session.UserID)
     
     // Chat with AI
-    chatResp, err := client.Agent.Chat(ctx, &creatormate.ChatRequest{
+    chatResp, err := client.Agent.Chat(ctx, &Vidalytics.ChatRequest{
         Message: "How can I optimize my upload schedule?",
         Context: map[string]interface{}{
             "intent": "scheduling_optimization",
@@ -177,7 +177,7 @@ func main() {
     fmt.Printf("AI Response: %s\n", chatResp.Message)
     
     // Get analytics
-    analytics, err := client.YouTube.GetChannelAnalytics(ctx, &creatormate.AnalyticsRequest{
+    analytics, err := client.YouTube.GetChannelAnalytics(ctx, &Vidalytics.AnalyticsRequest{
         ChannelID: "UC123456789",
         Timeframe: "30d",
         Metrics:   []string{"views", "subscribers", "engagement"},
@@ -197,8 +197,8 @@ The SDK uses session-based authentication with automatic session management:
 
 ```python
 # Python
-client = CreatorMateClient(
-    base_url="https://api.creatormate.com",
+client = VidalyticsClient(
+    base_url="https://api.Vidalytics.com",
     user_id="creator123"
 )
 
@@ -211,8 +211,8 @@ session = await client.auth.login(password="secure_password")
 
 ```typescript
 // TypeScript
-const client = new CreatorMateClient({
-  baseUrl: 'https://api.creatormate.com',
+const client = new VidalyticsClient({
+  baseUrl: 'https://api.Vidalytics.com',
   userId: 'creator123'
 });
 
@@ -544,8 +544,8 @@ await client.oauth.disconnect_youtube()
 ### Exception Types
 
 ```python
-from creatormate_sdk.exceptions import (
-    CreatorMateAPIError,
+from Vidalytics_sdk.exceptions import (
+    VidalyticsAPIError,
     AuthenticationError,
     RateLimitError,
     ValidationError,
@@ -575,7 +575,7 @@ except ServerError as e:
     print(f"Server error: {e.message}")
     # Implement retry logic
     
-except CreatorMateAPIError as e:
+except VidalyticsAPIError as e:
     print(f"API error: {e.message} (Code: {e.error_code})")
 ```
 
@@ -583,7 +583,7 @@ except CreatorMateAPIError as e:
 
 ```python
 import asyncio
-from creatormate_sdk.exceptions import RateLimitError, ServerError
+from Vidalytics_sdk.exceptions import RateLimitError, ServerError
 
 async def with_retry(func, max_retries=3, backoff_factor=2):
     for attempt in range(max_retries):
@@ -611,7 +611,7 @@ response = await with_retry(
 
 ```python
 # Set up global error handler
-async def handle_api_error(error: CreatorMateAPIError):
+async def handle_api_error(error: VidalyticsAPIError):
     if isinstance(error, AuthenticationError):
         # Redirect to login
         await client.auth.login(password="password")
@@ -630,11 +630,11 @@ client.set_error_handler(handle_api_error)
 ### Configuration
 
 ```python
-from creatormate_sdk import CreatorMateClient, Config
+from Vidalytics_sdk import VidalyticsClient, Config
 
 # Advanced configuration
 config = Config(
-    base_url="https://api.creatormate.com",
+    base_url="https://api.Vidalytics.com",
     timeout=30,  # Request timeout in seconds
     max_retries=3,  # Automatic retry attempts
     backoff_factor=2,  # Exponential backoff multiplier
@@ -644,7 +644,7 @@ config = Config(
     debug=False  # Enable debug logging
 )
 
-client = CreatorMateClient(
+client = VidalyticsClient(
     user_id="your_user_id",
     config=config
 )
@@ -730,7 +730,7 @@ print(f"Processed {len(results)} videos")
 ```python
 # Configure webhooks
 webhook = await client.webhooks.create(
-    url="https://your-app.com/webhooks/creatormate",
+    url="https://your-app.com/webhooks/Vidalytics",
     events=[
         "agent.response_completed",
         "youtube.video_published",
@@ -758,12 +758,12 @@ await client.webhooks.delete(webhook_id=webhook.id)
 
 ```python
 import asyncio
-from creatormate_sdk import CreatorMateClient
+from Vidalytics_sdk import VidalyticsClient
 from datetime import datetime, timedelta
 
 async def create_analytics_dashboard():
-    client = CreatorMateClient(
-        base_url="https://api.creatormate.com",
+    client = VidalyticsClient(
+        base_url="https://api.Vidalytics.com",
         user_id="creator123"
     )
     
@@ -851,7 +851,7 @@ if __name__ == "__main__":
 
 ```python
 async def optimize_content():
-    client = CreatorMateClient(user_id="creator123")
+    client = VidalyticsClient(user_id="creator123")
     await client.auth.login(password="secure_password")
     
     # Get recent videos
@@ -923,7 +923,7 @@ await client.auth.login(password="password")  # Will show debug info
 
 ```python
 # Handle rate limits gracefully
-from creatormate_sdk.exceptions import RateLimitError
+from Vidalytics_sdk.exceptions import RateLimitError
 
 try:
     response = await client.agent.chat(message="Hello")
@@ -948,7 +948,7 @@ config = Config(
     verify_ssl=False  # Only for development with self-signed certs
 )
 
-client = CreatorMateClient(user_id="creator123", config=config)
+client = VidalyticsClient(user_id="creator123", config=config)
 
 # Test connection
 try:
@@ -976,10 +976,10 @@ response = await client.agent.chat(message="Test")
 ### Error Reporting
 
 ```python
-# Report issues to CreatorMate support
+# Report issues to Vidalytics support
 try:
     response = await client.agent.chat(message="Hello")
-except CreatorMateAPIError as e:
+except VidalyticsAPIError as e:
     # Generate error report
     error_report = client.generate_error_report(e)
     
@@ -995,15 +995,15 @@ except CreatorMateAPIError as e:
 
 ## Support
 
-- **Documentation**: https://docs.creatormate.com/sdk
-- **API Reference**: https://docs.creatormate.com/api
+- **Documentation**: https://docs.Vidalytics.com/sdk
+- **API Reference**: https://docs.Vidalytics.com/api
 - **GitHub Issues**: 
-  - Python: https://github.com/creatormate/sdk-python/issues
-  - JavaScript: https://github.com/creatormate/sdk-js/issues
-  - Go: https://github.com/creatormate/sdk-go/issues
-- **Community**: https://community.creatormate.com
-- **Support Email**: sdk-support@creatormate.com
+  - Python: https://github.com/Vidalytics/sdk-python/issues
+  - JavaScript: https://github.com/Vidalytics/sdk-js/issues
+  - Go: https://github.com/Vidalytics/sdk-go/issues
+- **Community**: https://community.Vidalytics.com
+- **Support Email**: sdk-support@Vidalytics.com
 
 ## License
 
-All CreatorMate SDKs are licensed under the [MIT License](https://opensource.org/licenses/MIT).
+All Vidalytics SDKs are licensed under the [MIT License](https://opensource.org/licenses/MIT).

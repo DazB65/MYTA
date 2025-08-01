@@ -1,5 +1,5 @@
 """
-Supabase Authentication Router for CreatorMate
+Supabase Authentication Router for Vidalytics
 Handles token-based authentication with YouTube API using Supabase-managed OAuth
 """
 

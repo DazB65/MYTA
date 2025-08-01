@@ -1,5 +1,5 @@
 """
-Voice Analysis System for CreatorMate
+Voice Analysis System for Vidalytics
 Analyzes and matches channel voice and writing style for content generation
 """
 

@@ -1,14 +1,14 @@
 {
   "openapi": "3.0.3",
   "info": {
-    "title": "CreatorMate Multi-Agent API",
+    "title": "Vidalytics Multi-Agent API",
     "version": "2.0.0",
-    "description": "\n**CreatorMate** is a sophisticated hierarchical multi-agent system designed for YouTube content creators \nto optimize their channel performance, content strategy, and audience engagement.\n\n## Key Features\n\n* **🤖 Multi-Agent Architecture**: Specialized AI agents for different aspects of content optimization\n* **📊 YouTube Analytics**: Deep integration with YouTube Data API for comprehensive analytics\n* **🎯 Content Pillars**: Strategic content organization and planning system\n* **🔐 Session Management**: Secure Redis-based session handling\n* **⚡ Real-time Chat**: Interactive AI-powered content advisory\n* **📈 Performance Monitoring**: Advanced metrics and health monitoring\n\n## Agent System\n\nThe system consists of specialized agents:\n- **Boss Agent**: Central orchestrator using Claude 3.5 Sonnet\n- **Content Analysis Agent**: Video performance analysis using Gemini 2.5 Pro\n- **Audience Insights Agent**: Demographics and sentiment analysis using Claude 3.5 Sonnet\n- **SEO & Discoverability Agent**: Search optimization using Claude 3.5 Haiku\n- **Competitive Analysis Agent**: Market positioning using Gemini 2.5 Pro\n- **Monetization Strategy Agent**: Revenue optimization using Claude 3.5 Haiku\n\n## Authentication\n\nThe API uses Redis-based session management. Most endpoints require authentication.\nUse the `/api/session/login` endpoint to create a session.\n            ",
+    "description": "\n**Vidalytics** is a sophisticated hierarchical multi-agent system designed for YouTube content creators \nto optimize their channel performance, content strategy, and audience engagement.\n\n## Key Features\n\n* **🤖 Multi-Agent Architecture**: Specialized AI agents for different aspects of content optimization\n* **📊 YouTube Analytics**: Deep integration with YouTube Data API for comprehensive analytics\n* **🎯 Content Pillars**: Strategic content organization and planning system\n* **🔐 Session Management**: Secure Redis-based session handling\n* **⚡ Real-time Chat**: Interactive AI-powered content advisory\n* **📈 Performance Monitoring**: Advanced metrics and health monitoring\n\n## Agent System\n\nThe system consists of specialized agents:\n- **Boss Agent**: Central orchestrator using Claude 3.5 Sonnet\n- **Content Analysis Agent**: Video performance analysis using Gemini 2.5 Pro\n- **Audience Insights Agent**: Demographics and sentiment analysis using Claude 3.5 Sonnet\n- **SEO & Discoverability Agent**: Search optimization using Claude 3.5 Haiku\n- **Competitive Analysis Agent**: Market positioning using Gemini 2.5 Pro\n- **Monetization Strategy Agent**: Revenue optimization using Claude 3.5 Haiku\n\n## Authentication\n\nThe API uses Redis-based session management. Most endpoints require authentication.\nUse the `/api/session/login` endpoint to create a session.\n            ",
     "summary": "AI-powered YouTube optimization platform",
     "contact": {
-      "name": "CreatorMate Support",
-      "url": "https://github.com/creatormate/api",
-      "email": "support@creatormate.com"
+      "name": "Vidalytics Support",
+      "url": "https://github.com/Vidalytics/api",
+      "email": "support@Vidalytics.com"
     },
     "license": {
       "name": "MIT License",
@@ -21,7 +21,7 @@
       "description": "Development server"
     },
     {
-      "url": "https://api.creatormate.com",
+      "url": "https://api.Vidalytics.com",
       "description": "Production server"
     }
   ],
@@ -76,7 +76,7 @@
       "SessionCookie": {
         "type": "apiKey",
         "in": "cookie",
-        "name": "creatormate_session",
+        "name": "Vidalytics_session",
         "description": "Session-based authentication using secure HTTP-only cookies"
       },
       "BearerAuth": {
@@ -962,7 +962,7 @@
                 "schema": {
                   "type": "string"
                 },
-                "example": "creatormate_session=abc123...; HttpOnly; Secure; SameSite=Strict"
+                "example": "Vidalytics_session=abc123...; HttpOnly; Secure; SameSite=Strict"
               }
             }
           },
@@ -1230,7 +1230,7 @@
                 "example": {
                   "status": "healthy",
                   "timestamp": "2024-01-01T12:00:00Z",
-                  "service": "CreatorMate Multi-Agent API",
+                  "service": "Vidalytics Multi-Agent API",
                   "version": "2.0.0"
                 }
               }

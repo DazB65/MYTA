@@ -82,11 +82,11 @@ export default function AgentHeader() {
             </div>
           </div>
           
-          {/* Right side with CreatorMate logo, settings, and YouTube connection */}
+          {/* Right side with Vidalytics logo, settings, and YouTube connection */}
           <div className="flex flex-col items-end space-y-3">
             {/* Logo and settings section */}
             <div className="flex items-center gap-3">
-              <img src="/assets/images/CM Logo White.svg" alt="CreatorMate" className="h-8" />
+              <img src="/assets/images/CM Logo White.svg" alt="Vidalytics" className="h-8" />
               <div className="text-xs text-white/80 font-medium tracking-wide">YOUR CREATOR AGENT</div>
               
               {/* Settings button */}

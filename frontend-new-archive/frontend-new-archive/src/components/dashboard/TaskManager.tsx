@@ -35,7 +35,7 @@ export default function TaskManager() {
   useEffect(() => {
     // Load existing tasks
     const loadTasks = () => {
-      const storedTasks = localStorage.getItem('creatormate_tasks')
+      const storedTasks = localStorage.getItem('Vidalytics_tasks')
       if (storedTasks) {
         setTasks(JSON.parse(storedTasks))
       } else {
@@ -92,7 +92,7 @@ export default function TaskManager() {
 
     // Listen for storage events to sync tasks across tabs/components
     const handleStorageChange = (e: StorageEvent) => {
-      if (e.key === 'creatormate_tasks') {
+      if (e.key === 'Vidalytics_tasks') {
         loadTasks()
       }
     }
@@ -126,7 +126,7 @@ export default function TaskManager() {
 
     const updatedTasks = [task, ...tasks]
     setTasks(updatedTasks)
-    localStorage.setItem('creatormate_tasks', JSON.stringify(updatedTasks))
+    localStorage.setItem('Vidalytics_tasks', JSON.stringify(updatedTasks))
     
     // Dispatch custom event for same-tab updates
     window.dispatchEvent(new Event('taskUpdate'))
@@ -146,14 +146,14 @@ export default function TaskManager() {
       task.id === id ? { ...task, completed: !task.completed } : task
     )
     setTasks(updatedTasks)
-    localStorage.setItem('creatormate_tasks', JSON.stringify(updatedTasks))
+    localStorage.setItem('Vidalytics_tasks', JSON.stringify(updatedTasks))
     window.dispatchEvent(new Event('taskUpdate'))
   }
 
   const deleteTask = (id: string) => {
     const updatedTasks = tasks.filter(task => task.id !== id)
     setTasks(updatedTasks)
-    localStorage.setItem('creatormate_tasks', JSON.stringify(updatedTasks))
+    localStorage.setItem('Vidalytics_tasks', JSON.stringify(updatedTasks))
     window.dispatchEvent(new Event('taskUpdate'))
   }
 

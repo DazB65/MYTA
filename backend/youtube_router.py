@@ -1,5 +1,5 @@
 """
-YouTube API Router for CreatorMate
+YouTube API Router for Vidalytics
 Contains all YouTube-related API endpoints extracted from main.py
 """
 

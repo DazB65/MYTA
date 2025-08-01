@@ -435,7 +435,7 @@ class AlertManager:
                 return
             
             # Create email content
-            subject = f"[CreatorMate] {alert.severity.value.upper()} Alert: {rule.name}"
+            subject = f"[Vidalytics] {alert.severity.value.upper()} Alert: {rule.name}"
             
             body = f"""
 Performance Alert Triggered
@@ -457,7 +457,7 @@ Recommendation:
 Timestamp: {alert.timestamp}
 Alert ID: {alert.alert_id}
 
-This is an automated message from CreatorMate Performance Monitoring.
+This is an automated message from Vidalytics Performance Monitoring.
             """
             
             # Send email (would need actual SMTP configuration)

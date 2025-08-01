@@ -1,5 +1,5 @@
 """
-Redis Session Manager for CreatorMate
+Redis Session Manager for Vidalytics
 Provides secure, scalable session management using Redis as the backend store
 """
 
@@ -98,9 +98,9 @@ class RedisSessionConfig:
         self.samesite_policy = "strict"
         
         # Redis settings
-        self.key_prefix = "creatormate:session:"
-        self.user_sessions_prefix = "creatormate:user_sessions:"
-        self.session_stats_key = "creatormate:session_stats"
+        self.key_prefix = "Vidalytics:session:"
+        self.user_sessions_prefix = "Vidalytics:user_sessions:"
+        self.session_stats_key = "Vidalytics:session_stats"
 
 
 class RedisSessionManager:
@@ -697,7 +697,7 @@ class RedisSessionManager:
             start_time = datetime.now()
             
             # Test basic operations
-            test_key = "creatormate:health_check"
+            test_key = "Vidalytics:health_check"
             test_value = str(uuid.uuid4())
             
             # Test write

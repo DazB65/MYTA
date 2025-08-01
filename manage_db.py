@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-CreatorMate Database Management CLI
+Vidalytics Database Management CLI
 Comprehensive tool for managing database migrations, backups, and maintenance
 """
 
@@ -29,7 +29,7 @@ logger = logging.getLogger(__name__)
 class DatabaseCLI:
     """Command-line interface for database management"""
     
-    def __init__(self, db_path: str = "backend/creatormate.db"):
+    def __init__(self, db_path: str = "backend/Vidalytics.db"):
         self.db_path = db_path
         self.migration_manager = get_migration_manager(db_path)
         self.backup_service = None
@@ -392,7 +392,7 @@ class DatabaseCLI:
 def main():
     """Main CLI entry point"""
     parser = argparse.ArgumentParser(
-        description="CreatorMate Database Management CLI",
+        description="Vidalytics Database Management CLI",
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog="""
 Examples:
@@ -414,7 +414,7 @@ Examples:
         """
     )
     
-    parser.add_argument('--db', default='backend/creatormate.db', help='Database path')
+    parser.add_argument('--db', default='backend/Vidalytics.db', help='Database path')
     parser.add_argument('--verbose', '-v', action='store_true', help='Verbose output')
     
     subparsers = parser.add_subparsers(dest='command', help='Available commands')

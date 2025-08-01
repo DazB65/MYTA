@@ -1,5 +1,5 @@
 """
-CSRF Protection Middleware for CreatorMate
+CSRF Protection Middleware for Vidalytics
 Implements Cross-Site Request Forgery protection
 """
 

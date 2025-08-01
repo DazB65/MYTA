@@ -1,4 +1,4 @@
-# CreatorMate Security and Dependency Scanning
+# Vidalytics Security and Dependency Scanning
 # Runs security scans and dependency checks
 
 name: Security Scans
@@ -116,23 +116,23 @@ jobs:
     
     - name: Build backend Docker image
       run: |
-        docker build -f backend/Dockerfile -t creatormate-backend:scan backend/
+        docker build -f backend/Dockerfile -t Vidalytics-backend:scan backend/
     
     - name: Build frontend Docker image
       run: |
-        docker build -f frontend-new/Dockerfile -t creatormate-frontend:scan frontend-new/
+        docker build -f frontend-new/Dockerfile -t Vidalytics-frontend:scan frontend-new/
     
     - name: Run Trivy vulnerability scanner on backend
       uses: aquasecurity/trivy-action@master
       with:
-        image-ref: 'creatormate-backend:scan'
+        image-ref: 'Vidalytics-backend:scan'
         format: 'sarif'
         output: 'backend-trivy-results.sarif'
     
     - name: Run Trivy vulnerability scanner on frontend
       uses: aquasecurity/trivy-action@master
       with:
-        image-ref: 'creatormate-frontend:scan'
+        image-ref: 'Vidalytics-frontend:scan'
         format: 'sarif'
         output: 'frontend-trivy-results.sarif'
     

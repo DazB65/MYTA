@@ -1,5 +1,5 @@
 """
-Enhanced Error Handler for CreatorMate
+Enhanced Error Handler for Vidalytics
 Provides structured error responses with proper logging and monitoring
 """
 
@@ -12,7 +12,7 @@ from starlette.exceptions import HTTPException as StarletteHTTPException
 import logging
 
 from exceptions import (
-    CreatorMateException, ErrorCategory, ErrorSeverity,
+    VidalyticsException, ErrorCategory, ErrorSeverity,
     AuthenticationError, AuthorizationError, ValidationError,
     ExternalAPIError, DatabaseError, AgentCommunicationError,
     RateLimitError, CacheError, ConfigurationError,
@@ -40,7 +40,7 @@ class EnhancedErrorHandler:
             ConfigurationError: self._handle_configuration_error,
             BusinessLogicError: self._handle_business_logic_error,
             SystemError: self._handle_system_error,
-            CreatorMateException: self._handle_base_exception
+            VidalyticsException: self._handle_base_exception
         }
     
     def handle_exception(
@@ -58,7 +58,7 @@ class EnhancedErrorHandler:
         if isinstance(exc, (HTTPException, StarletteHTTPException)):
             return self._handle_http_exception(request, exc)
         
-        # Handle CreatorMate specific exceptions
+        # Handle Vidalytics specific exceptions
         for exc_type, handler in self.error_mappers.items():
             if isinstance(exc, exc_type):
                 return handler(request, exc)
@@ -232,9 +232,9 @@ class EnhancedErrorHandler:
     def _handle_base_exception(
         self,
         request: Request,
-        exc: CreatorMateException
+        exc: VidalyticsException
     ) -> JSONResponse:
-        """Handle base CreatorMate exceptions"""
+        """Handle base Vidalytics exceptions"""
         self._log_error(request, exc)
         
         return JSONResponse(
@@ -274,7 +274,7 @@ class EnhancedErrorHandler:
         exc: Union[HTTPException, StarletteHTTPException]
     ) -> JSONResponse:
         """Handle FastAPI HTTP exceptions"""
-        # Convert to CreatorMate exception for consistent handling
+        # Convert to Vidalytics exception for consistent handling
         if exc.status_code == 404:
             cm_exc = BusinessLogicError(
                 message="Resource not found",
@@ -338,7 +338,7 @@ class EnhancedErrorHandler:
             content=self._build_error_response(system_exc)
         )
     
-    def _build_error_response(self, exc: CreatorMateException) -> Dict[str, Any]:
+    def _build_error_response(self, exc: VidalyticsException) -> Dict[str, Any]:
         """Build structured error response"""
         response = {
             "success": False,
@@ -367,7 +367,7 @@ class EnhancedErrorHandler:
         
         return response
     
-    def _log_security_event(self, request: Request, exc: CreatorMateException):
+    def _log_security_event(self, request: Request, exc: VidalyticsException):
         """Log security-related events"""
         logger.warning(
             f"Security event: {exc.message}",
@@ -421,7 +421,7 @@ class EnhancedErrorHandler:
             }
         )
     
-    def _log_system_error(self, request: Request, exc: CreatorMateException):
+    def _log_system_error(self, request: Request, exc: VidalyticsException):
         """Log system errors"""
         logger.error(
             f"System error: {exc.message}",
@@ -438,7 +438,7 @@ class EnhancedErrorHandler:
             }
         )
     
-    def _log_user_error(self, request: Request, exc: CreatorMateException):
+    def _log_user_error(self, request: Request, exc: VidalyticsException):
         """Log user-related errors"""
         logger.info(
             f"User error: {exc.message}",
@@ -455,7 +455,7 @@ class EnhancedErrorHandler:
             }
         )
     
-    def _log_error(self, request: Request, exc: CreatorMateException):
+    def _log_error(self, request: Request, exc: VidalyticsException):
         """Log general errors"""
         log_level = {
             ErrorSeverity.LOW: logger.info,
@@ -512,7 +512,7 @@ def setup_error_handlers(app):
     error_handler = get_error_handler()
     
     # Add exception handlers
-    app.add_exception_handler(CreatorMateException, error_handler.handle_exception)
+    app.add_exception_handler(VidalyticsException, error_handler.handle_exception)
     app.add_exception_handler(RequestValidationError, error_handler.handle_exception)
     app.add_exception_handler(HTTPException, error_handler.handle_exception)
     app.add_exception_handler(Exception, error_handler.handle_exception)

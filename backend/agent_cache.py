@@ -1,5 +1,5 @@
 """
-Caching system for CreatorMate Boss Agent
+Caching system for Vidalytics Boss Agent
 Implements intelligent caching with TTL and context-aware invalidation
 """
 

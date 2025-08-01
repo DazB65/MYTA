@@ -1,5 +1,5 @@
 """
-Boss Agent Orchestration System for CreatorMate - Refactored Version
+Boss Agent Orchestration System for Vidalytics - Refactored Version
 This is the new modular implementation - the original boss_agent.py will be deprecated
 """
 

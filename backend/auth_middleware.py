@@ -1,5 +1,5 @@
 """
-Authentication Middleware for CreatorMate API
+Authentication Middleware for Vidalytics API
 Provides JWT-based authentication for API endpoints
 """
 
@@ -45,8 +45,8 @@ class AuthenticationMiddleware:
                 'iat': now.timestamp(),
                 'exp': expires_at.timestamp(),
                 'permissions': permissions or ['read', 'write'],
-                'iss': 'CreatorMate_API',
-                'aud': 'CreatorMate_Users'
+                'iss': 'Vidalytics_API',
+                'aud': 'Vidalytics_Users'
             }
             
             secret_key = self.security_config.get_boss_agent_secret()
@@ -67,7 +67,7 @@ class AuthenticationMiddleware:
                 token, 
                 secret_key, 
                 algorithms=['HS256'],
-                audience='CreatorMate_Users'
+                audience='Vidalytics_Users'
             )
             
             # Check expiration

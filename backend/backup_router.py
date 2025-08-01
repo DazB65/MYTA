@@ -1,6 +1,6 @@
 """
 Database Backup Management API Router
-Provides comprehensive backup management endpoints for the CreatorMate application
+Provides comprehensive backup management endpoints for the Vidalytics application
 """
 
 from fastapi import APIRouter, HTTPException, Depends, BackgroundTasks

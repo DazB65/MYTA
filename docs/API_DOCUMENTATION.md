@@ -1,8 +1,8 @@
-# CreatorMate API Documentation
+# Vidalytics API Documentation
 
 ## Overview
 
-The CreatorMate API is a comprehensive RESTful API that provides YouTube content creators with AI-powered tools for channel optimization, content strategy, and audience engagement. Built on FastAPI with a sophisticated multi-agent architecture, it offers scalable, secure, and intelligent solutions for content creators.
+The Vidalytics API is a comprehensive RESTful API that provides YouTube content creators with AI-powered tools for channel optimization, content strategy, and audience engagement. Built on FastAPI with a sophisticated multi-agent architecture, it offers scalable, secure, and intelligent solutions for content creators.
 
 ## Table of Contents
 
@@ -22,7 +22,7 @@ The CreatorMate API is a comprehensive RESTful API that provides YouTube content
 
 ```
 Development: http://localhost:8888
-Production: https://api.creatormate.com
+Production: https://api.Vidalytics.com
 ```
 
 ### Making Your First Request
@@ -40,12 +40,12 @@ curl -X POST "http://localhost:8888/api/session/login" \
 2. **Use the Session Cookie** for authenticated requests
 ```bash
 curl -X GET "http://localhost:8888/api/agent/chat" \
-  -H "Cookie: creatormate_session=your_session_id"
+  -H "Cookie: Vidalytics_session=your_session_id"
 ```
 
 ## Authentication
 
-CreatorMate uses Redis-based session management for secure authentication.
+Vidalytics uses Redis-based session management for secure authentication.
 
 ### Session Management
 
@@ -114,7 +114,7 @@ The core AI functionality is provided through the agent system.
 ```http
 POST /api/agent/chat
 Content-Type: application/json
-Cookie: creatormate_session=your_session_id
+Cookie: Vidalytics_session=your_session_id
 
 {
   "message": "How can I improve my video thumbnails?",
@@ -215,7 +215,7 @@ GET /api/analytics/performance/{metric_type}?start_date=2024-01-01&end_date=2024
 
 ## Multi-Agent System
 
-CreatorMate's multi-agent architecture provides specialized AI capabilities:
+Vidalytics's multi-agent architecture provides specialized AI capabilities:
 
 ### Agent Types
 
@@ -368,10 +368,10 @@ X-RateLimit-Retry-After: 60
 
 ```python
 import requests
-from creatormate_sdk import CreatorMateClient
+from Vidalytics_sdk import VidalyticsClient
 
 # Initialize client
-client = CreatorMateClient(
+client = VidalyticsClient(
     base_url="http://localhost:8888",
     user_id="your_user_id"
 )
@@ -400,9 +400,9 @@ pillar = client.pillars.create(
 ### JavaScript SDK Example
 
 ```javascript
-import { CreatorMateClient } from '@creatormate/sdk';
+import { VidalyticsClient } from '@Vidalytics/sdk';
 
-const client = new CreatorMateClient({
+const client = new VidalyticsClient({
   baseUrl: 'http://localhost:8888',
   userId: 'your_user_id'
 });
@@ -435,17 +435,17 @@ curl -X POST "http://localhost:8888/api/session/login" \
 # Chat with AI (using session cookie)
 curl -X POST "http://localhost:8888/api/agent/chat" \
   -H "Content-Type: application/json" \
-  -H "Cookie: creatormate_session=your_session_id" \
+  -H "Cookie: Vidalytics_session=your_session_id" \
   -d '{"message": "Analyze my latest video performance"}'
 
 # Get channel analytics
 curl -X GET "http://localhost:8888/api/youtube/analytics/channel/UC123?timeframe=7d" \
-  -H "Cookie: creatormate_session=your_session_id"
+  -H "Cookie: Vidalytics_session=your_session_id"
 ```
 
 ## Webhooks
 
-CreatorMate supports webhooks for real-time notifications:
+Vidalytics supports webhooks for real-time notifications:
 
 ### Webhook Events
 
@@ -480,7 +480,7 @@ POST /api/webhooks
 Content-Type: application/json
 
 {
-  "url": "https://your-app.com/webhooks/creatormate",
+  "url": "https://your-app.com/webhooks/Vidalytics",
   "events": ["agent.response_completed", "youtube.video_published"],
   "secret": "your_webhook_secret"
 }
@@ -539,16 +539,16 @@ GET /api/session/health        # Session system health
 
 ## Support
 
-- **Documentation**: https://docs.creatormate.com
-- **API Status**: https://status.creatormate.com  
-- **Community**: https://community.creatormate.com
-- **Support Email**: support@creatormate.com
-- **GitHub Issues**: https://github.com/creatormate/api/issues
+- **Documentation**: https://docs.Vidalytics.com
+- **API Status**: https://status.Vidalytics.com  
+- **Community**: https://community.Vidalytics.com
+- **Support Email**: support@Vidalytics.com
+- **GitHub Issues**: https://github.com/Vidalytics/api/issues
 
 ## Terms of Service
 
-By using the CreatorMate API, you agree to our [Terms of Service](https://creatormate.com/terms) and [Privacy Policy](https://creatormate.com/privacy).
+By using the Vidalytics API, you agree to our [Terms of Service](https://Vidalytics.com/terms) and [Privacy Policy](https://Vidalytics.com/privacy).
 
 ## License
 
-The CreatorMate API documentation is licensed under the [MIT License](https://opensource.org/licenses/MIT).
+The Vidalytics API documentation is licensed under the [MIT License](https://opensource.org/licenses/MIT).

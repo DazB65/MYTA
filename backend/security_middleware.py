@@ -1,5 +1,5 @@
 """
-Security Middleware for CreatorMate API
+Security Middleware for Vidalytics API
 Implements security headers, input validation, and request sanitization
 """
 

@@ -1,1 +1,1 @@
-# Database migrations package for CreatorMate
+# Database migrations package for Vidalytics

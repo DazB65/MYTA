@@ -95,7 +95,7 @@ def check_main_app_integration():
 
 def main():
     """Run simple OAuth tests"""
-    print("🧪 CreatorMate OAuth 2.0 Implementation Test")
+    print("🧪 Vidalytics OAuth 2.0 Implementation Test")
     print("=" * 50)
     
     results = {

@@ -1,5 +1,5 @@
 """
-API Models for CreatorMate
+API Models for Vidalytics
 Centralized Pydantic models for request/response validation
 """
 

@@ -1,4 +1,4 @@
-# CreatorMate API Endpoints Reference
+# Vidalytics API Endpoints Reference
 
 ## Table of Contents
 
@@ -51,7 +51,7 @@ Create a new user session (login).
 ```
 
 **Cookies Set:**
-- `creatormate_session`: Session ID (HttpOnly, Secure, SameSite=Strict)
+- `Vidalytics_session`: Session ID (HttpOnly, Secure, SameSite=Strict)
 
 ---
 
@@ -70,7 +70,7 @@ Logout user (revoke current session).
 ```
 
 **Cookies Cleared:**
-- `creatormate_session`
+- `Vidalytics_session`
 
 ---
 
@@ -1568,7 +1568,7 @@ Basic health check endpoint.
 {
   "status": "healthy",
   "timestamp": "2024-01-01T12:00:00Z",
-  "service": "CreatorMate Multi-Agent API",
+  "service": "Vidalytics Multi-Agent API",
   "version": "2.0.0"
 }
 ```

@@ -1,5 +1,5 @@
 """
-Comprehensive Logging Configuration for CreatorMate
+Comprehensive Logging Configuration for Vidalytics
 Provides structured logging, performance monitoring, and observability
 """
 
@@ -358,7 +358,7 @@ class AuditLogger:
 
 
 class LoggingManager:
-    """Central logging manager for CreatorMate"""
+    """Central logging manager for Vidalytics"""
     
     def __init__(self):
         self.settings = get_settings()

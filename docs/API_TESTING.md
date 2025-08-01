@@ -1,8 +1,8 @@
-# CreatorMate API Testing Guide
+# Vidalytics API Testing Guide
 
 ## Overview
 
-This guide provides comprehensive testing instructions for the CreatorMate API, including automated testing, manual testing, performance testing, and integration testing approaches.
+This guide provides comprehensive testing instructions for the Vidalytics API, including automated testing, manual testing, performance testing, and integration testing approaches.
 
 ## Table of Contents
 
@@ -59,7 +59,7 @@ curl -X GET "http://localhost:8888/health" \
 # {
 #   "status": "healthy",
 #   "timestamp": "2024-01-01T12:00:00Z",
-#   "service": "CreatorMate Multi-Agent API",
+#   "service": "Vidalytics Multi-Agent API",
 #   "version": "2.0.0"
 # }
 ```
@@ -95,8 +95,8 @@ curl -X POST "http://localhost:8888/api/session/logout" \
 1. **Download Collection**
    ```bash
    # Download the official Postman collection
-   curl -o CreatorMate_API.postman_collection.json \
-     https://raw.githubusercontent.com/creatormate/api/main/docs/postman/CreatorMate_API.postman_collection.json
+   curl -o Vidalytics_API.postman_collection.json \
+     https://raw.githubusercontent.com/Vidalytics/api/main/docs/postman/Vidalytics_API.postman_collection.json
    ```
 
 2. **Import in Postman**
@@ -117,7 +117,7 @@ curl -X POST "http://localhost:8888/api/session/logout" \
 ### Collection Structure
 
 ```
-CreatorMate API Collection/
+Vidalytics API Collection/
 ├── Authentication/
 │   ├── Login
 │   ├── Get Current Session
@@ -173,8 +173,8 @@ pm.test("Response time is less than 5000ms", function () {
 // Set session cookie for subsequent requests
 if (pm.response.code === 200) {
     const cookies = pm.cookies.toObject();
-    if (cookies.creatormate_session) {
-        pm.environment.set("session_cookie", cookies.creatormate_session);
+    if (cookies.Vidalytics_session) {
+        pm.environment.set("session_cookie", cookies.Vidalytics_session);
     }
 }
 ```
@@ -237,7 +237,7 @@ async def test_login_flow(client):
     # Extract session cookie
     session_cookie = None
     for cookie in login_response.cookies:
-        if cookie.name == "creatormate_session":
+        if cookie.name == "Vidalytics_session":
             session_cookie = cookie.value
             break
     
@@ -246,7 +246,7 @@ async def test_login_flow(client):
     # Test authenticated endpoint
     current_response = await client.get(
         "/api/session/current",
-        cookies={"creatormate_session": session_cookie}
+        cookies={"Vidalytics_session": session_cookie}
     )
     
     assert current_response.status_code == 200
@@ -262,7 +262,7 @@ async def test_chat_endpoint(client):
         "password": "test_password"
     })
     
-    session_cookie = login_response.cookies["creatormate_session"]
+    session_cookie = login_response.cookies["Vidalytics_session"]
     
     # Test chat
     chat_response = await client.post(
@@ -271,7 +271,7 @@ async def test_chat_endpoint(client):
             "message": "Hello, this is a test message",
             "context": {"intent": "testing"}
         },
-        cookies={"creatormate_session": session_cookie}
+        cookies={"Vidalytics_session": session_cookie}
     )
     
     assert chat_response.status_code == 200
@@ -299,8 +299,8 @@ def authenticated_client():
         "password": "test_password"
     })
     
-    session_cookie = login_response.cookies["creatormate_session"]
-    client.cookies.set("creatormate_session", session_cookie)
+    session_cookie = login_response.cookies["Vidalytics_session"]
+    client.cookies.set("Vidalytics_session", session_cookie)
     
     return client
 
@@ -468,7 +468,7 @@ curl -X POST "http://localhost:8888/api/session/login" \
 
 # Test expired/invalid session
 curl -X GET "http://localhost:8888/api/session/current" \
-  -H "Cookie: creatormate_session=invalid_session_id" -v
+  -H "Cookie: Vidalytics_session=invalid_session_id" -v
 
 # Expected: 401 Unauthorized
 
@@ -554,7 +554,7 @@ done
          - get:
              url: "/api/session/current"
              headers:
-               Cookie: "creatormate_session={{ session_id }}"
+               Cookie: "Vidalytics_session={{ session_id }}"
      
      - name: "AI chat test"
        weight: 30
@@ -570,7 +570,7 @@ done
          - post:
              url: "/api/agent/chat"
              headers:
-               Cookie: "creatormate_session={{ session_id }}"
+               Cookie: "Vidalytics_session={{ session_id }}"
              json:
                message: "Performance test message {{ $randomNumber(1, 100) }}"
                context:
@@ -595,7 +595,7 @@ done
    from locust import HttpUser, task, between
    import json
    
-   class CreatorMateUser(HttpUser):
+   class VidalyticsUser(HttpUser):
        wait_time = between(1, 3)
        
        def on_start(self):
@@ -795,7 +795,7 @@ pytest tests/ -v
 docker-compose -f docker-compose.yml up -d
 
 # Run comprehensive test suite
-export API_BASE_URL="https://staging.creatormate.com"
+export API_BASE_URL="https://staging.Vidalytics.com"
 pytest tests/ -v --tb=short
 ```
 
@@ -803,7 +803,7 @@ pytest tests/ -v --tb=short
 
 ```bash
 # Run health checks only in production
-export API_BASE_URL="https://api.creatormate.com"
+export API_BASE_URL="https://api.Vidalytics.com"
 pytest tests/health/ -v
 
 # Run smoke tests
@@ -841,7 +841,7 @@ async def test_user_session():
 def authenticated_client(test_user_session):
     """HTTP client with authenticated session"""
     client = httpx.AsyncClient(base_url="http://localhost:8888")
-    client.cookies.set("creatormate_session", test_user_session.session_id)
+    client.cookies.set("Vidalytics_session", test_user_session.session_id)
     return client
 ```
 
@@ -857,7 +857,7 @@ async def cleanup_test_sessions():
     session_manager = get_session_manager()
     
     # Get all sessions
-    redis_keys = session_manager.redis.keys("creatormate:session:*")
+    redis_keys = session_manager.redis.keys("Vidalytics:session:*")
     
     for key in redis_keys:
         session_data = session_manager.redis.get(key)
@@ -1017,4 +1017,4 @@ jobs:
         file: ./backend/coverage.xml
 ```
 
-This comprehensive testing guide covers all aspects of testing the CreatorMate API, from basic health checks to complex load testing scenarios. Use these approaches to ensure your API is robust, secure, and performant.
+This comprehensive testing guide covers all aspects of testing the Vidalytics API, from basic health checks to complex load testing scenarios. Use these approaches to ensure your API is robust, secure, and performant.

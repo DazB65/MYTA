@@ -1,5 +1,5 @@
 """
-Enhanced User Context System for CreatorMate
+Enhanced User Context System for Vidalytics
 Provides real-time, intelligence-enriched user context for agents
 """
 

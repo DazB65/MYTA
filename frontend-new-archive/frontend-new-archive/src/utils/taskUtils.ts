@@ -41,14 +41,14 @@ export const addTaskFromSuggestion = (
   }
   
   // Get existing tasks from localStorage
-  const existingTasks = localStorage.getItem('creatormate_tasks')
+  const existingTasks = localStorage.getItem('Vidalytics_tasks')
   const tasks: Task[] = existingTasks ? JSON.parse(existingTasks) : []
   
   // Add new task to the beginning of the array
   const updatedTasks = [task, ...tasks]
   
   // Save to localStorage
-  localStorage.setItem('creatormate_tasks', JSON.stringify(updatedTasks))
+  localStorage.setItem('Vidalytics_tasks', JSON.stringify(updatedTasks))
   
   // Dispatch event to update TaskManager
   window.dispatchEvent(new Event('taskUpdate'))

@@ -1,5 +1,5 @@
 """
-Content Pillars Router for CreatorMate
+Content Pillars Router for Vidalytics
 Contains all content pillars-related API endpoints extracted from main.py
 """
 

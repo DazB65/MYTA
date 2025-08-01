@@ -70,7 +70,7 @@ export const useUserStore = create<UserState>()(
         const state = get()
         
         // Check if userId exists in localStorage first
-        const storedUserId = localStorage.getItem('creatormate_user_id')
+        const storedUserId = localStorage.getItem('Vidalytics_user_id')
         let currentUserId = state.userId || storedUserId
         
         if (!currentUserId) {
@@ -84,7 +84,7 @@ export const useUserStore = create<UserState>()(
         console.log('User ID set to:', currentUserId)
         
         // Check if onboarding is complete
-        const onboarded = localStorage.getItem('creatormate_onboarded') === 'true'
+        const onboarded = localStorage.getItem('Vidalytics_onboarded') === 'true'
         set({ isOnboarded: onboarded })
         
         // If onboarded, immediately fetch real channel data to override any stale data
@@ -111,7 +111,7 @@ export const useUserStore = create<UserState>()(
 
       generateUserId: () => {
         const userId = 'user_' + Math.random().toString(36).substring(2, 15)
-        localStorage.setItem('creatormate_user_id', userId)
+        localStorage.setItem('Vidalytics_user_id', userId)
         return userId
       },
 
@@ -141,7 +141,7 @@ export const useUserStore = create<UserState>()(
       },
     }),
     {
-      name: 'creatormate-user',
+      name: 'Vidalytics-user',
       partialize: (state) => ({
         userId: state.userId,
         channelInfo: state.channelInfo,

@@ -46,7 +46,7 @@ export default function Sidebar() {
     if (confirmed) {
       await revokeToken()
       // Clear any other user data if needed
-      localStorage.removeItem('creatormate_user_id')
+      localStorage.removeItem('Vidalytics_user_id')
       window.location.href = '/'
     }
   }
@@ -59,7 +59,7 @@ export default function Sidebar() {
           <div className="flex items-center gap-3 min-w-0">
             <img
               src="/assets/images/CM Text White.svg"
-              alt="CreatorMate"
+              alt="Vidalytics"
               className="h-8 w-auto"
             />
           </div>

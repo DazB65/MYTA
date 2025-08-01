@@ -1,5 +1,5 @@
 """
-Enhanced Exception Handling for CreatorMate
+Enhanced Exception Handling for Vidalytics
 Provides specific exception types and structured error responses
 """
 
@@ -32,8 +32,8 @@ class ErrorSeverity(Enum):
     CRITICAL = "critical"
 
 
-class CreatorMateException(Exception):
-    """Base exception for all CreatorMate-specific errors"""
+class VidalyticsException(Exception):
+    """Base exception for all Vidalytics-specific errors"""
     
     def __init__(
         self,
@@ -72,7 +72,7 @@ class CreatorMateException(Exception):
 
 
 # Authentication & Authorization Exceptions
-class AuthenticationError(CreatorMateException):
+class AuthenticationError(VidalyticsException):
     """Authentication failed"""
     
     def __init__(self, message: str = "Authentication failed", **kwargs):
@@ -85,7 +85,7 @@ class AuthenticationError(CreatorMateException):
         )
 
 
-class AuthorizationError(CreatorMateException):
+class AuthorizationError(VidalyticsException):
     """User lacks required permissions"""
     
     def __init__(self, message: str = "Insufficient permissions", **kwargs):
@@ -123,7 +123,7 @@ class InvalidTokenError(AuthenticationError):
 
 
 # Validation Exceptions
-class ValidationError(CreatorMateException):
+class ValidationError(VidalyticsException):
     """Data validation failed"""
     
     def __init__(
@@ -170,7 +170,7 @@ class InvalidFieldValueError(ValidationError):
 
 
 # External API Exceptions
-class ExternalAPIError(CreatorMateException):
+class ExternalAPIError(VidalyticsException):
     """External API call failed"""
     
     def __init__(
@@ -229,7 +229,7 @@ class GoogleAIAPIError(ExternalAPIError):
 
 
 # Database Exceptions
-class DatabaseError(CreatorMateException):
+class DatabaseError(VidalyticsException):
     """Database operation failed"""
     
     def __init__(self, message: str = "Database error", operation: str = "unknown", **kwargs):
@@ -274,7 +274,7 @@ class DatabaseConnectionError(DatabaseError):
 
 
 # Agent Communication Exceptions
-class AgentCommunicationError(CreatorMateException):
+class AgentCommunicationError(VidalyticsException):
     """Agent communication failed"""
     
     def __init__(
@@ -321,7 +321,7 @@ class AgentAuthenticationError(AgentCommunicationError):
 
 
 # Rate Limiting Exceptions
-class RateLimitError(CreatorMateException):
+class RateLimitError(VidalyticsException):
     """Rate limit exceeded"""
     
     def __init__(
@@ -345,7 +345,7 @@ class RateLimitError(CreatorMateException):
 
 
 # Cache Exceptions
-class CacheError(CreatorMateException):
+class CacheError(VidalyticsException):
     """Cache operation failed"""
     
     def __init__(self, message: str = "Cache error", operation: str = "unknown", **kwargs):
@@ -373,7 +373,7 @@ class CacheConnectionError(CacheError):
 
 
 # Configuration Exceptions
-class ConfigurationError(CreatorMateException):
+class ConfigurationError(VidalyticsException):
     """Configuration error"""
     
     def __init__(self, message: str = "Configuration error", config_key: str = None, **kwargs):
@@ -401,7 +401,7 @@ class MissingConfigurationError(ConfigurationError):
 
 
 # Business Logic Exceptions
-class BusinessLogicError(CreatorMateException):
+class BusinessLogicError(VidalyticsException):
     """Business rule violation"""
     
     def __init__(self, message: str = "Business rule violation", rule: str = None, **kwargs):
@@ -440,7 +440,7 @@ class OperationNotAllowedError(BusinessLogicError):
 
 
 # System Exceptions
-class SystemError(CreatorMateException):
+class SystemError(VidalyticsException):
     """System error"""
     
     def __init__(self, message: str = "System error", component: str = None, **kwargs):

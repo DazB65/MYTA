@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Environment Setup Script for CreatorMate
+Environment Setup Script for Vidalytics
 Helps set up the proper environment configuration
 """
 
@@ -50,7 +50,7 @@ BOSS_AGENT_SECRET_KEY={boss_agent_secret}
 SESSION_SECRET_KEY={session_secret}
 
 # Database URL (Optional - uncomment to override)
-# DATABASE_URL=postgresql://user:password@localhost:5432/creatormate
+# DATABASE_URL=postgresql://user:password@localhost:5432/Vidalytics
 """
     
     with open(env_local_path, "w") as f:
@@ -194,7 +194,7 @@ def test_configuration():
 
 def main():
     """Main setup function"""
-    parser = argparse.ArgumentParser(description="Set up CreatorMate environment")
+    parser = argparse.ArgumentParser(description="Set up Vidalytics environment")
     parser.add_argument(
         'environment', 
         choices=['development', 'staging', 'production'],
@@ -208,7 +208,7 @@ def main():
     
     args = parser.parse_args()
     
-    print("🎯 CreatorMate Environment Setup")
+    print("🎯 Vidalytics Environment Setup")
     print("=" * 40)
     
     # Setup environment

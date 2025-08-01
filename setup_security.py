@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Security Setup Script for CreatorMate
+Security Setup Script for Vidalytics
 Helps with secure environment configuration and key generation
 """
 
@@ -80,7 +80,7 @@ def generate_boss_agent_secret():
 
 def check_database_permissions():
     """Check database file permissions"""
-    db_file = Path("backend/creatormate.db")
+    db_file = Path("backend/Vidalytics.db")
     
     if not db_file.exists():
         print("ℹ️  Database file doesn't exist yet (will be created on first run)")
@@ -92,7 +92,7 @@ def check_database_permissions():
         
         if permissions != '600':
             print(f"⚠️  Database file permissions are {permissions}, should be 600")
-            print("Run: chmod 600 backend/creatormate.db")
+            print("Run: chmod 600 backend/Vidalytics.db")
             return False
     
     print("✅ Database file has proper permissions")
@@ -100,7 +100,7 @@ def check_database_permissions():
 
 def security_checklist():
     """Run complete security checklist"""
-    print("🔒 CreatorMate Security Setup Checklist")
+    print("🔒 Vidalytics Security Setup Checklist")
     print("=" * 50)
     
     checks = [
@@ -135,7 +135,7 @@ def main():
         elif command == "check":
             security_checklist()
         elif command == "help":
-            print("CreatorMate Security Setup Script")
+            print("Vidalytics Security Setup Script")
             print("\nCommands:")
             print("  check           - Run security checklist")
             print("  generate-secret - Generate boss agent secret key")

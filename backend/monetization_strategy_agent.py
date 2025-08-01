@@ -1,5 +1,5 @@
 """
-Monetization Strategy Agent for CreatorMate
+Monetization Strategy Agent for Vidalytics
 Specialized sub-agent that analyzes revenue streams and monetization opportunities for the boss agent
 """
 
@@ -679,7 +679,7 @@ class MonetizationStrategyCache:
 class MonetizationStrategyAgent(SpecializedAgentAuthMixin):
     """
     Specialized Monetization Strategy Agent for YouTube revenue optimization
-    Operates as a sub-agent within the CreatorMate boss agent hierarchy
+    Operates as a sub-agent within the Vidalytics boss agent hierarchy
     """
     
     def __init__(self, youtube_api_key: str, openai_api_key: str = None):

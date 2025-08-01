@@ -41,7 +41,7 @@ const PricingPage = () => {
                     Pricing that grows with you
                 </h1>
                 <p className="mt-6 text-xl text-slate-600">
-                    Experience the full power of CreatorMate with a free trial of our Best Mate plan. No credit card required.
+                    Experience the full power of Vidalytics with a free trial of our Best Mate plan. No credit card required.
                 </p>
                 <a href="#" className="mt-8 inline-block w-full sm:w-auto bg-teal-500 hover:bg-teal-600 text-white rounded-lg px-10 py-4 text-lg font-bold transition-all duration-300 shadow-lg shadow-teal-500/20 transform hover:scale-105">
                     Start Your 5-Day Free Trial

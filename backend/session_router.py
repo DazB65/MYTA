@@ -1,5 +1,5 @@
 """
-Session Management API Router for CreatorMate
+Session Management API Router for Vidalytics
 Provides endpoints for session management and authentication
 """
 
@@ -105,7 +105,7 @@ async def login(
         
         # Set session cookie
         response.set_cookie(
-            key="creatormate_session",
+            key="Vidalytics_session",
             value=session_data.session_id,
             max_age=int(get_session_manager().config.session_timeout.total_seconds()),
             path="/",
@@ -188,7 +188,7 @@ async def logout(
         
         # Clear session cookie
         response.delete_cookie(
-            key="creatormate_session",
+            key="Vidalytics_session",
             path="/"
         )
         

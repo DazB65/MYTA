@@ -134,7 +134,7 @@ export default function TopAgentPanel({ className }: TopAgentPanelProps) {
     const confirmed = confirm('Are you sure you want to logout from YouTube? You will need to reconnect to access video analytics.')
     if (confirmed) {
       await revokeToken()
-      localStorage.removeItem('creatormate_user_id')
+      localStorage.removeItem('Vidalytics_user_id')
       window.location.href = '/'
     }
   }
@@ -191,7 +191,7 @@ export default function TopAgentPanel({ className }: TopAgentPanelProps) {
         <div className="absolute bottom-20 right-12 z-50 flex items-center justify-center w-64">
           <img
             src="/assets/images/CM Logo White.svg"
-            alt="CreatorMate"
+            alt="Vidalytics"
             className="h-56 w-auto opacity-90 hover:opacity-100 transition-opacity duration-200"
           />
         </div>

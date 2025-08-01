@@ -1,5 +1,5 @@
 """
-Distributed Cache System for CreatorMate
+Distributed Cache System for Vidalytics
 Redis-based caching with fallback to in-memory storage
 """
 

@@ -1,5 +1,5 @@
 """
-Enhanced Configuration Management for CreatorMate
+Enhanced Configuration Management for Vidalytics
 Handles environment-specific settings with validation and type safety
 """
 
@@ -34,7 +34,7 @@ class Settings(BaseSettings):
     """Application settings with environment-specific configuration"""
     
     # Core Application Settings
-    app_name: str = Field(default="CreatorMate", description="Application name")
+    app_name: str = Field(default="Vidalytics", description="Application name")
     environment: Environment = Field(default=Environment.DEVELOPMENT, description="Application environment")
     debug: bool = Field(default=False, description="Debug mode")
     log_level: LogLevel = Field(default=LogLevel.INFO, description="Logging level")
@@ -46,7 +46,7 @@ class Settings(BaseSettings):
     backend_url: str = Field(default="http://localhost:8888", description="Backend URL")
     
     # Database Configuration
-    database_url: str = Field(default="sqlite:///./creatormate.db", description="Database URL")
+    database_url: str = Field(default="sqlite:///./Vidalytics.db", description="Database URL")
     database_echo: bool = Field(default=False, description="Echo SQL queries")
     
     # Security Configuration

@@ -102,7 +102,7 @@ export const useSavedMessagesStore = create<SavedMessagesState>()(
       }
     }),
     {
-      name: 'creatormate-saved-messages',
+      name: 'Vidalytics-saved-messages',
       version: 1
     }
   )

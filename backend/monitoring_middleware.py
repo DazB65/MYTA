@@ -1,5 +1,5 @@
 """
-Monitoring Middleware for CreatorMate
+Monitoring Middleware for Vidalytics
 Provides request tracking, performance monitoring, and observability
 """
 

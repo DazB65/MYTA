@@ -59,7 +59,7 @@ class TestOnboardingWorkflow:
         
         # Step 4: First chat interaction - general welcome
         first_chat_data = {
-            "message": "Hello! I'm new to CreatorMate.",
+            "message": "Hello! I'm new to Vidalytics.",
             "user_id": user_id
         }
         

@@ -188,7 +188,7 @@ def check_environment_configuration():
 
 async def main():
     """Run all OAuth tests"""
-    print("🧪 CreatorMate OAuth 2.0 Implementation Test Suite")
+    print("🧪 Vidalytics OAuth 2.0 Implementation Test Suite")
     print("=" * 60)
     
     test_results = {}

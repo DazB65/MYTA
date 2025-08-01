@@ -1,5 +1,5 @@
 """
-Agent Adapters for CreatorMate
+Agent Adapters for Vidalytics
 Provides adapter functions to connect agent router endpoints with specialized agents
 """
 

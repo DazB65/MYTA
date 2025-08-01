@@ -1,5 +1,5 @@
 """
-Application Constants for CreatorMate
+Application Constants for Vidalytics
 Centralized location for magic numbers and configuration values
 """
 

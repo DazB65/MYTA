@@ -1,8 +1,8 @@
-# CreatorMate Model Integration System
+# Vidalytics Model Integration System
 
 ## Overview
 
-The CreatorMate Model Integration System provides a centralized, intelligent AI model management system that handles multiple AI providers with automatic fallback logic. This system replaces individual agent model implementations with a unified approach.
+The Vidalytics Model Integration System provides a centralized, intelligent AI model management system that handles multiple AI providers with automatic fallback logic. This system replaces individual agent model implementations with a unified approach.
 
 ## Architecture
 

@@ -1,5 +1,5 @@
 """
-Agent Router for CreatorMate
+Agent Router for Vidalytics
 Contains all agent-related API endpoints extracted from main.py
 """
 

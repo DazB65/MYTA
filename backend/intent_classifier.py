@@ -1,5 +1,5 @@
 """
-Intent Classification System for CreatorMate Boss Agent
+Intent Classification System for Vidalytics Boss Agent
 Analyzes user messages to determine appropriate specialized agent routing
 """
 
@@ -32,7 +32,7 @@ class IntentClassifier:
         
         channel_info = context.get('channel_info', {})
         classification_prompt = f"""
-        You are CreatorMate's AI intent classifier. Analyze this YouTube creator's message with precision and extract actionable parameters.
+        You are Vidalytics's AI intent classifier. Analyze this YouTube creator's message with precision and extract actionable parameters.
         
         CREATOR MESSAGE: "{message}"
         

@@ -1,4 +1,4 @@
-# CreatorMate Continuous Integration Pipeline
+# Vidalytics Continuous Integration Pipeline
 # Runs on every push and pull request to ensure code quality
 
 name: CI Pipeline

@@ -1,5 +1,5 @@
 """
-Database module for CreatorMate
+Database module for Vidalytics
 Handles SQLite database operations for user context and channel information
 """
 
@@ -12,7 +12,7 @@ import logging
 logger = logging.getLogger(__name__)
 
 class DatabaseManager:
-    def __init__(self, db_path: str = "creatormate.db"):
+    def __init__(self, db_path: str = "Vidalytics.db"):
         self.db_path = db_path
         self.init_database()
     

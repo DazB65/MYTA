@@ -1,5 +1,5 @@
 """
-Content Analysis Agent for CreatorMate
+Content Analysis Agent for Vidalytics
 Specialized sub-agent that analyzes YouTube content performance for the boss agent
 """
 
@@ -1249,7 +1249,7 @@ class GeminiAnalysisEngine:
 class ContentAnalysisAgent(SpecializedAgentAuthMixin, BaseSpecializedAgent):
     """
     Specialized Content Analysis Agent for YouTube content performance analysis
-    Operates as a sub-agent within the CreatorMate boss agent hierarchy
+    Operates as a sub-agent within the Vidalytics boss agent hierarchy
     """
     
     def __init__(self, youtube_api_key: str, gemini_api_key: str = None):

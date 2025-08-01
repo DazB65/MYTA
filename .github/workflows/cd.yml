@@ -1,4 +1,4 @@
-# CreatorMate Continuous Deployment Pipeline
+# Vidalytics Continuous Deployment Pipeline
 # Deploys to staging and production environments
 
 name: CD Pipeline
@@ -27,7 +27,7 @@ jobs:
     if: github.ref == 'refs/heads/main' && github.event.workflow_run.conclusion == 'success'
     environment:
       name: staging
-      url: https://staging.creatormate.app
+      url: https://staging.Vidalytics.app
     
     steps:
     - name: Checkout code
@@ -47,7 +47,7 @@ jobs:
         port: ${{ secrets.STAGING_SSH_PORT || 22 }}
         script: |
           # Navigate to deployment directory
-          cd /opt/creatormate
+          cd /opt/Vidalytics
           
           # Pull latest changes
           git fetch origin
@@ -88,9 +88,9 @@ jobs:
         sleep 30
         
         # Test staging endpoints
-        curl -f https://staging.creatormate.app/health || exit 1
-        curl -f https://staging.creatormate.app/api/health/system || exit 1
-        curl -f https://staging.creatormate.app/api/info || exit 1
+        curl -f https://staging.Vidalytics.app/health || exit 1
+        curl -f https://staging.Vidalytics.app/api/health/system || exit 1
+        curl -f https://staging.Vidalytics.app/api/info || exit 1
     
     - name: Notify deployment status
       if: always()
@@ -102,7 +102,7 @@ jobs:
           Staging deployment ${{ job.status }}
           Branch: ${{ github.ref }}
           Commit: ${{ github.sha }}
-          URL: https://staging.creatormate.app
+          URL: https://staging.Vidalytics.app
       env:
         SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK }}
 
@@ -115,7 +115,7 @@ jobs:
     if: startsWith(github.ref, 'refs/tags/v')
     environment:
       name: production
-      url: https://creatormate.app
+      url: https://Vidalytics.app
     needs: [deploy-staging]
     
     steps:
@@ -136,12 +136,12 @@ jobs:
         port: ${{ secrets.PRODUCTION_SSH_PORT || 22 }}
         script: |
           # Create backup before deployment
-          cd /opt/creatormate
+          cd /opt/Vidalytics
           
           # Backup database
           docker compose exec -T backend python -c "
           from backup_service import get_backup_service
-          service = get_backup_service('/app/data/creatormate.db')
+          service = get_backup_service('/app/data/Vidalytics.db')
           backup_id = service.create_manual_backup({
               'type': 'pre_deployment',
               'version': '${{ env.VERSION }}',
@@ -167,7 +167,7 @@ jobs:
         port: ${{ secrets.PRODUCTION_SSH_PORT || 22 }}
         script: |
           # Navigate to deployment directory
-          cd /opt/creatormate
+          cd /opt/Vidalytics
           
           # Pull latest changes
           git fetch origin
@@ -192,7 +192,7 @@ jobs:
           # Run database migrations if needed
           docker compose exec -T backend python -c "
           from migration_manager import DatabaseMigrationManager
-          manager = DatabaseMigrationManager('/app/data/creatormate.db')
+          manager = DatabaseMigrationManager('/app/data/Vidalytics.db')
           success = manager.migrate()
           if not success:
               print('Migration failed')
@@ -219,24 +219,24 @@ jobs:
         sleep 60
         
         # Comprehensive health checks
-        curl -f https://creatormate.app/health || exit 1
-        curl -f https://creatormate.app/api/health/system || exit 1
-        curl -f https://creatormate.app/api/info || exit 1
+        curl -f https://Vidalytics.app/health || exit 1
+        curl -f https://Vidalytics.app/api/health/system || exit 1
+        curl -f https://Vidalytics.app/api/info || exit 1
         
         # Test critical API endpoints
-        curl -f https://creatormate.app/api/agent/status || exit 1
+        curl -f https://Vidalytics.app/api/agent/status || exit 1
     
     - name: Run production smoke tests
       run: |
         # Basic functionality tests
-        response=$(curl -s -o /dev/null -w "%{http_code}" https://creatormate.app/)
+        response=$(curl -s -o /dev/null -w "%{http_code}" https://Vidalytics.app/)
         if [ $response -ne 200 ]; then
           echo "Frontend health check failed with HTTP $response"
           exit 1
         fi
         
         # API availability test
-        response=$(curl -s -o /dev/null -w "%{http_code}" https://creatormate.app/api/info)
+        response=$(curl -s -o /dev/null -w "%{http_code}" https://Vidalytics.app/api/info)
         if [ $response -ne 200 ]; then
           echo "API health check failed with HTTP $response"
           exit 1
@@ -250,9 +250,9 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         tag_name: ${{ env.VERSION }}
-        release_name: CreatorMate ${{ env.VERSION }}
+        release_name: Vidalytics ${{ env.VERSION }}
         body: |
-          ## CreatorMate ${{ env.VERSION }}
+          ## Vidalytics ${{ env.VERSION }}
           
           **Deployment Information:**
           - Commit: ${{ github.sha }}
@@ -284,7 +284,7 @@ jobs:
           🚀 Production deployment ${{ job.status }}
           Version: ${{ env.VERSION }}
           Commit: ${{ github.sha }}
-          URL: https://creatormate.app
+          URL: https://Vidalytics.app
       env:
         SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK }}
 
@@ -298,7 +298,7 @@ jobs:
     needs: [deploy-production]
     environment:
       name: production
-      url: https://creatormate.app
+      url: https://Vidalytics.app
     
     steps:
     - name: Rollback to previous version
@@ -309,7 +309,7 @@ jobs:
         key: ${{ secrets.PRODUCTION_SSH_KEY }}
         port: ${{ secrets.PRODUCTION_SSH_PORT || 22 }}
         script: |
-          cd /opt/creatormate
+          cd /opt/Vidalytics
           
           # Get previous successful deployment tag
           PREVIOUS_TAG=$(git tag --sort=-version:refname | grep -v "${{ env.VERSION }}" | head -n1)

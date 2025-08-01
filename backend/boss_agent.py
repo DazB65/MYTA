@@ -1,5 +1,5 @@
 """
-Boss Agent Orchestration System for CreatorMate
+Boss Agent Orchestration System for Vidalytics
 Coordinates multiple specialized agents for YouTube analytics
 """
 
@@ -121,7 +121,7 @@ class IntentClassifier:
         
         channel_info = context.get('channel_info', {})
         classification_prompt = f"""
-        You are CreatorMate's AI intent classifier. Analyze this YouTube creator's message with precision and extract actionable parameters.
+        You are Vidalytics's AI intent classifier. Analyze this YouTube creator's message with precision and extract actionable parameters.
         
         CREATOR MESSAGE: "{message}"
         
@@ -348,7 +348,7 @@ class ContentAnalysisAgent(SpecializedAgent):
         
         # Enhanced context injection with real-time data
         analysis_prompt = f"""
-        You are CreatorMate's Content Analysis Expert. Analyze this YouTube channel's performance with precision.
+        You are Vidalytics's Content Analysis Expert. Analyze this YouTube channel's performance with precision.
         
         {self._get_voice_guidelines()}
         
@@ -1973,7 +1973,7 @@ class BossAgent:
         prioritized_insights = high_confidence_insights + medium_confidence_insights + low_confidence_insights
         
         synthesis_prompt = f"""
-        You are CreatorMate's AI assistant. Provide an expert, data-driven response to this YouTube creator's question.
+        You are Vidalytics's AI assistant. Provide an expert, data-driven response to this YouTube creator's question.
         
         {self._get_voice_guidelines()}
         
@@ -2024,7 +2024,7 @@ class BossAgent:
                 prompt_data={
                     "prompt": synthesis_prompt,
                     "analysis_depth": "standard",
-                    "system_message": "You are the main CreatorMate AI orchestrating agent responses."
+                    "system_message": "You are the main Vidalytics AI orchestrating agent responses."
                 }
             )
             

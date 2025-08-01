@@ -1,5 +1,5 @@
 """
-Competitive Analysis Agent for CreatorMate
+Competitive Analysis Agent for Vidalytics
 Specialized sub-agent that analyzes competitor performance and market positioning for the boss agent
 """
 
@@ -635,7 +635,7 @@ class CompetitiveAnalysisCache:
 class CompetitiveAnalysisAgent(SpecializedAgentAuthMixin):
     """
     Specialized Competitive Analysis Agent for YouTube market positioning
-    Operates as a sub-agent within the CreatorMate boss agent hierarchy
+    Operates as a sub-agent within the Vidalytics boss agent hierarchy
     """
     
     def __init__(self, youtube_api_key: str, gemini_api_key: str = None):

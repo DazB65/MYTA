@@ -1,5 +1,5 @@
 """
-OAuth 2.0 Authorization Flow Endpoints for CreatorMate
+OAuth 2.0 Authorization Flow Endpoints for Vidalytics
 Handles OAuth authorization, callback, and token management endpoints
 """
 

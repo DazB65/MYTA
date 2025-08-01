@@ -50,10 +50,10 @@ export default function MobileMenu() {
               <div className="flex items-center gap-3">
                 <img
                   src="/assets/images/CM Logo White.svg"
-                  alt="CreatorMate"
+                  alt="Vidalytics"
                   className="w-8 h-8"
                 />
-                <span className="font-bold text-lg">CreatorMate</span>
+                <span className="font-bold text-lg">Vidalytics</span>
               </div>
               <button
                 onClick={() => setIsOpen(false)}

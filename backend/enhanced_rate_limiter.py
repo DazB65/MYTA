@@ -1,5 +1,5 @@
 """
-Enhanced Rate Limiting System for CreatorMate
+Enhanced Rate Limiting System for Vidalytics
 Implements sophisticated rate limiting with multiple strategies and user tiers
 """
 

@@ -1,5 +1,5 @@
 """
-Base Agent System for CreatorMate
+Base Agent System for Vidalytics
 Provides common functionality and abstractions for all specialized agents
 """
 

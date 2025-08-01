@@ -1,4 +1,4 @@
-# Implementation Patterns for YouTube Analytics Integration in CreatorMate
+# Implementation Patterns for YouTube Analytics Integration in Vidalytics
 
 from typing import Dict, List, Any, Optional
 import asyncio

@@ -16,12 +16,12 @@ class TestSettings:
         """Test default settings initialization"""
         settings = Settings()
         
-        assert settings.app_name == "CreatorMate"
+        assert settings.app_name == "Vidalytics"
         assert settings.environment == Environment.DEVELOPMENT
         assert settings.debug is False
         assert settings.host == "0.0.0.0"
         assert settings.port == 8888
-        assert settings.database_url == "sqlite:///./creatormate.db"
+        assert settings.database_url == "sqlite:///./Vidalytics.db"
 
     def test_environment_methods(self):
         """Test environment checking methods"""

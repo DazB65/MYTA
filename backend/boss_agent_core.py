@@ -1,5 +1,5 @@
 """
-Core Boss Agent System for CreatorMate
+Core Boss Agent System for Vidalytics
 Main orchestration logic for the hierarchical multi-agent system
 """
 
@@ -340,7 +340,7 @@ class BossAgent:
         channel_info = user_context.get("channel_info", {})
         
         synthesis_prompt = f"""
-        You are CreatorMate's AI assistant. Provide an expert, data-driven response to this YouTube creator's question.
+        You are Vidalytics's AI assistant. Provide an expert, data-driven response to this YouTube creator's question.
         
         {self._get_voice_guidelines()}
         
@@ -367,7 +367,7 @@ class BossAgent:
                 prompt_data={
                     "prompt": synthesis_prompt,
                     "analysis_depth": "standard",
-                    "system_message": "You are the main CreatorMate AI orchestrating agent responses."
+                    "system_message": "You are the main Vidalytics AI orchestrating agent responses."
                 }
             )
             

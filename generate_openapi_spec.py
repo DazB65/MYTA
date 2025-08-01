@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-OpenAPI Specification Generator for CreatorMate API
+OpenAPI Specification Generator for Vidalytics API
 Generates comprehensive OpenAPI 3.0 specification with examples and validation
 """
 
@@ -20,10 +20,10 @@ def generate_openapi_spec() -> Dict[str, Any]:
     spec = {
         "openapi": "3.0.3",
         "info": {
-            "title": "CreatorMate Multi-Agent API",
+            "title": "Vidalytics Multi-Agent API",
             "version": "2.0.0",
             "description": """
-**CreatorMate** is a sophisticated hierarchical multi-agent system designed for YouTube content creators 
+**Vidalytics** is a sophisticated hierarchical multi-agent system designed for YouTube content creators 
 to optimize their channel performance, content strategy, and audience engagement.
 
 ## Key Features
@@ -52,9 +52,9 @@ Use the `/api/session/login` endpoint to create a session.
             """,
             "summary": "AI-powered YouTube optimization platform",
             "contact": {
-                "name": "CreatorMate Support",
-                "url": "https://github.com/creatormate/api",
-                "email": "support@creatormate.com"
+                "name": "Vidalytics Support",
+                "url": "https://github.com/Vidalytics/api",
+                "email": "support@Vidalytics.com"
             },
             "license": {
                 "name": "MIT License",
@@ -67,7 +67,7 @@ Use the `/api/session/login` endpoint to create a session.
                 "description": "Development server"
             },
             {
-                "url": "https://api.creatormate.com",
+                "url": "https://api.Vidalytics.com",
                 "description": "Production server"
             }
         ],
@@ -122,7 +122,7 @@ Use the `/api/session/login` endpoint to create a session.
                 "SessionCookie": {
                     "type": "apiKey",
                     "in": "cookie",
-                    "name": "creatormate_session",
+                    "name": "Vidalytics_session",
                     "description": "Session-based authentication using secure HTTP-only cookies"
                 },
                 "BearerAuth": {
@@ -927,7 +927,7 @@ def generate_paths() -> Dict[str, Any]:
                             "Set-Cookie": {
                                 "description": "Session cookie",
                                 "schema": {"type": "string"},
-                                "example": "creatormate_session=abc123...; HttpOnly; Secure; SameSite=Strict"
+                                "example": "Vidalytics_session=abc123...; HttpOnly; Secure; SameSite=Strict"
                             }
                         }
                     },
@@ -1107,7 +1107,7 @@ def generate_paths() -> Dict[str, Any]:
                                 "example": {
                                     "status": "healthy",
                                     "timestamp": "2024-01-01T12:00:00Z",
-                                    "service": "CreatorMate Multi-Agent API",
+                                    "service": "Vidalytics Multi-Agent API",
                                     "version": "2.0.0"
                                 }
                             }

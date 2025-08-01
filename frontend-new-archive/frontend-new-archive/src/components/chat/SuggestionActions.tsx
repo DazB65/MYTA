@@ -69,9 +69,9 @@ export default function SuggestionActions({
 
   const handleCreateTask = (task: any) => {
     // Store in localStorage
-    const existingTasks = JSON.parse(localStorage.getItem('creatormate_tasks') || '[]')
+    const existingTasks = JSON.parse(localStorage.getItem('Vidalytics_tasks') || '[]')
     const updatedTasks = [task, ...existingTasks]
-    localStorage.setItem('creatormate_tasks', JSON.stringify(updatedTasks))
+    localStorage.setItem('Vidalytics_tasks', JSON.stringify(updatedTasks))
     
     // Dispatch event to update TaskManager
     window.dispatchEvent(new Event('taskUpdate'))

@@ -1,5 +1,5 @@
 """
-Global pytest configuration and fixtures for CreatorMate testing
+Global pytest configuration and fixtures for Vidalytics testing
 """
 import asyncio
 import os

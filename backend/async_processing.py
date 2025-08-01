@@ -1,5 +1,5 @@
 """
-Async Processing System for CreatorMate
+Async Processing System for Vidalytics
 Handles background processing for heavy AI operations
 """
 

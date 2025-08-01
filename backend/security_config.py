@@ -1,5 +1,5 @@
 """
-Security Configuration Module for CreatorMate
+Security Configuration Module for Vidalytics
 Handles secure loading of environment variables and security settings
 """
 

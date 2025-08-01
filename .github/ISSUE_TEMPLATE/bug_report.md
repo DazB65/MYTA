@@ -1,6 +1,6 @@
 ---
 name: Bug Report
-about: Create a report to help us improve CreatorMate
+about: Create a report to help us improve Vidalytics
 title: '[BUG] '
 labels: ['bug', 'needs-triage']
 assignees: ''

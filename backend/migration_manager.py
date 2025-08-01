@@ -1,5 +1,5 @@
 """
-Comprehensive Database Migration and Version Management System for CreatorMate
+Comprehensive Database Migration and Version Management System for Vidalytics
 Handles schema evolution, data migration, and backup/restore operations
 """
 
@@ -874,7 +874,7 @@ class Migration005_AddContentScheduling(MigrationScript):
 _migration_manager: Optional[DatabaseMigrationManager] = None
 
 
-def get_migration_manager(db_path: str = "creatormate.db") -> DatabaseMigrationManager:
+def get_migration_manager(db_path: str = "Vidalytics.db") -> DatabaseMigrationManager:
     """Get or create global migration manager instance"""
     global _migration_manager
     if _migration_manager is None or _migration_manager.db_path != db_path:

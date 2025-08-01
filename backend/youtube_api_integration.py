@@ -1,5 +1,5 @@
 """
-Enhanced YouTube API Integration for CreatorMate Multi-Agent System
+Enhanced YouTube API Integration for Vidalytics Multi-Agent System
 Provides comprehensive YouTube data with caching and quota management
 """
 

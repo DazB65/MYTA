@@ -8,7 +8,7 @@ router = APIRouter(prefix="/api/analytics", tags=["analytics"])
 
 def get_db_connection():
     """Get database connection"""
-    conn = sqlite3.connect('creatormate.db')
+    conn = sqlite3.connect('Vidalytics.db')
     conn.row_factory = sqlite3.Row
     return conn
 

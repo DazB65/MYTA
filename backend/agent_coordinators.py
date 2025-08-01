@@ -1,5 +1,5 @@
 """
-Specialized Agent Coordinators for CreatorMate Boss Agent System
+Specialized Agent Coordinators for Vidalytics Boss Agent System
 Handles coordination with specialized analysis agents
 """
 
@@ -144,7 +144,7 @@ class ContentAnalysisAgent(SpecializedAgent):
         
         # Enhanced context injection with real-time data
         analysis_prompt = f"""
-        You are CreatorMate's Content Analysis Expert. Analyze this YouTube channel's performance with precision.
+        You are Vidalytics's Content Analysis Expert. Analyze this YouTube channel's performance with precision.
         
         CHANNEL PROFILE:
         • Channel: {channel_info.get('name', context.channel_id)}

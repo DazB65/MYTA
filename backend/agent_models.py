@@ -1,5 +1,5 @@
 """
-Agent Data Models and Enums for CreatorMate Boss Agent System
+Agent Data Models and Enums for Vidalytics Boss Agent System
 Common data structures used across the multi-agent system
 """
 

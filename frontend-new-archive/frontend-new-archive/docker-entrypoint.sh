@@ -1,5 +1,5 @@
 #!/bin/sh
-# Docker entrypoint script for CreatorMate Frontend
+# Docker entrypoint script for Vidalytics Frontend
 
 set -e
 
@@ -8,7 +8,7 @@ log() {
     echo "[$(date +'%Y-%m-%d %H:%M:%S')] $1"
 }
 
-log "Starting CreatorMate Frontend container..."
+log "Starting Vidalytics Frontend container..."
 
 # Replace environment variables in nginx configuration
 if [ -n "$API_BASE_URL" ]; then

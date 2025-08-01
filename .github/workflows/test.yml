@@ -1,4 +1,4 @@
-name: CreatorMate Test Suite
+name: Vidalytics Test Suite
 
 on:
   push:

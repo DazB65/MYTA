@@ -1,5 +1,5 @@
 """
-Migration Script for Enhanced CreatorMate System
+Migration Script for Enhanced Vidalytics System
 Helps migrate from the old monolithic system to the new modular architecture
 """
 
@@ -156,7 +156,7 @@ class SystemMigration:
     def create_middleware_integration(self):
         """Create middleware to integrate new systems with FastAPI"""
         middleware_code = '''"""
-Enhanced Middleware Integration for CreatorMate
+Enhanced Middleware Integration for Vidalytics
 Integrates rate limiting, error handling, and health checks with FastAPI
 """
 
@@ -285,7 +285,7 @@ async def full_health_check_endpoint():
     
     def run_migration(self):
         """Run the complete migration process"""
-        print("🔄 Starting CreatorMate Enhanced System Migration...")
+        print("🔄 Starting Vidalytics Enhanced System Migration...")
         
         # Step 1: Create backups
         self.create_backup()

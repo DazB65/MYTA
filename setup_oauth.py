@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Google OAuth 2.0 Setup Script for CreatorMate
+Google OAuth 2.0 Setup Script for Vidalytics
 This script helps configure Google OAuth credentials for YouTube Data API access.
 """
 
@@ -10,7 +10,7 @@ import re
 from pathlib import Path
 
 def print_header():
-    print("🔐 CreatorMate Google OAuth Setup")
+    print("🔐 Vidalytics Google OAuth Setup")
     print("=" * 50)
     print()
 
@@ -24,7 +24,7 @@ def print_instructions():
     
     print("2. 📁 Create or select a project:")
     print("   - Click 'Select a project' → 'New Project'")
-    print("   - Name: 'CreatorMate YouTube API'")
+    print("   - Name: 'Vidalytics YouTube API'")
     print("   - Click 'Create'")
     print()
     
@@ -38,7 +38,7 @@ def print_instructions():
     print("   - Go to 'APIs & Services' → 'OAuth consent screen'")
     print("   - Choose 'External' user type")
     print("   - Fill in required fields:")
-    print("     * App name: CreatorMate")
+    print("     * App name: Vidalytics")
     print("     * User support email: your email")
     print("     * Developer contact: your email")
     print("   - Add scopes:")
@@ -52,7 +52,7 @@ def print_instructions():
     print("   - Go to 'APIs & Services' → 'Credentials'")
     print("   - Click '+ Create Credentials' → 'OAuth 2.0 Client IDs'")
     print("   - Application type: 'Web application'")
-    print("   - Name: 'CreatorMate Local Development'")
+    print("   - Name: 'Vidalytics Local Development'")
     print("   - Authorized redirect URIs:")
     print("     * http://localhost:8888/auth/callback")
     print("   - Click 'Create'")
@@ -216,7 +216,7 @@ def main():
         print("✅ OAuth setup complete!")
         print()
         print("🔄 Next steps:")
-        print("1. Restart your CreatorMate server")
+        print("1. Restart your Vidalytics server")
         print("2. Try connecting your YouTube account again")
         print("3. Check the OAuth status in Settings")
         print()

@@ -66,7 +66,7 @@ if __name__ == "__main__":
     if update_oauth_credentials(client_id, client_secret):
         print()
         print("🔄 Next steps:")
-        print("1. Restart your CreatorMate server")
+        print("1. Restart your Vidalytics server")
         print("2. Try connecting your YouTube account again")
         sys.exit(0)
     else:

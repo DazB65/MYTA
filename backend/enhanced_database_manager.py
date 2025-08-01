@@ -1,5 +1,5 @@
 """
-Enhanced Database Manager for CreatorMate
+Enhanced Database Manager for Vidalytics
 Improved SQLite database operations with proper error handling, connection pooling, and transactions
 """
 
@@ -36,7 +36,7 @@ class DataIntegrityError(DatabaseError):
 @dataclass
 class ConnectionConfig:
     """Configuration for database connections"""
-    db_path: str = "creatormate.db"
+    db_path: str = "Vidalytics.db"
     pool_size: int = 10
     timeout: int = 30
     check_same_thread: bool = False

@@ -1,5 +1,5 @@
 /**
- * Application Constants for CreatorMate Frontend
+ * Application Constants for Vidalytics Frontend
  * Centralized location for magic numbers and configuration values
  */
 
@@ -33,12 +33,12 @@ export const INSIGHTS_REFRESH_INTERVAL = 300000 // 5 minutes
 
 // Local Storage Keys
 export const STORAGE_KEYS = {
-  USER_DATA: 'creatormate_user_data',
-  ONBOARDING_STATUS: 'creatormate_onboarding',
-  THEME_PREFERENCE: 'creatormate_theme',
-  SESSION_TOKEN: 'creatormate_session',
-  CHAT_HISTORY: 'creatormate_chat_history',
-  SAVED_MESSAGES: 'creatormate_saved_messages'
+  USER_DATA: 'Vidalytics_user_data',
+  ONBOARDING_STATUS: 'Vidalytics_onboarding',
+  THEME_PREFERENCE: 'Vidalytics_theme',
+  SESSION_TOKEN: 'Vidalytics_session',
+  CHAT_HISTORY: 'Vidalytics_chat_history',
+  SAVED_MESSAGES: 'Vidalytics_saved_messages'
 } as const
 
 // Animation Durations

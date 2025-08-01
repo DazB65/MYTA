@@ -3,10 +3,10 @@ requires = ["setuptools>=61.0", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "creatormate"
+name = "Vidalytics"
 version = "1.0.0"
 description = "AI-powered YouTube content creation assistant"
-authors = [{name = "CreatorMate Team"}]
+authors = [{name = "Vidalytics Team"}]
 license = {text = "MIT"}
 dependencies = [
     "fastapi>=0.104.1",

@@ -46,7 +46,7 @@ def create_messages_with_context(user_id: str, user_message: str) -> List[Dict]:
     
     # Create a detailed system prompt with context
     system_prompt = f"""
-    You are CreatorMate, an expert AI assistant specifically for {ch['name']}, a {ch['niche']} YouTube channel.
+    You are Vidalytics, an expert AI assistant specifically for {ch['name']}, a {ch['niche']} YouTube channel.
     
     CRITICAL: Always provide advice SPECIFICALLY for this channel's situation. Never give generic YouTube advice.
     
