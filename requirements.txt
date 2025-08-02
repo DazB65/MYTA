@@ -21,7 +21,7 @@ google-auth-oauthlib==1.1.0
 google-auth==2.25.2
 
 # Database
-sqlite3  # Built into Python
+# sqlite3 is built into Python and doesn't need to be in requirements.txt
 
 # Caching and Performance
 cachetools==5.3.2

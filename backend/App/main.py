@@ -38,6 +38,7 @@ from monitoring_router import router as monitoring_router
 
 # Import services
 from backend.App.ai_services import update_user_context
+from backend.App.enhanced_user_context import get_user_context
 
 # Import rate limiting
 from rate_limiter import limiter, custom_rate_limit_handler, get_rate_limit
