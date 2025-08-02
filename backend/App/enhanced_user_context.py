@@ -9,11 +9,10 @@ from typing import Dict, List, Optional, Any
 from dataclasses import dataclass, asdict
 
 from backend.App.ai_services import get_user_context
-from backend.App.enhanced_user_context import get_user_context
 
 from backend.App.analytics_service import get_analytics_service
-from realtime_data_pipeline import get_data_pipeline
-from oauth_manager import get_oauth_manager
+from backend.App.realtime_data_pipeline import get_data_pipeline
+from backend.App.oauth_manager import get_oauth_manager
 
 logger = logging.getLogger(__name__)
 

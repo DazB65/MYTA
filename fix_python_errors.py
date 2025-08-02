@@ -115,10 +115,10 @@ def fix_pydantic_imports(file_path: str) -> bool:
     v1_imports = 'from pydantic.v1' in content
     direct_imports = re.search(r'from pydantic import(?! v1)', content)
     
-    if v1_imports and direct_imports:
+    if direct_imports:  # Only check for direct imports, don't require v1 imports
         # Convert direct imports to v1 imports
         new_content = re.sub(
-            r'from pydantic.v1 import ([^v].*?)$',
+            r'from pydantic import ([^v].*?)$',
             r'from pydantic.v1 import \1',
             content,
             flags=re.MULTILINE

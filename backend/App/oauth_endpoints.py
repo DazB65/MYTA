@@ -9,7 +9,7 @@ from datetime import datetime
 
 from fastapi import APIRouter, HTTPException, Request, Response, Depends
 from fastapi.responses import RedirectResponse, JSONResponse
-from pydantic import BaseModel, Field
+from pydantic.v1 import BaseModel, Field
 
 from oauth_manager import get_oauth_manager, OAuthToken
 

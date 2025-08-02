@@ -7,7 +7,7 @@ from typing import List, Optional, Dict, Any
 from datetime import datetime
 
 from fastapi import APIRouter, HTTPException, Request, Response, Depends, status
-from pydantic import BaseModel, Field
+from pydantic.v1 import BaseModel, Field
 
 from session_middleware import (
     require_auth,

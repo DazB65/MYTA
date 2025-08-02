@@ -14,8 +14,7 @@ from backend.App.api_models import (
 )
 
 # Import services
-from youtube_api_integration import get_youtube_integration
-from backend.App.ai_services import get_user_context
+from backend.App.youtube_api_integration import get_youtube_integration
 from backend.App.enhanced_user_context import get_user_context
 
 
@@ -99,8 +98,7 @@ async def _ensure_channel_id_stored(user_id: str, channel_id: str):
             if not current_channel_id or current_channel_id in ["", "Unknown", "null"]:
                 # Update the user context with the resolved channel_id
                 from backend.App.ai_services import update_user_context
-from backend.App.enhanced_user_context import get_user_context
-
+                
                 channel_info = user_context['channel_info'].copy()
                 channel_info['channel_id'] = channel_id
                 update_user_context(user_id, "channel_info", channel_info)

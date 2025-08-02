@@ -9,7 +9,7 @@ from datetime import datetime, timedelta
 
 from fastapi import APIRouter, HTTPException, Request, Depends
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
-from pydantic import BaseModel, Field
+from pydantic.v1 import BaseModel, Field
 import jwt
 from google.oauth2.credentials import Credentials
 from googleapiclient.discovery import build

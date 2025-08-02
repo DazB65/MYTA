@@ -11,7 +11,7 @@ from functools import wraps
 
 from fastapi import Request, HTTPException, Depends
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
-from pydantic import BaseModel
+from pydantic.v1 import BaseModel
 
 from security_config import get_security_config
 

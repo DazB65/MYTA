@@ -10,7 +10,7 @@ from typing import List, Dict, Any, Optional, Union
 from enum import Enum
 from pathlib import Path
 from pydantic_settings import BaseSettings
-from pydantic import Field, validator
+from pydantic.v1 import Field, validator
 from dotenv import load_dotenv
 
 logger = logging.getLogger(__name__)

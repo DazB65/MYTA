@@ -3,7 +3,7 @@ API Models for Vidalytics
 Centralized Pydantic models for request/response validation
 """
 
-from pydantic import BaseModel, ValidationError
+from pydantic.v1 import BaseModel, ValidationError
 from typing import List, Optional, Dict, Any
 from datetime import datetime
 

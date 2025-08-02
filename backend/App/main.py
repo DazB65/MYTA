@@ -13,7 +13,7 @@ import os
 from slowapi.errors import RateLimitExceeded
 
 # Import security middleware
-from security_middleware import add_security_middleware
+from backend.App.security_middleware import add_security_middleware
 from backend.App.config import get_settings
 
 # Import API models
@@ -27,21 +27,21 @@ from backend.App.constants import DEFAULT_SESSION_TIMEOUT_HOURS
 
 # Import routers
 from backend.App.agent_router import router as agent_router
-from youtube_router import router as youtube_router
-from pillars_router import router as pillars_router
+from backend.App.youtube_router import router as youtube_router
+from backend.App.pillars_router import router as pillars_router
 from backend.App.analytics_router import router as analytics_router
-from oauth_endpoints import oauth_router
+from backend.App.oauth_endpoints import oauth_router
 from backend.App.content_cards_router import router as content_cards_router
-from session_router import router as session_router
+from backend.App.session_router import router as session_router
 from backend.App.backup_router import router as backup_router
-from monitoring_router import router as monitoring_router
+from backend.App.monitoring_router import router as monitoring_router
 
 # Import services
 from backend.App.ai_services import update_user_context
 from backend.App.enhanced_user_context import get_user_context
 
 # Import rate limiting
-from rate_limiter import limiter, custom_rate_limit_handler, get_rate_limit
+from backend.App.rate_limiter import limiter, custom_rate_limit_handler, get_rate_limit
 
 # Import authentication
 from backend.App.auth_middleware import get_current_user, get_optional_user, get_user_id_from_request, AuthToken, create_session_token
@@ -50,16 +50,16 @@ from backend.App.auth_middleware import get_current_user, get_optional_user, get
 from backend.App.csrf_protection import setup_csrf_protection
 
 # Import secure error handling
-from secure_error_handler import create_secure_exception_handlers
+from backend.App.secure_error_handler import create_secure_exception_handlers
 
 # Import monitoring and logging
-from logging_config import get_logging_manager, get_logger, LogCategory
-from monitoring_middleware import setup_monitoring_middleware
+from backend.App.logging_config import get_logging_manager, get_logger, LogCategory
+from backend.App.monitoring_middleware import setup_monitoring_middleware
 
 # Import health checks
 
 # Import session management
-from session_middleware import SessionMiddleware
+from backend.App.session_middleware import SessionMiddleware
 
 # Security helpers
 def add_security_headers(response):
@@ -607,7 +607,7 @@ async def get_insights(user_id: str):
             }
         )
         
-        from insights_engine import insights_engine
+        from backend.App.insights_engine import insights_engine
         
         # Generate new insights
         new_insights = insights_engine.generate_insights_for_user(user_id, limit=3)
@@ -721,8 +721,8 @@ async def get_user_profile(
         
         # Try to get YouTube channel data if OAuth is connected
         try:
-            from oauth_manager import get_oauth_manager
-            from youtube_api_integration import get_youtube_integration
+            from backend.App.oauth_manager import get_oauth_manager
+            from backend.App.youtube_api_integration import get_youtube_integration
             
             logger.info(f"Getting user profile for user_id: {user_id}")
             

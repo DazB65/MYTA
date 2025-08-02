@@ -117,7 +117,7 @@ async def get_ai_response(user_message: str, user_id: str = "default_user", skip
             if quick_action:
                 # Route to quick action handler
                 from main import quick_action as handle_quick_action
-                from pydantic import BaseModel
+                from pydantic.v1 import BaseModel
                 
                 class QuickActionRequest(BaseModel):
                     action: str

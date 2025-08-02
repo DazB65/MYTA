@@ -21,7 +21,7 @@ router = APIRouter(prefix="/api/backup", tags=["backup"])
 
 
 # Pydantic models for API requests/responses
-from pydantic import BaseModel, Field
+from pydantic.v1 import BaseModel, Field
 
 class BackupCreateRequest(BaseModel):
     """Request model for creating a manual backup"""

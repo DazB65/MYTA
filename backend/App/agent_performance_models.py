@@ -6,7 +6,7 @@ Comprehensive performance tracking for the multi-agent system
 from datetime import datetime, timedelta
 from enum import Enum
 from typing import Optional, Dict, Any, List
-from pydantic import BaseModel, Field
+from pydantic.v1 import BaseModel, Field
 from dataclasses import dataclass
 import json
 
