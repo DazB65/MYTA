@@ -3,13 +3,12 @@ Unit tests for Redis Session Manager
 """
 
 import pytest
-import asyncio
 import json
 from datetime import datetime, timedelta, timezone
 from unittest.mock import AsyncMock, MagicMock, patch
 import redis
 
-from backend.redis_session_manager import (
+from backend import (
     RedisSessionManager,
     SessionData,
     SessionStatus,
@@ -563,7 +562,7 @@ class TestGlobalSessionManager:
             MockManager.return_value = mock_instance
             
             # Clear any existing global instance
-            import backend.redis_session_manager
+            import backend
             backend.redis_session_manager._session_manager = None
             
             manager1 = get_session_manager()
@@ -582,7 +581,7 @@ async def test_cleanup_expired_sessions():
         mock_manager.logger = MagicMock()
         mock_get_manager.return_value = mock_manager
         
-        from backend.redis_session_manager import cleanup_expired_sessions
+        from backend import cleanup_expired_sessions
         await cleanup_expired_sessions()
         
         mock_manager.get_session_stats.assert_called_once()

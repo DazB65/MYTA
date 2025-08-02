@@ -5,14 +5,13 @@ Integration tests for Redis session management
 import pytest
 import asyncio
 import redis
-import json
-from datetime import datetime, timedelta, timezone
+from datetime import timedelta
 from fastapi.testclient import TestClient
 from fastapi import FastAPI
 
-from backend.redis_session_manager import RedisSessionManager, SessionData, SessionStatus
-from backend.session_middleware import SessionMiddleware
-from backend.session_router import router as session_router
+from backend import RedisSessionManager, SessionData, SessionStatus
+from backend import SessionMiddleware
+from backend import router as session_router
 
 
 @pytest.fixture

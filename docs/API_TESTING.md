@@ -740,13 +740,14 @@ curl -X GET "http://localhost:8888/api/oauth/youtube/authorize" \
 # tests/integration/test_database_integration.py
 import pytest
 import asyncio
-from backend.redis_session_manager import get_session_manager
+from backend import get_session_manager
+
 
 @pytest.mark.asyncio
 async def test_redis_session_persistence():
     """Test session data persistence in Redis"""
     session_manager = get_session_manager()
-    
+
     # Create session
     session = await session_manager.create_session(
         user_id="integration_test_user",
@@ -754,23 +755,23 @@ async def test_redis_session_persistence():
         permissions=["user"],
         metadata={"test": "integration"}
     )
-    
+
     # Verify session exists
     retrieved = await session_manager.get_session(session.session_id)
     assert retrieved is not None
     assert retrieved.user_id == "integration_test_user"
-    
+
     # Update session
     success = await session_manager.update_session(
         session.session_id,
         metadata={"test": "updated"}
     )
     assert success is True
-    
+
     # Verify update
     updated = await session_manager.get_session(session.session_id)
     assert updated.metadata["test"] == "updated"
-    
+
     # Cleanup
     await session_manager.revoke_session(session.session_id)
 ```
@@ -818,24 +819,26 @@ pytest tests/smoke/ -v
 # tests/conftest.py - Shared test fixtures
 import pytest
 import asyncio
-from backend.redis_session_manager import get_session_manager
+from backend import get_session_manager
+
 
 @pytest.fixture
 async def test_user_session():
     """Create test user session"""
     session_manager = get_session_manager()
-    
+
     session = await session_manager.create_session(
         user_id="test_user_" + str(uuid.uuid4())[:8],
         ip_address="127.0.0.1",
         permissions=["user"],
         metadata={"test": True}
     )
-    
+
     yield session
-    
+
     # Cleanup
     await session_manager.revoke_session(session.session_id)
+
 
 @pytest.fixture
 def authenticated_client(test_user_session):
@@ -850,20 +853,22 @@ def authenticated_client(test_user_session):
 ```python
 # tests/utils/cleanup.py
 import asyncio
-from backend.redis_session_manager import get_session_manager
+from backend import get_session_manager
+
 
 async def cleanup_test_sessions():
     """Clean up test sessions"""
     session_manager = get_session_manager()
-    
+
     # Get all sessions
     redis_keys = session_manager.redis.keys("Vidalytics:session:*")
-    
+
     for key in redis_keys:
         session_data = session_manager.redis.get(key)
         if session_data and "test" in session_data:
             session_id = key.split(":")[-1]
             await session_manager.revoke_session(session_id)
+
 
 # Run cleanup
 if __name__ == "__main__":
