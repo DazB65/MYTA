@@ -153,8 +153,19 @@ class Settings(BaseSettings):
     
     def get_cors_config(self) -> Dict[str, Any]:
         """Get CORS configuration"""
+        # Environment-specific CORS origins
+        if self.is_production():
+            # In production, use environment variable or default to secure origins
+            origins = self.cors_origins
+            if not origins or origins == ["http://localhost:3000"]:
+                # Default production origins - update with your actual domain
+                origins = ["https://your-production-domain.com"]
+        else:
+            # Development origins
+            origins = ["http://localhost:3000", "http://localhost:8888", "http://127.0.0.1:3000"]
+        
         return {
-            "allow_origins": self.cors_origins,
+            "allow_origins": origins,
             "allow_credentials": True,
             "allow_methods": ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
             "allow_headers": ["*"],

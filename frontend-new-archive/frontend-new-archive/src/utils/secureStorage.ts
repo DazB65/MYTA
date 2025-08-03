@@ -1,172 +1,210 @@
 /**
- * Secure Storage Utility
+ * Secure Storage Implementation
  * Provides encrypted storage for sensitive data using Web Crypto API
- * Falls back to sessionStorage for development (less persistent than localStorage)
+ * Falls back to sessionStorage for browsers without Web Crypto API
  */
 
 interface StorageItem {
-  data: string;
-  timestamp: number;
-  expires?: number;
+  value: string;
+  expires: number;
+  encrypted: boolean;
 }
 
 class SecureStorage {
-  private keyPromise: Promise<CryptoKey>;
+  private readonly storageKey = 'Vidalytics_SecureStorage';
+  private readonly cryptoKey: CryptoKey | null = null;
+  private readonly useEncryption: boolean;
 
   constructor() {
-    this.keyPromise = this.generateOrRetrieveKey();
+    this.useEncryption = this.isWebCryptoAvailable();
+    if (this.useEncryption) {
+      this.initializeCrypto();
+    }
   }
 
-  private async generateOrRetrieveKey(): Promise<CryptoKey> {
-    try {
-      // Try to get existing key from sessionStorage (for session persistence)
-      const savedKey = sessionStorage.getItem('_sk');
-      if (savedKey) {
-        const keyData = JSON.parse(savedKey);
-        return await crypto.subtle.importKey(
-          'raw',
-          new Uint8Array(keyData),
-          { name: 'AES-GCM' },
-          false,
-          ['encrypt', 'decrypt']
-        );
-      }
+  private isWebCryptoAvailable(): boolean {
+    return typeof window !== 'undefined' && 
+           'crypto' in window && 
+           'subtle' in window.crypto &&
+           'getRandomValues' in window.crypto;
+  }
 
-      // Generate new key
-      const key = await crypto.subtle.generateKey(
-        { name: 'AES-GCM', length: 256 },
-        true,
-        ['encrypt', 'decrypt']
+  private async initializeCrypto(): Promise<void> {
+    try {
+      // Generate a key for AES-GCM encryption
+      const keyMaterial = await window.crypto.subtle.importKey(
+        'raw',
+        new TextEncoder().encode('Vidalytics-Secure-Storage-Key-2024'),
+        { name: 'PBKDF2' },
+        false,
+        ['deriveBits', 'deriveKey']
       );
 
-      // Export and save key for session persistence
-      const exportedKey = await crypto.subtle.exportKey('raw', key);
-      sessionStorage.setItem('_sk', JSON.stringify(Array.from(new Uint8Array(exportedKey))));
-
-      return key;
+      this.cryptoKey = await window.crypto.subtle.deriveKey(
+        {
+          name: 'PBKDF2',
+          salt: new TextEncoder().encode('Vidalytics-Salt'),
+          iterations: 100000,
+          hash: 'SHA-256'
+        },
+        keyMaterial,
+        { name: 'AES-GCM', length: 256 },
+        false,
+        ['encrypt', 'decrypt']
+      );
     } catch (error) {
-      console.warn('Web Crypto API not available, falling back to sessionStorage');
-      throw new Error('Crypto not supported');
+      console.warn('Failed to initialize crypto, falling back to sessionStorage:', error);
+      this.useEncryption = false;
     }
   }
 
   private async encrypt(data: string): Promise<string> {
+    if (!this.cryptoKey || !this.useEncryption) {
+      return data;
+    }
+
     try {
-      const key = await this.keyPromise;
-      const encoder = new TextEncoder();
-      const dataBuffer = encoder.encode(data);
+      const iv = window.crypto.getRandomValues(new Uint8Array(12));
+      const encodedData = new TextEncoder().encode(data);
       
-      const iv = crypto.getRandomValues(new Uint8Array(12));
-      const encrypted = await crypto.subtle.encrypt(
+      const encrypted = await window.crypto.subtle.encrypt(
         { name: 'AES-GCM', iv },
-        key,
-        dataBuffer
+        this.cryptoKey,
+        encodedData
       );
 
-      // Combine IV and encrypted data
-      const combined = new Uint8Array(iv.length + encrypted.byteLength);
+      const encryptedArray = new Uint8Array(encrypted);
+      const combined = new Uint8Array(iv.length + encryptedArray.length);
       combined.set(iv);
-      combined.set(new Uint8Array(encrypted), iv.length);
+      combined.set(encryptedArray, iv.length);
 
       return btoa(String.fromCharCode(...combined));
     } catch (error) {
-      // Fallback to base64 encoding (not secure, but better than plain text)
-      console.warn('Encryption failed, using base64 fallback');
-      return btoa(data);
+      console.warn('Encryption failed, storing unencrypted:', error);
+      return data;
     }
   }
 
   private async decrypt(encryptedData: string): Promise<string> {
+    if (!this.cryptoKey || !this.useEncryption) {
+      return encryptedData;
+    }
+
     try {
-      const key = await this.keyPromise;
       const combined = new Uint8Array(
         atob(encryptedData).split('').map(char => char.charCodeAt(0))
       );
-
+      
       const iv = combined.slice(0, 12);
       const encrypted = combined.slice(12);
 
-      const decrypted = await crypto.subtle.decrypt(
+      const decrypted = await window.crypto.subtle.decrypt(
         { name: 'AES-GCM', iv },
-        key,
+        this.cryptoKey,
         encrypted
       );
 
-      const decoder = new TextDecoder();
-      return decoder.decode(decrypted);
+      return new TextDecoder().decode(decrypted);
     } catch (error) {
-      // Fallback from base64
-      try {
-        return atob(encryptedData);
-      } catch {
-        console.error('Failed to decrypt data');
-        return '';
-      }
+      console.warn('Decryption failed, returning encrypted data:', error);
+      return encryptedData;
     }
   }
 
-  async setItem(key: string, value: string, expiresInMinutes?: number): Promise<void> {
-    const expires = expiresInMinutes 
-      ? Date.now() + (expiresInMinutes * 60 * 1000)
-      : undefined;
-
-    const item: StorageItem = {
-      data: value,
-      timestamp: Date.now(),
-      expires
-    };
-
+  async setItem(key: string, value: string, expiresInMinutes: number = 60): Promise<void> {
     try {
-      const encryptedData = await this.encrypt(JSON.stringify(item));
-      sessionStorage.setItem(`sec_${key}`, encryptedData);
+      const expires = Date.now() + (expiresInMinutes * 60 * 1000);
+      const item: StorageItem = {
+        value: await this.encrypt(value),
+        expires,
+        encrypted: this.useEncryption
+      };
+
+      const storage = this.getStorage();
+      const allData = this.getAllData();
+      allData[key] = item;
+      
+      storage.setItem(this.storageKey, JSON.stringify(allData));
     } catch (error) {
-      console.error('Failed to store item securely:', error);
-      // Don't fall back to localStorage for security reasons
-      throw new Error('Secure storage failed');
+      console.error('Failed to set secure storage item:', error);
+      // Fallback to regular sessionStorage
+      sessionStorage.setItem(key, value);
     }
   }
 
   async getItem(key: string): Promise<string | null> {
     try {
-      const encryptedData = sessionStorage.getItem(`sec_${key}`);
-      if (!encryptedData) return null;
+      const storage = this.getStorage();
+      const allData = this.getAllData();
+      const item = allData[key];
 
-      const decryptedData = await this.decrypt(encryptedData);
-      if (!decryptedData) return null;
+      if (!item) {
+        return null;
+      }
 
-      const item: StorageItem = JSON.parse(decryptedData);
-      
       // Check expiration
-      if (item.expires && Date.now() > item.expires) {
+      if (Date.now() > item.expires) {
         this.removeItem(key);
         return null;
       }
 
-      return item.data;
+      return await this.decrypt(item.value);
     } catch (error) {
-      console.error('Failed to retrieve item securely:', error);
-      return null;
+      console.error('Failed to get secure storage item:', error);
+      // Fallback to regular sessionStorage
+      return sessionStorage.getItem(key);
     }
   }
 
   removeItem(key: string): void {
-    sessionStorage.removeItem(`sec_${key}`);
+    try {
+      const storage = this.getStorage();
+      const allData = this.getAllData();
+      delete allData[key];
+      storage.setItem(this.storageKey, JSON.stringify(allData));
+    } catch (error) {
+      console.error('Failed to remove secure storage item:', error);
+      // Fallback to regular sessionStorage
+      sessionStorage.removeItem(key);
+    }
   }
 
   clear(): void {
-    // Remove all secure storage items
-    Object.keys(sessionStorage).forEach(key => {
-      if (key.startsWith('sec_')) {
-        sessionStorage.removeItem(key);
-      }
-    });
-    // Also remove the key
-    sessionStorage.removeItem('_sk');
+    try {
+      const storage = this.getStorage();
+      storage.removeItem(this.storageKey);
+    } catch (error) {
+      console.error('Failed to clear secure storage:', error);
+      // Fallback to regular sessionStorage
+      sessionStorage.clear();
+    }
   }
 
-  // Method to check if an item exists without decrypting
   hasItem(key: string): boolean {
-    return sessionStorage.getItem(`sec_${key}`) !== null;
+    try {
+      const allData = this.getAllData();
+      const item = allData[key];
+      return item !== undefined && Date.now() <= item.expires;
+    } catch (error) {
+      console.error('Failed to check secure storage item:', error);
+      return sessionStorage.getItem(key) !== null;
+    }
+  }
+
+  private getStorage(): Storage {
+    // Use sessionStorage for better security (cleared when browser closes)
+    return sessionStorage;
+  }
+
+  private getAllData(): Record<string, StorageItem> {
+    try {
+      const storage = this.getStorage();
+      const data = storage.getItem(this.storageKey);
+      return data ? JSON.parse(data) : {};
+    } catch (error) {
+      console.error('Failed to parse secure storage data:', error);
+      return {};
+    }
   }
 }
 

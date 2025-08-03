@@ -48,12 +48,37 @@ class SecurityConfig:
         
         if missing_vars:
             logger.error(f"Missing critical environment variables: {missing_vars}")
-            raise ValueError(f"Missing required environment variables: {missing_vars}")
+            if os.getenv("ENVIRONMENT", "development") == "production":
+                raise ValueError(f"Missing required environment variables: {missing_vars}")
+            else:
+                logger.warning("Running in development mode - some API keys may not be available")
         
         # Validate OAuth redirect URI
         redirect_uri = os.getenv("OAUTH_REDIRECT_URI")
         if redirect_uri and not redirect_uri.startswith(("http://localhost", "https://")):
             logger.warning("OAuth redirect URI should use HTTPS in production")
+        
+        # Validate secret keys
+        self._validate_secret_keys()
+    
+    def _validate_secret_keys(self):
+        """Validate that secret keys are properly set"""
+        boss_secret = os.getenv("BOSS_AGENT_SECRET_KEY")
+        session_secret = os.getenv("SESSION_SECRET_KEY")
+        
+        if not boss_secret or boss_secret == "generate_secure_random_key_here":
+            logger.warning("BOSS_AGENT_SECRET_KEY not set or using default - generating temporary key")
+            # Generate a secure random secret
+            new_secret = secrets.token_urlsafe(64)
+            os.environ["BOSS_AGENT_SECRET_KEY"] = new_secret
+            logger.warning("Generated temporary boss agent secret - set BOSS_AGENT_SECRET_KEY for persistence")
+        
+        if not session_secret or session_secret == "generate_secure_random_key_here":
+            logger.warning("SESSION_SECRET_KEY not set or using default - generating temporary key")
+            # Generate a secure random secret
+            new_secret = secrets.token_urlsafe(64)
+            os.environ["SESSION_SECRET_KEY"] = new_secret
+            logger.warning("Generated temporary session secret - set SESSION_SECRET_KEY for persistence")
     
     def get_api_key(self, service: str) -> Optional[str]:
         """Securely retrieve API keys"""
@@ -93,10 +118,19 @@ class SecurityConfig:
     def get_boss_agent_secret(self) -> str:
         """Get or generate boss agent secret"""
         secret = os.getenv("BOSS_AGENT_SECRET_KEY")
-        if not secret:
+        if not secret or secret == "generate_secure_random_key_here":
             # Generate a secure random secret
             secret = secrets.token_urlsafe(64)
             logger.warning("Generated temporary boss agent secret - set BOSS_AGENT_SECRET_KEY for persistence")
+        return secret
+    
+    def get_session_secret(self) -> str:
+        """Get or generate session secret"""
+        secret = os.getenv("SESSION_SECRET_KEY")
+        if not secret or secret == "generate_secure_random_key_here":
+            # Generate a secure random secret
+            secret = secrets.token_urlsafe(64)
+            logger.warning("Generated temporary session secret - set SESSION_SECRET_KEY for persistence")
         return secret
     
     def is_production(self) -> bool:
@@ -164,3 +198,7 @@ def get_oauth_config() -> Dict[str, str]:
 def get_boss_agent_secret() -> str:
     """Convenience function to get boss agent secret"""
     return get_security_config().get_boss_agent_secret()
+
+def get_session_secret() -> str:
+    """Convenience function to get session secret"""
+    return get_security_config().get_session_secret()
