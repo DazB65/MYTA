@@ -17,12 +17,12 @@ The Vidalytics application has several **CRITICAL** security vulnerabilities tha
 **Impact:** Complete system compromise, unauthorized API access
 
 **Exposed Secrets:**
-- OpenAI API Key: `sk-proj-5OJev6d2HGtPM4ZCVqVkkO6WzOxENo2D3i1CAfBQ9iWFmYcv4C6L352SKnVIP52pKnS7lMOzqpT3BlbkFJXoZn2liAt...`
-- Anthropic API Key: `sk-ant-api03-PpKfAqs7D5No3Dml7QVIl9IpkunzoMFu9Ey2EtG0UQf0Hzg3ytosgbvr3Y0uI44w1dlkCQCEjdDwkq6y5c4...`
-- Google API Key: `AIzaSyCqv_DanAm4ZKxswnGKS7ujqrlz7w-09LE`
-- Google OAuth Client Secret: `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`
-- YouTube API Key: `AIzaSyCBaJZvD_KGWRhy-AcuOzio2csk-0rML10`
-- Boss Agent Secret Key: `8f7e6d5c4b3a2910abcdef0123456789fedcba9876543210abcdef0123456789`
+- OpenAI API Key: `sk-proj-***EXPOSED***` (ROTATED)
+- Anthropic API Key: `sk-ant-api03-***EXPOSED***` (ROTATED)
+- Google API Key: `AIzaSy***EXPOSED***` (ROTATED)
+- Google OAuth Client Secret: `GOCSPX-***EXPOSED***` (ROTATED)
+- YouTube API Key: `AIzaSy***EXPOSED***` (ROTATED)
+- Boss Agent Secret Key: `***EXPOSED***` (ROTATED)
 
 **Immediate Actions Required:**
 1. **IMMEDIATELY** rotate all exposed API keys
