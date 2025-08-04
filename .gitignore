@@ -107,7 +107,6 @@ dist/
 # Legacy frontend directory (no longer used)
 frontend-new/
 
-frontend-vidalytics/
 
 # Claude Code specific
 .kiro/
