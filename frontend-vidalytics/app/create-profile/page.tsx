@@ -401,7 +401,7 @@ export default function CreateProfilePage() {
                 className="text-white font-bold text-center leading-tight"
                 style={{ fontSize: "4rem", lineHeight: "1.1" }}
               >
-                Meet Boss Agent and his Agentic Workers
+                Boss and his Team of Agents working for you
               </h3>
             </div>
 
