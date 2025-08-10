@@ -1,75 +1,105 @@
-# Nuxt Minimal Starter
+# Vidalytics Frontend
 
-Look at the [Nuxt documentation](https://nuxt.com/docs/getting-started/introduction) to learn more.
+Modern YouTube analytics dashboard built with Nuxt 4, Vue 3, and Tailwind CSS.
+
+## Features
+
+- 📊 **Interactive Analytics Dashboard** with real-time charts
+- 🎯 **Content Pillars Management** for organizing content themes
+- 📱 **Responsive Design** optimized for all devices
+- 🎨 **Modern UI/UX** with Tailwind CSS styling
+- ⚡ **Fast Performance** with Nuxt 4 optimizations
+- 🔄 **Real-time Updates** with reactive data
+
+## Tech Stack
+
+- **Framework**: Nuxt 4 (Vue 3)
+- **Styling**: Tailwind CSS
+- **TypeScript**: Full type safety
+- **Icons**: Lucide Icons
+- **Charts**: Chart.js integration
+- **State**: Nuxt composables
 
 ## Setup
 
-Make sure to install dependencies:
+Install dependencies:
 
 ```bash
-# npm
 npm install
-
-# pnpm
-pnpm install
-
-# yarn
-yarn install
-
-# bun
-bun install
 ```
 
-## Development Server
+## Development
 
 Start the development server on `http://localhost:3000`:
 
 ```bash
-# npm
 npm run dev
-
-# pnpm
-pnpm dev
-
-# yarn
-yarn dev
-
-# bun
-bun run dev
 ```
+
+The frontend will connect to the backend API at `http://localhost:8000`.
+
+## Project Structure
+
+```
+frontend-nuxt4/
+├── app/
+│   ├── pages/              # Nuxt pages (routes)
+│   └── layouts/            # Layout components
+├── components/
+│   ├── analytics/          # Analytics dashboard components
+│   ├── ui/                 # Reusable UI components
+│   └── charts/             # Chart components
+├── composables/            # Nuxt composables
+│   ├── useAnalytics.js     # Analytics data management
+│   └── useApi.js           # API utilities
+├── public/                 # Static assets
+└── nuxt.config.ts          # Nuxt configuration
+```
+
+## Key Components
+
+- **AnalyticsOverview** - Main dashboard overview
+- **ChartsDashboard** - Interactive charts and metrics
+- **ContentPillars** - Content theme management
+- **PerformanceMetrics** - Key performance indicators
+
+## API Integration
+
+The frontend connects to the FastAPI backend:
+
+- **Base URL**: `http://localhost:8000`
+- **Analytics**: `/api/analytics/*`
+- **Content**: `/api/content/*`
+- **Auth**: `/api/auth/*`
 
 ## Production
 
-Build the application for production:
+Build for production:
 
 ```bash
-# npm
 npm run build
-
-# pnpm
-pnpm build
-
-# yarn
-yarn build
-
-# bun
-bun run build
 ```
 
-Locally preview production build:
+Preview production build:
 
 ```bash
-# npm
 npm run preview
-
-# pnpm
-pnpm preview
-
-# yarn
-yarn preview
-
-# bun
-bun run preview
 ```
 
-Check out the [deployment documentation](https://nuxt.com/docs/getting-started/deployment) for more information.
+## Environment Variables
+
+Frontend environment variables (if needed):
+
+```env
+# API Configuration
+NUXT_PUBLIC_API_BASE_URL=http://localhost:8000
+```
+
+## Development Tips
+
+- Use browser dev tools to inspect components
+- Check console for any API connection issues
+- Backend must be running on port 8000
+- Hot reload is enabled for fast development
+
+For more information, see the [main project documentation](../docs/README.md).

@@ -21,26 +21,28 @@ The Vidalytics API is a comprehensive RESTful API that provides YouTube content 
 ### Base URL
 
 ```
-Development: http://localhost:8888
-Production: https://api.Vidalytics.com
+Development: http://localhost:8000
+Production: https://api.vidalytics.com
 ```
 
 ### Making Your First Request
 
-1. **Create a Session** (Login)
+1. **Health Check**
+
 ```bash
-curl -X POST "http://localhost:8888/api/session/login" \
-  -H "Content-Type: application/json" \
-  -d '{
-    "user_id": "your_user_id",
-    "metadata": {"device": "api_client"}
-  }'
+curl -X GET "http://localhost:8000/health"
 ```
 
-2. **Use the Session Cookie** for authenticated requests
+2. **Analytics Status**
+
 ```bash
-curl -X GET "http://localhost:8888/api/agent/chat" \
-  -H "Cookie: Vidalytics_session=your_session_id"
+curl -X GET "http://localhost:8000/api/analytics/status/"
+```
+
+3. **Analytics Overview**
+
+```bash
+curl -X GET "http://localhost:8000/api/analytics/overview/"
 ```
 
 ## Authentication
@@ -50,6 +52,7 @@ Vidalytics uses Redis-based session management for secure authentication.
 ### Session Management
 
 #### Creating a Session (Login)
+
 ```http
 POST /api/session/login
 Content-Type: application/json
@@ -66,6 +69,7 @@ Content-Type: application/json
 ```
 
 **Response:**
+
 ```json
 {
   "success": true,
@@ -84,6 +88,7 @@ Content-Type: application/json
 Sessions can be used in two ways:
 
 1. **Cookie-based** (Recommended for web applications)
+
    - Session cookie is automatically set on login
    - Include cookie in subsequent requests
 
@@ -94,15 +99,15 @@ Sessions can be used in two ways:
 
 #### Session Endpoints
 
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| POST | `/api/session/login` | Create new session |
-| POST | `/api/session/logout` | Revoke current session |
-| POST | `/api/session/logout-all` | Revoke all other sessions |
-| GET | `/api/session/current` | Get current session info |
-| GET | `/api/session/list` | List all user sessions |
-| PUT | `/api/session/update` | Update session metadata |
-| DELETE | `/api/session/revoke/{session_id}` | Revoke specific session |
+| Method | Endpoint                           | Description               |
+| ------ | ---------------------------------- | ------------------------- |
+| POST   | `/api/session/login`               | Create new session        |
+| POST   | `/api/session/logout`              | Revoke current session    |
+| POST   | `/api/session/logout-all`          | Revoke all other sessions |
+| GET    | `/api/session/current`             | Get current session info  |
+| GET    | `/api/session/list`                | List all user sessions    |
+| PUT    | `/api/session/update`              | Update session metadata   |
+| DELETE | `/api/session/revoke/{session_id}` | Revoke specific session   |
 
 ## API Endpoints
 
@@ -111,6 +116,7 @@ Sessions can be used in two ways:
 The core AI functionality is provided through the agent system.
 
 #### Chat Interface
+
 ```http
 POST /api/agent/chat
 Content-Type: application/json
@@ -129,6 +135,7 @@ Cookie: Vidalytics_session=your_session_id
 ```
 
 **Response:**
+
 ```json
 {
   "success": true,
@@ -150,6 +157,7 @@ Cookie: Vidalytics_session=your_session_id
 ```
 
 #### Quick Actions
+
 ```http
 POST /api/agent/quick-action
 Content-Type: application/json
@@ -167,16 +175,19 @@ Content-Type: application/json
 ### YouTube Integration
 
 #### Channel Analytics
+
 ```http
 GET /api/youtube/analytics/channel/{channel_id}?timeframe=30d&metrics=views,engagement
 ```
 
 #### Video Data
+
 ```http
 GET /api/youtube/videos/{video_id}
 ```
 
 #### OAuth Flow
+
 ```http
 GET /api/oauth/youtube/authorize
 POST /api/oauth/youtube/callback
@@ -187,6 +198,7 @@ DELETE /api/oauth/youtube/disconnect
 ### Content Pillars
 
 #### Pillar Management
+
 ```http
 GET /api/pillars                    # List all pillars
 POST /api/pillars                   # Create new pillar
@@ -196,6 +208,7 @@ DELETE /api/pillars/{pillar_id}     # Delete pillar
 ```
 
 #### Video Assignment
+
 ```http
 POST /api/pillars/{pillar_id}/videos/{video_id}  # Assign video to pillar
 DELETE /api/pillars/{pillar_id}/videos/{video_id}  # Remove video from pillar
@@ -204,11 +217,13 @@ DELETE /api/pillars/{pillar_id}/videos/{video_id}  # Remove video from pillar
 ### Analytics
 
 #### Dashboard Metrics
+
 ```http
 GET /api/analytics/dashboard?timeframe=7d
 ```
 
 #### Performance Reports
+
 ```http
 GET /api/analytics/performance/{metric_type}?start_date=2024-01-01&end_date=2024-01-31
 ```
@@ -220,26 +235,31 @@ Vidalytics's multi-agent architecture provides specialized AI capabilities:
 ### Agent Types
 
 1. **Boss Agent** - Central orchestrator
+
    - **Model**: Claude 3.5 Sonnet
    - **Purpose**: User communication, agent delegation, response synthesis
    - **Endpoints**: `/api/agent/chat`, `/api/agent/quick-action`
 
 2. **Content Analysis Agent** - Video performance analysis
+
    - **Model**: Gemini 2.5 Pro (primary), Claude 3.5 Sonnet (fallback)
    - **Purpose**: Video hooks, titles, thumbnails, retention analysis
    - **Cache TTL**: 1-4 hours
 
 3. **Audience Insights Agent** - Demographics and sentiment
+
    - **Model**: Claude 3.5 Sonnet (primary), Claude 3.5 Haiku (fallback)
    - **Purpose**: Audience behavior, demographics, community health
    - **Cache TTL**: 30 minutes - 4 hours
 
 4. **SEO & Discoverability Agent** - Search optimization
+
    - **Model**: Claude 3.5 Haiku
    - **Purpose**: Keyword research, search optimization, algorithm analysis
    - **Cache TTL**: 2-6 hours
 
 5. **Competitive Analysis Agent** - Market positioning
+
    - **Model**: Gemini 2.5 Pro (primary), Claude 3.5 Sonnet (fallback)
    - **Purpose**: Competitor benchmarking, market analysis
    - **Cache TTL**: 2-12 hours
@@ -278,6 +298,7 @@ The API uses standard HTTP status codes and provides detailed error information:
 ### Standard Response Format
 
 **Success Response:**
+
 ```json
 {
   "success": true,
@@ -290,6 +311,7 @@ The API uses standard HTTP status codes and provides detailed error information:
 ```
 
 **Error Response:**
+
 ```json
 {
   "success": false,
@@ -305,15 +327,15 @@ The API uses standard HTTP status codes and provides detailed error information:
 
 ### Common Error Codes
 
-| HTTP Status | Error Code | Description |
-|-------------|------------|-------------|
-| 400 | `VALIDATION_ERROR` | Request validation failed |
-| 401 | `AUTHENTICATION_REQUIRED` | Valid session required |
-| 403 | `INSUFFICIENT_PERMISSIONS` | User lacks required permissions |
-| 404 | `RESOURCE_NOT_FOUND` | Requested resource not found |
-| 429 | `RATE_LIMIT_EXCEEDED` | Too many requests |
-| 500 | `INTERNAL_SERVER_ERROR` | Server error occurred |
-| 503 | `SERVICE_UNAVAILABLE` | Service temporarily unavailable |
+| HTTP Status | Error Code                 | Description                     |
+| ----------- | -------------------------- | ------------------------------- |
+| 400         | `VALIDATION_ERROR`         | Request validation failed       |
+| 401         | `AUTHENTICATION_REQUIRED`  | Valid session required          |
+| 403         | `INSUFFICIENT_PERMISSIONS` | User lacks required permissions |
+| 404         | `RESOURCE_NOT_FOUND`       | Requested resource not found    |
+| 429         | `RATE_LIMIT_EXCEEDED`      | Too many requests               |
+| 500         | `INTERNAL_SERVER_ERROR`    | Server error occurred           |
+| 503         | `SERVICE_UNAVAILABLE`      | Service temporarily unavailable |
 
 ### Agent-Specific Errors
 
@@ -336,12 +358,12 @@ The API implements intelligent rate limiting based on user type and endpoint:
 
 ### Rate Limit Tiers
 
-| Tier | Requests/Minute | Burst Limit |
-|------|-----------------|-------------|
-| Public | 60 | 10 |
-| Authenticated | 300 | 50 |
-| Premium | 1000 | 100 |
-| Admin | 5000 | 500 |
+| Tier          | Requests/Minute | Burst Limit |
+| ------------- | --------------- | ----------- |
+| Public        | 60              | 10          |
+| Authenticated | 300             | 50          |
+| Premium       | 1000            | 100         |
+| Admin         | 5000            | 500         |
 
 ### Rate Limit Headers
 
@@ -354,13 +376,13 @@ X-RateLimit-Retry-After: 60
 
 ### Endpoint-Specific Limits
 
-| Endpoint Category | Rate Limit |
-|-------------------|------------|
-| Authentication | 10/minute |
-| Agent Chat | 100/minute |
-| Quick Actions | 50/minute |
-| Analytics | 200/minute |
-| Health Checks | 1000/minute |
+| Endpoint Category | Rate Limit  |
+| ----------------- | ----------- |
+| Authentication    | 10/minute   |
+| Agent Chat        | 100/minute  |
+| Quick Actions     | 50/minute   |
+| Analytics         | 200/minute  |
+| Health Checks     | 1000/minute |
 
 ## SDKs and Examples
 
@@ -400,32 +422,33 @@ pillar = client.pillars.create(
 ### JavaScript SDK Example
 
 ```javascript
-import { VidalyticsClient } from '@Vidalytics/sdk';
+import { VidalyticsClient } from "@Vidalytics/sdk";
 
 const client = new VidalyticsClient({
-  baseUrl: 'http://localhost:8888',
-  userId: 'your_user_id'
+  baseUrl: "http://localhost:8888",
+  userId: "your_user_id",
 });
 
 // Login
-await client.auth.login({ password: 'your_password' });
+await client.auth.login({ password: "your_password" });
 
 // Chat with AI
 const chatResponse = await client.agent.chat({
-  message: 'What trending topics should I cover?',
-  context: { intent: 'content_planning' }
+  message: "What trending topics should I cover?",
+  context: { intent: "content_planning" },
 });
 
 // Get quick action suggestions
 const suggestions = await client.agent.quickAction({
-  actionType: 'generate_ideas',
-  parameters: { niche: 'tech', count: 5 }
+  actionType: "generate_ideas",
+  parameters: { niche: "tech", count: 5 },
 });
 ```
 
 ### cURL Examples
 
 #### Authentication Flow
+
 ```bash
 # Login
 curl -X POST "http://localhost:8888/api/session/login" \
@@ -449,13 +472,13 @@ Vidalytics supports webhooks for real-time notifications:
 
 ### Webhook Events
 
-| Event | Description |
-|-------|-------------|
-| `agent.response_completed` | AI agent completed a response |
-| `youtube.video_published` | New video detected on channel |
+| Event                         | Description                          |
+| ----------------------------- | ------------------------------------ |
+| `agent.response_completed`    | AI agent completed a response        |
+| `youtube.video_published`     | New video detected on channel        |
 | `analytics.threshold_reached` | Performance metric threshold reached |
-| `pillar.video_assigned` | Video assigned to content pillar |
-| `session.expired` | User session expired |
+| `pillar.video_assigned`       | Video assigned to content pillar     |
+| `session.expired`             | User session expired                 |
 
 ### Webhook Payload
 
@@ -503,8 +526,8 @@ GET /api/session/health        # Session system health
   "overall_health": 0.95,
   "status": "healthy",
   "model_integrations": {
-    "openai": {"status": "healthy", "response_time_ms": 250},
-    "google": {"status": "healthy", "response_time_ms": 180}
+    "openai": { "status": "healthy", "response_time_ms": 250 },
+    "google": { "status": "healthy", "response_time_ms": 180 }
   },
   "youtube_api": {
     "status": "healthy",
@@ -523,6 +546,7 @@ GET /api/session/health        # Session system health
 ## Changelog
 
 ### v2.0.0 (Current)
+
 - ✅ **Multi-agent architecture** with specialized AI agents
 - ✅ **Redis session management** for secure authentication
 - ✅ **Enhanced YouTube integration** with OAuth 2.0
@@ -532,6 +556,7 @@ GET /api/session/health        # Session system health
 - ✅ **CI/CD pipeline** with automated testing and security scanning
 
 ### v1.0.0 (Legacy)
+
 - Basic AI chat interface
 - Simple YouTube analytics
 - JWT-based authentication
@@ -540,7 +565,7 @@ GET /api/session/health        # Session system health
 ## Support
 
 - **Documentation**: https://docs.Vidalytics.com
-- **API Status**: https://status.Vidalytics.com  
+- **API Status**: https://status.Vidalytics.com
 - **Community**: https://community.Vidalytics.com
 - **Support Email**: support@Vidalytics.com
 - **GitHub Issues**: https://github.com/Vidalytics/api/issues
