@@ -40,7 +40,7 @@ except Exception as e:
     logger.info("Supabase not configured, using local SQLite storage")
 
 # Import local storage as fallback
-from content_cards_local import get_local_content_cards_db
+from backend.App.content_cards_local import get_local_content_cards_db
 
 # Initialize Supabase client
 def get_supabase_client():

@@ -12,10 +12,10 @@ import os
 import time
 from googleapiclient.errors import HttpError
 from dataclasses import dataclass
-from youtube_api_integration import get_youtube_integration
-from base_agent import BaseSpecializedAgent, AgentType, AgentRequest, AgentAnalysis, AgentInsight, AgentRecommendation
-from boss_agent_auth import SpecializedAgentAuthMixin
-from connection_pool import get_youtube_client
+from backend.youtube_api_integration import get_youtube_integration
+from backend.base_agent import BaseSpecializedAgent, AgentType, AgentRequest, AgentAnalysis, AgentInsight, AgentRecommendation
+from backend.boss_agent_auth import SpecializedAgentAuthMixin
+from backend.connection_pool import get_youtube_client
 from backend import get_agent_model_adapter
 
 # Configure logging
@@ -1488,38 +1488,7 @@ class ContentAnalysisAgent(SpecializedAgentAuthMixin, BaseSpecializedAgent):
             } if by_overall else None
         }
     
-    def _create_sample_metrics(self, channel_id: str) -> List[ContentMetrics]:
-        """Create sample metrics for demo purposes"""
-        
-        # This would be replaced with actual API calls in production
-        import random
-        
-        sample_titles = [
-            "How to Master YouTube Analytics in 2024",
-            "5 Content Creation Mistakes That Kill Your Channel",
-            "The Ultimate Guide to Video Thumbnails",
-            "YouTube Algorithm Secrets Revealed",
-            "Building a Loyal YouTube Community"
-        ]
-        
-        metrics = []
-        for i, title in enumerate(sample_titles):
-            base_views = 5000 + random.randint(1000, 15000)
-            likes = int(base_views * random.uniform(0.02, 0.08))
-            comments = int(base_views * random.uniform(0.005, 0.02))
-            
-            metrics.append(ContentMetrics(
-                video_id=f"sample_video_{i}",
-                title=title,
-                views=base_views,
-                likes=likes,
-                comments=comments,
-                duration=random.randint(300, 900),  # 5-15 minutes
-                published_at=datetime.now().isoformat(),
-                engagement_rate=((likes + comments) / base_views) * 100
-            ))
-        
-        return metrics
+    # Removed _create_sample_metrics; rely on real video metrics only
     
     def _parse_duration(self, duration_str: str) -> int:
         """Parse YouTube ISO 8601 duration to seconds"""

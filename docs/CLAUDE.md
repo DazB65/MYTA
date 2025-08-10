@@ -15,18 +15,21 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ## Git Workflow
 
 ### Branch Strategy
+
 - **main**: Stable production branch (protected)
 - **development**: Main development branch for ongoing work
 - **feature/[feature-name]**: Short-lived feature branches for Claude Code sessions
 - **fix/[issue-name]**: Bug fix branches
 
 ### Claude Code Sessions
+
 1. **Start**: Create feature branch from development: `git checkout -b feature/claude-[task-name]`
 2. **Work**: Make focused commits with descriptive messages
 3. **Complete**: Create PR to merge back to development
 4. **Deploy**: Merge development to main when ready for production
 
 ### Commit Message Standards
+
 - **feat**: New features or enhancements
 - **fix**: Bug fixes
 - **docs**: Documentation updates
@@ -39,6 +42,7 @@ Format: `type: brief description`
 Example: `feat: add OAuth authentication to YouTube integration`
 
 ### Best Practices
+
 - Keep commits atomic and focused
 - Always include the Claude Code signature in commit messages
 - Use meaningful branch names that describe the work being done
@@ -199,20 +203,20 @@ uvicorn main:app --reload --host 0.0.0.0 --port 8888
 ### Frontend Development
 
 ```bash
-# Navigate to React frontend directory
-cd frontend-vidalytics
+# Navigate to Nuxt 4 frontend directory
+cd frontend-nuxt4
 
 # Install dependencies
 npm install
 
 # Start development server (for development)
-npm run dev
+API_BASE_URL=http://localhost:8888 npm run dev
 
 # Build for production
-npm run build
+API_BASE_URL=http://localhost:8888 npm run build
 
-# Type checking
-npm run type-check
+# (Optional) Preview production build
+npm run preview
 ```
 
 ### Quick Start

@@ -57,7 +57,7 @@ class AgentCache:
         }
         
         cache_string = json.dumps(cache_data, sort_keys=True)
-        return hashlib.md5(cache_string.encode()).hexdigest()
+        return hashlib.sha256(cache_string.encode()).hexdigest()
     
     def _normalize_message(self, message: str) -> str:
         """Normalize message for caching by removing time-specific elements"""

@@ -7,9 +7,9 @@ import asyncio
 import logging
 from datetime import datetime
 from typing import Dict, List, Any
-from agent_models import AgentRequest, AgentResponse, QueryType
-from boss_agent_auth import get_boss_agent_authenticator
-from agent_model_adapter import migrate_openai_call_to_integration
+from backend.App.agent_models import AgentRequest, AgentResponse, QueryType
+from backend.boss_agent_auth import get_boss_agent_authenticator
+from backend.agent_model_adapter import migrate_openai_call_to_integration
 
 logger = logging.getLogger(__name__)
 
@@ -67,7 +67,7 @@ class ContentAnalysisAgent(SpecializedAgent):
     def __init__(self):
         super().__init__("content_analyzer")
         # Import the specialized agent
-        from content_analysis_agent import get_content_analysis_agent
+        from backend.content_analysis_agent import get_content_analysis_agent
         self.specialized_agent = get_content_analysis_agent()
     
     async def _generate_response(self, request: AgentRequest) -> Dict[str, Any]:

@@ -15,7 +15,7 @@ import json
 from googleapiclient.discovery import build
 from googleapiclient.errors import HttpError
 from backend.App.oauth_manager import get_oauth_manager
-from security_config import get_api_key
+from backend.App.security_config import get_api_key
 
 # Configure logging
 logger = logging.getLogger(__name__)
@@ -352,7 +352,7 @@ class YouTubeAPIIntegration:
     def _generate_cache_key(self, method: str, **params) -> str:
         """Generate cache key for API request"""
         key_data = f"{method}_{json.dumps(params, sort_keys=True)}"
-        return hashlib.md5(key_data.encode()).hexdigest()
+        return hashlib.sha256(key_data.encode()).hexdigest()
     
     async def _make_conditional_request(self, request_func, cache_key: str, operation_type: str):
         """Make a conditional API request using ETags when available with smart backoff"""
@@ -1363,41 +1363,7 @@ class YouTubeAPIIntegration:
             logger.error(f"Error fetching analytics data: {e}")
             return {}
     
-    def _generate_analytics_estimates(self, video_ids: List[str]) -> Dict[str, Any]:
-        """Generate realistic analytics estimates when Analytics API is unavailable"""
-        import random
-        
-        analytics_data = {}
-        
-        for video_id in video_ids:
-            # Generate realistic estimates based on typical YouTube performance
-            base_retention = random.uniform(35, 65)  # 35-65% retention is typical
-            base_ctr = random.uniform(2, 8) / 100     # 2-8% CTR is typical
-            base_revenue_per_1k_views = random.uniform(0.5, 3.0)  # $0.50-$3.00 per 1k views
-            
-            analytics_data[video_id] = {
-                'views': 0,  # Will be filled from basic data
-                'watch_time_minutes': 0,  # Will be calculated from duration and retention
-                'average_view_duration_seconds': 0,  # Will be calculated
-                'retention_percentage': base_retention,
-                'estimated_revenue': 0,  # Will be calculated from views
-                'impressions': 0,  # Will be estimated from views
-                'ctr': base_ctr,
-                'estimated_ad_revenue': 0,
-                'estimated_red_revenue': 0,
-                'monetized_playbacks': 0,
-                'playback_cpm': random.uniform(1.0, 4.0),  # $1-4 CPM
-                'traffic_sources': {
-                    'search': random.uniform(15, 35),    # 15-35% from search
-                    'suggested': random.uniform(25, 45), # 25-45% from suggested
-                    'external': random.uniform(5, 15),   # 5-15% from external
-                    'browse': random.uniform(10, 25),    # 10-25% from browse
-                    'other': random.uniform(5, 15)       # 5-15% other
-                }
-            }
-        
-        logger.info(f"Generated analytics estimates for {len(analytics_data)} videos")
-        return analytics_data
+
     
     def _parse_duration_to_minutes(self, duration_str: str) -> float:
         """Parse YouTube duration string (like '10:10') to minutes"""

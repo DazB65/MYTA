@@ -11,7 +11,7 @@ from fastapi import APIRouter, HTTPException, Request, Response, Depends
 from fastapi.responses import RedirectResponse, JSONResponse
 from pydantic.v1 import BaseModel, Field
 
-from oauth_manager import get_oauth_manager, OAuthToken
+from backend.App.oauth_manager import get_oauth_manager, OAuthToken
 
 # Configure logging
 logger = logging.getLogger(__name__)

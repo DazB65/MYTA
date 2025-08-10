@@ -16,9 +16,9 @@ from googleapiclient.discovery import build
 from googleapiclient.errors import HttpError
 from dataclasses import dataclass
 import statistics
-from base_agent import BaseSpecializedAgent, AgentType, AgentRequest, AgentAnalysis, AgentInsight, AgentRecommendation
-from boss_agent_auth import SpecializedAgentAuthMixin
-from connection_pool import get_youtube_client
+from backend.base_agent import BaseSpecializedAgent, AgentType, AgentRequest, AgentAnalysis, AgentInsight, AgentRecommendation
+from backend.boss_agent_auth import SpecializedAgentAuthMixin
+from backend.connection_pool import get_youtube_client
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -491,40 +491,13 @@ class YouTubeAudienceAPIClient:
             
             stats = channel_response['items'][0]['statistics']
             
-            # For production, this would include actual demographics from Analytics API
-            # Currently using mock data structure that matches real API response format
+            # Return only statistics derivable from Data API until Analytics API is integrated
             demographics = {
                 'subscriber_count': int(stats.get('subscriberCount', 0)),
                 'total_view_count': int(stats.get('viewCount', 0)),
-                'video_count': int(stats.get('videoCount', 0)),
-                'age_groups': {
-                    '13-17': 8.5,
-                    '18-24': 22.3,
-                    '25-34': 35.7,
-                    '35-44': 18.9,
-                    '45-54': 10.2,
-                    '55-64': 3.8,
-                    '65+': 0.6
-                },
-                'gender': {
-                    'male': 58.3,
-                    'female': 41.7
-                },
-                'top_countries': {
-                    'US': 45.2,
-                    'UK': 12.8,
-                    'CA': 8.9,
-                    'AU': 6.1,
-                    'DE': 4.3
-                },
-                'devices': {
-                    'mobile': 68.4,
-                    'desktop': 24.7,
-                    'tablet': 4.8,
-                    'tv': 2.1
-                }
+                'video_count': int(stats.get('videoCount', 0))
             }
-            
+
             return demographics
             
         except HttpError as e:
@@ -538,37 +511,8 @@ class YouTubeAudienceAPIClient:
         """Retrieve audience behavior metrics"""
         
         try:
-            # In production, this would query Analytics API for detailed behavior data
-            # Mock behavior data based on typical YouTube patterns
-            behavior_data = {
-                'peak_activity_times': [
-                    {'hour': 18, 'day': 'tuesday', 'activity_score': 95},
-                    {'hour': 20, 'day': 'thursday', 'activity_score': 92},
-                    {'hour': 19, 'day': 'saturday', 'activity_score': 88},
-                    {'hour': 14, 'day': 'sunday', 'activity_score': 85}
-                ],
-                'avg_watch_time': 4.2,  # minutes
-                'avg_session_duration': 12.7,  # minutes
-                'return_viewer_percentage': 34.8,
-                'new_viewer_percentage': 65.2,
-                'traffic_sources': {
-                    'youtube_search': 28.5,
-                    'suggested_videos': 24.3,
-                    'browse_features': 18.2,
-                    'external': 12.7,
-                    'channel_pages': 8.9,
-                    'playlists': 4.8,
-                    'direct_unknown': 2.6
-                },
-                'engagement_patterns': {
-                    'like_rate': 4.2,
-                    'comment_rate': 0.8,
-                    'share_rate': 0.3,
-                    'subscribe_rate': 2.1
-                }
-            }
-            
-            return behavior_data
+            # Analytics API not integrated yet; return empty behavior data structure
+            return {}
             
         except Exception as e:
             logger.error(f"Error retrieving behavior data: {e}")

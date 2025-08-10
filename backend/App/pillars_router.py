@@ -18,8 +18,12 @@ from backend.App.api_models import (
 )
 
 # Import services
-from youtube_api_integration import get_youtube_integration
-from backend.App.boss_agent_auth import get_boss_agent_authenticator
+from backend.App.youtube_api_integration import get_youtube_integration
+# Try main module, fallback to compatibility layer
+try:
+    from backend.App.boss_agent_auth import get_boss_agent_authenticator
+except ImportError:  # pragma: no cover
+    from backend.App.boss_agent_auth_compat import get_boss_agent_authenticator
 
 # Configure logging
 logger = logging.getLogger(__name__)

@@ -3,17 +3,23 @@ from openai import OpenAI
 from dotenv import load_dotenv
 from typing import List, Dict
 import json
-from database import db_manager
+from backend.database import db_manager
 
 # Load environment variables from .env file (overriding system env vars for security)
 from dotenv import dotenv_values
 env_vars = dotenv_values()
 
-# Get API key from .env file first, fallback to system env if not found
-api_key = env_vars.get("OPENAI_API_KEY") or os.getenv("OPENAI_API_KEY")
+# Helper to lazily initialize the OpenAI client only when needed
+# Avoids crashing the server at import time when no API key is configured.
 
-# Initialize OpenAI client
-client = OpenAI(api_key=api_key)
+def get_openai_client():
+    api_key = env_vars.get("OPENAI_API_KEY") or os.getenv("OPENAI_API_KEY")
+    if not api_key:
+        return None
+    try:
+        return OpenAI(api_key=api_key)
+    except Exception:
+        return None
 
 def get_user_context(user_id: str) -> Dict:
     """Get context for a specific user from database"""
@@ -135,6 +141,11 @@ async def get_ai_response(user_message: str, user_id: str = "default_user", skip
         # Create messages with context
         messages = create_messages_with_context(user_id, user_message)
         
+        # Initialize client lazily
+        client = get_openai_client()
+        if not client:
+            return "OpenAI API key not configured. Please set OPENAI_API_KEY to enable AI responses."
+
         # Call OpenAI API
         response = client.chat.completions.create(
             model="gpt-4o",
@@ -142,7 +153,7 @@ async def get_ai_response(user_message: str, user_id: str = "default_user", skip
             max_tokens=1000,
             temperature=0.7
         )
-        
+
         # Get the response content
         ai_response = response.choices[0].message.content
         

@@ -16,8 +16,8 @@ from googleapiclient.discovery import build
 from googleapiclient.errors import HttpError
 from dataclasses import dataclass
 import statistics
-from boss_agent_auth import SpecializedAgentAuthMixin
-from connection_pool import get_youtube_client
+from backend.boss_agent_auth import SpecializedAgentAuthMixin
+from backend.connection_pool import get_youtube_client
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -601,7 +601,7 @@ class CompetitiveAnalysisCache:
             'include_performance_benchmarking': request.include_performance_benchmarking
         }
         cache_string = json.dumps(cache_data, sort_keys=True)
-        return hashlib.md5(cache_string.encode()).hexdigest()
+        return hashlib.sha256(cache_string.encode()).hexdigest()
     
     def get(self, request: CompetitiveAnalysisRequest) -> Optional[Dict[str, Any]]:
         """Get cached competitive analysis result"""
@@ -788,52 +788,7 @@ class CompetitiveAnalysisAgent(SpecializedAgentAuthMixin):
             }
         }
     
-    def _create_sample_competitor_data(self, channel_id: str) -> List[CompetitorMetrics]:
-        """Create sample competitor data for demo purposes"""
-        
-        import random
-        
-        sample_competitors = [
-            {
-                'name': 'TechMaster Pro',
-                'subscriber_base': 'large',
-                'content_focus': 'advanced tutorials'
-            },
-            {
-                'name': 'EduChannel Plus',
-                'subscriber_base': 'medium',
-                'content_focus': 'beginner-friendly content'
-            },
-            {
-                'name': 'Innovation Hub',
-                'subscriber_base': 'growing',
-                'content_focus': 'trending topics'
-            }
-        ]
-        
-        competitors = []
-        for i, comp_data in enumerate(sample_competitors):
-            competitors.append(CompetitorMetrics(
-                channel_id=f"competitor_{i}",
-                channel_name=comp_data['name'],
-                subscriber_count=random.randint(10000, 500000),
-                avg_views=random.uniform(5000, 50000),
-                avg_engagement_rate=random.uniform(2.0, 8.0),
-                upload_frequency=random.uniform(1.0, 7.0),
-                content_themes=['tutorial', 'review', 'educational'],
-                recent_performance={
-                    'performance_trend': random.choice(['improving', 'stable', 'declining']),
-                    'consistency_score': random.uniform(6.0, 9.0)
-                },
-                growth_rate=random.uniform(5.0, 25.0),
-                competitive_advantage=[
-                    'High production quality',
-                    'Consistent upload schedule',
-                    'Strong audience engagement'
-                ]
-            ))
-        
-        return competitors
+    # Removed _create_sample_competitor_data; rely on real competitor search via API only
     
     async def _get_channel_context(self, channel_id: str) -> Dict[str, Any]:
         """Get channel context for analysis"""

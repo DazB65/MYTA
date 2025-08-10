@@ -10,21 +10,21 @@ import traceback
 from typing import Dict
 
 # Import models
-from api_models import (
+from backend.api_models import (
     ChatMessage, QuickActionRequest, AgentTaskRequest, AgentCallbackRequest,
     ModelStatusResponse, StandardResponse, ChatResponse,
     ChannelInfo, create_error_response, create_success_response
 )
 
 # Import services
-from ai_services import get_ai_response, extract_channel_info, update_user_context, get_user_context
-from boss_agent import process_user_message
+from backend.ai_services import get_ai_response, extract_channel_info, update_user_context, get_user_context
+from backend.boss_agent import process_user_message
 from backend.backups import get_agent_cache
-from model_integrations import get_model_integration
-from boss_agent_auth import validate_specialized_agent_request
+from backend.model_integrations import get_model_integration
+from backend.boss_agent_auth import validate_specialized_agent_request
 
 # Import agent adapters
-from agent_adapters import (
+from backend.agent_adapters import (
     process_content_analysis_request,
     process_audience_insights_request,
     process_seo_request,
@@ -33,14 +33,14 @@ from agent_adapters import (
 )
 
 # Configure advanced logging
-from logging_config import get_logger, LogCategory
+from backend.logging_config import get_logger, LogCategory
 logger = get_logger(__name__, LogCategory.AGENT)
 
 # Create router
 router = APIRouter(prefix="/api/agent", tags=["agent"])
 
 # Import rate limiter from main app
-from rate_limiter import limiter, get_rate_limit
+from backend.rate_limiter import limiter, get_rate_limit
 
 # Security
 security = HTTPBearer(auto_error=False)
@@ -178,7 +178,7 @@ async def chat(request: Request, message: ChatMessage):
 def agent_status(request: Request):
     """Endpoint to check if the AI agent system is running"""
     try:
-        from api_startup import get_system_status
+        from backend.App.api_startup import get_system_status
         system_status = get_system_status()
         
         return {
@@ -241,8 +241,8 @@ async def quick_action(request: Request, action_request: QuickActionRequest):
 async def handle_enhanced_content_action(action_request: QuickActionRequest, context: Dict) -> StandardResponse:
     """Handle content-related actions with multi-agent coordination"""
     try:
-        from boss_agent import get_boss_agent
-        from enhanced_user_context import get_enhanced_context_manager
+        from backend.boss_agent import get_boss_agent
+        from backend.App.enhanced_user_context import get_enhanced_context_manager
         
         # Get enhanced context with real-time data
         enhanced_context_manager = get_enhanced_context_manager()

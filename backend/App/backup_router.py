@@ -9,12 +9,12 @@ from datetime import datetime
 import logging
 
 from backend.App.api_models import StandardResponse, create_success_response
-from backup_service import (
+from backend.backup_service import (
     get_backup_service, BackupHealthChecker,
     BackupSchedule, BackupAlert, BackupFrequency
 )
-from auth_middleware import get_current_user, AuthToken
-from config import get_settings
+from backend.auth_middleware import get_current_user, AuthToken
+from backend.config import get_settings
 
 logger = logging.getLogger(__name__)
 router = APIRouter(prefix="/api/backup", tags=["backup"])

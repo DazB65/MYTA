@@ -643,7 +643,7 @@ class MonetizationStrategyCache:
             'include_sponsorship_opportunities': request.include_sponsorship_opportunities
         }
         cache_string = json.dumps(cache_data, sort_keys=True)
-        return hashlib.md5(cache_string.encode()).hexdigest()
+        return hashlib.sha256(cache_string.encode()).hexdigest()
     
     def get(self, request: MonetizationAnalysisRequest) -> Optional[Dict[str, Any]]:
         """Get cached monetization analysis result"""

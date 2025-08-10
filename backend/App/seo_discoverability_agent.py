@@ -80,22 +80,22 @@ class YouTubeSEOAPIClient:
                 
                 # Calculate basic SEO metrics (in production, these would come from Analytics API)
                 views = int(stats.get('viewCount', 0))
-                
-                # Mock SEO metrics based on realistic patterns
+
+                # Only include fields derivable from actual video data; leave analytics-derived fields neutral
                 seo_metrics.append(SEOMetrics(
                     video_id=video_id,
                     title=title,
                     description=description,
                     tags=tags,
-                    search_traffic_percentage=self._calculate_search_traffic(title, tags),
-                    suggested_traffic_percentage=45.2,
-                    browse_traffic_percentage=12.8,
-                    click_through_rate=self._calculate_ctr(title, views),
-                    impressions=views * 15,  # Approximate impressions
-                    keyword_rankings=self._generate_keyword_rankings(title, tags),
+                    search_traffic_percentage=0.0,
+                    suggested_traffic_percentage=0.0,
+                    browse_traffic_percentage=0.0,
+                    click_through_rate=0.0,
+                    impressions=0,
+                    keyword_rankings={},
                     optimization_score=self._calculate_optimization_score(title, description, tags)
                 ))
-            
+
             return seo_metrics
             
         except HttpError as e:
@@ -227,16 +227,10 @@ class YouTubeSEOAPIClient:
             return []
     
     def _generate_trending_keywords(self, niche: str) -> List[Dict[str, Any]]:
-        """Generate mock trending keywords for the niche"""
-        
-        # Base keywords by niche
-        niche_keywords = {
-            'tech': ['ai', 'machine learning', 'coding', 'programming', 'software', 'tutorial'],
-            'gaming': ['gameplay', 'review', 'walkthrough', 'tips', 'guide', 'stream'],
-            'education': ['tutorial', 'learn', 'course', 'study', 'explained', 'guide'],
-            'lifestyle': ['vlog', 'daily', 'routine', 'tips', 'haul', 'review'],
-            'fitness': ['workout', 'exercise', 'training', 'diet', 'health', 'fitness']
-        }
+        """Generate trending keywords placeholder - to be replaced with real data source"""
+
+        # No mock data here; return empty list until implemented
+        return []
         
         base_keywords = niche_keywords.get(niche.lower(), ['tutorial', 'tips', 'guide', 'review'])
         
@@ -618,7 +612,7 @@ class SEODiscoverabilityCache:
             'include_competitor_keywords': request.include_competitor_keywords
         }
         cache_string = json.dumps(cache_data, sort_keys=True)
-        return hashlib.md5(cache_string.encode()).hexdigest()
+        return hashlib.sha256(cache_string.encode()).hexdigest()
     
     def get(self, request: SEOAnalysisRequest) -> Optional[Dict[str, Any]]:
         """Get cached SEO analysis result"""
@@ -766,8 +760,8 @@ class SEODiscoverabilityAgent(SpecializedAgentAuthMixin):
             # Analyze specific videos
             seo_metrics = await self.youtube_client.get_video_seo_data(request.video_ids)
         else:
-            # Generate sample SEO metrics for general analysis
-            seo_metrics = self._create_sample_seo_metrics(request.channel_id)
+            # No sample data - return empty metrics list until real selection implemented
+            seo_metrics = []
         
         analysis_results['seo_metrics'] = seo_metrics
         
@@ -823,54 +817,7 @@ class SEODiscoverabilityAgent(SpecializedAgentAuthMixin):
             }
         }
     
-    def _create_sample_seo_metrics(self, channel_id: str) -> List[SEOMetrics]:
-        """Create sample SEO metrics for demo purposes"""
-        
-        # Sample video data for SEO analysis
-        import random
-        
-        sample_videos = [
-            {
-                'title': 'Ultimate Guide to YouTube SEO in 2024',
-                'description': 'Learn how to optimize your YouTube videos for search with this comprehensive guide covering keywords, titles, descriptions, and tags. Boost your video discoverability today!',
-                'tags': ['youtube seo', 'video optimization', 'youtube marketing', 'seo guide', 'youtube growth']
-            },
-            {
-                'title': '5 SEO Mistakes That Kill Your YouTube Views',
-                'description': 'Avoid these common SEO mistakes that prevent your videos from being discovered. Essential tips for YouTube creators.',
-                'tags': ['seo mistakes', 'youtube tips', 'video marketing', 'youtube algorithm']
-            },
-            {
-                'title': 'Keyword Research for YouTube Success',
-                'description': 'Master YouTube keyword research with these proven strategies and tools.',
-                'tags': ['keyword research', 'youtube keywords', 'seo tools', 'youtube success']
-            }
-        ]
-        
-        metrics = []
-        for i, video_data in enumerate(sample_videos):
-            video_id = f"seo_sample_{i}"
-            
-            metrics.append(SEOMetrics(
-                video_id=video_id,
-                title=video_data['title'],
-                description=video_data['description'],
-                tags=video_data['tags'],
-                search_traffic_percentage=random.uniform(20, 45),
-                suggested_traffic_percentage=random.uniform(25, 50),
-                browse_traffic_percentage=random.uniform(10, 20),
-                click_through_rate=random.uniform(3, 8),
-                impressions=random.randint(5000, 25000),
-                keyword_rankings={
-                    'youtube seo': random.randint(5, 25),
-                    'video optimization': random.randint(10, 40),
-                    'seo guide': random.randint(8, 30),
-                    'youtube tips': random.randint(15, 45)
-                },
-                optimization_score=random.uniform(6, 9)
-            ))
-        
-        return metrics
+    # Removed _create_sample_seo_metrics; rely on real data only
     
     async def _get_channel_context(self, channel_id: str) -> Dict[str, Any]:
         """Get channel context for analysis"""

@@ -13,7 +13,7 @@ from google.oauth2.credentials import Credentials
 from googleapiclient.discovery import build
 from googleapiclient.errors import HttpError
 
-from oauth_manager import OAuthManager
+from backend.oauth_manager import OAuthManager
 
 logger = logging.getLogger(__name__)
 
@@ -538,28 +538,28 @@ class AnalyticsService:
         """Get the user's channel ID"""
         try:
             # First check if we have it in user context
-            from ai_services import get_user_context
+            from backend.ai_services import get_user_context
             context = get_user_context(user_id)
             channel_info = context.get('channel_info', {})
-            
+
             if channel_info.get('channel_id'):
                 return channel_info['channel_id']
-            
+
             # If not, fetch from YouTube API
             youtube = self._build_youtube_service(token)
             channels_response = youtube.channels().list(
                 part='id',
                 mine=True
             ).execute()
-            
+
             if channels_response['items']:
                 channel_id = channels_response['items'][0]['id']
-                
+
                 # Store for future use
                 channel_info['channel_id'] = channel_id
-                from ai_services import update_user_context
+                from backend.ai_services import update_user_context
                 update_user_context(user_id, "channel_info", channel_info)
-                
+
                 return channel_id
             
             return None
@@ -968,7 +968,7 @@ def get_analytics_service() -> AnalyticsService:
     """Get global analytics service instance"""
     global _analytics_service
     if _analytics_service is None:
-        from oauth_manager import get_oauth_manager
+        from backend.oauth_manager import get_oauth_manager
         oauth_manager = get_oauth_manager()  # Use global OAuth manager
         _analytics_service = AnalyticsService(oauth_manager)
     return _analytics_service

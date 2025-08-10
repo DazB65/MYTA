@@ -16,30 +16,30 @@ services:
     restart: unless-stopped
     ports:
       - "8888:8888"
-      - "5678:5678"  # Debug port
+      - "5678:5678" # Debug port
     environment:
       # Development settings
       - ENVIRONMENT=development
       - LOG_LEVEL=DEBUG
       - DEBUG=true
       - RELOAD=true
-      
+
       # API Keys (load from .env file)
       - OPENAI_API_KEY=${OPENAI_API_KEY}
       - GOOGLE_API_KEY=${GOOGLE_API_KEY}
       - YOUTUBE_API_KEY=${YOUTUBE_API_KEY}
       - BOSS_AGENT_SECRET_KEY=${BOSS_AGENT_SECRET_KEY:-dev-secret-key}
-      
+
       # Database configuration
       - DATABASE_URL=sqlite:///app/data/Vidalytics_dev.db
-      
+
       # Redis configuration  
       - REDIS_URL=redis://redis:6379/0
-      
+
       # Security settings (relaxed for development)
       - CORS_ORIGINS=http://localhost:3000,http://localhost:5173,http://localhost:80
       - SESSION_SECRET_KEY=${SESSION_SECRET_KEY:-dev-session-secret}
-      
+
       # Development features
       - ENABLE_DEBUG_ROUTES=true
       - ENABLE_API_DOCS=true
@@ -58,7 +58,7 @@ services:
     depends_on:
       - redis
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8888/health"]
+      test: [ "CMD", "curl", "-f", "http://localhost:8888/health" ]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -69,7 +69,7 @@ services:
   # =============================================================================
   frontend:
     build:
-      context: ./frontend-new
+      context: ./frontend-nuxt4
       dockerfile: Dockerfile
       target: development
       args:
@@ -77,20 +77,18 @@ services:
     container_name: Vidalytics-frontend-dev
     restart: unless-stopped
     ports:
-      - "5173:5173"  # Vite dev server port
+      - "3000:3000" # Nuxt dev server port
     environment:
       - NODE_ENV=development
-      - VITE_API_BASE_URL=http://localhost:8888
+      - API_BASE_URL=http://backend:8888
       - CHOKIDAR_USEPOLLING=true
-      - HMR_HOST=localhost
-      - HMR_PORT=5173
     volumes:
       # Mount source code for hot reloading
-      - ./frontend-new:/app:rw
+      - ./frontend-nuxt4:/app:rw
       # Exclude node_modules to prevent conflicts
       - /app/node_modules
-      - /app/dist
-      - /app/.vite
+      - /app/.output
+      - /app/.nuxt
     networks:
       - Vidalytics_dev_network
     depends_on:
@@ -113,7 +111,7 @@ services:
     networks:
       - Vidalytics_dev_network
     healthcheck:
-      test: ["CMD", "redis-cli", "--raw", "incr", "ping"]
+      test: [ "CMD", "redis-cli", "--raw", "incr", "ping" ]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -121,7 +119,7 @@ services:
   # =============================================================================
   # Development Tools
   # =============================================================================
-  
+
   # Database Administration (optional)
   adminer:
     image: adminer:latest
@@ -160,8 +158,8 @@ services:
     container_name: Vidalytics-mailhog-dev
     restart: unless-stopped
     ports:
-      - "1025:1025"  # SMTP port
-      - "8025:8025"  # Web UI port
+      - "1025:1025" # SMTP port
+      - "8025:8025" # Web UI port
     networks:
       - Vidalytics_dev_network
     profiles:

@@ -19,6 +19,16 @@ sys.path.insert(0, str(Path(__file__).parent.parent / "backend"))
 from config import Settings, Environment
 from main import app
 
+# Import test utilities
+sys.path.insert(0, str(Path(__file__).parent / "utils"))
+from test_database import (
+    TestDatabaseManager,
+    TestDataFactory,
+    TestCacheManager,
+    get_test_db_manager,
+    cleanup_test_databases
+)
+
 
 @pytest.fixture(scope="session")
 def event_loop():
@@ -239,6 +249,46 @@ def agent_test_context():
     }
 
 
+# Test database fixtures
+@pytest.fixture(scope="function")
+def test_database():
+    """Provide a test database with tables set up"""
+    db_manager = get_test_db_manager()
+    db_path = db_manager.create_temp_database()
+    
+    with db_manager.database_session(db_path) as conn:
+        db_manager.setup_test_tables(conn)
+        yield conn, db_path
+    
+    db_manager.cleanup_database(db_path)
+
+
+@pytest.fixture(scope="function")
+def test_database_with_data():
+    """Provide a test database with sample data pre-loaded"""
+    db_manager = get_test_db_manager()
+    db_path = db_manager.create_temp_database()
+    
+    with db_manager.database_session(db_path) as conn:
+        db_manager.setup_test_tables(conn)
+        
+        # Insert test data
+        test_data = TestDataFactory.create_complete_test_dataset()
+        db_manager.insert_test_data(conn, test_data)
+        
+        yield conn, db_path, test_data
+    
+    db_manager.cleanup_database(db_path)
+
+
+@pytest.fixture(scope="function")
+def test_cache_manager():
+    """Provide a test cache manager"""
+    db_manager = get_test_db_manager()
+    cache_manager = TestCacheManager(db_manager)
+    yield cache_manager
+
+
 # Test markers for organized test execution
 pytest_plugins = ["pytest_asyncio"]
 
@@ -279,3 +329,8 @@ def pytest_collection_modifyitems(config, items):
             item.add_marker(pytest.mark.security)
         elif "performance" in str(item.fspath):
             item.add_marker(pytest.mark.performance)
+
+
+def pytest_sessionfinish(session, exitstatus):
+    """Clean up after all tests are finished"""
+    cleanup_test_databases()

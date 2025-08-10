@@ -16,7 +16,7 @@ from google_auth_oauthlib.flow import Flow
 from google.auth.transport.requests import Request
 from googleapiclient.discovery import build
 
-from security_config import get_oauth_config
+from backend.App.security_config import get_oauth_config
 
 # Configure logging
 logger = logging.getLogger(__name__)

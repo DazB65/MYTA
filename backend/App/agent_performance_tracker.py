@@ -15,14 +15,14 @@ import sqlite3
 from threading import Lock
 import logging
 
-from agent_performance_models import (
+from backend.App.agent_performance_models import (
     AgentPerformanceMetric, AgentHealthSnapshot, SystemPerformanceSnapshot,
     PerformanceAlert, AgentType, ModelProvider, RequestStatus, AlertSeverity,
     ModelUsage, MonitoringConfiguration, get_performance_tables_schema
 )
-from database import get_database_manager
+from backend.App.database import get_database_manager
 import sqlite3
-from logging_config import get_logger, LogCategory
+from backend.App.logging_config import get_logger, LogCategory
 
 logger = get_logger(__name__, LogCategory.PERFORMANCE)
 
@@ -409,8 +409,8 @@ class PerformanceTracker:
                     where_clause += " AND agent_type = ?"
                     params.append(agent_type.value)
                 
-                # Get aggregated metrics
-                cursor.execute(f"""
+                # Get aggregated metrics (using parameterized query)
+                query = """
                     SELECT 
                         agent_type,
                         COUNT(*) as total_requests,
@@ -424,9 +424,10 @@ class PerformanceTracker:
                         SUM(cost_estimate) as total_cost_estimate,
                         AVG(CASE WHEN cache_lookup_time_ms IS NOT NULL THEN cache_lookup_time_ms ELSE 0 END) as avg_cache_lookup_time_ms
                     FROM agent_performance_metrics 
-                    WHERE {where_clause}
+                    WHERE """ + where_clause + """
                     GROUP BY agent_type
-                """, params)
+                """
+                cursor.execute(query, params)
                 
                 results = cursor.fetchall()
                 health_snapshots = []

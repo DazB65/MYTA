@@ -10,15 +10,15 @@ from datetime import datetime
 from typing import Dict, List, Any, Optional
 
 from backend.App.agent_models import QueryType, Priority, Context, TokenBudget, AgentRequest, AgentResponse
-from intent_classifier import get_intent_classifier
-from voice_analyzer import get_voice_analyzer
-from agent_coordinators import get_agent_coordinators
+from backend.App.intent_classifier import get_intent_classifier
+from backend.App.voice_analyzer import get_voice_analyzer
+from backend.App.agent_coordinators import get_agent_coordinators
 from backend import get_agent_cache
-from data_access_monitor import get_data_access_monitor
-from enhanced_user_context import get_enhanced_context_manager
-from realtime_data_pipeline import get_data_pipeline
-from model_integrations import create_agent_call_to_integration
-from logging_config import get_logger, LogCategory
+from backend.App.data_access_monitor import get_data_access_monitor
+from backend.App.enhanced_user_context import get_enhanced_context_manager
+from backend.App.realtime_data_pipeline import get_data_pipeline
+from backend.model_integrations import create_agent_call_to_integration
+from backend.logging_config import get_logger, LogCategory
 
 logger = get_logger(__name__, LogCategory.AGENT)
 
@@ -105,7 +105,7 @@ class BossAgent:
                 return []
             
             # Import YouTube integration
-            from youtube_api_integration import get_youtube_integration
+            from backend.youtube_api_integration import get_youtube_integration
             youtube_service = get_youtube_integration()
             
             # Get recent videos with transcripts

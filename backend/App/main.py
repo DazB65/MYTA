@@ -15,6 +15,9 @@ from slowapi.errors import RateLimitExceeded
 # Import security middleware
 from backend.App.security_middleware import add_security_middleware
 from backend.App.config import get_settings
+# Import new security features
+from backend.App.env_validator import validate_environment
+from backend.App.enhanced_security_middleware import EnhancedSecurityMiddleware, RateLimitMiddleware
 
 # Import API models
 from backend.App.api_models import (
@@ -187,6 +190,11 @@ app.add_exception_handler(RateLimitExceeded, custom_rate_limit_handler)
 async def startup_event():
     """Initialize the Vidalytics multi-agent system"""
     try:
+        # Validate environment variables first
+        logger.info("Validating environment variables...")
+        validate_environment()
+        logger.info("Environment validation completed successfully")
+        
         logger.info(
             "Starting Vidalytics Multi-Agent System",
             extra={
@@ -357,7 +365,20 @@ create_secure_exception_handlers(app)
 # Middleware Configuration
 # =============================================================================
 
-# Add security middleware first (order matters)
+# Add enhanced security middleware first (highest priority)
+app.add_middleware(
+    EnhancedSecurityMiddleware, 
+    strict_mode=settings.security_headers_strict if hasattr(settings, 'security_headers_strict') else True
+)
+
+# Add enhanced rate limiting middleware
+app.add_middleware(
+    RateLimitMiddleware,
+    requests_per_minute=settings.rate_limit_per_minute if hasattr(settings, 'rate_limit_per_minute') else 60,
+    burst_size=settings.rate_limit_burst if hasattr(settings, 'rate_limit_burst') else 10
+)
+
+# Add existing security middleware (order matters)
 add_security_middleware(app)
 
 # Add CSRF protection
@@ -732,7 +753,16 @@ async def get_user_profile(
             debug_info["oauth_token_exists"] = oauth_token is not None
             debug_info["has_access_token"] = bool(oauth_token and oauth_token.access_token)
             
-            logger.info(f"OAuth token for user {user_id}: {oauth_token}")
+            logger.info(
+                "OAuth token status checked",
+                extra={
+                    'category': LogCategory.AUTHENTICATION.value,
+                    'user_id': user_id,
+                    'metadata': {
+                        'has_access_token': bool(oauth_token and oauth_token.access_token)
+                    }
+                }
+            )
             
             # Get channel ID from user context
             user_channel_id = channel_info.get("channel_id")
@@ -774,11 +804,8 @@ async def get_user_profile(
                 channel_name = channel_info.get("name")
                 logger.info(f"No channel ID found, checking known channel mappings for: {channel_name}")
                 
-                # Temporary solution: known channel mappings
                 # TODO: Implement proper channel search or fix OAuth to save channel IDs
-                known_channels = {
-                    "THE AUSTRALIA STORY  - History, Legends and Land": "UCsLRPnpYsl2E4ficU5wfHWg"
-                }
+                known_channels = {}  # remove any hardcoded mappings
                 
                 if channel_name in known_channels:
                     found_channel_id = known_channels[channel_name]
@@ -869,10 +896,10 @@ async def get_user_profile(
             "bannerUrl": banner_url
         }
         
-        # Add debug info in development (remove this in production)
-        if request.query_params.get("debug") == "true":
+        # Add debug info only when app is in debug mode and explicitly requested
+        if getattr(settings, "debug", False) and request.query_params.get("debug") == "true":
             result["debug"] = debug_info
-            
+
         return result
         
     except HTTPException:
@@ -948,55 +975,8 @@ def system_health():
 # =============================================================================
 # Static File Serving
 # =============================================================================
+# Removed legacy React SPA static serving. Frontend is served by the Nuxt Nitro container.
 
-# Mount static files (React build) with proper SPA routing
-if os.path.exists("../../frontend-dist"):
-    # Mount static assets (CSS, JS, images)
-    app.mount("/assets", StaticFiles(directory="../frontend-dist/assets"), name="assets")
-    
-    # Root route
-    @app.get("/")
-    def serve_root():
-        """Serve the React SPA for root route"""
-        return FileResponse("../../frontend-dist/index.html")
-    
-    # Catch-all route for SPA routing - serve index.html for non-API frontend routes only
-    @app.get("/{full_path:path}")
-    def serve_spa(full_path: str):
-        """Serve the React SPA for frontend routes"""
-        # Let API and auth routes pass through to their handlers (should not reach here)
-        if full_path.startswith("api/") or full_path.startswith("auth/"):
-            raise HTTPException(status_code=404, detail="API endpoint not found")
-        
-        # For frontend routes like /videos, /pillars, etc., serve the React app
-        frontend_routes = ["dashboard", "videos", "pillars", "settings", "channel", "health"]
-        if any(full_path.startswith(route) for route in frontend_routes) or full_path == "":
-            return FileResponse("../../frontend-dist/index.html")
-        
-        # For unknown routes, also serve React (let React handle 404s)
-        return FileResponse("../../frontend-dist/index.html")
-    
-    logger.info(
-        "Frontend SPA configured with proper routing support",
-        extra={
-            'category': LogCategory.SYSTEM.value,
-            'metadata': {
-                'static_files_enabled': True,
-                'spa_routing_enabled': True
-            }
-        }
-    )
-else:
-    logger.warning(
-        "Frontend build directory not found",
-        extra={
-            'category': LogCategory.SYSTEM.value,
-            'metadata': {
-                'expected_path': '../frontend-dist',
-                'recommendation': "Run 'npm run build' in frontend-vidalytics/"
-            }
-        }
-    )
 
 # =============================================================================
 # Application Info

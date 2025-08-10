@@ -15,10 +15,10 @@ sleep 2
 # Navigate to project directory
 cd /Users/darrenberich/Vidalytics
 
-# Build frontend once
-echo "📦 Building frontend..."
-cd frontend-new
-npm run build
+# Build frontend once (Nuxt 4)
+echo "📦 Building frontend (Nuxt 4)..."
+cd frontend-nuxt4
+API_BASE_URL=http://localhost:8888 npm run build
 cd ..
 
 # Start backend with proper environment

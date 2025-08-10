@@ -19,6 +19,9 @@ python-jose[cryptography]==3.3.0
 passlib[bcrypt]==1.7.4
 python-multipart==0.0.6
 
+# Rate limiting
+slowapi==0.1.9
+
 # OAuth & Google APIs
 google-auth==2.25.2
 google-auth-oauthlib==1.1.0

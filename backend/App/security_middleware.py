@@ -9,7 +9,7 @@ from typing import Callable, Dict, Any
 from fastapi import Request, Response, HTTPException
 from starlette.middleware.base import BaseHTTPMiddleware
 from starlette.responses import JSONResponse
-from security_config import get_security_config
+from backend.App.security_config import get_security_config
 
 logger = logging.getLogger(__name__)
 

@@ -12,7 +12,7 @@ from fastapi import Request, HTTPException
 from fastapi.responses import JSONResponse
 from starlette.status import HTTP_500_INTERNAL_SERVER_ERROR
 
-from security_config import get_security_config
+from backend.App.security_config import get_security_config
 
 logger = logging.getLogger(__name__)
 

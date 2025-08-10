@@ -13,15 +13,15 @@ from enum import Enum
 import os
 from backend import get_agent_cache
 from backend import migrate_openai_call_to_integration
-from enhanced_user_context import get_enhanced_context_manager
-from realtime_data_pipeline import get_data_pipeline
-from boss_agent_auth import get_boss_agent_authenticator
-from data_access_monitor import get_data_access_monitor
+from backend.App.enhanced_user_context import get_enhanced_context_manager
+from backend.App.realtime_data_pipeline import get_data_pipeline
+from backend.boss_agent_auth import get_boss_agent_authenticator
+from backend.App.data_access_monitor import get_data_access_monitor
 # Use centralized model integration
-from model_integrations import create_agent_call_to_integration
+from backend.model_integrations import create_agent_call_to_integration
 
 # Configure advanced logging
-from logging_config import get_logger, LogCategory
+from backend.logging_config import get_logger, LogCategory
 
 logger = get_logger(__name__, LogCategory.AGENT)
 
@@ -269,7 +269,7 @@ class ContentAnalysisAgent(SpecializedAgent):
     def __init__(self):
         super().__init__("content_analyzer")
         # Import the specialized agent
-        from content_analysis_agent import get_content_analysis_agent
+        from backend.content_analysis_agent import get_content_analysis_agent
         self.specialized_agent = get_content_analysis_agent()
     
     async def _generate_response(self, request: AgentRequest) -> Dict[str, Any]:
@@ -1186,7 +1186,7 @@ class BossAgent:
                 return []
             
             # Import YouTube integration
-            from youtube_api_integration import get_youtube_integration
+            from backend.youtube_api_integration import get_youtube_integration
             youtube_service = get_youtube_integration()
             
             # Get recent videos with transcripts
@@ -1233,7 +1233,7 @@ class BossAgent:
                 await self.monitor.log_event(user_id, 'oauth_check', 'boss_agent', 'start')
                 
                 # Check OAuth status before attempting enhanced context
-                from oauth_manager import get_oauth_manager
+                from backend.oauth_manager import get_oauth_manager
                 oauth_manager = get_oauth_manager()
                 oauth_status = oauth_manager.get_oauth_status(user_id)
                 
@@ -1368,7 +1368,7 @@ class BossAgent:
                     if channel_id:
                         try:
                             # Import and use YouTube API integration to get fresh data
-                            from youtube_api_integration import get_youtube_integration
+                            from backend.youtube_api_integration import get_youtube_integration
                             youtube_service = get_youtube_integration()
                             
                             # Get fresh channel data

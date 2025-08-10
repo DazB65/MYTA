@@ -226,7 +226,7 @@ class BaseAgentCache:
             'analysis_depth': request.analysis_depth.value
         }
         cache_string = json.dumps(cache_data, sort_keys=True)
-        return hashlib.md5(cache_string.encode()).hexdigest()
+        return hashlib.sha256(cache_string.encode()).hexdigest()
     
     def get(self, request: AgentRequest) -> Optional[AgentResponse]:
         """Get cached response"""

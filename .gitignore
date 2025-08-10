@@ -136,4 +136,22 @@ storybook-static
 
 # Temporary Virtual Environment
 temp_venv/
+.venv*/
+
+# Security scan reports
+bandit-report.json
+safety-report.json
+detect-secrets-report.json
+trivy-results.sarif
+dependency-check-report.html
+*-security-report.*
+security-scan-*.json
+
+# Security test files
+*.pem
+*.key
+*.cert
+*.crt
+*.p12
+*.pfx
 

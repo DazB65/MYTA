@@ -4,12 +4,19 @@ Handles scheduled backups, monitoring, and maintenance
 """
 
 import os
-import schedule
 import threading
 import time
 import logging
 from datetime import datetime, timedelta
 from typing import Dict, List, Optional, Callable
+
+# Optional dependency: schedule
+try:
+    import schedule  # type: ignore
+    SCHEDULE_AVAILABLE = True
+except Exception:
+    schedule = None  # type: ignore
+    SCHEDULE_AVAILABLE = False
 from dataclasses import dataclass
 from enum import Enum
 import smtplib
@@ -197,11 +204,16 @@ class BackupService:
         if self._running:
             logger.warning("Backup service is already running")
             return
-        
+
         self._running = True
+
+        if not SCHEDULE_AVAILABLE:
+            logger.warning("'schedule' package not available; backup scheduler disabled. Manual backups still work.")
+            return
+
         self._scheduler_thread = threading.Thread(target=self._run_scheduler, daemon=True)
         self._scheduler_thread.start()
-        
+
         logger.info("Backup service started")
         logger.info(f"Schedule: {self.schedule_config.frequency.value} at {self.schedule_config.time}")
     
@@ -209,13 +221,15 @@ class BackupService:
         """Stop the backup service"""
         if not self._running:
             return
-        
+
         self._running = False
-        schedule.clear()
-        
+
+        if SCHEDULE_AVAILABLE:
+            schedule.clear()
+
         if self._scheduler_thread and self._scheduler_thread.is_alive():
             self._scheduler_thread.join(timeout=5)
-        
+
         logger.info("Backup service stopped")
     
     def create_manual_backup(self, metadata: Dict = None) -> Optional[str]:
@@ -248,26 +262,30 @@ class BackupService:
         """Set up backup schedule based on configuration"""
         if not self.schedule_config.enabled:
             return
-        
+
+        if not SCHEDULE_AVAILABLE:
+            logger.warning("'schedule' package not available; cannot configure backup schedule.")
+            return
+
         frequency = self.schedule_config.frequency
         time_str = self.schedule_config.time
-        
+
         if frequency == BackupFrequency.HOURLY:
             # For hourly, time_str should be minutes (e.g., "30" for 30 minutes past the hour)
             schedule.every().hour.at(f":{time_str}").do(self._create_scheduled_backup)
-        
+
         elif frequency == BackupFrequency.DAILY:
             # For daily, time_str should be "HH:MM"
             schedule.every().day.at(time_str).do(self._create_scheduled_backup)
-        
+
         elif frequency == BackupFrequency.WEEKLY:
             # For weekly, assume Sunday at specified time
             schedule.every().sunday.at(time_str).do(self._create_scheduled_backup)
-        
+
         elif frequency == BackupFrequency.MONTHLY:
             # For monthly, run on the 1st of each month
             schedule.every().day.at(time_str).do(self._check_monthly_backup)
-        
+
         logger.info(f"Backup schedule configured: {frequency.value} at {time_str}")
     
     def _run_scheduler(self):
@@ -376,9 +394,12 @@ class BackupService:
     def update_schedule(self, new_schedule: BackupSchedule):
         """Update backup schedule"""
         self.schedule_config = new_schedule
-        
+
         # Clear existing schedule and set up new one
-        schedule.clear()
+        if SCHEDULE_AVAILABLE:
+            schedule.clear()
+        else:
+            logger.warning("'schedule' package not available; cannot reset schedule.")
         self._setup_schedule()
         
         logger.info(f"Backup schedule updated: {new_schedule.frequency.value} at {new_schedule.time}")

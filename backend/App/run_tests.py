@@ -18,8 +18,15 @@ def run_command(command, description=""):
     print(f"{'='*60}")
     
     try:
-        result = subprocess.run(command, shell=True, check=True, capture_output=False)
-        print(f"✅ Success: {description or command}")
+        # Convert string command to list for security (avoid shell=True)
+        if isinstance(command, str):
+            import shlex
+            command_list = shlex.split(command)
+        else:
+            command_list = command
+            
+        result = subprocess.run(command_list, check=True, capture_output=False)
+        print(f"✅ Success: {description or ' '.join(command_list) if isinstance(command_list, list) else command}")
         return True
     except subprocess.CalledProcessError as e:
         print(f"❌ Failed: {description or command}")

@@ -19,24 +19,29 @@ cleanup() {
 # Set trap for cleanup on script exit
 trap cleanup SIGINT SIGTERM EXIT
 
-echo "📦 Building React frontend..."
-cd frontend-vidalytics
-npm run build
+echo "📦 Installing & building Nuxt 4 frontend..."
+cd frontend-nuxt4
+npm install
+API_BASE_URL=http://localhost:8888 npm run build
 cd ..
 
 echo "🐍 Starting Python backend on http://localhost:8888"
-cd backend
-source ../venv/bin/activate
-uvicorn main:app --reload --host 0.0.0.0 --port 8888 &
+# Activate virtualenv from repo root
+if [ -d ".venv" ]; then
+  source .venv/bin/activate
+elif [ -d "venv" ]; then
+  source venv/bin/activate
+fi
+uvicorn backend.App.main:app --reload --host 0.0.0.0 --port 8888 &
 BACKEND_PID=$!
 
 echo "⏳ Waiting for backend to start..."
 sleep 3
 
 echo "✅ Development environment ready!"
-echo "🌐 Open http://localhost:8888 in your browser"
+echo "🌐 Frontend (built): open http://localhost:3000 via 'npm run preview' if needed"
+echo "🌐 Backend: http://localhost:8888"
 echo "📡 API available at http://localhost:8888/api/"
-echo "💬 Health check: http://localhost:8888/health"
 echo ""
 echo "Press Ctrl+C to stop all services"
 
