@@ -2,7 +2,6 @@
 export default defineNuxtConfig({
   compatibilityDate: "2025-07-15",
 
-
   // Modern build configuration
   nitro: {
     compressPublicAssets: true,
@@ -127,6 +126,6 @@ export default defineNuxtConfig({
     },
   },
 
-  // Comment out Tailwind for now
-  // modules: ["@nuxtjs/tailwindcss"],
+  // Tailwind CSS module
+  modules: ["@nuxtjs/tailwindcss"],
 });
