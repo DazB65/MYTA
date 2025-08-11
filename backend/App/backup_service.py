@@ -24,7 +24,7 @@ from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 import json
 
-from migration_manager import get_migration_manager, BackupInfo
+from .migration_manager import get_migration_manager, BackupInfo
 
 logger = logging.getLogger(__name__)
 

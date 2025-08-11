@@ -157,434 +157,369 @@
     </div>
 
     <!-- Main Content Area -->
-    <div class="flex-1 bg-gray-100 p-8 overflow-y-auto ml-72">
+    <div class="flex-1 bg-gray-900 p-6 overflow-y-auto ml-72">
       <!-- Header -->
-      <div class="flex items-center justify-between mb-8">
+      <div class="flex items-center justify-between mb-6">
         <div>
-          <h2 class="text-2xl font-bold text-gray-900">Content Pillars</h2>
-          <p class="text-gray-500">Organize your content strategy with pillars</p>
+          <h2 class="text-2xl font-bold text-white">Content Pillars</h2>
+          <p class="text-gray-400">Analyze and optimize your content strategy</p>
         </div>
         <div class="flex items-center space-x-4">
-          <button 
-            @click="showCreateForm = true"
-            class="px-6 py-3 bg-pink-500 text-white rounded-lg hover:bg-pink-600 transition-colors flex items-center space-x-2"
-          >
-            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+          <div class="text-gray-400 text-sm">Last 30 days</div>
+          <button class="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors flex items-center space-x-2">
+            <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
               <path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clip-rule="evenodd"></path>
             </svg>
-            <span>Create Pillar</span>
-          </button>
-          <button 
-            @click="analyzeContentPillars"
-            :disabled="isAnalyzing"
-            class="px-6 py-3 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors flex items-center space-x-2 disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            <svg v-if="isAnalyzing" class="w-5 h-5 animate-spin" fill="currentColor" viewBox="0 0 20 20">
-              <path fill-rule="evenodd" d="M4 2a1 1 0 011 1v2.101a7.002 7.002 0 0111.601 2.566 1 1 0 11-1.885.666A5.002 5.002 0 005.999 7H9a1 1 0 010 2H4a1 1 0 01-1-1V3a1 1 0 011-1zm.008 9.057a1 1 0 011.276.61A5.002 5.002 0 0014.001 13H11a1 1 0 110-2h5a1 1 0 011 1v5a1 1 0 11-2 0v-2.101a7.002 7.002 0 01-11.601-2.566 1 1 0 01.61-1.276z" clip-rule="evenodd"></path>
-            </svg>
-            <svg v-else class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-              <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-            </svg>
-            <span>{{ isAnalyzing ? 'Analyzing...' : 'AI Analysis' }}</span>
+            <span>Add Pillar</span>
           </button>
         </div>
       </div>
 
-      <!-- Loading State -->
-      <div v-if="isLoading" class="flex items-center justify-center py-12">
-        <div class="text-center">
-          <svg class="w-8 h-8 animate-spin text-pink-500 mx-auto mb-4" fill="currentColor" viewBox="0 0 20 20">
-            <path fill-rule="evenodd" d="M4 2a1 1 0 011 1v2.101a7.002 7.002 0 0111.601 2.566 1 1 0 11-1.885.666A5.002 5.002 0 005.999 7H9a1 1 0 010 2H4a1 1 0 01-1-1V3a1 1 0 011-1zm.008 9.057a1 1 0 011.276.61A5.002 5.002 0 0014.001 13H11a1 1 0 110-2h5a1 1 0 011 1v5a1 1 0 11-2 0v-2.101a7.002 7.002 0 01-11.601-2.566 1 1 0 01.61-1.276z" clip-rule="evenodd"></path>
-          </svg>
-          <p class="text-gray-600">Loading pillars...</p>
-        </div>
-      </div>
-
-      <!-- Error State -->
-      <div v-if="error" class="bg-red-50 border border-red-200 rounded-lg p-6 mb-6">
-        <div class="flex items-center">
-          <svg class="w-5 h-5 text-red-500 mr-3" fill="currentColor" viewBox="0 0 20 20">
-            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"></path>
-          </svg>
-          <div>
-            <h3 class="text-red-800 font-medium">Error Loading Pillars</h3>
-            <p class="text-red-600 text-sm">{{ error }}</p>
-          </div>
-        </div>
-      </div>
-
-      <!-- Pillars Grid -->
-      <div v-if="!isLoading && !error" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        <!-- Create New Pillar Card -->
-        <div 
-          @click="showCreateForm = true"
-          class="bg-white rounded-xl p-6 border-2 border-dashed border-gray-300 hover:border-pink-400 transition-colors cursor-pointer flex flex-col items-center justify-center min-h-[200px]"
-        >
-          <div class="w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center mb-4">
-            <svg class="w-6 h-6 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
-              <path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clip-rule="evenodd"></path>
-            </svg>
-          </div>
-          <h3 class="text-lg font-medium text-gray-900 mb-2">Create New Pillar</h3>
-          <p class="text-gray-500 text-center text-sm">Add a new content pillar to organize your videos</p>
-        </div>
-
-        <!-- Pillar Cards -->
-        <div 
-          v-for="pillar in pillars" 
-          :key="pillar.id"
-          class="bg-white rounded-xl p-6 shadow-sm hover:shadow-md transition-shadow"
-        >
+      <!-- Content Pillars Grid -->
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <!-- Game Development Pillar -->
+        <div class="bg-gray-800 rounded-xl p-6">
           <div class="flex items-center justify-between mb-4">
             <div class="flex items-center space-x-3">
-              <div class="w-12 h-12 rounded-lg bg-gradient-to-br flex items-center justify-center text-white text-xl" :class="pillar.color || 'from-pink-500 to-purple-500'">
-                {{ pillar.icon || '🎯' }}
+              <div class="w-10 h-10 bg-blue-500 rounded-lg flex items-center justify-center">
+                <svg class="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 20 20">
+                  <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                </svg>
               </div>
               <div>
-                <h3 class="text-lg font-semibold text-gray-900">{{ pillar.name }}</h3>
-                <p class="text-sm text-gray-500">{{ pillar.video_count || 0 }} videos</p>
+                <h3 class="text-white font-semibold text-lg">Game Development</h3>
+                <p class="text-gray-400 text-sm">3 Videos • Created 4 months ago</p>
               </div>
             </div>
-            <div class="flex items-center space-x-2">
-              <button 
-                @click="editPillar(pillar)"
-                class="p-2 text-gray-400 hover:text-gray-600 rounded-lg hover:bg-gray-100"
-              >
-                <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                  <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z"></path>
-                </svg>
-              </button>
-              <button 
-                @click="deletePillar(pillar.id)"
-                class="p-2 text-gray-400 hover:text-red-600 rounded-lg hover:bg-red-50"
-              >
-                <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                  <path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd"></path>
-                </svg>
-              </button>
-            </div>
-          </div>
-          
-          <p class="text-gray-600 text-sm mb-4">{{ pillar.description || 'No description' }}</p>
-          
-          <div class="flex items-center justify-between text-sm">
-            <div class="flex items-center space-x-4">
-              <div class="text-gray-500">
-                <span class="font-medium text-gray-900">{{ pillar.total_views || 0 }}</span> views
-              </div>
-              <div class="text-gray-500">
-                <span class="font-medium text-gray-900">{{ Math.round(pillar.avg_engagement || 0) }}%</span> engagement
-              </div>
-            </div>
-            <button 
-              @click="viewPillarAnalytics(pillar.id)"
-              class="text-pink-500 hover:text-pink-600 font-medium"
-            >
-              View Analytics
+            <button class="text-gray-400 hover:text-white">
+              <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                <path d="M10 6a2 2 0 110-4 2 2 0 010 4zM10 12a2 2 0 110-4 2 2 0 010 4zM10 18a2 2 0 110-4 2 2 0 010 4z"></path>
+              </svg>
             </button>
           </div>
-        </div>
-      </div>
 
-      <!-- Empty State -->
-      <div v-if="!isLoading && !error && pillars.length === 0" class="text-center py-12">
-        <div class="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
-          <svg class="w-8 h-8 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
-            <path d="M7 3a1 1 0 000 2h6a1 1 0 100-2H7zM4 7a1 1 0 011-1h10a1 1 0 110 2H5a1 1 0 01-1-1zM2 11a2 2 0 012-2h12a2 2 0 012 2v4a2 2 0 01-2 2H4a2 2 0 01-2-2v-4z"></path>
-          </svg>
-        </div>
-        <h3 class="text-lg font-medium text-gray-900 mb-2">No Content Pillars</h3>
-        <p class="text-gray-500 mb-6">Create your first content pillar to organize your video strategy</p>
-        <button 
-          @click="showCreateForm = true"
-          class="px-6 py-3 bg-pink-500 text-white rounded-lg hover:bg-pink-600 transition-colors"
-        >
-          Create Your First Pillar
-        </button>
-      </div>
-    </div>
+          <!-- Metrics -->
+          <div class="grid grid-cols-3 gap-4 mb-6">
+            <div>
+              <div class="text-2xl font-bold text-white">248.3K</div>
+              <div class="text-green-400 text-sm flex items-center">
+                <svg class="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                  <path fill-rule="evenodd" d="M5.293 7.707a1 1 0 010-1.414l4-4a1 1 0 011.414 0l4 4a1 1 0 01-1.414 1.414L11 5.414V17a1 1 0 11-2 0V5.414L6.707 7.707a1 1 0 01-1.414 0z" clip-rule="evenodd"></path>
+                </svg>
+                +12.5%
+              </div>
+              <div class="text-gray-400 text-xs">Revenue</div>
+            </div>
+            <div>
+              <div class="text-2xl font-bold text-white">14.2K hrs</div>
+              <div class="text-green-400 text-sm flex items-center">
+                <svg class="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                  <path fill-rule="evenodd" d="M5.293 7.707a1 1 0 010-1.414l4-4a1 1 0 011.414 0l4 4a1 1 0 01-1.414 1.414L11 5.414V17a1 1 0 11-2 0V5.414L6.707 7.707a1 1 0 01-1.414 0z" clip-rule="evenodd"></path>
+                </svg>
+                +8.2%
+              </div>
+              <div class="text-gray-400 text-xs">Watch Time</div>
+            </div>
+            <div>
+              <div class="text-2xl font-bold text-white">93,842</div>
+              <div class="text-green-400 text-sm flex items-center">
+                <svg class="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                  <path fill-rule="evenodd" d="M5.293 7.707a1 1 0 010-1.414l4-4a1 1 0 011.414 0l4 4a1 1 0 01-1.414 1.414L11 5.414V17a1 1 0 11-2 0V5.414L6.707 7.707a1 1 0 01-1.414 0z" clip-rule="evenodd"></path>
+                </svg>
+                +15.3%
+              </div>
+              <div class="text-gray-400 text-xs">Subscribers</div>
+            </div>
+          </div>
 
-    <!-- Create/Edit Pillar Modal -->
-    <div v-if="showCreateForm" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div class="bg-white rounded-xl p-6 w-full max-w-md mx-4">
-        <div class="flex items-center justify-between mb-6">
-          <h3 class="text-xl font-semibold text-gray-900">
-            {{ editingPillar ? 'Edit Pillar' : 'Create New Pillar' }}
-          </h3>
-          <button @click="closeForm" class="text-gray-400 hover:text-gray-600">
-            <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
-              <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"></path>
+          <!-- Chart Area -->
+          <div class="h-32 mb-4 relative">
+            <svg class="w-full h-full" viewBox="0 0 300 100">
+              <defs>
+                <linearGradient id="blueGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+                  <stop offset="0%" style="stop-color:#3B82F6;stop-opacity:0.3" />
+                  <stop offset="100%" style="stop-color:#3B82F6;stop-opacity:0" />
+                </linearGradient>
+              </defs>
+              <path d="M0,80 Q50,70 100,60 T200,45 T300,35" stroke="#3B82F6" stroke-width="2" fill="none"/>
+              <path d="M0,80 Q50,70 100,60 T200,45 T300,35 L300,100 L0,100 Z" fill="url(#blueGradient)"/>
             </svg>
-          </button>
+          </div>
+
+          <!-- Action Buttons -->
+          <div class="flex items-center justify-between">
+            <div class="text-gray-400 text-sm">Top performing content pillar</div>
+            <div class="flex space-x-2">
+              <button class="px-3 py-1 text-gray-300 hover:text-white text-sm">View Details</button>
+              <button class="px-3 py-1 bg-blue-500 text-white rounded text-sm hover:bg-blue-600">Create Content</button>
+            </div>
+          </div>
         </div>
 
-        <form @submit.prevent="submitForm">
-          <div class="mb-4">
-            <label class="block text-sm font-medium text-gray-700 mb-2">Name</label>
-            <input
-              v-model="formData.name"
-              type="text"
-              required
-              class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-transparent"
-              placeholder="e.g., Tech Reviews, Lifestyle Tips"
-            />
+        <!-- Game Reviews Pillar -->
+        <div class="bg-gray-800 rounded-xl p-6">
+          <div class="flex items-center justify-between mb-4">
+            <div class="flex items-center space-x-3">
+              <div class="w-10 h-10 bg-purple-500 rounded-lg flex items-center justify-center">
+                <svg class="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 20 20">
+                  <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path>
+                </svg>
+              </div>
+              <div>
+                <h3 class="text-white font-semibold text-lg">Game Reviews</h3>
+                <p class="text-gray-400 text-sm">8 Videos • Created 3 months ago</p>
+              </div>
+            </div>
+            <button class="text-gray-400 hover:text-white">
+              <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                <path d="M10 6a2 2 0 110-4 2 2 0 010 4zM10 12a2 2 0 110-4 2 2 0 010 4zM10 18a2 2 0 110-4 2 2 0 010 4z"></path>
+              </svg>
+            </button>
           </div>
 
-          <div class="mb-4">
-            <label class="block text-sm font-medium text-gray-700 mb-2">Description</label>
-            <textarea
-              v-model="formData.description"
-              rows="3"
-              class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-transparent"
-              placeholder="Describe this content pillar..."
-            ></textarea>
-          </div>
-
-          <div class="mb-4">
-            <label class="block text-sm font-medium text-gray-700 mb-2">Icon</label>
-            <input
-              v-model="formData.icon"
-              type="text"
-              maxlength="2"
-              class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-transparent"
-              placeholder="🎯"
-            />
-          </div>
-
-          <div class="mb-6">
-            <label class="block text-sm font-medium text-gray-700 mb-2">Color Theme</label>
-            <div class="grid grid-cols-4 gap-2">
-              <button
-                v-for="color in colorOptions"
-                :key="color.value"
-                type="button"
-                @click="formData.color = color.value"
-                :class="[
-                  'w-full h-10 rounded-lg border-2 transition-all',
-                  color.gradient,
-                  formData.color === color.value ? 'border-gray-400 scale-105' : 'border-gray-200'
-                ]"
-              >
-              </button>
+          <!-- Metrics -->
+          <div class="grid grid-cols-3 gap-4 mb-6">
+            <div>
+              <div class="text-2xl font-bold text-white">186.7K</div>
+              <div class="text-green-400 text-sm flex items-center">
+                <svg class="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                  <path fill-rule="evenodd" d="M5.293 7.707a1 1 0 010-1.414l4-4a1 1 0 011.414 0l4 4a1 1 0 01-1.414 1.414L11 5.414V17a1 1 0 11-2 0V5.414L6.707 7.707a1 1 0 01-1.414 0z" clip-rule="evenodd"></path>
+                </svg>
+                +9.8%
+              </div>
+              <div class="text-gray-400 text-xs">Revenue</div>
+            </div>
+            <div>
+              <div class="text-2xl font-bold text-white">6.9K hrs</div>
+              <div class="text-green-400 text-sm flex items-center">
+                <svg class="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                  <path fill-rule="evenodd" d="M5.293 7.707a1 1 0 010-1.414l4-4a1 1 0 011.414 0l4 4a1 1 0 01-1.414 1.414L11 5.414V17a1 1 0 11-2 0V5.414L6.707 7.707a1 1 0 01-1.414 0z" clip-rule="evenodd"></path>
+                </svg>
+                +6.1%
+              </div>
+              <div class="text-gray-400 text-xs">Watch Time</div>
+            </div>
+            <div>
+              <div class="text-2xl font-bold text-white">52,156</div>
+              <div class="text-green-400 text-sm flex items-center">
+                <svg class="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                  <path fill-rule="evenodd" d="M5.293 7.707a1 1 0 010-1.414l4-4a1 1 0 011.414 0l4 4a1 1 0 01-1.414 1.414L11 5.414V17a1 1 0 11-2 0V5.414L6.707 7.707a1 1 0 01-1.414 0z" clip-rule="evenodd"></path>
+                </svg>
+                +11.2%
+              </div>
+              <div class="text-gray-400 text-xs">Subscribers</div>
             </div>
           </div>
 
-          <div class="flex items-center space-x-4">
-            <button
-              type="button"
-              @click="closeForm"
-              class="flex-1 px-4 py-2 text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors"
-            >
-              Cancel
-            </button>
-            <button
-              type="submit"
-              :disabled="isSubmitting"
-              class="flex-1 px-4 py-2 bg-pink-500 text-white rounded-lg hover:bg-pink-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              {{ isSubmitting ? 'Saving...' : (editingPillar ? 'Update' : 'Create') }}
+          <!-- Chart Area -->
+          <div class="h-32 mb-4 relative">
+            <svg class="w-full h-full" viewBox="0 0 300 100">
+              <defs>
+                <linearGradient id="purpleGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+                  <stop offset="0%" style="stop-color:#8B5CF6;stop-opacity:0.3" />
+                  <stop offset="100%" style="stop-color:#8B5CF6;stop-opacity:0" />
+                </linearGradient>
+              </defs>
+              <path d="M0,85 Q50,75 100,65 T200,50 T300,40" stroke="#8B5CF6" stroke-width="2" fill="none"/>
+              <path d="M0,85 Q50,75 100,65 T200,50 T300,40 L300,100 L0,100 Z" fill="url(#purpleGradient)"/>
+            </svg>
+          </div>
+
+          <!-- Action Buttons -->
+          <div class="flex items-center justify-between">
+            <div class="text-gray-400 text-sm">Consistent growth in audience retention</div>
+            <div class="flex space-x-2">
+              <button class="px-3 py-1 text-gray-300 hover:text-white text-sm">View Details</button>
+              <button class="px-3 py-1 bg-purple-500 text-white rounded text-sm hover:bg-purple-600">Create Content</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Gaming Tips Pillar -->
+        <div class="bg-gray-800 rounded-xl p-6">
+          <div class="flex items-center justify-between mb-4">
+            <div class="flex items-center space-x-3">
+              <div class="w-10 h-10 bg-orange-500 rounded-lg flex items-center justify-center">
+                <svg class="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 20 20">
+                  <path fill-rule="evenodd" d="M11.3 1.046A1 1 0 0112 2v5h4a1 1 0 01.82 1.573l-7 10A1 1 0 018 18v-5H4a1 1 0 01-.82-1.573l7-10a1 1 0 011.12-.38z" clip-rule="evenodd"></path>
+                </svg>
+              </div>
+              <div>
+                <h3 class="text-white font-semibold text-lg">Gaming Tips</h3>
+                <p class="text-gray-400 text-sm">12 Videos • Created 2 months ago</p>
+              </div>
+            </div>
+            <button class="text-gray-400 hover:text-white">
+              <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                <path d="M10 6a2 2 0 110-4 2 2 0 010 4zM10 12a2 2 0 110-4 2 2 0 010 4zM10 18a2 2 0 110-4 2 2 0 010 4z"></path>
+              </svg>
             </button>
           </div>
-        </form>
+
+          <!-- Metrics -->
+          <div class="grid grid-cols-3 gap-4 mb-6">
+            <div>
+              <div class="text-2xl font-bold text-white">203.5K</div>
+              <div class="text-green-400 text-sm flex items-center">
+                <svg class="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                  <path fill-rule="evenodd" d="M5.293 7.707a1 1 0 010-1.414l4-4a1 1 0 011.414 0l4 4a1 1 0 01-1.414 1.414L11 5.414V17a1 1 0 11-2 0V5.414L6.707 7.707a1 1 0 01-1.414 0z" clip-rule="evenodd"></path>
+                </svg>
+                +7.3%
+              </div>
+              <div class="text-gray-400 text-xs">Revenue</div>
+            </div>
+            <div>
+              <div class="text-2xl font-bold text-white">10.1K hrs</div>
+              <div class="text-green-400 text-sm flex items-center">
+                <svg class="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                  <path fill-rule="evenodd" d="M5.293 7.707a1 1 0 010-1.414l4-4a1 1 0 011.414 0l4 4a1 1 0 01-1.414 1.414L11 5.414V17a1 1 0 11-2 0V5.414L6.707 7.707a1 1 0 01-1.414 0z" clip-rule="evenodd"></path>
+                </svg>
+                +5.8%
+              </div>
+              <div class="text-gray-400 text-xs">Watch Time</div>
+            </div>
+            <div>
+              <div class="text-2xl font-bold text-white">92,037</div>
+              <div class="text-green-400 text-sm flex items-center">
+                <svg class="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                  <path fill-rule="evenodd" d="M5.293 7.707a1 1 0 010-1.414l4-4a1 1 0 011.414 0l4 4a1 1 0 01-1.414 1.414L11 5.414V17a1 1 0 11-2 0V5.414L6.707 7.707a1 1 0 01-1.414 0z" clip-rule="evenodd"></path>
+                </svg>
+                +13.7%
+              </div>
+              <div class="text-gray-400 text-xs">Subscribers</div>
+            </div>
+          </div>
+
+          <!-- Chart Area -->
+          <div class="h-32 mb-4 relative">
+            <svg class="w-full h-full" viewBox="0 0 300 100">
+              <defs>
+                <linearGradient id="orangeGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+                  <stop offset="0%" style="stop-color:#F97316;stop-opacity:0.3" />
+                  <stop offset="100%" style="stop-color:#F97316;stop-opacity:0" />
+                </linearGradient>
+              </defs>
+              <path d="M0,90 Q50,85 100,75 T200,60 T300,45" stroke="#F97316" stroke-width="2" fill="none"/>
+              <path d="M0,90 Q50,85 100,75 T200,60 T300,45 L300,100 L0,100 Z" fill="url(#orangeGradient)"/>
+            </svg>
+          </div>
+
+          <!-- Action Buttons -->
+          <div class="flex items-center justify-between">
+            <div class="text-gray-400 text-sm">High engagement from returning viewers</div>
+            <div class="flex space-x-2">
+              <button class="px-3 py-1 text-gray-300 hover:text-white text-sm">View Details</button>
+              <button class="px-3 py-1 bg-orange-500 text-white rounded text-sm hover:bg-orange-600">Create Content</button>
+            </div>
+          </div>
+        </div>
+        <!-- Gaming News Pillar -->
+        <div class="bg-gray-800 rounded-xl p-6">
+          <div class="flex items-center justify-between mb-4">
+            <div class="flex items-center space-x-3">
+              <div class="w-10 h-10 bg-red-500 rounded-lg flex items-center justify-center">
+                <svg class="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 20 20">
+                  <path d="M2 3a1 1 0 011-1h2.153a1 1 0 01.986.836l.74 4.435a1 1 0 01-.54 1.06l-1.548.773a11.037 11.037 0 006.105 6.105l.774-1.548a1 1 0 011.059-.54l4.435.74a1 1 0 01.836.986V17a1 1 0 01-1 1h-2C7.82 18 2 12.18 2 5V3z"></path>
+                </svg>
+              </div>
+              <div>
+                <h3 class="text-white font-semibold text-lg">Gaming News</h3>
+                <p class="text-gray-400 text-sm">6 Videos • Created 4 months ago</p>
+              </div>
+            </div>
+            <button class="text-gray-400 hover:text-white">
+              <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                <path d="M10 6a2 2 0 110-4 2 2 0 010 4zM10 12a2 2 0 110-4 2 2 0 010 4zM10 18a2 2 0 110-4 2 2 0 010 4z"></path>
+              </svg>
+            </button>
+          </div>
+
+          <!-- Metrics -->
+          <div class="grid grid-cols-3 gap-4 mb-6">
+            <div>
+              <div class="text-2xl font-bold text-white">97.2K</div>
+              <div class="text-red-400 text-sm flex items-center">
+                <svg class="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                  <path fill-rule="evenodd" d="M14.707 12.293a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 111.414-1.414L9 14.586V3a1 1 0 112 0v11.586l2.293-2.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
+                </svg>
+                -3.8%
+              </div>
+              <div class="text-gray-400 text-xs">Revenue</div>
+            </div>
+            <div>
+              <div class="text-2xl font-bold text-white">4.3K hrs</div>
+              <div class="text-red-400 text-sm flex items-center">
+                <svg class="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                  <path fill-rule="evenodd" d="M14.707 12.293a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 111.414-1.414L9 14.586V3a1 1 0 112 0v11.586l2.293-2.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
+                </svg>
+                -1.2%
+              </div>
+              <div class="text-gray-400 text-xs">Watch Time</div>
+            </div>
+            <div>
+              <div class="text-2xl font-bold text-white">8843</div>
+              <div class="text-red-400 text-sm flex items-center">
+                <svg class="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                  <path fill-rule="evenodd" d="M14.707 12.293a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 111.414-1.414L9 14.586V3a1 1 0 112 0v11.586l2.293-2.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
+                </svg>
+                -6.5%
+              </div>
+              <div class="text-gray-400 text-xs">Subscribers</div>
+            </div>
+          </div>
+
+          <!-- Chart Area -->
+          <div class="h-32 mb-4 relative">
+            <svg class="w-full h-full" viewBox="0 0 300 100">
+              <defs>
+                <linearGradient id="redGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+                  <stop offset="0%" style="stop-color:#EF4444;stop-opacity:0.3" />
+                  <stop offset="100%" style="stop-color:#EF4444;stop-opacity:0" />
+                </linearGradient>
+              </defs>
+              <path d="M0,60 Q50,65 100,70 T200,75 T300,80" stroke="#EF4444" stroke-width="2" fill="none"/>
+              <path d="M0,60 Q50,65 100,70 T200,75 T300,80 L300,100 L0,100 Z" fill="url(#redGradient)"/>
+            </svg>
+          </div>
+
+          <!-- Action Buttons -->
+          <div class="flex items-center justify-between">
+            <div class="text-gray-400 text-sm">Needs improvement in content strategy</div>
+            <div class="flex space-x-2">
+              <button class="px-3 py-1 text-gray-300 hover:text-white text-sm">View Details</button>
+              <button class="px-3 py-1 bg-red-500 text-white rounded text-sm hover:bg-red-600">Create Content</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- AI Suggested Pillar -->
+      <div class="mt-6 bg-gray-800 rounded-xl p-6 border border-blue-500/20">
+        <div class="flex items-center justify-between mb-4">
+          <div class="flex items-center space-x-3">
+            <div class="w-10 h-10 bg-gradient-to-r from-blue-500 to-purple-500 rounded-lg flex items-center justify-center">
+              <svg class="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 20 20">
+                <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+              </svg>
+            </div>
+            <div>
+              <h3 class="text-white font-semibold text-lg">AI Suggested: Metaverse Coverage</h3>
+              <p class="text-blue-400 text-sm">NEW</p>
+            </div>
+          </div>
+          <div class="flex space-x-2">
+            <button class="px-3 py-1 text-gray-300 hover:text-white text-sm border border-gray-600 rounded">Dismiss</button>
+            <button class="px-3 py-1 bg-blue-500 text-white rounded text-sm hover:bg-blue-600">Create Pillar</button>
+          </div>
+        </div>
+        <p class="text-gray-300 text-sm">Based on trending topics and your audience interests, consider creating content about metaverse gaming and virtual worlds.</p>
       </div>
     </div>
+
   </div>
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
-
-// Reactive state
-const pillars = ref([])
-const isLoading = ref(true)
-const error = ref(null)
-const showCreateForm = ref(false)
-const editingPillar = ref(null)
-const isSubmitting = ref(false)
-const isAnalyzing = ref(false)
-
-// Form data
-const formData = ref({
-  name: '',
-  description: '',
-  icon: '🎯',
-  color: 'from-pink-500 to-purple-500'
-})
-
-// Color options for pillars
-const colorOptions = [
-  { value: 'from-pink-500 to-purple-500', gradient: 'bg-gradient-to-br from-pink-500 to-purple-500' },
-  { value: 'from-blue-500 to-cyan-500', gradient: 'bg-gradient-to-br from-blue-500 to-cyan-500' },
-  { value: 'from-green-500 to-teal-500', gradient: 'bg-gradient-to-br from-green-500 to-teal-500' },
-  { value: 'from-yellow-500 to-orange-500', gradient: 'bg-gradient-to-br from-yellow-500 to-orange-500' },
-  { value: 'from-red-500 to-pink-500', gradient: 'bg-gradient-to-br from-red-500 to-pink-500' },
-  { value: 'from-indigo-500 to-blue-500', gradient: 'bg-gradient-to-br from-indigo-500 to-blue-500' },
-  { value: 'from-purple-500 to-pink-500', gradient: 'bg-gradient-to-br from-purple-500 to-pink-500' },
-  { value: 'from-gray-700 to-gray-900', gradient: 'bg-gradient-to-br from-gray-700 to-gray-900' }
-]
-
-// API functions
-const fetchPillars = async () => {
-  try {
-    isLoading.value = true
-    error.value = null
-    
-    // Mock user ID - replace with actual user context
-    const userId = 'default_user'
-    const response = await fetch(`http://localhost:8000/api/pillars/${userId}`)
-    
-    if (!response.ok) {
-      throw new Error('Failed to fetch pillars')
-    }
-    
-    pillars.value = await response.json()
-  } catch (err) {
-    error.value = err.message || 'Error loading pillars'
-    console.error('Error fetching pillars:', err)
-  } finally {
-    isLoading.value = false
-  }
-}
-
-const createPillar = async (pillarData) => {
-  const response = await fetch('http://localhost:8000/api/pillars', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({
-      user_id: 'default_user',
-      ...pillarData
-    })
-  })
-  
-  if (!response.ok) {
-    throw new Error('Failed to create pillar')
-  }
-  
-  return await response.json()
-}
-
-const updatePillar = async (pillarId, pillarData) => {
-  const response = await fetch(`http://localhost:8000/api/pillars/${pillarId}`, {
-    method: 'PUT',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify(pillarData)
-  })
-  
-  if (!response.ok) {
-    throw new Error('Failed to update pillar')
-  }
-  
-  return await response.json()
-}
-
-const deletePillar = async (pillarId) => {
-  if (!confirm('Are you sure you want to delete this pillar?')) {
-    return
-  }
-  
-  try {
-    const response = await fetch(`http://localhost:8000/api/pillars/${pillarId}`, {
-      method: 'DELETE'
-    })
-    
-    if (!response.ok) {
-      throw new Error('Failed to delete pillar')
-    }
-    
-    // Refresh pillars list
-    await fetchPillars()
-  } catch (err) {
-    alert('Error deleting pillar: ' + err.message)
-  }
-}
-
-const analyzeContentPillars = async () => {
-  try {
-    isAnalyzing.value = true
-    
-    const response = await fetch('http://localhost:8000/api/youtube/content-pillars', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        user_id: 'default_user',
-        channel_id: 'UCuAXFkgsw1L7xaCfnd5JJOw', // Example channel ID
-        video_count: 20,
-        analysis_depth: 'comprehensive'
-      })
-    })
-    
-    if (!response.ok) {
-      throw new Error('Failed to analyze content pillars')
-    }
-    
-    const result = await response.json()
-    alert('Content analysis complete! Check the results in your dashboard.')
-    
-    // Refresh pillars to show any new ones created by AI
-    await fetchPillars()
-    
-  } catch (err) {
-    alert('Error analyzing content: ' + err.message)
-  } finally {
-    isAnalyzing.value = false
-  }
-}
-
-// Form functions
-const submitForm = async () => {
-  try {
-    isSubmitting.value = true
-    
-    if (editingPillar.value) {
-      await updatePillar(editingPillar.value.id, formData.value)
-    } else {
-      await createPillar(formData.value)
-    }
-    
-    closeForm()
-    await fetchPillars()
-  } catch (err) {
-    alert('Error saving pillar: ' + err.message)
-  } finally {
-    isSubmitting.value = false
-  }
-}
-
-const editPillar = (pillar) => {
-  editingPillar.value = pillar
-  formData.value = {
-    name: pillar.name,
-    description: pillar.description || '',
-    icon: pillar.icon || '🎯',
-    color: pillar.color || 'from-pink-500 to-purple-500'
-  }
-  showCreateForm.value = true
-}
-
-const closeForm = () => {
-  showCreateForm.value = false
-  editingPillar.value = null
-  formData.value = {
-    name: '',
-    description: '',
-    icon: '🎯',
-    color: 'from-pink-500 to-purple-500'
-  }
-}
-
-const viewPillarAnalytics = (pillarId) => {
-  // Navigate to pillar analytics - could be a modal or separate page
-  alert(`Analytics for pillar ${pillarId} - Feature coming soon!`)
-}
-
-// Initialize
-onMounted(() => {
-  fetchPillars()
-})
+// Content Pillars Analytics Dashboard
+// Static data display matching the design from the image
 </script>

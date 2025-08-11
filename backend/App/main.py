@@ -13,56 +13,56 @@ import os
 from slowapi.errors import RateLimitExceeded
 
 # Import security middleware
-from backend.App.security_middleware import add_security_middleware
-from backend.App.config import get_settings
+from .security_middleware import add_security_middleware
+from .config import get_settings
 # Import new security features
-from backend.App.env_validator import validate_environment
-from backend.App.enhanced_security_middleware import EnhancedSecurityMiddleware, RateLimitMiddleware
+from .env_validator import validate_environment
+from .enhanced_security_middleware import EnhancedSecurityMiddleware, RateLimitMiddleware
 
 # Import API models
-from backend.App.api_models import (
+from .api_models import (
     ChannelInfo, StandardResponse, HealthResponse, SystemHealthResponse,
     create_success_response
 )
 
 # Import constants
-from backend.App.constants import DEFAULT_SESSION_TIMEOUT_HOURS
+from .constants import DEFAULT_SESSION_TIMEOUT_HOURS
 
 # Import routers
-from backend.App.agent_router import router as agent_router
-from backend.App.youtube_router import router as youtube_router
-from backend.App.pillars_router import router as pillars_router
-from backend.App.analytics_router import router as analytics_router
-from backend.App.oauth_endpoints import oauth_router
-from backend.App.content_cards_router import router as content_cards_router
-from backend.App.session_router import router as session_router
-from backend.App.backup_router import router as backup_router
-from backend.App.monitoring_router import router as monitoring_router
+from .agent_router import router as agent_router
+from .youtube_router import router as youtube_router
+from .pillars_router import router as pillars_router
+from .analytics_router import router as analytics_router
+from .oauth_endpoints import oauth_router
+from .content_cards_router import router as content_cards_router
+from .session_router import router as session_router
+from .backup_router import router as backup_router
+from .monitoring_router import router as monitoring_router
 
 # Import services
-from backend.App.ai_services import update_user_context
-from backend.App.enhanced_user_context import get_user_context
+from .ai_services import update_user_context
+from .enhanced_user_context import get_user_context
 
 # Import rate limiting
-from backend.App.rate_limiter import limiter, custom_rate_limit_handler, get_rate_limit
+from .rate_limiter import limiter, custom_rate_limit_handler, get_rate_limit
 
 # Import authentication
-from backend.App.auth_middleware import get_current_user, get_optional_user, get_user_id_from_request, AuthToken, create_session_token
+from .auth_middleware import get_current_user, get_optional_user, get_user_id_from_request, AuthToken, create_session_token
 
 # Import CSRF protection
-from backend.App.csrf_protection import setup_csrf_protection
+from .csrf_protection import setup_csrf_protection
 
 # Import secure error handling
-from backend.App.secure_error_handler import create_secure_exception_handlers
+from .secure_error_handler import create_secure_exception_handlers
 
 # Import monitoring and logging
-from backend.App.logging_config import get_logging_manager, get_logger, LogCategory
-from backend.App.monitoring_middleware import setup_monitoring_middleware
+from .logging_config import get_logging_manager, get_logger, LogCategory
+from .monitoring_middleware import setup_monitoring_middleware
 
 # Import health checks
 
 # Import session management
-from backend.App.session_middleware import SessionMiddleware
+from .session_middleware import SessionMiddleware
 
 # Security helpers
 def add_security_headers(response):
@@ -207,12 +207,12 @@ async def startup_event():
             }
         )
         
-        from backend.App.api_startup import initialize_Vidalytics_system
+        from .api_startup import initialize_Vidalytics_system
         initialization_result = await initialize_Vidalytics_system()
         
         # Initialize performance tracking system
         try:
-            from backend.App.agent_performance_tracker import init_performance_tracking
+            from .agent_performance_tracker import init_performance_tracking
             init_performance_tracking()
             
             logger.info(
@@ -233,7 +233,7 @@ async def startup_event():
         
         # Initialize alert system
         try:
-            from backend.App.alert_manager import init_alert_system
+            from .alert_manager import init_alert_system
             await init_alert_system()
             
             logger.info(
@@ -254,7 +254,7 @@ async def startup_event():
         
         # Initialize backup service
         try:
-            from backend.App.backup_service import get_backup_service
+            from .backup_service import get_backup_service
             backup_config = settings.get_backup_config()
             
             # Get database path from settings
@@ -329,7 +329,7 @@ async def shutdown_event():
         
         # Stop backup service
         try:
-            from backend.App.backup_service import get_backup_service
+            from .backup_service import get_backup_service
             backup_service = get_backup_service()
             backup_service.stop()
             logger.info("Backup service stopped successfully")
@@ -338,7 +338,7 @@ async def shutdown_event():
         
         # Stop alert monitoring
         try:
-            from backend.App.alert_manager import get_alert_manager
+            from .alert_manager import get_alert_manager
             alert_manager = get_alert_manager()
             await alert_manager.stop_monitoring()
             logger.info("Alert monitoring stopped successfully")
@@ -346,7 +346,7 @@ async def shutdown_event():
             logger.error(f"Error stopping alert monitoring: {e}")
         
         # Cleanup connection pools
-        from backend.App.connection_pool import cleanup_connections
+        from .connection_pool import cleanup_connections
         await cleanup_connections()
         
         logger.info("Vidalytics shutdown completed successfully")
@@ -628,7 +628,7 @@ async def get_insights(user_id: str):
             }
         )
         
-        from backend.App.insights_engine import insights_engine
+        from .insights_engine import insights_engine
         
         # Generate new insights
         new_insights = insights_engine.generate_insights_for_user(user_id, limit=3)
@@ -742,8 +742,8 @@ async def get_user_profile(
         
         # Try to get YouTube channel data if OAuth is connected
         try:
-            from backend.App.oauth_manager import get_oauth_manager
-            from backend.App.youtube_api_integration import get_youtube_integration
+            from .oauth_manager import get_oauth_manager
+            from .youtube_api_integration import get_youtube_integration
             
             logger.info(f"Getting user profile for user_id: {user_id}")
             
@@ -828,7 +828,7 @@ async def get_user_profile(
                             logger.info(f"Found banner URL from known channel: {banner_url}")
                             
                             # Update the user's channel_id for future use
-                            from backend.App.ai_services import update_user_context
+                            from .ai_services import update_user_context
                             update_user_context(user_id, "channel_info", {
                                 **channel_info,
                                 "channel_id": found_channel_id
@@ -929,7 +929,7 @@ def health_check(request: Request):
 def system_health():
     """Comprehensive system health check"""
     try:
-        from backend.App.api_startup import get_system_status
+        from .api_startup import get_system_status
         system_status = get_system_status()
         
         # Calculate overall health score

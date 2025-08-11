@@ -9,7 +9,7 @@ from datetime import datetime
 from fastapi import APIRouter, HTTPException, Request, Response, Depends, status
 from pydantic.v1 import BaseModel, Field
 
-from session_middleware import (
+from .session_middleware import (
     require_auth,
     create_user_session,
     get_user_session,
