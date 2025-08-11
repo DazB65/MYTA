@@ -2,6 +2,7 @@
 export default defineNuxtConfig({
   compatibilityDate: "2025-07-15",
 
+
   // Modern build configuration
   nitro: {
     compressPublicAssets: true,
