@@ -41,7 +41,7 @@
       </div>
 
       <!-- Content -->
-      <div class="flex h-full">
+      <div class="flex" style="height: calc(100% - 120px);">
         <!-- Tabs -->
         <div class="w-64 bg-gray-900 p-4 border-r border-gray-700">
           <div class="space-y-2">
@@ -73,6 +73,29 @@
               <span class="px-3 py-1 bg-green-600 text-green-100 rounded-full text-sm">Channel Insights</span>
             </div>
           </div>
+
+          <!-- Saved Questions -->
+          <div v-if="savedQuestions.length > 0" class="mt-6">
+            <h4 class="text-sm font-medium text-gray-400 mb-3">Saved Questions</h4>
+            <div class="flex flex-wrap gap-2">
+              <span
+                v-for="question in savedQuestions"
+                :key="question.id"
+                @click="loadSavedQuestion(question)"
+                class="group relative px-3 py-1 bg-purple-600 text-purple-100 rounded-full text-sm cursor-pointer hover:bg-purple-700 transition-colors"
+              >
+                {{ question.text.length > 30 ? question.text.substring(0, 30) + '...' : question.text }}
+                <button
+                  @click.stop="deleteSavedQuestion(question.id)"
+                  class="absolute -top-1 -right-1 w-4 h-4 bg-red-500 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
+                >
+                  <svg class="w-2 h-2 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                  </svg>
+                </button>
+              </span>
+            </div>
+          </div>
         </div>
 
         <!-- Chat Area -->
@@ -80,18 +103,34 @@
           <!-- Chat Messages -->
           <div class="flex-1 p-6 overflow-y-auto">
             <div class="space-y-4">
-              <!-- AI Message -->
-              <div class="flex items-start space-x-3">
-                <div class="w-8 h-8 bg-purple-600 rounded-full flex items-center justify-center flex-shrink-0">
-                  <span class="text-white text-sm font-bold">AI</span>
+              <div
+                v-for="message in chatMessages"
+                :key="message.id"
+                class="flex items-start space-x-3"
+                :class="message.type === 'user' ? 'flex-row-reverse space-x-reverse' : ''"
+              >
+                <div
+                  class="w-8 h-8 rounded-full flex items-center justify-center text-white text-sm font-bold flex-shrink-0"
+                  :class="message.type === 'ai' ? 'bg-purple-600' : 'bg-blue-600'"
+                >
+                  {{ message.type === 'ai' ? 'AI' : 'U' }}
                 </div>
                 <div class="flex-1">
-                  <div class="bg-gray-700 rounded-lg p-3">
-                    <p class="text-gray-300 text-sm">
-                      <span class="font-medium text-white">AI Assistant</span>
-                      <span class="text-gray-500 text-xs ml-2">10:30 AM</span>
+                  <div
+                    class="rounded-lg p-3"
+                    :class="message.type === 'ai' ? 'bg-gray-700' : 'bg-blue-600 ml-auto max-w-md'"
+                  >
+                    <p class="text-sm">
+                      <span class="font-medium text-white">
+                        {{ message.type === 'ai' ? 'AI Assistant' : 'You' }}
+                      </span>
+                      <span class="text-xs ml-2" :class="message.type === 'ai' ? 'text-gray-500' : 'text-blue-200'">
+                        {{ message.timestamp }}
+                      </span>
                     </p>
-                    <p class="text-gray-300 mt-1">Hello! I'm your AI content creation assistant. How can I help you today?</p>
+                    <p class="mt-1" :class="message.type === 'ai' ? 'text-gray-300' : 'text-white'">
+                      {{ message.message }}
+                    </p>
                   </div>
                 </div>
               </div>
@@ -99,15 +138,25 @@
           </div>
 
           <!-- Input Area -->
-          <div class="p-6 border-t border-gray-700">
+          <div class="px-6 py-4 border-t border-gray-700">
             <div class="flex items-center space-x-3">
               <input
                 v-model="messageInput"
                 type="text"
-                placeholder="Type Something..."
+                placeholder="Type your question..."
                 class="flex-1 px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-transparent"
                 @keyup.enter="sendMessage"
               />
+              <button
+                @click="saveQuestion"
+                class="px-4 py-3 bg-green-600 hover:bg-green-700 text-white rounded-lg font-medium transition-colors flex items-center space-x-2"
+                title="Save Question"
+              >
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3-3m0 0l-3 3m3-3v12"></path>
+                </svg>
+                <span class="hidden sm:inline">Save</span>
+              </button>
               <button
                 @click="sendMessage"
                 class="px-6 py-3 bg-pink-500 text-white rounded-lg hover:bg-pink-600 transition-colors font-medium"
@@ -235,6 +284,17 @@ const emit = defineEmits(['close'])
 const activeTab = ref('chats')
 const messageInput = ref('')
 const showSettings = ref(false)
+const showSaveDialog = ref(false)
+const questionToSave = ref('')
+const savedQuestions = ref([])
+const chatMessages = ref([
+  {
+    id: 1,
+    type: 'ai',
+    message: "Hello! I'm your AI content creation assistant. How can I help you today?",
+    timestamp: '10:30 AM'
+  }
+])
 const agentSettings = ref({
   name: 'Professional Assistant',
   selectedAgent: 1
@@ -341,15 +401,65 @@ const closeModal = () => {
 
 const sendMessage = () => {
   if (messageInput.value.trim()) {
-    // Handle message sending logic here
-    console.log('Sending message:', messageInput.value)
+    // Add user message to chat
+    const userMessage = {
+      id: Date.now(),
+      type: 'user',
+      message: messageInput.value,
+      timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+    }
+    chatMessages.value.push(userMessage)
+
+    // Simulate AI response (replace with actual API call later)
+    setTimeout(() => {
+      const aiResponse = {
+        id: Date.now() + 1,
+        type: 'ai',
+        message: "I understand your question. Let me help you with that...",
+        timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+      }
+      chatMessages.value.push(aiResponse)
+    }, 1000)
+
     messageInput.value = ''
   }
+}
+
+const saveQuestion = () => {
+  if (messageInput.value.trim()) {
+    const newQuestion = {
+      id: Date.now(),
+      text: messageInput.value,
+      timestamp: new Date().toLocaleDateString()
+    }
+    savedQuestions.value.push(newQuestion)
+
+    // Save to localStorage
+    localStorage.setItem('savedQuestions', JSON.stringify(savedQuestions.value))
+
+    // Optional: Clear input after saving
+    // messageInput.value = ''
+  }
+}
+
+const loadSavedQuestion = (question) => {
+  messageInput.value = question.text
+}
+
+const deleteSavedQuestion = (questionId) => {
+  savedQuestions.value = savedQuestions.value.filter(q => q.id !== questionId)
+  localStorage.setItem('savedQuestions', JSON.stringify(savedQuestions.value))
 }
 
 // Load settings when component mounts
 onMounted(() => {
   loadAgentSettings()
+
+  // Load saved questions from localStorage
+  const saved = localStorage.getItem('savedQuestions')
+  if (saved) {
+    savedQuestions.value = JSON.parse(saved)
+  }
 })
 
 // Watch for settings changes (in case user updates settings in another tab)
