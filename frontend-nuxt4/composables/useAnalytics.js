@@ -2,7 +2,7 @@
  * Analytics composable for managing YouTube Analytics data
  * Provides reactive state management and API integration with performance optimization
  */
-import { computed, reactive, ref, watch } from "vue";
+import { computed, reactive, readonly, ref, watch } from "vue";
 import { usePerformance } from "./usePerformance";
 
 export const useAnalytics = () => {
