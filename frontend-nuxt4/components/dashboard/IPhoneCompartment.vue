@@ -1,15 +1,27 @@
 <template>
   <div class="bg-gray-800 rounded-xl p-6">
-    <!-- Header with Connect YouTube Button -->
-    <div class="flex items-center justify-end mb-6">
+    <!-- Action Buttons -->
+    <div class="flex items-center justify-between mb-6">
+      <!-- Connect YouTube Button -->
       <button
         @click="showConnectModal = true"
-        class="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors flex items-center space-x-2"
+        class="flex items-center space-x-2 bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg transition-colors"
       >
-        <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-          <path d="M13 6a3 3 0 11-6 0 3 3 0 016 0zM18 8a2 2 0 11-4 0 2 2 0 014 0zM14 15a4 4 0 00-8 0v3h8v-3z"></path>
+        <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+          <path fill-rule="evenodd" d="M3 4a1 1 0 011-1h12a1 1 0 011 1v1a1 1 0 01-1 1H4a1 1 0 01-1-1V4zm0 4a1 1 0 011-1h6a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h6a1 1 0 110 2H4a1 1 0 01-1-1z" clip-rule="evenodd"></path>
         </svg>
         <span>Connect YouTube</span>
+      </button>
+
+      <!-- Agent Button -->
+      <button
+        @click="showAgentModal = true"
+        class="flex items-center space-x-2 bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg transition-colors"
+      >
+        <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+          <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path>
+        </svg>
+        <span>Agent</span>
       </button>
     </div>
 
@@ -38,10 +50,16 @@
 
 
     <!-- YouTube Connect Modal -->
-    <YouTubeConnectModal 
-      v-if="showConnectModal" 
+    <YouTubeConnectModal
+      v-if="showConnectModal"
       @close="showConnectModal = false"
       @connect="handleYouTubeConnect"
+    />
+
+    <!-- Agent Modal -->
+    <AgentModal
+      :isOpen="showAgentModal"
+      @close="showAgentModal = false"
     />
   </div>
 </template>
@@ -49,9 +67,11 @@
 <script setup>
 import { ref } from 'vue'
 import YouTubeConnectModal from '../modals/YouTubeConnectModal.vue'
+import AgentModal from './AgentModal.vue'
 
 // Component state
 const showConnectModal = ref(false)
+const showAgentModal = ref(false)
 
 // Event handlers
 const handleYouTubeConnect = () => {
