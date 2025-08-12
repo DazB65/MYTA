@@ -175,6 +175,11 @@
         </div>
       </div>
 
+      <!-- Banner Compartment Section -->
+      <div class="mb-6">
+        <IPhoneCompartment />
+      </div>
+
       <!-- Dashboard Content Grid -->
       <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <!-- Task Manager Compartment -->
