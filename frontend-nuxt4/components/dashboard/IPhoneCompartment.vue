@@ -1,6 +1,17 @@
 <template>
   <div class="bg-gray-800 rounded-xl p-6">
-
+    <!-- Header with Connect YouTube Button -->
+    <div class="flex items-center justify-end mb-6">
+      <button
+        @click="showConnectModal = true"
+        class="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors flex items-center space-x-2"
+      >
+        <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+          <path d="M13 6a3 3 0 11-6 0 3 3 0 016 0zM18 8a2 2 0 11-4 0 2 2 0 014 0zM14 15a4 4 0 00-8 0v3h8v-3z"></path>
+        </svg>
+        <span>Connect YouTube</span>
+      </button>
+    </div>
 
     <!-- YouTube Banner Preview - Exact format like your image -->
     <div class="bg-gradient-to-r from-orange-400 via-pink-500 to-purple-600 rounded-xl h-32 relative overflow-hidden flex items-center justify-between px-8">

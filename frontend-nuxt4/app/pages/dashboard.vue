@@ -158,22 +158,7 @@
 
     <!-- Main Content Area -->
     <div class="flex-1 bg-gray-900 p-6 overflow-y-auto ml-72">
-      <!-- Header -->
-      <div class="flex items-center justify-between mb-6">
-        <div>
-          <h2 class="text-2xl font-bold text-white">Dashboard</h2>
-          <p class="text-gray-400">Monitor your YouTube channel performance</p>
-        </div>
-        <div class="flex items-center space-x-4">
-          <div class="flex items-center space-x-2">
-            <div class="w-3 h-3 bg-pink-500 rounded-full"></div>
-            <span class="text-white text-sm">● Online</span>
-          </div>
-          <div class="bg-green-500 text-white px-3 py-1 rounded-full text-sm">
-            ✓ YouTube connected
-          </div>
-        </div>
-      </div>
+
 
       <!-- Banner Compartment Section -->
       <div class="mb-6">
