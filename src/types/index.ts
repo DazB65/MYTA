@@ -1,94 +1,75 @@
-export interface Agent {
-  id: string;
-  name: string;
-  type: AgentType;
-  status: AgentStatus;
-  capabilities: string[];
+import { TaskPriority, ContentStatus, PillarCategory } from '../enums';
+
+// Props types (data passed to components)
+export interface TaskProps {
+  id: number;
+  title: string;
   description: string;
-  avatar?: string;
-  lastActive?: Date;
+  priority: TaskPriority;
+  tags: string[];
+  dueDate: string;
+  completed: boolean;
 }
 
-export type AgentType = 
-  | 'boss_agent'
-  | 'content_analysis'
-  | 'audience_insights'
-  | 'seo_discoverability'
-  | 'monetization_strategy'
-  | 'competitive_analysis';
-
-export type AgentStatus = 'online' | 'offline' | 'busy' | 'thinking';
-
-export interface ChatMessage {
-  id: string;
-  agentId: string;
-  userId?: string;
-  content: string;
-  type: MessageType;
-  timestamp: Date;
-  metadata?: MessageMetadata;
-  isFromUser?: boolean;
-}
-
-export type MessageType = 
-  | 'text'
-  | 'insight'
-  | 'recommendation'
-  | 'analysis'
-  | 'chart_data'
-  | 'system'
-  | 'error';
-
-export interface MessageMetadata {
-  analysisType?: string;
-  confidence?: number;
-  sources?: string[];
-  chartData?: any;
-  actionItems?: string[];
-}
-
-export interface ChatSession {
-  id: string;
-  userId: string;
-  agentId: string;
+export interface ContentItemProps {
+  id: number;
   title: string;
-  messages: ChatMessage[];
-  createdAt: Date;
-  updatedAt: Date;
-  isActive: boolean;
+  description: string;
+  status: ContentStatus;
+  priority: TaskPriority;
+  assignee: string;
+  progress?: number;
+  metrics?: {
+    views: string;
+    engagement: number;
+    likes: string;
+    shares: string;
+  };
+  createdAt: string;
 }
 
-export interface User {
-  id: string;
-  email: string;
+export interface PillarProps {
+  id: number;
   name: string;
-  avatar?: string;
-  subscription_tier: 'free' | 'pro' | 'enterprise';
-  youtube_connected: boolean;
-  channel_id?: string;
-  created_at: Date;
+  category: PillarCategory;
+  videoCount: number;
+  createdMonthsAgo: number;
+  revenue: number;
+  revenueChange: number;
+  watchTime: number;
+  watchTimeChange: number;
+  subscribers: number;
+  subscriberChange: number;
+  color: string;
 }
 
-export interface AnalyticsData {
-  totalViews: number;
-  totalSubscribers: number;
-  totalVideos: number;
-  healthScore: number;
-  revenueMetrics: {
+export interface UserProfileProps {
+  name: string;
+  initial: string;
+  greeting: string;
+  currentDate: string;
+}
+
+export interface ChannelGoalsProps {
+  views: {
+    completed: number;
+    remaining: number;
     total: number;
-    rpm: number;
-    cpm: number;
+    percentage: number;
   };
-  subscriberGrowth: {
-    net: number;
-    rate: number;
+  subscribers: {
+    completed: number;
+    remaining: number;
+    total: number;
+    percentage: number;
   };
 }
 
-export interface Notification {
-  id: string;
-  type: 'success' | 'error' | 'warning' | 'info';
-  title: string;
-  message: string;
-  timestamp: Date;
+export interface CreateProfileFormProps {
+  motivation: string;
+  niche: string;
+  contentType: string;
+  uploadFrequency: string;
+  targetGoal: string;
+  additionalNotes: string;
 }

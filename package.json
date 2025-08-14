@@ -1,5 +1,5 @@
 {
-  "name": "e55b6d8c33c3f1dbcd359a27f2bfe83645d1b0b14cdbe5dbda4301ed6362aea5",
+  "name": "1c9f837f840e78e1f3d533d35046e9729d1c6b6d76a0b320080562f528bb9a5c",
   "private": true,
   "version": "0.0.0",
   "type": "module",
@@ -20,14 +20,12 @@
     "@mui/x-data-grid": "^8.10.0",
     "@mui/x-date-pickers": "^8.10.0",
     "@mui/x-tree-view": "^8.10.0",
-    "@reduxjs/toolkit": "^2.8.2",
     "date-fns": "^4.1.0",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
-    "react-redux": "^9.2.0",
     "react-router": "^7.8.0",
     "react-router-dom": "^7.8.0",
-    "uuid": "latest"
+    "recharts": "latest"
   },
   "devDependencies": {
     "@eslint/js": "^9.21.0",
@@ -66,7 +64,7 @@
     "react-redux": "^9.2.0",
     "react-router": "^7.8.0",
     "react-router-dom": "^7.8.0",
-    "pinia": "^3.0.3",
+    "uuid": "latest",
     "@eslint/js": "^9.21.0",
     "@types/node": "^24.2.1",
     "@types/react": "^19.0.10",
