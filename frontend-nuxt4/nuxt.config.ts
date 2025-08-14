@@ -11,7 +11,6 @@ export default defineNuxtConfig({
   // Performance optimizations
   experimental: {
     payloadExtraction: false, // Faster SSR
-    inlineSSRStyles: false, // Reduce initial bundle
   },
 
   // Build optimizations
@@ -80,6 +79,7 @@ export default defineNuxtConfig({
     // Public keys (exposed to client-side)
     public: {
       apiBase: process.env.API_BASE_URL || "http://localhost:8000",
+      wsUrl: process.env.WS_URL || "ws://localhost:8000",
       environment: process.env.NODE_ENV || "development",
       enablePerformanceMonitor:
         process.env.ENABLE_PERFORMANCE_MONITOR === "true",
@@ -126,6 +126,15 @@ export default defineNuxtConfig({
     },
   },
 
-  // Tailwind CSS module
-  modules: ["@nuxtjs/tailwindcss"],
+  // Modules
+  modules: [
+    "@nuxtjs/tailwindcss",
+    "@pinia/nuxt",
+    "@vueuse/nuxt"
+  ],
+
+  // Pinia configuration
+  pinia: {
+    storesDirs: ['./stores/**']
+  },
 });
