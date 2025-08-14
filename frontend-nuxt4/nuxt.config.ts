@@ -129,12 +129,6 @@ export default defineNuxtConfig({
   // Modules
   modules: [
     "@nuxtjs/tailwindcss",
-    "@pinia/nuxt",
     "@vueuse/nuxt"
   ],
-
-  // Pinia configuration
-  pinia: {
-    storesDirs: ['./stores/**']
-  },
 });
