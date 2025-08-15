@@ -12,7 +12,7 @@ export const usePerformance = () => {
     apiResponseTimes: {},
     memoryUsage: 0,
     cacheHitRate: 0,
-    renderTime: 0
+    renderTime: 0,
   })
 
   // Cache management
@@ -21,7 +21,7 @@ export const usePerformance = () => {
     hits: 0,
     misses: 0,
     sets: 0,
-    evictions: 0
+    evictions: 0,
   })
 
   // Performance monitoring
@@ -33,11 +33,11 @@ export const usePerformance = () => {
     maxSize: 100,
     defaultTTL: 5 * 60 * 1000, // 5 minutes
     analytics: {
-      overview: 5 * 60 * 1000,     // 5 minutes
+      overview: 5 * 60 * 1000, // 5 minutes
       channelHealth: 10 * 60 * 1000, // 10 minutes
-      revenue: 15 * 60 * 1000,     // 15 minutes
-      charts: 10 * 60 * 1000       // 10 minutes
-    }
+      revenue: 15 * 60 * 1000, // 15 minutes
+      charts: 10 * 60 * 1000, // 10 minutes
+    },
   }
 
   /**
@@ -56,15 +56,15 @@ export const usePerformance = () => {
       value,
       expiresAt,
       accessedAt: Date.now(),
-      hitCount: 0
+      hitCount: 0,
     })
-    
+
     cacheStats.sets++
   }
 
-  const cacheGet = (key) => {
+  const cacheGet = key => {
     const item = cache.get(key)
-    
+
     if (!item) {
       cacheStats.misses++
       return null
@@ -89,7 +89,7 @@ export const usePerformance = () => {
     return item.value
   }
 
-  const cacheDelete = (key) => {
+  const cacheDelete = key => {
     return cache.delete(key)
   }
 
@@ -111,17 +111,13 @@ export const usePerformance = () => {
    * API call caching wrapper
    */
   const cachedApiCall = async (key, apiFunction, options = {}) => {
-    const {
-      ttl = CACHE_CONFIG.defaultTTL,
-      forceRefresh = false,
-      cacheType = 'default'
-    } = options
+    const { ttl = CACHE_CONFIG.defaultTTL, forceRefresh = false, cacheType = 'default' } = options
 
     // Use specific TTL for analytics data
     const finalTTL = CACHE_CONFIG.analytics[cacheType] || ttl
 
     const startTime = performance.now()
-    
+
     // Check cache first
     if (!forceRefresh) {
       const cached = cacheGet(key)
@@ -134,15 +130,15 @@ export const usePerformance = () => {
       // Make API call
       const result = await apiFunction()
       const endTime = performance.now()
-      
+
       // Track API response time
       metrics.apiResponseTimes[key] = Math.round(endTime - startTime)
-      
+
       // Cache successful results
       if (result && result.status !== 'error') {
         cacheSet(key, result, finalTTL)
       }
-      
+
       return result
     } catch (error) {
       const endTime = performance.now()
@@ -171,7 +167,7 @@ export const usePerformance = () => {
       if (!inThrottle) {
         func.apply(null, args)
         inThrottle = true
-        setTimeout(() => inThrottle = false, limit)
+        setTimeout(() => (inThrottle = false), limit)
       }
     }
   }
@@ -180,7 +176,7 @@ export const usePerformance = () => {
    * Lazy loading utility
    */
   const createLazyLoader = (loadFunction, threshold = 0.1) => {
-    return new Promise((resolve) => {
+    return new Promise(resolve => {
       if (typeof window === 'undefined' || !('IntersectionObserver' in window)) {
         // Fallback for SSR or unsupported browsers
         resolve(loadFunction())
@@ -190,9 +186,9 @@ export const usePerformance = () => {
       let observer
       const element = document.createElement('div')
       element.style.height = '1px'
-      
+
       observer = new IntersectionObserver(
-        (entries) => {
+        entries => {
           if (entries[0].isIntersecting) {
             observer.disconnect()
             resolve(loadFunction())
@@ -200,7 +196,7 @@ export const usePerformance = () => {
         },
         { threshold }
       )
-      
+
       observer.observe(element)
     })
   }
@@ -248,7 +244,7 @@ export const usePerformance = () => {
   const setupPerformanceObserver = () => {
     if (typeof window === 'undefined' || !('PerformanceObserver' in window)) return
 
-    performanceObserver.value = new PerformanceObserver((list) => {
+    performanceObserver.value = new PerformanceObserver(list => {
       for (const entry of list.getEntries()) {
         if (entry.entryType === 'navigation') {
           metrics.pageLoadTime = Math.round(entry.loadEventEnd - entry.loadEventStart)
@@ -258,8 +254,8 @@ export const usePerformance = () => {
       }
     })
 
-    performanceObserver.value.observe({ 
-      entryTypes: ['navigation', 'paint', 'resource'] 
+    performanceObserver.value.observe({
+      entryTypes: ['navigation', 'paint', 'resource'],
     })
   }
 
@@ -271,19 +267,19 @@ export const usePerformance = () => {
       placeholder = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzIwIiBoZWlnaHQ9IjE4MCIgdmlld0JveD0iMCAwIDMyMCAxODAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+',
       errorImage = '/default-thumbnail.jpg',
       rootMargin = '50px',
-      threshold = 0.1
+      threshold = 0.1,
     } = options
 
     return new Promise((resolve, reject) => {
       const img = new Image()
-      
+
       img.onload = () => resolve(src)
       img.onerror = () => resolve(errorImage)
-      
+
       // Use intersection observer for lazy loading
       if ('IntersectionObserver' in window) {
         const observer = new IntersectionObserver(
-          (entries) => {
+          entries => {
             entries.forEach(entry => {
               if (entry.isIntersecting) {
                 img.src = src
@@ -293,7 +289,7 @@ export const usePerformance = () => {
           },
           { rootMargin, threshold }
         )
-        
+
         // Observe placeholder element
         const placeholder_element = document.createElement('div')
         observer.observe(placeholder_element)
@@ -317,7 +313,7 @@ export const usePerformance = () => {
     document.head.appendChild(link)
   }
 
-  const prefetchResource = (href) => {
+  const prefetchResource = href => {
     if (typeof window === 'undefined') return
 
     const link = document.createElement('link')
@@ -334,7 +330,7 @@ export const usePerformance = () => {
       const endTime = performance.now()
       const loadTime = Math.round(endTime - startTime)
       metrics.componentLoadTime = loadTime
-      
+
       console.log(`${componentName} loaded in ${loadTime}ms`)
     }
   }
@@ -345,13 +341,13 @@ export const usePerformance = () => {
   const cleanupCache = () => {
     const now = Date.now()
     const keysToDelete = []
-    
+
     cache.forEach((item, key) => {
       if (now > item.expiresAt) {
         keysToDelete.push(key)
       }
     })
-    
+
     keysToDelete.forEach(key => cache.delete(key))
     return keysToDelete.length
   }
@@ -360,10 +356,10 @@ export const usePerformance = () => {
   onMounted(() => {
     setupPerformanceObserver()
     collectPerformanceMetrics()
-    
+
     // Regular cache cleanup
     const cleanupInterval = setInterval(cleanupCache, 60000) // Every minute
-    
+
     // Regular metrics update
     const metricsInterval = setInterval(collectPerformanceMetrics, 10000) // Every 10 seconds
 
@@ -381,32 +377,32 @@ export const usePerformance = () => {
     metrics: readonly(metrics),
     cacheStats: readonly(cacheStats),
     cacheHitRate,
-    
+
     // Cache management
     cacheSet,
     cacheGet,
     cacheDelete,
     cacheClear,
     cleanupCache,
-    
+
     // API optimization
     cachedApiCall,
-    
+
     // Function optimization
     debounce,
     throttle,
-    
+
     // Lazy loading
     createLazyLoader,
     lazyLoadImage,
-    
+
     // Resource optimization
     preloadResource,
     prefetchResource,
-    
+
     // Performance monitoring
     measureComponentLoad,
     collectPerformanceMetrics,
-    updateMemoryUsage
+    updateMemoryUsage,
   }
 }

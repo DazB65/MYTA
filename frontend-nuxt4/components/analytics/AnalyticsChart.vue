@@ -4,11 +4,11 @@
     <div class="chart-header">
       <div class="chart-info">
         <h3 class="chart-title">{{ title }}</h3>
-        <p class="chart-subtitle" v-if="subtitle">{{ subtitle }}</p>
+        <p v-if="subtitle" class="chart-subtitle">{{ subtitle }}</p>
       </div>
       <div class="chart-controls">
         <!-- Chart Type Selector -->
-        <div class="chart-type-selector" v-if="allowTypeChange">
+        <div v-if="allowTypeChange" class="chart-type-selector">
           <button
             v-for="type in chartTypes"
             :key="type.value"
@@ -19,14 +19,10 @@
             <span>{{ type.label }}</span>
           </button>
         </div>
-        
+
         <!-- Period Selector -->
-        <div class="period-selector" v-if="allowPeriodChange">
-          <select 
-            v-model="selectedPeriod" 
-            class="period-select"
-            @change="handlePeriodChange"
-          >
+        <div v-if="allowPeriodChange" class="period-selector">
+          <select v-model="selectedPeriod" class="period-select" @change="handlePeriodChange">
             <option v-for="period in periods" :key="period.value" :value="period.value">
               {{ period.label }}
             </option>
@@ -39,14 +35,18 @@
     <div class="chart-container" :style="{ height: chartHeight }">
       <!-- Loading State -->
       <div v-if="loading" class="chart-loading">
-        <div class="loading-spinner"></div>
+        <div class="loading-spinner"/>
         <p>Loading chart data...</p>
       </div>
 
       <!-- Error State -->
       <div v-else-if="error" class="chart-error">
         <svg class="error-icon" viewBox="0 0 20 20" fill="currentColor">
-          <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd" />
+          <path
+            fill-rule="evenodd"
+            d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z"
+            clip-rule="evenodd"
+          />
         </svg>
         <h4>Chart Error</h4>
         <p>{{ error }}</p>
@@ -60,19 +60,15 @@
         class="chart-canvas"
         :width="canvasWidth"
         :height="canvasHeight"
-      ></canvas>
+      />
 
       <!-- Chart Legend -->
       <div v-if="showLegend && chartData.datasets" class="chart-legend">
-        <div
-          v-for="(dataset, index) in chartData.datasets"
-          :key="index"
-          class="legend-item"
-        >
+        <div v-for="(dataset, index) in chartData.datasets" :key="index" class="legend-item">
           <div
             class="legend-color"
             :style="{ backgroundColor: dataset.borderColor || dataset.backgroundColor }"
-          ></div>
+          />
           <span class="legend-label">{{ dataset.label }}</span>
         </div>
       </div>
@@ -89,7 +85,7 @@
           <span class="stat-label">Average</span>
           <span class="stat-value">{{ formatValue(averageValue) }}</span>
         </div>
-        <div class="stat-item" v-if="changeValue !== null">
+        <div v-if="changeValue !== null" class="stat-item">
           <span class="stat-label">Change</span>
           <span :class="['stat-value', changeClass]">
             {{ changeValue >= 0 ? '+' : '' }}{{ changeValue.toFixed(1) }}%
@@ -106,48 +102,48 @@ import { ref, computed, onMounted, onUnmounted, watch, nextTick } from 'vue'
 const props = defineProps({
   title: {
     type: String,
-    required: true
+    required: true,
   },
   subtitle: String,
   data: {
     type: Object,
-    required: true
+    required: true,
   },
   type: {
     type: String,
     default: 'line',
-    validator: value => ['line', 'bar', 'area', 'doughnut', 'pie'].includes(value)
+    validator: value => ['line', 'bar', 'area', 'doughnut', 'pie'].includes(value),
   },
   height: {
     type: String,
-    default: '300px'
+    default: '300px',
   },
   loading: Boolean,
   error: String,
   showLegend: {
     type: Boolean,
-    default: true
+    default: true,
   },
   showSummary: {
     type: Boolean,
-    default: true
+    default: true,
   },
   allowTypeChange: {
     type: Boolean,
-    default: false
+    default: false,
   },
   allowPeriodChange: {
     type: Boolean,
-    default: false
+    default: false,
   },
   animate: {
     type: Boolean,
-    default: true
+    default: true,
   },
   responsive: {
     type: Boolean,
-    default: true
-  }
+    default: true,
+  },
 })
 
 const emit = defineEmits(['type-change', 'period-change', 'retry'])
@@ -165,14 +161,14 @@ const chartTypes = [
   { value: 'line', label: 'Line', icon: 'IconLine' },
   { value: 'bar', label: 'Bar', icon: 'IconBar' },
   { value: 'area', label: 'Area', icon: 'IconArea' },
-  { value: 'doughnut', label: 'Donut', icon: 'IconDonut' }
+  { value: 'doughnut', label: 'Donut', icon: 'IconDonut' },
 ]
 
 const periods = [
   { value: 7, label: '7 days' },
   { value: 30, label: '30 days' },
   { value: 90, label: '90 days' },
-  { value: 365, label: '1 year' }
+  { value: 365, label: '1 year' },
 ]
 
 // Computed properties
@@ -200,10 +196,10 @@ const changeValue = computed(() => {
   if (!chartData.value.datasets.length) return null
   const data = chartData.value.datasets[0].data
   if (data.length < 2) return null
-  
+
   const latest = data[data.length - 1] || 0
   const previous = data[data.length - 2] || 0
-  
+
   if (previous === 0) return null
   return ((latest - previous) / previous) * 100
 })
@@ -216,14 +212,14 @@ const changeClass = computed(() => {
 // Chart creation and management
 const createChart = async () => {
   if (!chartCanvas.value || !chartData.value.datasets.length) return
-  
+
   const ctx = chartCanvas.value.getContext('2d')
-  
+
   // Destroy existing chart
   if (chartInstance) {
     chartInstance.destroy()
   }
-  
+
   // Chart.js configuration
   const config = {
     type: chartType.value,
@@ -233,11 +229,11 @@ const createChart = async () => {
       maintainAspectRatio: false,
       animation: {
         duration: props.animate ? 750 : 0,
-        easing: 'easeInOutQuart'
+        easing: 'easeInOutQuart',
       },
       plugins: {
         legend: {
-          display: false // We use custom legend
+          display: false, // We use custom legend
         },
         tooltip: {
           mode: 'index',
@@ -250,51 +246,51 @@ const createChart = async () => {
           cornerRadius: 8,
           padding: 12,
           callbacks: {
-            label: function(context) {
+            label (context) {
               return `${context.dataset.label}: ${formatValue(context.parsed.y)}`
-            }
-          }
-        }
+            },
+          },
+        },
       },
       scales: getScalesConfig(),
       interaction: {
         mode: 'nearest',
         axis: 'x',
-        intersect: false
+        intersect: false,
       },
       elements: {
         line: {
           tension: 0.4,
           borderWidth: 3,
-          fill: chartType.value === 'area'
+          fill: chartType.value === 'area',
         },
         point: {
           radius: 4,
           hoverRadius: 6,
           borderWidth: 2,
-          backgroundColor: '#ffffff'
+          backgroundColor: '#ffffff',
         },
         bar: {
           borderRadius: 4,
-          borderSkipped: false
-        }
-      }
-    }
+          borderSkipped: false,
+        },
+      },
+    },
   }
-  
+
   // Apply Chart.js specific configurations
   if (chartType.value === 'doughnut' || chartType.value === 'pie') {
     config.options.cutout = chartType.value === 'doughnut' ? '60%' : '0%'
     config.options.scales = {}
   }
-  
+
   // Create chart (mock implementation - would use Chart.js in real app)
   chartInstance = {
     destroy: () => {},
     update: () => {},
-    data: config.data
+    data: config.data,
   }
-  
+
   // Draw simple chart visualization
   drawChart(ctx)
 }
@@ -303,51 +299,51 @@ const getScalesConfig = () => {
   if (chartType.value === 'doughnut' || chartType.value === 'pie') {
     return {}
   }
-  
+
   return {
     x: {
       grid: {
         display: true,
-        color: '#f3f4f6'
+        color: '#f3f4f6',
       },
       ticks: {
         color: '#6b7280',
         font: {
-          size: 12
-        }
-      }
+          size: 12,
+        },
+      },
     },
     y: {
       grid: {
         display: true,
-        color: '#f3f4f6'
+        color: '#f3f4f6',
       },
       ticks: {
         color: '#6b7280',
         font: {
-          size: 12
+          size: 12,
         },
-        callback: function(value) {
+        callback (value) {
           return formatValue(value)
-        }
-      }
-    }
+        },
+      },
+    },
   }
 }
 
-const drawChart = (ctx) => {
+const drawChart = ctx => {
   const canvas = chartCanvas.value
   const width = canvas.width
   const height = canvas.height
-  
+
   // Clear canvas
   ctx.clearRect(0, 0, width, height)
-  
+
   if (!chartData.value.datasets.length) return
-  
+
   const data = chartData.value.datasets[0].data
   const labels = chartData.value.labels
-  
+
   if (chartType.value === 'line' || chartType.value === 'area') {
     drawLineChart(ctx, data, labels, width, height)
   } else if (chartType.value === 'bar') {
@@ -361,11 +357,11 @@ const drawLineChart = (ctx, data, labels, width, height) => {
   const padding = 60
   const chartWidth = width - 2 * padding
   const chartHeight = height - 2 * padding
-  
+
   const maxValue = Math.max(...data, 0)
   const minValue = Math.min(...data, 0)
   const valueRange = maxValue - minValue || 1
-  
+
   // Draw grid
   ctx.strokeStyle = '#f3f4f6'
   ctx.lineWidth = 1
@@ -376,25 +372,25 @@ const drawLineChart = (ctx, data, labels, width, height) => {
     ctx.lineTo(width - padding, y)
     ctx.stroke()
   }
-  
+
   // Draw line
   ctx.strokeStyle = '#3b82f6'
   ctx.lineWidth = 3
   ctx.beginPath()
-  
+
   data.forEach((value, index) => {
     const x = padding + (chartWidth / (data.length - 1)) * index
     const y = padding + chartHeight - ((value - minValue) / valueRange) * chartHeight
-    
+
     if (index === 0) {
       ctx.moveTo(x, y)
     } else {
       ctx.lineTo(x, y)
     }
   })
-  
+
   ctx.stroke()
-  
+
   // Draw area fill if area chart
   if (chartType.value === 'area') {
     ctx.fillStyle = 'rgba(59, 130, 246, 0.1)'
@@ -402,13 +398,13 @@ const drawLineChart = (ctx, data, labels, width, height) => {
     ctx.lineTo(padding, height - padding)
     ctx.fill()
   }
-  
+
   // Draw points
   ctx.fillStyle = '#3b82f6'
   data.forEach((value, index) => {
     const x = padding + (chartWidth / (data.length - 1)) * index
     const y = padding + chartHeight - ((value - minValue) / valueRange) * chartHeight
-    
+
     ctx.beginPath()
     ctx.arc(x, y, 4, 0, 2 * Math.PI)
     ctx.fill()
@@ -419,18 +415,18 @@ const drawBarChart = (ctx, data, labels, width, height) => {
   const padding = 60
   const chartWidth = width - 2 * padding
   const chartHeight = height - 2 * padding
-  
+
   const maxValue = Math.max(...data, 0)
-  const barWidth = chartWidth / data.length * 0.8
-  const barSpacing = chartWidth / data.length * 0.2
-  
+  const barWidth = (chartWidth / data.length) * 0.8
+  const barSpacing = (chartWidth / data.length) * 0.2
+
   ctx.fillStyle = '#3b82f6'
-  
+
   data.forEach((value, index) => {
     const barHeight = (value / maxValue) * chartHeight
     const x = padding + index * (barWidth + barSpacing) + barSpacing / 2
     const y = height - padding - barHeight
-    
+
     // Draw rounded rectangle
     ctx.beginPath()
     ctx.roundRect(x, y, barWidth, barHeight, 4)
@@ -443,31 +439,37 @@ const drawDoughnutChart = (ctx, data, labels, width, height) => {
   const centerY = height / 2
   const radius = Math.min(width, height) / 3
   const innerRadius = chartType.value === 'doughnut' ? radius * 0.6 : 0
-  
+
   const total = data.reduce((sum, val) => sum + val, 0)
   let currentAngle = -Math.PI / 2
-  
+
   const colors = [
-    '#3b82f6', '#ef4444', '#10b981', '#f59e0b', 
-    '#8b5cf6', '#ec4899', '#06b6d4', '#84cc16'
+    '#3b82f6',
+    '#ef4444',
+    '#10b981',
+    '#f59e0b',
+    '#8b5cf6',
+    '#ec4899',
+    '#06b6d4',
+    '#84cc16',
   ]
-  
+
   data.forEach((value, index) => {
     const sliceAngle = (value / total) * 2 * Math.PI
-    
+
     ctx.fillStyle = colors[index % colors.length]
     ctx.beginPath()
     ctx.arc(centerX, centerY, radius, currentAngle, currentAngle + sliceAngle)
     ctx.arc(centerX, centerY, innerRadius, currentAngle + sliceAngle, currentAngle, true)
     ctx.closePath()
     ctx.fill()
-    
+
     currentAngle += sliceAngle
   })
 }
 
 // Event handlers
-const handleTypeChange = (type) => {
+const handleTypeChange = type => {
   chartType.value = type
   emit('type-change', type)
 }
@@ -477,7 +479,7 @@ const handlePeriodChange = () => {
 }
 
 // Utility functions
-const formatValue = (value) => {
+const formatValue = value => {
   if (value === null || value === undefined) return '0'
   if (typeof value === 'number') {
     if (value >= 1000000) {
@@ -503,15 +505,22 @@ onUnmounted(() => {
 })
 
 // Watchers
-watch(() => props.data, () => {
-  if (chartInstance) {
+watch(
+  () => props.data,
+  () => {
+    if (chartInstance) {
+      createChart()
+    }
+  },
+  { deep: true }
+)
+
+watch(
+  () => chartType.value,
+  () => {
     createChart()
   }
-}, { deep: true })
-
-watch(() => chartType.value, () => {
-  createChart()
-})
+)
 </script>
 
 <style scoped>
@@ -577,7 +586,7 @@ watch(() => chartType.value, () => {
 }
 
 .type-button.active {
-  background: #FF6B9D;
+  background: #ff6b9d;
   color: white;
 }
 
@@ -611,7 +620,7 @@ watch(() => chartType.value, () => {
 
 .period-select:focus {
   outline: none;
-  border-color: #FF6B9D;
+  border-color: #ff6b9d;
   box-shadow: 0 0 0 3px rgba(255, 107, 157, 0.1);
 }
 
@@ -641,7 +650,9 @@ watch(() => chartType.value, () => {
 }
 
 @keyframes spin {
-  to { transform: rotate(360deg); }
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 .error-icon {
@@ -745,16 +756,16 @@ watch(() => chartType.value, () => {
     flex-direction: column;
     gap: 16px;
   }
-  
+
   .chart-controls {
     flex-direction: column;
     align-items: stretch;
   }
-  
+
   .chart-type-selector {
     justify-content: center;
   }
-  
+
   .summary-stats {
     flex-direction: column;
     gap: 12px;

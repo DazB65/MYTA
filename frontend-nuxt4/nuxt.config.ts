@@ -1,6 +1,6 @@
 // https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
-  compatibilityDate: "2025-07-15",
+  compatibilityDate: '2025-07-15',
 
   // Modern build configuration
   nitro: {
@@ -16,14 +16,14 @@ export default defineNuxtConfig({
   // Build optimizations
   build: {
     // Bundle analysis
-    analyze: process.env.ANALYZE === "true",
+    analyze: process.env.ANALYZE === 'true',
   },
 
   // Vite/Nuxt aliases and optimizations
   vite: {
     resolve: {
       alias: {
-        "@root": __dirname,
+        '@root': __dirname,
       },
     },
     build: {
@@ -31,18 +31,18 @@ export default defineNuxtConfig({
       rollupOptions: {
         output: {
           manualChunks: {
-            vendor: ["vue", "vue-router"],
+            vendor: ['vue', 'vue-router'],
             analytics: [
-              "@root/components/analytics/AnalyticsOverview.vue",
-              "@root/components/analytics/MetricCard.vue",
+              '@root/components/analytics/AnalyticsOverview.vue',
+              '@root/components/analytics/MetricCard.vue',
             ],
             charts: [
-              "@root/components/analytics/AnalyticsChart.vue",
-              "@root/components/analytics/ChartsDashboard.vue",
+              '@root/components/analytics/AnalyticsChart.vue',
+              '@root/components/analytics/ChartsDashboard.vue',
             ],
             performance: [
-              "@root/components/performance/DeferredComponent.vue",
-              "@root/components/performance/PerformanceMonitor.vue",
+              '@root/components/performance/DeferredComponent.vue',
+              '@root/components/performance/PerformanceMonitor.vue',
             ],
           },
         },
@@ -51,20 +51,20 @@ export default defineNuxtConfig({
 
     // Dependency optimization
     optimizeDeps: {
-      include: ["vue", "vue-router"],
+      include: ['vue', 'vue-router'],
     },
   },
 
   // Auto-imports: include root-level composables
   imports: {
-    dirs: ["composables/**", "../composables/**"],
+    dirs: ['composables/**', '../composables/**'],
   },
 
   // Components auto-registration: include root-level components
   components: {
     dirs: [
-      { path: "components", pathPrefix: false },
-      { path: "../components", pathPrefix: false },
+      { path: 'components', pathPrefix: false },
+      { path: '../components', pathPrefix: false },
     ],
   },
 
@@ -74,15 +74,14 @@ export default defineNuxtConfig({
   // Runtime configuration
   runtimeConfig: {
     // Private keys (only available on server-side)
-    redisUrl: process.env.REDIS_URL || "redis://localhost:6379",
+    redisUrl: process.env.REDIS_URL || 'redis://localhost:6379',
 
     // Public keys (exposed to client-side)
     public: {
-      apiBase: process.env.API_BASE_URL || "http://localhost:8000",
-      wsUrl: process.env.WS_URL || "ws://localhost:8000",
-      environment: process.env.NODE_ENV || "development",
-      enablePerformanceMonitor:
-        process.env.ENABLE_PERFORMANCE_MONITOR === "true",
+      apiBase: process.env.API_BASE_URL || 'http://localhost:8000',
+      wsUrl: process.env.WS_URL || 'ws://localhost:8000',
+      environment: process.env.NODE_ENV || 'development',
+      enablePerformanceMonitor: process.env.ENABLE_PERFORMANCE_MONITOR === 'true',
     },
   },
 
@@ -92,43 +91,45 @@ export default defineNuxtConfig({
   // Route rules for caching
   routeRules: {
     // Homepage pre-rendered at build time
-    "/": { prerender: true },
+    '/': { prerender: true },
 
     // Analytics pages cached for 5 minutes
-    "/analytics/**": { headers: { "cache-control": "s-maxage=300" } },
+    '/analytics/**': { headers: { 'cache-control': 's-maxage=300' } },
 
     // Dashboard cached for 1 minute
-    "/dashboard": { headers: { "cache-control": "s-maxage=60" } },
+    '/dashboard': { headers: { 'cache-control': 's-maxage=60' } },
 
     // API routes not cached
-    "/api/**": { headers: { "cache-control": "no-cache" } },
+    '/api/**': { headers: { 'cache-control': 'no-cache' } },
   },
 
   // Head configuration for performance
   app: {
     head: {
-      charset: "utf-8",
-      viewport: "width=device-width, initial-scale=1",
+      charset: 'utf-8',
+      viewport: 'width=device-width, initial-scale=1',
 
       // Preload critical resources
       link: [
         {
-          rel: "dns-prefetch",
-          href: "https://api.vidalytics.com",
+          rel: 'dns-prefetch',
+          href: 'https://api.vidalytics.com',
         },
       ],
 
       // Performance meta tags
       meta: [
-        { name: "format-detection", content: "telephone=no" },
-        { name: "theme-color", content: "#FF6B9D" },
+        { name: 'format-detection', content: 'telephone=no' },
+        { name: 'theme-color', content: '#FF6B9D' },
       ],
     },
   },
 
   // Modules
-  modules: [
-    "@nuxtjs/tailwindcss",
-    "@vueuse/nuxt"
-  ],
-});
+  modules: ['@nuxtjs/tailwindcss', '@pinia/nuxt', '@vueuse/nuxt'],
+
+  // Pinia configuration
+  pinia: {
+    storesDirs: ['./stores/**', './composables/stores/**'],
+  },
+})

@@ -3,24 +3,31 @@
     <div class="modal-container" @click.stop>
       <div class="modal-header">
         <h2>Connect Your YouTube Channel</h2>
-        <button @click="$emit('close')" class="close-button">
+        <button class="close-button" @click="$emit('close')">
           <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-            <path d="M18 6L6 18M6 6L18 18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+            <path
+              d="M18 6L6 18M6 6L18 18"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+            />
           </svg>
         </button>
       </div>
-      
+
       <div class="modal-content">
         <div class="connection-info">
           <div class="youtube-icon">
             <svg width="48" height="48" viewBox="0 0 24 24" fill="#FF0000">
-              <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/>
+              <path
+                d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"
+              />
             </svg>
           </div>
-          
+
           <h3>Unlock Powerful Analytics</h3>
           <p>Connect your YouTube channel to access:</p>
-          
+
           <ul class="features-list">
             <li>📊 Real-time analytics and insights</li>
             <li>🎯 AI-powered content recommendations</li>
@@ -29,18 +36,30 @@
             <li>💰 Revenue and monetization tracking</li>
           </ul>
         </div>
-        
+
         <div class="connection-actions">
-          <button @click="handleConnect" class="connect-button" :disabled="connecting">
+          <button class="connect-button" :disabled="connecting" @click="handleConnect">
             <svg v-if="connecting" class="spinner" width="20" height="20" viewBox="0 0 24 24">
-              <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" fill="none" opacity="0.25"/>
-              <path d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" fill="currentColor"/>
+              <circle
+                cx="12"
+                cy="12"
+                r="10"
+                stroke="currentColor"
+                stroke-width="4"
+                fill="none"
+                opacity="0.25"
+              />
+              <path
+                d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                fill="currentColor"
+              />
             </svg>
             {{ connecting ? 'Connecting...' : 'Connect with YouTube' }}
           </button>
-          
+
           <p class="privacy-note">
-            🔒 Your data is secure. We only access analytics data and never post content without your permission.
+            🔒 Your data is secure. We only access analytics data and never post content without
+            your permission.
           </p>
         </div>
       </div>
@@ -64,14 +83,14 @@ const handleOverlayClick = () => {
 
 const handleConnect = async () => {
   connecting.value = true
-  
+
   try {
     // Simulate connection process
     await new Promise(resolve => setTimeout(resolve, 1500))
-    
+
     // Emit connect event
     emit('connect')
-    
+
     // Close modal
     emit('close')
   } catch (error) {
@@ -193,7 +212,7 @@ const handleConnect = async () => {
 }
 
 .connect-button {
-  background: linear-gradient(135deg, #FF0000 0%, #CC0000 100%);
+  background: linear-gradient(135deg, #ff0000 0%, #cc0000 100%);
   color: white;
   border: none;
   padding: 16px 32px;
@@ -226,8 +245,12 @@ const handleConnect = async () => {
 }
 
 @keyframes spin {
-  from { transform: rotate(0deg); }
-  to { transform: rotate(360deg); }
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 .privacy-note {
@@ -243,11 +266,11 @@ const handleConnect = async () => {
     width: 95%;
     margin: 20px;
   }
-  
+
   .modal-header {
     padding: 20px 20px 0 20px;
   }
-  
+
   .modal-content {
     padding: 0 20px 20px 20px;
   }

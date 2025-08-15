@@ -5,22 +5,22 @@
       <div class="banner-content">
         <div class="banner-icon">
           <svg viewBox="0 0 20 20" fill="currentColor">
-            <path d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" />
+            <path
+              d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z"
+            />
           </svg>
         </div>
         <div class="banner-text">
           <h3>YouTube Analytics Not Connected</h3>
           <p>Connect your YouTube account to view analytics data and insights.</p>
         </div>
-        <button class="connect-button" @click="$emit('connect')">
-          Connect YouTube
-        </button>
+        <button class="connect-button" @click="$emit('connect')">Connect YouTube</button>
       </div>
     </div>
 
     <!-- Loading State -->
     <div v-else-if="isLoading" class="loading-state">
-      <div class="loading-spinner"></div>
+      <div class="loading-spinner"/>
       <p>Loading your analytics data...</p>
     </div>
 
@@ -28,14 +28,16 @@
     <div v-else-if="error" class="error-state">
       <div class="error-icon">
         <svg viewBox="0 0 20 20" fill="currentColor">
-          <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd" />
+          <path
+            fill-rule="evenodd"
+            d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z"
+            clip-rule="evenodd"
+          />
         </svg>
       </div>
       <h3>Failed to Load Analytics</h3>
       <p>{{ error }}</p>
-      <button class="retry-button" @click="handleRetry">
-        Try Again
-      </button>
+      <button class="retry-button" @click="handleRetry">Try Again</button>
     </div>
 
     <!-- Analytics Data -->
@@ -44,8 +46,8 @@
       <div class="time-range-header">
         <h2>Analytics Overview</h2>
         <div class="time-selector">
-          <button 
-            v-for="range in timeRanges" 
+          <button
+            v-for="range in timeRanges"
             :key="range.value"
             :class="['time-button', { active: selectedTimeRange === range.value }]"
             @click="handleTimeRangeChange(range.value)"
@@ -205,8 +207,8 @@
             @click="$emit('view-video', video)"
           >
             <div class="video-thumbnail">
-              <img 
-                :src="video.thumbnail_url || '/default-thumbnail.jpg'" 
+              <img
+                :src="video.thumbnail_url || '/default-thumbnail.jpg'"
                 :alt="video.title"
                 loading="lazy"
               />
@@ -219,13 +221,17 @@
               <div class="video-metrics">
                 <span class="metric">
                   <svg class="metric-icon" viewBox="0 0 20 20" fill="currentColor">
-                    <path d="M2 10.5a1.5 1.5 0 113 0v6a1.5 1.5 0 01-3 0v-6zM6 10.333v5.43a2 2 0 001.106 1.79l.05.025A4 4 0 008.943 18h5.416a2 2 0 001.962-1.608l1.2-6A2 2 0 0015.56 8H12V4a2 2 0 00-2-2 1 1 0 00-1 1v.667a4 4 0 01-.8 2.4L6.8 7.933a4 4 0 00-.8 2.4z" />
+                    <path
+                      d="M2 10.5a1.5 1.5 0 113 0v6a1.5 1.5 0 01-3 0v-6zM6 10.333v5.43a2 2 0 001.106 1.79l.05.025A4 4 0 008.943 18h5.416a2 2 0 001.962-1.608l1.2-6A2 2 0 0015.56 8H12V4a2 2 0 00-2-2 1 1 0 00-1 1v.667a4 4 0 01-.8 2.4L6.8 7.933a4 4 0 00-.8 2.4z"
+                    />
                   </svg>
                   {{ formatNumber(video.likes || 0) }}
                 </span>
                 <span class="metric">
                   <svg class="metric-icon" viewBox="0 0 20 20" fill="currentColor">
-                    <path d="M18 10c0 3.866-3.582 7-8 7a8.841 8.841 0 01-4.083-.98L2 17l1.338-3.123C2.493 12.767 2 11.434 2 10c0-3.866 3.582-7 8-7s8 3.134 8 7zM7 9H5v2h2V9zm8 0h-2v2h2V9zM9 9h2v2H9V9z" />
+                    <path
+                      d="M18 10c0 3.866-3.582 7-8 7a8.841 8.841 0 01-4.083-.98L2 17l1.338-3.123C2.493 12.767 2 11.434 2 10c0-3.866 3.582-7 8-7s8 3.134 8 7zM7 9H5v2h2V9zm8 0h-2v2h2V9zM9 9h2v2H9V9z"
+                    />
                   </svg>
                   {{ formatNumber(video.comments || 0) }}
                 </span>
@@ -242,13 +248,17 @@
       <div class="refresh-info">
         <div class="last-updated-info">
           <svg class="icon" viewBox="0 0 20 20" fill="currentColor">
-            <path d="M4 2a1 1 0 011 1v2.101a7.002 7.002 0 0111.601 2.566 1 1 0 11-1.885.666A5.002 5.002 0 005.999 7H9a1 1 0 010 2H4a1 1 0 01-1-1V3a1 1 0 011-1zm.008 9.057a1 1 0 011.276.61A5.002 5.002 0 0014.001 13H11a1 1 0 110-2h5a1 1 0 011 1v5a1 1 0 11-2 0v-2.101a7.002 7.002 0 01-11.601-2.566 1 1 0 01.61-1.276z" />
+            <path
+              d="M4 2a1 1 0 011 1v2.101a7.002 7.002 0 0111.601 2.566 1 1 0 11-1.885.666A5.002 5.002 0 005.999 7H9a1 1 0 010 2H4a1 1 0 01-1-1V3a1 1 0 011-1zm.008 9.057a1 1 0 011.276.61A5.002 5.002 0 0014.001 13H11a1 1 0 110-2h5a1 1 0 011 1v5a1 1 0 11-2 0v-2.101a7.002 7.002 0 01-11.601-2.566 1 1 0 01.61-1.276z"
+            />
           </svg>
           <span>Last updated {{ formatUpdateTime(lastUpdated) }}</span>
         </div>
-        <button class="refresh-button" @click="handleRefresh" :disabled="isLoading">
+        <button class="refresh-button" :disabled="isLoading" @click="handleRefresh">
           <svg class="icon" viewBox="0 0 20 20" fill="currentColor">
-            <path d="M4 2a1 1 0 011 1v2.101a7.002 7.002 0 0111.601 2.566 1 1 0 11-1.885.666A5.002 5.002 0 005.999 7H9a1 1 0 010 2H4a1 1 0 01-1-1V3a1 1 0 011-1zm.008 9.057a1 1 0 011.276.61A5.002 5.002 0 0014.001 13H11a1 1 0 110-2h5a1 1 0 011 1v5a1 1 0 11-2 0v-2.101a7.002 7.002 0 01-11.601-2.566 1 1 0 01.61-1.276z" />
+            <path
+              d="M4 2a1 1 0 011 1v2.101a7.002 7.002 0 0111.601 2.566 1 1 0 11-1.885.666A5.002 5.002 0 005.999 7H9a1 1 0 010 2H4a1 1 0 01-1-1V3a1 1 0 011-1zm.008 9.057a1 1 0 011.276.61A5.002 5.002 0 0014.001 13H11a1 1 0 110-2h5a1 1 0 011 1v5a1 1 0 11-2 0v-2.101a7.002 7.002 0 01-11.601-2.566 1 1 0 01.61-1.276z"
+            />
           </svg>
           Refresh
         </button>
@@ -260,7 +270,11 @@
       <div class="no-data-icon">
         <svg viewBox="0 0 20 20" fill="currentColor">
           <path d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z" />
-          <path fill-rule="evenodd" d="M4 5a2 2 0 012-2v1a1 1 0 012 0V3h6v1a1 1 0 012 0V3a2 2 0 012 2v6a2 2 0 01-2 2H6a2 2 0 01-2-2V5zm3 4a1 1 0 000 2h.01a1 1 0 100-2H7zm3 0a1 1 0 000 2h3a1 1 0 100-2h-3z" clip-rule="evenodd" />
+          <path
+            fill-rule="evenodd"
+            d="M4 5a2 2 0 012-2v1a1 1 0 012 0V3h6v1a1 1 0 012 0V3a2 2 0 012 2v6a2 2 0 01-2 2H6a2 2 0 01-2-2V5zm3 4a1 1 0 000 2h.01a1 1 0 100-2H7zm3 0a1 1 0 000 2h3a1 1 0 100-2h-3z"
+            clip-rule="evenodd"
+          />
         </svg>
       </div>
       <h3>No Analytics Data Available</h3>
@@ -280,7 +294,7 @@ const props = defineProps({
   isLoading: Boolean,
   error: String,
   lastUpdated: Date,
-  
+
   // Metrics
   healthScore: { type: Number, default: 0 },
   totalViews: { type: Number, default: 0 },
@@ -291,7 +305,7 @@ const props = defineProps({
   clickThroughRate: { type: Number, default: 0 },
   impressions: { type: Number, default: 0 },
   topVideos: { type: Array, default: () => [] },
-  
+
   // Change percentages (vs previous period)
   healthChange: { type: Number, default: null },
   viewsChange: { type: Number, default: null },
@@ -300,14 +314,21 @@ const props = defineProps({
   avgDurationChange: { type: Number, default: null },
   ctrChange: { type: Number, default: null },
   impressionsChange: { type: Number, default: null },
-  
+
   // Configuration
-  selectedTimeRange: { type: Number, default: 30 }
+  selectedTimeRange: { type: Number, default: 30 },
 })
 
 const emit = defineEmits([
-  'connect', 'refresh', 'retry', 'time-range-change',
-  'view-health', 'view-views', 'view-subscribers', 'view-revenue', 'view-video'
+  'connect',
+  'refresh',
+  'retry',
+  'time-range-change',
+  'view-health',
+  'view-views',
+  'view-subscribers',
+  'view-revenue',
+  'view-video',
 ])
 
 // Time range options
@@ -315,7 +336,7 @@ const timeRanges = [
   { label: '7D', value: 7 },
   { label: '30D', value: 30 },
   { label: '90D', value: 90 },
-  { label: '1Y', value: 365 }
+  { label: '1Y', value: 365 },
 ]
 
 // Computed properties
@@ -328,7 +349,7 @@ const engagementRate = computed(() => {
 })
 
 // Event handlers
-const handleTimeRangeChange = (range) => {
+const handleTimeRangeChange = range => {
   emit('time-range-change', range)
 }
 
@@ -341,49 +362,49 @@ const handleRetry = () => {
 }
 
 // Utility functions
-const formatNumber = (num) => {
+const formatNumber = num => {
   if (num >= 1000000) return `${(num / 1000000).toFixed(1)}M`
   if (num >= 1000) return `${(num / 1000).toFixed(1)}K`
   return num.toLocaleString()
 }
 
-const formatCurrency = (amount) => {
+const formatCurrency = amount => {
   return new Intl.NumberFormat('en-US', {
     style: 'currency',
-    currency: 'USD'
+    currency: 'USD',
   }).format(amount)
 }
 
-const formatPercentage = (value) => {
+const formatPercentage = value => {
   return `${value.toFixed(1)}%`
 }
 
-const formatDuration = (minutes) => {
+const formatDuration = minutes => {
   if (minutes < 60) return `${Math.round(minutes)}m`
   const hours = Math.floor(minutes / 60)
   const mins = Math.round(minutes % 60)
   return `${hours}h ${mins}m`
 }
 
-const formatDate = (dateString) => {
+const formatDate = dateString => {
   return new Date(dateString).toLocaleDateString('en-US', {
     month: 'short',
-    day: 'numeric'
+    day: 'numeric',
   })
 }
 
-const formatUpdateTime = (date) => {
+const formatUpdateTime = date => {
   if (!date) return ''
   const now = new Date()
   const diff = now - date
-  
+
   if (diff < 60000) return 'just now'
   if (diff < 3600000) return `${Math.floor(diff / 60000)}m ago`
   if (diff < 86400000) return `${Math.floor(diff / 3600000)}h ago`
   return date.toLocaleDateString()
 }
 
-const getHealthColor = (score) => {
+const getHealthColor = score => {
   if (score >= 80) return 'success'
   if (score >= 60) return 'warning'
   return 'danger'
@@ -465,7 +486,9 @@ const getHealthColor = (score) => {
 }
 
 @keyframes spin {
-  to { transform: rotate(360deg); }
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 /* Error State */
@@ -564,7 +587,7 @@ const getHealthColor = (score) => {
 }
 
 .time-button.active {
-  background: #FF6B9D;
+  background: #ff6b9d;
   color: white;
 }
 
@@ -794,15 +817,15 @@ const getHealthColor = (score) => {
     align-items: stretch;
     gap: 16px;
   }
-  
+
   .primary-metrics {
     grid-template-columns: 1fr;
   }
-  
+
   .secondary-metrics {
     grid-template-columns: repeat(2, 1fr);
   }
-  
+
   .videos-grid {
     grid-template-columns: 1fr;
   }

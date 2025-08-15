@@ -3,15 +3,15 @@
     <!-- Header -->
     <div class="card-header">
       <div class="metric-info">
-        <div class="metric-icon" v-if="icon">
+        <div v-if="icon" class="metric-icon">
           <component :is="iconComponent" />
         </div>
         <div>
           <h3 class="metric-title">{{ title }}</h3>
-          <p class="metric-subtitle" v-if="subtitle">{{ subtitle }}</p>
+          <p v-if="subtitle" class="metric-subtitle">{{ subtitle }}</p>
         </div>
       </div>
-      <div class="metric-actions" v-if="$slots.actions">
+      <div v-if="$slots.actions" class="metric-actions">
         <slot name="actions" />
       </div>
     </div>
@@ -21,11 +21,11 @@
       <div class="metric-value-section">
         <div class="metric-main">
           <span class="metric-value" :style="{ color: valueColor }">{{ formattedValue }}</span>
-          <span class="metric-unit" v-if="unit">{{ unit }}</span>
+          <span v-if="unit" class="metric-unit">{{ unit }}</span>
         </div>
-        
+
         <!-- Change indicator -->
-        <div class="metric-change" v-if="change !== null">
+        <div v-if="change !== null" class="metric-change">
           <div :class="changeClasses">
             <svg class="change-icon" viewBox="0 0 20 20" fill="currentColor">
               <path v-if="change >= 0" d="M3 10l9-7 9 7-9 6-9-6z" transform="rotate(180 10 10)" />
@@ -38,17 +38,19 @@
       </div>
 
       <!-- Additional content -->
-      <div class="card-extra" v-if="$slots.default">
+      <div v-if="$slots.default" class="card-extra">
         <slot />
       </div>
     </div>
 
     <!-- Footer -->
-    <div class="card-footer" v-if="$slots.footer || lastUpdated">
+    <div v-if="$slots.footer || lastUpdated" class="card-footer">
       <slot name="footer">
-        <div class="last-updated" v-if="lastUpdated">
+        <div v-if="lastUpdated" class="last-updated">
           <svg class="update-icon" viewBox="0 0 20 20" fill="currentColor">
-            <path d="M4 2a1 1 0 011 1v2.101a7.002 7.002 0 0111.601 2.566 1 1 0 11-1.885.666A5.002 5.002 0 005.999 7H9a1 1 0 010 2H4a1 1 0 01-1-1V3a1 1 0 011-1zm.008 9.057a1 1 0 011.276.61A5.002 5.002 0 0014.001 13H11a1 1 0 110-2h5a1 1 0 011 1v5a1 1 0 11-2 0v-2.101a7.002 7.002 0 01-11.601-2.566 1 1 0 01.61-1.276z" />
+            <path
+              d="M4 2a1 1 0 011 1v2.101a7.002 7.002 0 0111.601 2.566 1 1 0 11-1.885.666A5.002 5.002 0 005.999 7H9a1 1 0 010 2H4a1 1 0 01-1-1V3a1 1 0 011-1zm.008 9.057a1 1 0 011.276.61A5.002 5.002 0 0014.001 13H11a1 1 0 110-2h5a1 1 0 011 1v5a1 1 0 11-2 0v-2.101a7.002 7.002 0 01-11.601-2.566 1 1 0 01.61-1.276z"
+            />
           </svg>
           <span>{{ formatUpdateTime(lastUpdated) }}</span>
         </div>
@@ -63,42 +65,42 @@ import { computed } from 'vue'
 const props = defineProps({
   title: {
     type: String,
-    required: true
+    required: true,
   },
   subtitle: String,
   value: {
     type: [Number, String],
-    required: true
+    required: true,
   },
   unit: String,
   change: {
     type: Number,
-    default: null
+    default: null,
   },
   changePeriod: {
     type: String,
-    default: 'vs last period'
+    default: 'vs last period',
   },
   icon: String,
   color: {
     type: String,
-    default: 'default'
+    default: 'default',
   },
   variant: {
     type: String,
     default: 'default', // default, gradient, outline
-    validator: value => ['default', 'gradient', 'outline'].includes(value)
+    validator: value => ['default', 'gradient', 'outline'].includes(value),
   },
   size: {
     type: String,
     default: 'medium',
-    validator: value => ['small', 'medium', 'large'].includes(value)
+    validator: value => ['small', 'medium', 'large'].includes(value),
   },
   loading: Boolean,
   error: String,
   lastUpdated: Date,
   clickable: Boolean,
-  formatter: Function
+  formatter: Function,
 })
 
 const emit = defineEmits(['click'])
@@ -110,7 +112,7 @@ const formattedValue = computed(() => {
   if (props.formatter && typeof props.formatter === 'function') {
     return props.formatter(props.value)
   }
-  
+
   if (typeof props.value === 'number') {
     if (props.value >= 1000000) {
       return `${(props.value / 1000000).toFixed(1)}M`
@@ -119,14 +121,14 @@ const formattedValue = computed(() => {
     }
     return props.value.toLocaleString()
   }
-  
+
   return props.value
 })
 
 // Dynamic icon component
 const iconComponent = computed(() => {
   if (!props.icon) return null
-  
+
   const icons = {
     views: 'IconEye',
     subscribers: 'IconUsers',
@@ -134,9 +136,9 @@ const iconComponent = computed(() => {
     health: 'IconHeart',
     engagement: 'IconThumbsUp',
     retention: 'IconClock',
-    growth: 'IconTrendingUp'
+    growth: 'IconTrendingUp',
   }
-  
+
   return icons[props.icon] || 'IconChart'
 })
 
@@ -148,9 +150,9 @@ const valueColor = computed(() => {
     success: '#10b981',
     warning: '#f59e0b',
     danger: '#ef4444',
-    info: '#06b6d4'
+    info: '#06b6d4',
   }
-  
+
   return colors[props.color] || colors.default
 })
 
@@ -162,8 +164,8 @@ const cardClasses = computed(() => [
   {
     'metric-card--loading': props.loading,
     'metric-card--error': props.error,
-    'metric-card--clickable': props.clickable
-  }
+    'metric-card--clickable': props.clickable,
+  },
 ])
 
 // Change indicator classes
@@ -172,23 +174,26 @@ const changeClasses = computed(() => [
   {
     'change-indicator--positive': props.change > 0,
     'change-indicator--negative': props.change < 0,
-    'change-indicator--neutral': props.change === 0
-  }
+    'change-indicator--neutral': props.change === 0,
+  },
 ])
 
 // Format update time
-const formatUpdateTime = (date) => {
+const formatUpdateTime = date => {
   if (!date) return ''
-  
+
   const now = new Date()
   const diff = now - date
-  
-  if (diff < 60000) { // < 1 minute
+
+  if (diff < 60000) {
+    // < 1 minute
     return 'Just now'
-  } else if (diff < 3600000) { // < 1 hour
+  } else if (diff < 3600000) {
+    // < 1 hour
     const minutes = Math.floor(diff / 60000)
     return `${minutes}m ago`
-  } else if (diff < 86400000) { // < 1 day
+  } else if (diff < 86400000) {
+    // < 1 day
     const hours = Math.floor(diff / 3600000)
     return `${hours}h ago`
   } else {
@@ -269,8 +274,12 @@ const handleClick = () => {
 }
 
 @keyframes shimmer {
-  0% { transform: translateX(-100%); }
-  100% { transform: translateX(100%); }
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(100%);
+  }
 }
 
 .card-header {
@@ -290,7 +299,7 @@ const handleClick = () => {
   width: 40px;
   height: 40px;
   border-radius: 10px;
-  background: linear-gradient(45deg, #FF6B9D, #FF8E8E);
+  background: linear-gradient(45deg, #ff6b9d, #ff8e8e);
   display: flex;
   align-items: center;
   justify-content: center;

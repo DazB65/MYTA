@@ -12,15 +12,23 @@
         <p>Deep dive into your channel's performance with interactive visualizations</p>
       </div>
       <div class="header-actions">
-        <button class="export-button" @click="exportCharts" :disabled="loading">
+        <button class="export-button" :disabled="loading" @click="exportCharts">
           <svg class="export-icon" viewBox="0 0 20 20" fill="currentColor">
-            <path fill-rule="evenodd" d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm3.293-7.707a1 1 0 011.414 0L9 10.586V3a1 1 0 112 0v7.586l1.293-1.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z" clip-rule="evenodd" />
+            <path
+              fill-rule="evenodd"
+              d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm3.293-7.707a1 1 0 011.414 0L9 10.586V3a1 1 0 112 0v7.586l1.293-1.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z"
+              clip-rule="evenodd"
+            />
           </svg>
           Export Charts
         </button>
         <button class="settings-button" @click="showSettings = true">
           <svg class="settings-icon" viewBox="0 0 20 20" fill="currentColor">
-            <path fill-rule="evenodd" d="M11.49 3.17c-.38-1.56-2.6-1.56-2.98 0a1.532 1.532 0 01-2.286.948c-1.372-.836-2.942.734-2.106 2.106.54.886.061 2.042-.947 2.287-1.561.379-1.561 2.6 0 2.978a1.532 1.532 0 01.947 2.287c-.836 1.372.734 2.942 2.106 2.106a1.532 1.532 0 012.287.947c.379 1.561 2.6 1.561 2.978 0a1.533 1.533 0 012.287-.947c1.372.836 2.942-.734 2.106-2.106a1.533 1.533 0 01.947-2.287c1.561-.379 1.561-2.6 0-2.978a1.532 1.532 0 01-.947-2.287c.836-1.372-.734-2.942-2.106-2.106a1.532 1.532 0 01-2.287-.947zM10 13a3 3 0 100-6 3 3 0 000 6z" clip-rule="evenodd" />
+            <path
+              fill-rule="evenodd"
+              d="M11.49 3.17c-.38-1.56-2.6-1.56-2.98 0a1.532 1.532 0 01-2.286.948c-1.372-.836-2.942.734-2.106 2.106.54.886.061 2.042-.947 2.287-1.561.379-1.561 2.6 0 2.978a1.532 1.532 0 01.947 2.287c-.836 1.372.734 2.942 2.106 2.106a1.532 1.532 0 012.287.947c.379 1.561 2.6 1.561 2.978 0a1.533 1.533 0 012.287-.947c1.372.836 2.942-.734 2.106-2.106a1.533 1.533 0 01.947-2.287c1.561-.379 1.561-2.6 0-2.978a1.532 1.532 0 01-.947-2.287c.836-1.372-.734-2.942-2.106-2.106a1.532 1.532 0 01-2.287-.947zM10 13a3 3 0 100-6 3 3 0 000 6z"
+              clip-rule="evenodd"
+            />
           </svg>
           Settings
         </button>
@@ -31,15 +39,17 @@
     <div v-if="!isConnected" class="connection-warning">
       <div class="warning-content">
         <svg class="warning-icon" viewBox="0 0 20 20" fill="currentColor">
-          <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd" />
+          <path
+            fill-rule="evenodd"
+            d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z"
+            clip-rule="evenodd"
+          />
         </svg>
         <div>
           <h3>Analytics Not Available</h3>
           <p>Connect your YouTube account to view detailed analytics charts.</p>
         </div>
-        <NuxtLink to="/auth/youtube-connect" class="connect-button">
-          Connect YouTube
-        </NuxtLink>
+        <NuxtLink to="/auth/youtube-connect" class="connect-button"> Connect YouTube </NuxtLink>
       </div>
     </div>
 
@@ -61,7 +71,11 @@
           <h3>Chart Settings</h3>
           <button class="close-button" @click="showSettings = false">
             <svg viewBox="0 0 20 20" fill="currentColor">
-              <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd" />
+              <path
+                fill-rule="evenodd"
+                d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
+                clip-rule="evenodd"
+              />
             </svg>
           </button>
         </div>
@@ -76,11 +90,11 @@
           </div>
           <div class="setting-group">
             <label class="setting-label">Animation Duration</label>
-            <input 
-              type="range" 
-              v-model="settings.animationDuration" 
-              min="0" 
-              max="2000" 
+            <input
+              v-model="settings.animationDuration"
+              type="range"
+              min="0"
+              max="2000"
               step="100"
               class="setting-slider"
             />
@@ -88,19 +102,19 @@
           </div>
           <div class="setting-group">
             <label class="setting-checkbox">
-              <input type="checkbox" v-model="settings.showLegends" />
+              <input v-model="settings.showLegends" type="checkbox" />
               <span class="checkbox-label">Show Chart Legends</span>
             </label>
           </div>
           <div class="setting-group">
             <label class="setting-checkbox">
-              <input type="checkbox" v-model="settings.showGridLines" />
+              <input v-model="settings.showGridLines" type="checkbox" />
               <span class="checkbox-label">Show Grid Lines</span>
             </label>
           </div>
           <div class="setting-group">
             <label class="setting-checkbox">
-              <input type="checkbox" v-model="settings.enableTooltips" />
+              <input v-model="settings.enableTooltips" type="checkbox" />
               <span class="checkbox-label">Enable Tooltips</span>
             </label>
           </div>
@@ -125,9 +139,10 @@ useHead({
   meta: [
     {
       name: 'description',
-      content: 'Explore your YouTube channel performance with interactive charts and detailed analytics visualizations.'
-    }
-  ]
+      content:
+        'Explore your YouTube channel performance with interactive charts and detailed analytics visualizations.',
+    },
+  ],
 })
 
 // Analytics composable
@@ -140,13 +155,13 @@ const {
   initialize,
   refresh,
   setTimeRange,
-  cleanup
+  cleanup,
 } = useAnalytics()
 
 // Component state
 const showSettings = ref(false)
 const userData = ref({
-  id: 'demo-user-123'
+  id: 'demo-user-123',
 })
 
 // Settings
@@ -155,11 +170,11 @@ const settings = ref({
   animationDuration: 750,
   showLegends: true,
   showGridLines: true,
-  enableTooltips: true
+  enableTooltips: true,
 })
 
 // Event handlers
-const handleTimeRangeChange = async (range) => {
+const handleTimeRangeChange = async range => {
   try {
     await setTimeRange(range)
   } catch (err) {
@@ -199,11 +214,11 @@ const loadSettings = () => {
 // Initialize analytics on mount
 onMounted(async () => {
   loadSettings()
-  
+
   try {
     await initialize(userData.value.id, {
       timeRange: 30,
-      autoRefresh: true
+      autoRefresh: true,
     })
   } catch (err) {
     console.error('Charts page initialization failed:', err)
@@ -253,7 +268,7 @@ onUnmounted(() => {
 }
 
 .breadcrumb-link:hover {
-  color: #FF6B9D;
+  color: #ff6b9d;
 }
 
 .breadcrumb-separator {
@@ -298,7 +313,7 @@ onUnmounted(() => {
 }
 
 .export-button {
-  background: #FF6B9D;
+  background: #ff6b9d;
   color: white;
 }
 
@@ -471,7 +486,7 @@ onUnmounted(() => {
 
 .setting-select:focus {
   outline: none;
-  border-color: #FF6B9D;
+  border-color: #ff6b9d;
   box-shadow: 0 0 0 3px rgba(255, 107, 157, 0.1);
 }
 
@@ -492,10 +507,10 @@ onUnmounted(() => {
   cursor: pointer;
 }
 
-.setting-checkbox input[type="checkbox"] {
+.setting-checkbox input[type='checkbox'] {
   width: 16px;
   height: 16px;
-  accent-color: #FF6B9D;
+  accent-color: #ff6b9d;
 }
 
 .checkbox-label {
@@ -532,7 +547,7 @@ onUnmounted(() => {
 }
 
 .save-button {
-  background: #FF6B9D;
+  background: #ff6b9d;
   color: white;
   border: none;
 }
@@ -546,28 +561,28 @@ onUnmounted(() => {
   .charts-page {
     padding: 16px;
   }
-  
+
   .page-header {
     flex-direction: column;
     gap: 20px;
   }
-  
+
   .header-actions {
     width: 100%;
     justify-content: stretch;
   }
-  
+
   .export-button,
   .settings-button {
     flex: 1;
     justify-content: center;
   }
-  
+
   .warning-content {
     flex-direction: column;
     text-align: center;
   }
-  
+
   .modal-overlay {
     padding: 16px;
   }

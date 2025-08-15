@@ -12,7 +12,7 @@ export const useChatStore = defineStore('chat', () => {
 
   // Getters
   const allSessions = computed(() => Array.from(sessions.value.values()))
-  const activeSession = computed(() => 
+  const activeSession = computed(() =>
     activeSessionId.value ? sessions.value.get(activeSessionId.value) : null
   )
 
@@ -27,7 +27,7 @@ export const useChatStore = defineStore('chat', () => {
       messages: [],
       createdAt: new Date(),
       updatedAt: new Date(),
-      isActive: true
+      isActive: true,
     }
 
     sessions.value.set(sessionId, session)
@@ -47,7 +47,7 @@ export const useChatStore = defineStore('chat', () => {
       content,
       type,
       timestamp: new Date(),
-      isFromUser: true
+      isFromUser: true,
     }
 
     activeSession.value.messages.push(message)

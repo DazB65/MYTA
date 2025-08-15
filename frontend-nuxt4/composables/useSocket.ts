@@ -1,5 +1,6 @@
 import { ref, onMounted, onUnmounted, watch, readonly } from 'vue'
-import { io, Socket } from 'socket.io-client'
+import type { Socket } from 'socket.io-client';
+import { io } from 'socket.io-client'
 import type { WebSocketMessage, WSMessageType, ChatMessage } from '../types/agents'
 import { useAuthStore } from '../stores/auth'
 import { useChatStore } from '../stores/chat'
@@ -34,14 +35,14 @@ export const useSocket = () => {
     try {
       socket.value = io(config.public.wsUrl, {
         auth: {
-          token: authStore.token
+          token: authStore.token,
         },
         transports: ['websocket', 'polling'],
         timeout: 20000,
         reconnection: true,
         reconnectionAttempts: maxReconnectAttempts,
         reconnectionDelay: 1000,
-        reconnectionDelayMax: 5000
+        reconnectionDelayMax: 5000,
       })
 
       setupEventListeners()
@@ -70,18 +71,18 @@ export const useSocket = () => {
       isConnecting.value = false
       reconnectAttempts.value = 0
       error.value = null
-      
+
       uiStore.showSuccess('Connected', 'Real-time connection established')
-      
+
       // Join user room for personalized messages
       if (authStore.userId) {
         socket.value?.emit('join_user_room', { userId: authStore.userId })
       }
     })
 
-    socket.value.on('disconnect', (reason) => {
+    socket.value.on('disconnect', reason => {
       isConnected.value = false
-      
+
       if (reason === 'io server disconnect') {
         // Server disconnected, manual reconnection needed
         error.value = 'Server disconnected'
@@ -91,17 +92,17 @@ export const useSocket = () => {
       }
     })
 
-    socket.value.on('connect_error', (err) => {
+    socket.value.on('connect_error', err => {
       isConnecting.value = false
       reconnectAttempts.value++
       error.value = `Connection failed: ${err.message}`
-      
+
       if (reconnectAttempts.value >= maxReconnectAttempts) {
         uiStore.showError('Connection Failed', 'Unable to establish real-time connection')
       }
     })
 
-    socket.value.on('reconnect', (attemptNumber) => {
+    socket.value.on('reconnect', attemptNumber => {
       uiStore.showInfo('Reconnected', 'Real-time connection restored')
     })
 
@@ -184,7 +185,7 @@ export const useSocket = () => {
   // Auto-connect when auth state changes
   watch(
     () => authStore.isLoggedIn,
-    (isLoggedIn) => {
+    isLoggedIn => {
       if (isLoggedIn) {
         connect()
       } else {
@@ -210,7 +211,7 @@ export const useSocket = () => {
     isConnecting: readonly(isConnecting),
     error: readonly(error),
     reconnectAttempts: readonly(reconnectAttempts),
-    
+
     connect,
     disconnect,
     emit,
@@ -218,17 +219,17 @@ export const useSocket = () => {
     joinChatSession,
     leaveChatSession,
     requestAnalysis,
-    setTyping
+    setTyping,
   }
 }
 
 // Plugin to make $socket available globally
 export const socketPlugin = () => {
   const socketComposable = useSocket()
-  
+
   return {
     provide: {
-      socket: socketComposable.socket.value
-    }
+      socket: socketComposable.socket.value,
+    },
   }
 }

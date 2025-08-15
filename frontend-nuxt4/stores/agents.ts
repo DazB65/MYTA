@@ -17,7 +17,7 @@ export const useAgentsStore = defineStore('agents', () => {
       type: 'boss_agent',
       status: 'online',
       capabilities: ['coordination', 'strategy', 'overview'],
-      description: 'Coordinates all specialist agents and provides strategic oversight'
+      description: 'Coordinates all specialist agents and provides strategic oversight',
     },
     {
       id: 'content_analysis',
@@ -25,7 +25,7 @@ export const useAgentsStore = defineStore('agents', () => {
       type: 'content_analysis',
       status: 'online',
       capabilities: ['video_analysis', 'performance_metrics', 'content_optimization'],
-      description: 'Analyzes video content performance and provides optimization recommendations'
+      description: 'Analyzes video content performance and provides optimization recommendations',
     },
     {
       id: 'audience_insights',
@@ -33,7 +33,7 @@ export const useAgentsStore = defineStore('agents', () => {
       type: 'audience_insights',
       status: 'online',
       capabilities: ['demographic_analysis', 'engagement_patterns', 'audience_growth'],
-      description: 'Provides deep insights into audience behavior and growth opportunities'
+      description: 'Provides deep insights into audience behavior and growth opportunities',
     },
     {
       id: 'seo_discoverability',
@@ -41,7 +41,7 @@ export const useAgentsStore = defineStore('agents', () => {
       type: 'seo_discoverability',
       status: 'online',
       capabilities: ['keyword_optimization', 'search_ranking', 'discoverability'],
-      description: 'Optimizes content for search and improves discoverability'
+      description: 'Optimizes content for search and improves discoverability',
     },
     {
       id: 'monetization_strategy',
@@ -49,7 +49,7 @@ export const useAgentsStore = defineStore('agents', () => {
       type: 'monetization_strategy',
       status: 'online',
       capabilities: ['revenue_analysis', 'monetization_strategies', 'financial_optimization'],
-      description: 'Analyzes revenue streams and suggests monetization improvements'
+      description: 'Analyzes revenue streams and suggests monetization improvements',
     },
     {
       id: 'competitive_analysis',
@@ -57,8 +57,8 @@ export const useAgentsStore = defineStore('agents', () => {
       type: 'competitive_analysis',
       status: 'online',
       capabilities: ['competitor_tracking', 'market_trends', 'benchmarking'],
-      description: 'Tracks competitors and identifies market opportunities'
-    }
+      description: 'Tracks competitors and identifies market opportunities',
+    },
   ]
 
   // Getters
@@ -77,7 +77,7 @@ export const useAgentsStore = defineStore('agents', () => {
     defaultAgents.forEach(agent => {
       agents.value.set(agent.id, {
         ...agent,
-        lastActive: new Date()
+        lastActive: new Date(),
       })
     })
   }

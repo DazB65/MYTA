@@ -9,7 +9,7 @@ export interface Agent {
   lastActive?: Date
 }
 
-export type AgentType = 
+export type AgentType =
   | 'boss_agent'
   | 'content_analysis'
   | 'audience_insights'
@@ -30,7 +30,7 @@ export interface ChatMessage {
   isFromUser?: boolean
 }
 
-export type MessageType = 
+export type MessageType =
   | 'text'
   | 'insight'
   | 'recommendation'

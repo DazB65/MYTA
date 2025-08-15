@@ -34,18 +34,18 @@ export const useAuthStore = defineStore('auth', () => {
     try {
       // Mock login for demo
       await new Promise(resolve => setTimeout(resolve, 1000))
-      
+
       user.value = {
         id: '1',
         email: credentials.email,
         name: 'Demo User',
         subscription_tier: 'pro',
         youtube_connected: true,
-        created_at: new Date()
+        created_at: new Date(),
       }
       token.value = 'demo-token'
       isAuthenticated.value = true
-      
+
       return { user: user.value, token: token.value }
     } catch (err: any) {
       error.value = err.message
@@ -84,6 +84,6 @@ export const useAuthStore = defineStore('auth', () => {
     // Actions
     login,
     logout,
-    initializeAuth
+    initializeAuth,
   }
 })

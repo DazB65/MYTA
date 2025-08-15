@@ -5,41 +5,53 @@
 /* Design System & Global Styles      */
 /* ---------------------------------- */
 :root {
-    /* Colors */
-    --color-bg: #1A1A1A;
-    --color-surface-1: #212121;
-    --color-surface-2: #2C2C2C;
-    --color-border: #363636;
-    --color-text-primary: #FFFFFF;
-    --color-text-secondary: #A0A0A0;
-    --color-text-tertiary: #6E6E6E;
-    --color-accent-pink: #E475A3;
-    --color-accent-blue: #70B4FF;
-    --color-tag-pending-bg: rgba(255, 184, 0, 0.1);
-    --color-tag-pending-text: #FFB800;
-    --color-tag-progress-bg: rgba(99, 115, 255, 0.1);
-    --color-tag-progress-text: #6373FF;
-    --gradient-pink: radial-gradient(103.82% 103.82% at 94.01% 92.97%, #E399A2 0%, #E784A1 35.42%, #D06B9E 100%);
-    --gradient-blue: radial-gradient(103.82% 103.82% at 94.01% 92.97%, #A0C3FF 0%, #7B92E8 35.42%, #6F72D1 100%);
+  /* Colors */
+  --color-bg: #1a1a1a;
+  --color-surface-1: #212121;
+  --color-surface-2: #2c2c2c;
+  --color-border: #363636;
+  --color-text-primary: #ffffff;
+  --color-text-secondary: #a0a0a0;
+  --color-text-tertiary: #6e6e6e;
+  --color-accent-pink: #e475a3;
+  --color-accent-blue: #70b4ff;
+  --color-tag-pending-bg: rgba(255, 184, 0, 0.1);
+  --color-tag-pending-text: #ffb800;
+  --color-tag-progress-bg: rgba(99, 115, 255, 0.1);
+  --color-tag-progress-text: #6373ff;
+  --gradient-pink: radial-gradient(
+    103.82% 103.82% at 94.01% 92.97%,
+    #e399a2 0%,
+    #e784a1 35.42%,
+    #d06b9e 100%
+  );
+  --gradient-blue: radial-gradient(
+    103.82% 103.82% at 94.01% 92.97%,
+    #a0c3ff 0%,
+    #7b92e8 35.42%,
+    #6f72d1 100%
+  );
 
-    /* Typography */
-    --font-family-main: 'Inter', sans-serif;
+  /* Typography */
+  --font-family-main: 'Inter', sans-serif;
 
-    /* Spacing */
-    --space-24: 24px;
-    --space-32: 32px;
+  /* Spacing */
+  --space-24: 24px;
+  --space-32: 32px;
 }
 
-*, *::before, *::after {
-    box-sizing: border-box;
-    margin: 0;
-    padding: 0;
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
 }
 
 body {
-    font-family: var(--font-family-main);
-    background-color: var(--color-bg);
-    color: var(--color-text-primary);
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
+  font-family: var(--font-family-main);
+  background-color: var(--color-bg);
+  color: var(--color-text-primary);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }

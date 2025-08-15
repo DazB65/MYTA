@@ -24,7 +24,7 @@ export const useAnalytics = () => {
     revenueMetrics,
     topVideos,
     initialize,
-    refresh
+    refresh,
   } = analyticsStore
 
   // Additional computed properties for enhanced functionality
@@ -40,19 +40,18 @@ export const useAnalytics = () => {
       health: {
         score: healthScore,
         color: getHealthColor(healthScore),
-        status: healthScore >= 80 ? 'excellent' : 
-                healthScore >= 60 ? 'good' : 'needs_improvement'
+        status: healthScore >= 80 ? 'excellent' : healthScore >= 60 ? 'good' : 'needs_improvement',
       },
       growth: {
         subscribers: subscriberGrowth,
         views: totalViews,
-        revenue: revenueMetrics.total
+        revenue: revenueMetrics.total,
       },
       content: {
-        topVideos: topVideos,
+        topVideos,
         totalVideos: analyticsData.overview?.data.total_videos || 0,
-        avgDuration: analyticsData.overview?.data.avg_view_duration || 0
-      }
+        avgDuration: analyticsData.overview?.data.avg_view_duration || 0,
+      },
     }
   })
 
@@ -63,34 +62,34 @@ export const useAnalytics = () => {
       date: change.date,
       subscribers: change.net_change,
       views: 0, // Would need to be added to API response
-      revenue: 0 // Would need to be added to API response
+      revenue: 0, // Would need to be added to API response
     }))
   })
 
   // Enhanced utility functions
   const getMetricTrend = (current: number, previous: number) => {
     if (previous === 0) return { trend: 'neutral', percentage: 0 }
-    
+
     const change = ((current - previous) / previous) * 100
     return {
       trend: change > 0 ? 'up' : change < 0 ? 'down' : 'neutral',
-      percentage: Math.abs(change)
+      percentage: Math.abs(change),
     }
   }
 
   const getRevenueBreakdown = () => {
     if (!analyticsData.revenue?.data?.revenue_sources) return []
-    
+
     return analyticsData.revenue.data.revenue_sources.map(source => ({
       ...source,
       formattedAmount: formatCurrency(source.amount),
-      formattedPercentage: formatPercentage(source.percentage)
+      formattedPercentage: formatPercentage(source.percentage),
     }))
   }
 
   const getTopPerformingContent = (limit: number = 5) => {
     if (!analyticsData.contentPerformance?.data?.videos) return []
-    
+
     return [...analyticsData.contentPerformance.data.videos]
       .sort((a, b) => b.engagement_rate - a.engagement_rate)
       .slice(0, limit)
@@ -99,7 +98,7 @@ export const useAnalytics = () => {
         formattedViews: formatNumber(video.views),
         formattedLikes: formatNumber(video.likes),
         formattedComments: formatNumber(video.comments),
-        engagementRate: formatPercentage(video.engagement_rate)
+        engagementRate: formatPercentage(video.engagement_rate),
       }))
   }
 
@@ -110,7 +109,7 @@ export const useAnalytics = () => {
       revenue: analyticsData.revenue,
       subscribers: analyticsData.subscribers,
       contentPerformance: analyticsData.contentPerformance,
-      exportedAt: new Date().toISOString()
+      exportedAt: new Date().toISOString(),
     }
 
     if (format === 'json') {
@@ -152,6 +151,6 @@ export const useAnalytics = () => {
     getMetricTrend,
     getRevenueBreakdown,
     getTopPerformingContent,
-    exportData
+    exportData,
   }
 }

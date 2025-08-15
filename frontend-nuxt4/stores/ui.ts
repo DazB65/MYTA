@@ -45,7 +45,7 @@ export const useUIStore = defineStore('ui', () => {
     const newNotification: Notification = {
       ...notification,
       id,
-      timestamp: new Date()
+      timestamp: new Date(),
     }
 
     notifications.value.push(newNotification)

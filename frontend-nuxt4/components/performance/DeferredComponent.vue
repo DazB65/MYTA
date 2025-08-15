@@ -4,5 +4,5 @@
 
 <script setup>
 // Thin wrapper to avoid using the reserved "Lazy" prefix directly in templates
-import DeferredComponentImpl from './DeferredComponentImpl.vue';
+import DeferredComponentImpl from './DeferredComponentImpl.vue'
 </script>

@@ -1,4 +1,4 @@
-import { ref, readonly } from 'vue'
+import { readonly, ref } from 'vue'
 import { useAuthStore } from '../stores/auth'
 import { useUIStore } from '../stores/ui'
 
@@ -21,7 +21,7 @@ export interface ApiResponse<T = any> {
 }
 
 export const useApi = () => {
-  const config = { public: { apiBase: 'http://localhost:8000' } }
+  const config = useRuntimeConfig()
   const authStore = useAuthStore()
   const uiStore = useUIStore()
 
@@ -40,7 +40,7 @@ export const useApi = () => {
       retries = 3,
       showLoading = false,
       loadingKey,
-      showErrorNotification = true
+      showErrorNotification = true,
     } = options
 
     // Set loading state
@@ -59,15 +59,15 @@ export const useApi = () => {
         method,
         headers: {
           'Content-Type': 'application/json',
-          ...headers
-        }
+          ...headers,
+        },
       }
 
       // Add authentication header if available
       if (authStore.token) {
         requestOptions.headers = {
           ...requestOptions.headers,
-          'Authorization': `Bearer ${authStore.token}`
+          Authorization: `Bearer ${authStore.token}`,
         }
       }
 
@@ -77,7 +77,7 @@ export const useApi = () => {
       }
 
       // Build full URL
-      const baseUrl = config.public.apiBase
+      const baseUrl = config.public.apiBaseUrl || 'http://localhost:8000'
       const url = endpoint.startsWith('http') ? endpoint : `${baseUrl}${endpoint}`
 
       let lastError: Error | null = null
@@ -115,9 +115,8 @@ export const useApi = () => {
 
           // Parse response
           const data = await response.json()
-          
-          return data as ApiResponse<T>
 
+          return data as ApiResponse<T>
         } catch (err: any) {
           lastError = err
 
@@ -127,8 +126,10 @@ export const useApi = () => {
             break
           }
 
-          if (err.message.includes('Authentication required') || 
-              err.message.includes('Access forbidden')) {
+          if (
+            err.message.includes('Authentication required') ||
+            err.message.includes('Access forbidden')
+          ) {
             break
           }
 
@@ -150,9 +151,8 @@ export const useApi = () => {
 
       return {
         status: 'error',
-        error: errorMessage
+        error: errorMessage,
       }
-
     } finally {
       // Clear loading state
       if (showLoading || loadingKey) {
@@ -169,11 +169,19 @@ export const useApi = () => {
     return apiCall<T>(endpoint, { ...options, method: 'GET' })
   }
 
-  const post = <T = any>(endpoint: string, body?: any, options: Omit<ApiOptions, 'method' | 'body'> = {}) => {
+  const post = <T = any>(
+    endpoint: string,
+    body?: any,
+    options: Omit<ApiOptions, 'method' | 'body'> = {}
+  ) => {
     return apiCall<T>(endpoint, { ...options, method: 'POST', body })
   }
 
-  const put = <T = any>(endpoint: string, body?: any, options: Omit<ApiOptions, 'method' | 'body'> = {}) => {
+  const put = <T = any>(
+    endpoint: string,
+    body?: any,
+    options: Omit<ApiOptions, 'method' | 'body'> = {}
+  ) => {
     return apiCall<T>(endpoint, { ...options, method: 'PUT', body })
   }
 
@@ -181,7 +189,11 @@ export const useApi = () => {
     return apiCall<T>(endpoint, { ...options, method: 'DELETE' })
   }
 
-  const patch = <T = any>(endpoint: string, body?: any, options: Omit<ApiOptions, 'method' | 'body'> = {}) => {
+  const patch = <T = any>(
+    endpoint: string,
+    body?: any,
+    options: Omit<ApiOptions, 'method' | 'body'> = {}
+  ) => {
     return apiCall<T>(endpoint, { ...options, method: 'PATCH', body })
   }
 
@@ -193,17 +205,17 @@ export const useApi = () => {
     post,
     put,
     delete: del,
-    patch
+    patch,
   }
 }
 
 // Plugin to make $api available globally
 export const apiPlugin = () => {
   const { apiCall } = useApi()
-  
+
   return {
     provide: {
-      api: apiCall
-    }
+      api: apiCall,
+    },
   }
 }

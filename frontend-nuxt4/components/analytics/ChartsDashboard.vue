@@ -17,9 +17,11 @@
             {{ range.label }}
           </button>
         </div>
-        <button class="refresh-button" @click="refreshData" :disabled="loading">
+        <button class="refresh-button" :disabled="loading" @click="refreshData">
           <svg class="refresh-icon" viewBox="0 0 20 20" fill="currentColor">
-            <path d="M4 2a1 1 0 011 1v2.101a7.002 7.002 0 0111.601 2.566 1 1 0 11-1.885.666A5.002 5.002 0 005.999 7H9a1 1 0 010 2H4a1 1 0 01-1-1V3a1 1 0 011-1zm.008 9.057a1 1 0 011.276.61A5.002 5.002 0 0014.001 13H11a1 1 0 110-2h5a1 1 0 011 1v5a1 1 0 11-2 0v-2.101a7.002 7.002 0 01-11.601-2.566 1 1 0 01.61-1.276z" />
+            <path
+              d="M4 2a1 1 0 011 1v2.101a7.002 7.002 0 0111.601 2.566 1 1 0 11-1.885.666A5.002 5.002 0 005.999 7H9a1 1 0 010 2H4a1 1 0 01-1-1V3a1 1 0 011-1zm.008 9.057a1 1 0 011.276.61A5.002 5.002 0 0014.001 13H11a1 1 0 110-2h5a1 1 0 011 1v5a1 1 0 11-2 0v-2.101a7.002 7.002 0 01-11.601-2.566 1 1 0 01.61-1.276z"
+            />
           </svg>
           Refresh
         </button>
@@ -78,7 +80,7 @@
       </div>
 
       <!-- Revenue Breakdown -->
-      <div class="chart-section small" v-if="revenueChartData.datasets.length > 0">
+      <div v-if="revenueChartData.datasets.length > 0" class="chart-section small">
         <AnalyticsChart
           title="Revenue Sources"
           subtitle="Revenue breakdown by source"
@@ -124,14 +126,18 @@
     </div>
 
     <!-- Charts Summary -->
-    <div class="charts-summary" v-if="!loading && !error">
+    <div v-if="!loading && !error" class="charts-summary">
       <h3>Key Insights</h3>
       <div class="insights-grid">
         <div class="insight-card">
           <div class="insight-icon views">
             <svg viewBox="0 0 20 20" fill="currentColor">
               <path d="M10 12a2 2 0 100-4 2 2 0 000 4z" />
-              <path fill-rule="evenodd" d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.064 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z" clip-rule="evenodd" />
+              <path
+                fill-rule="evenodd"
+                d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.064 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z"
+                clip-rule="evenodd"
+              />
             </svg>
           </div>
           <div class="insight-content">
@@ -139,11 +145,13 @@
             <p>Views are {{ viewsTrendDirection }} compared to last period</p>
           </div>
         </div>
-        
+
         <div class="insight-card">
           <div class="insight-icon subscribers">
             <svg viewBox="0 0 20 20" fill="currentColor">
-              <path d="M9 6a3 3 0 11-6 0 3 3 0 016 0zM17 6a3 3 0 11-6 0 3 3 0 016 0zM12.93 17c.046-.327.07-.66.07-1a6.97 6.97 0 00-1.5-4.33A5 5 0 0119 16v1h-6.07zM6 11a5 5 0 015 5v1H1v-1a5 5 0 015-5z" />
+              <path
+                d="M9 6a3 3 0 11-6 0 3 3 0 016 0zM17 6a3 3 0 11-6 0 3 3 0 016 0zM12.93 17c.046-.327.07-.66.07-1a6.97 6.97 0 00-1.5-4.33A5 5 0 0119 16v1h-6.07zM6 11a5 5 0 015 5v1H1v-1a5 5 0 015-5z"
+              />
             </svg>
           </div>
           <div class="insight-content">
@@ -151,11 +159,13 @@
             <p>Subscriber growth is {{ subscribersTrendDirection }}</p>
           </div>
         </div>
-        
+
         <div class="insight-card">
           <div class="insight-icon engagement">
             <svg viewBox="0 0 20 20" fill="currentColor">
-              <path d="M2 10.5a1.5 1.5 0 113 0v6a1.5 1.5 0 01-3 0v-6zM6 10.333v5.43a2 2 0 001.106 1.79l.05.025A4 4 0 008.943 18h5.416a2 2 0 001.962-1.608l1.2-6A2 2 0 0015.56 8H12V4a2 2 0 00-2-2 1 1 0 00-1 1v.667a4 4 0 01-.8 2.4L6.8 7.933a4 4 0 00-.8 2.4z" />
+              <path
+                d="M2 10.5a1.5 1.5 0 113 0v6a1.5 1.5 0 01-3 0v-6zM6 10.333v5.43a2 2 0 001.106 1.79l.05.025A4 4 0 008.943 18h5.416a2 2 0 001.962-1.608l1.2-6A2 2 0 0015.56 8H12V4a2 2 0 00-2-2 1 1 0 00-1 1v.667a4 4 0 01-.8 2.4L6.8 7.933a4 4 0 00-.8 2.4z"
+              />
             </svg>
           </div>
           <div class="insight-content">
@@ -175,10 +185,10 @@ import AnalyticsChart from './AnalyticsChart.vue'
 const props = defineProps({
   analyticsData: {
     type: Object,
-    required: true
+    required: true,
   },
   loading: Boolean,
-  error: String
+  error: String,
 })
 
 const emit = defineEmits(['time-range-change', 'refresh'])
@@ -189,7 +199,7 @@ const chartTypes = ref({
   views: 'line',
   subscribers: 'area',
   watchTime: 'bar',
-  engagement: 'line'
+  engagement: 'line',
 })
 
 // Time range options
@@ -197,24 +207,24 @@ const timeRanges = [
   { label: '7D', value: 7 },
   { label: '30D', value: 30 },
   { label: '90D', value: 90 },
-  { label: '1Y', value: 365 }
+  { label: '1Y', value: 365 },
 ]
 
 // Sample data generation (in real app, this would come from props.analyticsData)
 const generateSampleData = (days, baseValue = 1000, variance = 0.3) => {
   const data = []
   const labels = []
-  
+
   for (let i = days; i >= 0; i--) {
     const date = new Date()
     date.setDate(date.getDate() - i)
     labels.push(date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }))
-    
+
     const randomFactor = 1 + (Math.random() - 0.5) * variance
     const trendFactor = 1 + (days - i) / (days * 10) // Slight upward trend
     data.push(Math.round(baseValue * randomFactor * trendFactor))
   }
-  
+
   return { labels, data }
 }
 
@@ -223,13 +233,15 @@ const viewsChartData = computed(() => {
   const sampleData = generateSampleData(selectedTimeRange.value, 2500, 0.4)
   return {
     labels: sampleData.labels,
-    datasets: [{
-      label: 'Views',
-      data: sampleData.data,
-      borderColor: '#3b82f6',
-      backgroundColor: 'rgba(59, 130, 246, 0.1)',
-      fill: chartTypes.value.views === 'area'
-    }]
+    datasets: [
+      {
+        label: 'Views',
+        data: sampleData.data,
+        borderColor: '#3b82f6',
+        backgroundColor: 'rgba(59, 130, 246, 0.1)',
+        fill: chartTypes.value.views === 'area',
+      },
+    ],
   }
 })
 
@@ -237,29 +249,42 @@ const subscribersChartData = computed(() => {
   const sampleData = generateSampleData(selectedTimeRange.value, 50, 0.6)
   return {
     labels: sampleData.labels,
-    datasets: [{
-      label: 'New Subscribers',
-      data: sampleData.data,
-      borderColor: '#10b981',
-      backgroundColor: 'rgba(16, 185, 129, 0.1)',
-      fill: true
-    }]
+    datasets: [
+      {
+        label: 'New Subscribers',
+        data: sampleData.data,
+        borderColor: '#10b981',
+        backgroundColor: 'rgba(16, 185, 129, 0.1)',
+        fill: true,
+      },
+    ],
   }
 })
 
 const watchTimeChartData = computed(() => {
-  const videos = ['Video 1', 'Video 2', 'Video 3', 'Video 4', 'Video 5', 'Video 6', 'Video 7', 'Video 8']
+  const videos = [
+    'Video 1',
+    'Video 2',
+    'Video 3',
+    'Video 4',
+    'Video 5',
+    'Video 6',
+    'Video 7',
+    'Video 8',
+  ]
   const data = videos.map(() => Math.round(Math.random() * 300 + 100))
-  
+
   return {
     labels: videos,
-    datasets: [{
-      label: 'Avg Watch Time (mins)',
-      data: data,
-      backgroundColor: '#f59e0b',
-      borderColor: '#f59e0b',
-      borderWidth: 2
-    }]
+    datasets: [
+      {
+        label: 'Avg Watch Time (mins)',
+        data,
+        backgroundColor: '#f59e0b',
+        borderColor: '#f59e0b',
+        borderWidth: 2,
+      },
+    ],
   }
 })
 
@@ -268,31 +293,35 @@ const revenueChartData = computed(() => {
   if (!props.analyticsData?.revenue?.data?.total || props.analyticsData.revenue.data.total <= 0) {
     return { labels: [], datasets: [] }
   }
-  
+
   return {
     labels: ['Ad Revenue', 'Memberships', 'Super Chat', 'Other'],
-    datasets: [{
-      data: [65, 20, 10, 5],
-      backgroundColor: ['#3b82f6', '#10b981', '#f59e0b', '#ef4444'],
-      borderWidth: 2,
-      borderColor: '#ffffff'
-    }]
+    datasets: [
+      {
+        data: [65, 20, 10, 5],
+        backgroundColor: ['#3b82f6', '#10b981', '#f59e0b', '#ef4444'],
+        borderWidth: 2,
+        borderColor: '#ffffff',
+      },
+    ],
   }
 })
 
 const topVideosChartData = computed(() => {
   const videos = ['Video A', 'Video B', 'Video C', 'Video D', 'Video E']
   const data = videos.map(() => Math.round(Math.random() * 50000 + 10000))
-  
+
   return {
     labels: videos,
-    datasets: [{
-      label: 'Views',
-      data: data,
-      backgroundColor: '#8b5cf6',
-      borderColor: '#8b5cf6',
-      borderWidth: 2
-    }]
+    datasets: [
+      {
+        label: 'Views',
+        data,
+        backgroundColor: '#8b5cf6',
+        borderColor: '#8b5cf6',
+        borderWidth: 2,
+      },
+    ],
   }
 })
 
@@ -300,7 +329,7 @@ const engagementChartData = computed(() => {
   const sampleData = generateSampleData(selectedTimeRange.value, 100, 0.3)
   const likesData = sampleData.data.map(val => Math.round(val * 0.05))
   const commentsData = sampleData.data.map(val => Math.round(val * 0.02))
-  
+
   return {
     labels: sampleData.labels,
     datasets: [
@@ -309,16 +338,16 @@ const engagementChartData = computed(() => {
         data: likesData,
         borderColor: '#ec4899',
         backgroundColor: 'rgba(236, 72, 153, 0.1)',
-        fill: false
+        fill: false,
       },
       {
         label: 'Comments',
         data: commentsData,
         borderColor: '#06b6d4',
         backgroundColor: 'rgba(6, 182, 212, 0.1)',
-        fill: false
-      }
-    ]
+        fill: false,
+      },
+    ],
   }
 })
 
@@ -326,11 +355,11 @@ const engagementChartData = computed(() => {
 const viewsTrend = computed(() => {
   const data = viewsChartData.value.datasets[0]?.data || []
   if (data.length < 2) return 'Stable'
-  
+
   const recent = data.slice(-7).reduce((a, b) => a + b, 0) / 7
   const previous = data.slice(-14, -7).reduce((a, b) => a + b, 0) / 7
   const change = ((recent - previous) / previous) * 100
-  
+
   if (change > 10) return 'Strong Growth'
   if (change > 0) return 'Growing'
   if (change > -10) return 'Stable'
@@ -340,17 +369,17 @@ const viewsTrend = computed(() => {
 const viewsTrendDirection = computed(() => {
   const data = viewsChartData.value.datasets[0]?.data || []
   if (data.length < 2) return 'stable'
-  
+
   const recent = data.slice(-3).reduce((a, b) => a + b, 0) / 3
   const previous = data.slice(-6, -3).reduce((a, b) => a + b, 0) / 3
-  
+
   return recent > previous ? 'trending up' : 'trending down'
 })
 
 const subscribersTrend = computed(() => {
   const data = subscribersChartData.value.datasets[0]?.data || []
   const avg = data.reduce((a, b) => a + b, 0) / data.length
-  
+
   if (avg > 80) return 'Excellent'
   if (avg > 50) return 'Good'
   if (avg > 20) return 'Moderate'
@@ -358,16 +387,17 @@ const subscribersTrend = computed(() => {
 })
 
 const subscribersTrendDirection = computed(() => {
-  return subscribersTrend.value === 'Excellent' || subscribersTrend.value === 'Good' 
-    ? 'healthy' : 'needs improvement'
+  return subscribersTrend.value === 'Excellent' || subscribersTrend.value === 'Good'
+    ? 'healthy'
+    : 'needs improvement'
 })
 
 const engagementTrend = computed(() => {
   const likesData = engagementChartData.value.datasets[0]?.data || []
   const commentsData = engagementChartData.value.datasets[1]?.data || []
-  
+
   const totalEngagement = [...likesData, ...commentsData].reduce((a, b) => a + b, 0)
-  
+
   if (totalEngagement > 1000) return 'High'
   if (totalEngagement > 500) return 'Good'
   return 'Growing'
@@ -378,7 +408,7 @@ const engagementTrendDirection = computed(() => {
 })
 
 // Event handlers
-const handleTimeRangeChange = (range) => {
+const handleTimeRangeChange = range => {
   selectedTimeRange.value = range
   emit('time-range-change', range)
 }
@@ -452,7 +482,7 @@ onMounted(() => {
 }
 
 .range-button.active {
-  background: #FF6B9D;
+  background: #ff6b9d;
   color: white;
 }
 
@@ -596,11 +626,11 @@ onMounted(() => {
   .chart-section.large {
     grid-column: span 12;
   }
-  
+
   .chart-section.medium {
     grid-column: span 6;
   }
-  
+
   .chart-section.small {
     grid-column: span 6;
   }
@@ -611,22 +641,22 @@ onMounted(() => {
     flex-direction: column;
     gap: 20px;
   }
-  
+
   .header-controls {
     flex-direction: column;
     align-items: stretch;
   }
-  
+
   .charts-grid {
     grid-template-columns: 1fr;
   }
-  
+
   .chart-section.large,
   .chart-section.medium,
   .chart-section.small {
     grid-column: span 1;
   }
-  
+
   .insights-grid {
     grid-template-columns: 1fr;
   }

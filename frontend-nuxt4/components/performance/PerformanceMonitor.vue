@@ -6,7 +6,7 @@
         <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
       </svg>
       <span>Performance</span>
-      <div class="performance-indicator" :class="performanceStatus"></div>
+      <div class="performance-indicator" :class="performanceStatus"/>
     </button>
 
     <!-- Performance Details Panel -->
@@ -15,7 +15,11 @@
         <h3>Performance Monitor</h3>
         <button class="close-button" @click="isExpanded = false">
           <svg viewBox="0 0 20 20" fill="currentColor">
-            <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd" />
+            <path
+              fill-rule="evenodd"
+              d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
+              clip-rule="evenodd"
+            />
           </svg>
         </button>
       </div>
@@ -40,7 +44,9 @@
         <div class="metric-card">
           <div class="metric-header">
             <svg class="metric-icon" viewBox="0 0 20 20" fill="currentColor">
-              <path d="M3 4a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-1 1H4a1 1 0 01-1-1V4zM3 10a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H4a1 1 0 01-1-1v-6zM14 9a1 1 0 00-1 1v6a1 1 0 001 1h2a1 1 0 001-1v-6a1 1 0 00-1-1h-2z" />
+              <path
+                d="M3 4a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-1 1H4a1 1 0 01-1-1V4zM3 10a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H4a1 1 0 01-1-1v-6zM14 9a1 1 0 00-1 1v6a1 1 0 001 1h2a1 1 0 001-1v-6a1 1 0 00-1-1h-2z"
+              />
             </svg>
             <span class="metric-title">API Response</span>
           </div>
@@ -54,7 +60,9 @@
         <div class="metric-card">
           <div class="metric-header">
             <svg class="metric-icon" viewBox="0 0 20 20" fill="currentColor">
-              <path d="M5 3a2 2 0 00-2 2v2a2 2 0 002 2h2a2 2 0 002-2V5a2 2 0 00-2-2H5zM5 11a2 2 0 00-2 2v2a2 2 0 002 2h2a2 2 0 002-2v-2a2 2 0 00-2-2H5zM11 5a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V5zM11 13a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />
+              <path
+                d="M5 3a2 2 0 00-2 2v2a2 2 0 002 2h2a2 2 0 002-2V5a2 2 0 00-2-2H5zM5 11a2 2 0 00-2 2v2a2 2 0 002 2h2a2 2 0 002-2v-2a2 2 0 00-2-2H5zM11 5a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V5zM11 13a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"
+              />
             </svg>
             <span class="metric-title">Cache Hit Rate</span>
           </div>
@@ -65,10 +73,12 @@
         </div>
 
         <!-- Memory Usage -->
-        <div class="metric-card" v-if="metrics.memoryUsage > 0">
+        <div v-if="metrics.memoryUsage > 0" class="metric-card">
           <div class="metric-header">
             <svg class="metric-icon" viewBox="0 0 20 20" fill="currentColor">
-              <path d="M13 6a3 3 0 11-6 0 3 3 0 016 0zM18 8a2 2 0 11-4 0 2 2 0 014 0zM14 15a4 4 0 00-8 0v3h8v-3z" />
+              <path
+                d="M13 6a3 3 0 11-6 0 3 3 0 016 0zM18 8a2 2 0 11-4 0 2 2 0 014 0zM14 15a4 4 0 00-8 0v3h8v-3z"
+              />
             </svg>
             <span class="metric-title">Memory Usage</span>
           </div>
@@ -103,7 +113,7 @@
       </div>
 
       <!-- API Response Times Breakdown -->
-      <div class="api-breakdown" v-if="Object.keys(metrics.apiResponseTimes).length > 0">
+      <div v-if="Object.keys(metrics.apiResponseTimes).length > 0" class="api-breakdown">
         <h4>API Response Times</h4>
         <div class="api-list">
           <div
@@ -124,13 +134,19 @@
         <button class="action-button" @click="clearCache">
           <svg class="button-icon" viewBox="0 0 20 20" fill="currentColor">
             <path fill-rule="evenodd" d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z" clip-rule="evenodd" />
-            <path fill-rule="evenodd" d="M10 5a2 2 0 00-2 2v6a2 2 0 002 2h6a2 2 0 002-2V7a2 2 0 00-2-2H4z" clip-rule="evenodd" />
+            <path
+              fill-rule="evenodd"
+              d="M10 5a2 2 0 00-2 2v6a2 2 0 002 2h6a2 2 0 002-2V7a2 2 0 00-2-2H4z"
+              clip-rule="evenodd"
+            />
           </svg>
           Clear Cache
         </button>
         <button class="action-button" @click="refreshMetrics">
           <svg class="button-icon" viewBox="0 0 20 20" fill="currentColor">
-            <path d="M4 2a1 1 0 011 1v2.101a7.002 7.002 0 0111.601 2.566 1 1 0 11-1.885.666A5.002 5.002 0 005.999 7H9a1 1 0 010 2H4a1 1 0 01-1-1V3a1 1 0 011-1zm.008 9.057a1 1 0 011.276.61A5.002 5.002 0 0014.001 13H11a1 1 0 110-2h5a1 1 0 011 1v5a1 1 0 11-2 0v-2.101a7.002 7.002 0 01-11.601-2.566 1 1 0 01.61-1.276z" />
+            <path
+              d="M4 2a1 1 0 011 1v2.101a7.002 7.002 0 0111.601 2.566 1 1 0 11-1.885.666A5.002 5.002 0 005.999 7H9a1 1 0 010 2H4a1 1 0 01-1-1V3a1 1 0 011-1zm.008 9.057a1 1 0 011.276.61A5.002 5.002 0 0014.001 13H11a1 1 0 110-2h5a1 1 0 011 1v5a1 1 0 11-2 0v-2.101a7.002 7.002 0 01-11.601-2.566 1 1 0 01.61-1.276z"
+            />
           </svg>
           Refresh Metrics
         </button>
@@ -143,13 +159,8 @@
 import { usePerformance } from '@root/composables/usePerformance'
 import { computed, onMounted, onUnmounted, ref } from 'vue'
 
-const { 
-  metrics, 
-  cacheStats, 
-  cacheHitRate, 
-  cacheClear,
-  collectPerformanceMetrics 
-} = usePerformance()
+const { metrics, cacheStats, cacheHitRate, cacheClear, collectPerformanceMetrics } =
+  usePerformance()
 
 // Component state
 const isExpanded = ref(false)
@@ -165,78 +176,78 @@ const performanceStatus = computed(() => {
   const loadTime = metrics.pageLoadTime
   const apiTime = averageApiTime.value
   const memory = metrics.memoryUsage
-  
+
   if (loadTime > 3000 || apiTime > 1000 || memory > 80) return 'poor'
   if (loadTime > 1500 || apiTime > 500 || memory > 60) return 'fair'
   return 'good'
 })
 
 // Utility functions
-const formatTime = (milliseconds) => {
+const formatTime = milliseconds => {
   if (milliseconds === 0) return '0ms'
   if (milliseconds < 1000) return `${milliseconds}ms`
   return `${(milliseconds / 1000).toFixed(1)}s`
 }
 
-const formatPercentage = (value) => {
+const formatPercentage = value => {
   return `${Math.round(value)}%`
 }
 
-const formatEndpoint = (endpoint) => {
+const formatEndpoint = endpoint => {
   return endpoint.replace(/^.*:/, '').replace(/:\d+$/, '')
 }
 
 // Status classification functions
-const getLoadTimeStatus = (time) => {
+const getLoadTimeStatus = time => {
   if (time === 0) return 'unknown'
   if (time > 3000) return 'poor'
   if (time > 1500) return 'fair'
   return 'good'
 }
 
-const getLoadTimeLabel = (time) => {
+const getLoadTimeLabel = time => {
   if (time === 0) return 'Unknown'
   if (time > 3000) return 'Slow'
   if (time > 1500) return 'Fair'
   return 'Fast'
 }
 
-const getApiTimeStatus = (time) => {
+const getApiTimeStatus = time => {
   if (time === 0) return 'unknown'
   if (time > 1000) return 'poor'
   if (time > 500) return 'fair'
   return 'good'
 }
 
-const getApiTimeLabel = (time) => {
+const getApiTimeLabel = time => {
   if (time === 0) return 'Unknown'
   if (time > 1000) return 'Slow'
   if (time > 500) return 'Fair'
   return 'Fast'
 }
 
-const getCacheStatus = (rate) => {
+const getCacheStatus = rate => {
   if (rate === 0) return 'unknown'
   if (rate < 50) return 'poor'
   if (rate < 80) return 'fair'
   return 'good'
 }
 
-const getCacheLabel = (rate) => {
+const getCacheLabel = rate => {
   if (rate === 0) return 'No Data'
   if (rate < 50) return 'Low'
   if (rate < 80) return 'Good'
   return 'Excellent'
 }
 
-const getMemoryStatus = (usage) => {
+const getMemoryStatus = usage => {
   if (usage === 0) return 'unknown'
   if (usage > 80) return 'poor'
   if (usage > 60) return 'fair'
   return 'good'
 }
 
-const getMemoryLabel = (usage) => {
+const getMemoryLabel = usage => {
   if (usage === 0) return 'Unknown'
   if (usage > 80) return 'High'
   if (usage > 60) return 'Moderate'
@@ -252,7 +263,7 @@ const clearCache = () => {
 
 const refreshMetrics = () => {
   collectPerformanceMetrics()
-  // Show success feedback  
+  // Show success feedback
   console.log('Performance metrics refreshed')
 }
 
@@ -325,8 +336,13 @@ onUnmounted(() => {
 }
 
 @keyframes pulse {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.5; }
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
 }
 
 .performance-panel {
@@ -575,16 +591,16 @@ onUnmounted(() => {
     bottom: 10px;
     right: 10px;
   }
-  
+
   .performance-panel {
     width: 320px;
     max-height: 500px;
   }
-  
+
   .metrics-grid {
     grid-template-columns: 1fr;
   }
-  
+
   .stats-grid {
     grid-template-columns: 1fr;
   }

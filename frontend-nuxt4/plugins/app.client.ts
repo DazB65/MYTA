@@ -12,14 +12,14 @@ export default defineNuxtPlugin(async () => {
   // Auto-initialize analytics when user is authenticated
   watch(
     () => authStore.isLoggedIn,
-    async (isLoggedIn) => {
+    async isLoggedIn => {
       if (isLoggedIn && authStore.userId) {
         try {
           // Initialize analytics if YouTube is connected
           if (authStore.hasYouTubeAccess) {
             await analyticsStore.initialize(authStore.userId)
           }
-          
+
           // Load chat sessions
           await chatStore.loadAllSessions()
         } catch (error) {
