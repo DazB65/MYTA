@@ -1,2 +1,23 @@
-User-Agent: *
-Disallow:
+User-agent: *
+Allow: /
+
+# Disallow admin and API routes
+Disallow: /api/
+Disallow: /admin/
+Disallow: /_nuxt/
+Disallow: /analytics-test
+
+# Allow important pages
+Allow: /dashboard
+Allow: /analytics
+Allow: /videos
+Allow: /tasks
+Allow: /pillars
+Allow: /content-studio
+Allow: /settings
+
+# Sitemap location
+Sitemap: https://myta.app/sitemap.xml
+
+# Crawl delay (optional)
+Crawl-delay: 1

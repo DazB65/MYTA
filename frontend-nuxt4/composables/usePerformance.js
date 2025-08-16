@@ -2,10 +2,10 @@
  * Performance optimization composable
  * Provides caching, lazy loading, and performance monitoring utilities
  */
-import { ref, reactive, computed, onMounted, onUnmounted } from 'vue'
+import { computed, onMounted, onUnmounted, reactive, ref } from 'vue'
 
 export const usePerformance = () => {
-  // Performance metrics
+  // Performance metrics including Core Web Vitals
   const metrics = reactive({
     pageLoadTime: 0,
     componentLoadTime: 0,
@@ -13,6 +13,14 @@ export const usePerformance = () => {
     memoryUsage: 0,
     cacheHitRate: 0,
     renderTime: 0,
+    // Core Web Vitals
+    lcp: null,        // Largest Contentful Paint
+    fid: null,        // First Input Delay
+    cls: null,        // Cumulative Layout Shift
+    fcp: null,        // First Contentful Paint
+    ttfb: null,       // Time to First Byte
+    navigationTiming: null,
+    connectionType: null
   })
 
   // Cache management
@@ -222,6 +230,56 @@ export const usePerformance = () => {
     const navigation = performance.getEntriesByType('navigation')[0]
     if (navigation) {
       metrics.pageLoadTime = Math.round(navigation.loadEventEnd - navigation.loadEventStart)
+      metrics.ttfb = Math.round(navigation.responseStart - navigation.requestStart)
+      metrics.navigationTiming = {
+        domContentLoaded: Math.round(navigation.domContentLoadedEventEnd - navigation.domContentLoadedEventStart),
+        loadComplete: Math.round(navigation.loadEventEnd - navigation.loadEventStart),
+        domInteractive: Math.round(navigation.domInteractive - navigation.fetchStart),
+        redirectTime: Math.round(navigation.redirectEnd - navigation.redirectStart),
+        dnsTime: Math.round(navigation.domainLookupEnd - navigation.domainLookupStart),
+        connectTime: Math.round(navigation.connectEnd - navigation.connectStart),
+        requestTime: Math.round(navigation.responseEnd - navigation.requestStart)
+      }
+    }
+
+    // Core Web Vitals - First Contentful Paint
+    const paintEntries = performance.getEntriesByType('paint')
+    const firstContentfulPaint = paintEntries.find(entry => entry.name === 'first-contentful-paint')
+    if (firstContentfulPaint) {
+      metrics.fcp = Math.round(firstContentfulPaint.startTime)
+      metrics.renderTime = Math.round(firstContentfulPaint.startTime)
+    }
+
+    // Largest Contentful Paint
+    const lcpEntries = performance.getEntriesByType('largest-contentful-paint')
+    if (lcpEntries.length > 0) {
+      metrics.lcp = Math.round(lcpEntries[lcpEntries.length - 1].startTime)
+    }
+
+    // First Input Delay
+    const fidEntries = performance.getEntriesByType('first-input')
+    if (fidEntries.length > 0) {
+      metrics.fid = Math.round(fidEntries[0].processingStart - fidEntries[0].startTime)
+    }
+
+    // Cumulative Layout Shift
+    const clsEntries = performance.getEntriesByType('layout-shift')
+    let clsValue = 0
+    clsEntries.forEach(entry => {
+      if (!entry.hadRecentInput) {
+        clsValue += entry.value
+      }
+    })
+    metrics.cls = clsValue
+
+    // Connection information
+    if ('connection' in navigator) {
+      metrics.connectionType = {
+        effectiveType: navigator.connection.effectiveType,
+        downlink: navigator.connection.downlink,
+        rtt: navigator.connection.rtt,
+        saveData: navigator.connection.saveData
+      }
     }
 
     // Update cache hit rate
@@ -229,13 +287,6 @@ export const usePerformance = () => {
 
     // Memory usage
     updateMemoryUsage()
-
-    // Render performance
-    const paintEntries = performance.getEntriesByType('paint')
-    const firstPaint = paintEntries.find(entry => entry.name === 'first-paint')
-    if (firstPaint) {
-      metrics.renderTime = Math.round(firstPaint.startTime)
-    }
   }
 
   /**
@@ -246,17 +297,135 @@ export const usePerformance = () => {
 
     performanceObserver.value = new PerformanceObserver(list => {
       for (const entry of list.getEntries()) {
-        if (entry.entryType === 'navigation') {
-          metrics.pageLoadTime = Math.round(entry.loadEventEnd - entry.loadEventStart)
-        } else if (entry.entryType === 'paint' && entry.name === 'first-paint') {
-          metrics.renderTime = Math.round(entry.startTime)
+        switch (entry.entryType) {
+          case 'navigation':
+            metrics.pageLoadTime = Math.round(entry.loadEventEnd - entry.loadEventStart)
+            metrics.ttfb = Math.round(entry.responseStart - entry.requestStart)
+            break
+          case 'paint':
+            if (entry.name === 'first-contentful-paint') {
+              metrics.fcp = Math.round(entry.startTime)
+              metrics.renderTime = Math.round(entry.startTime)
+            }
+            break
+          case 'largest-contentful-paint':
+            metrics.lcp = Math.round(entry.startTime)
+            break
+          case 'first-input':
+            metrics.fid = Math.round(entry.processingStart - entry.startTime)
+            break
+          case 'layout-shift':
+            if (!entry.hadRecentInput) {
+              metrics.cls = (metrics.cls || 0) + entry.value
+            }
+            break
         }
       }
     })
 
-    performanceObserver.value.observe({
-      entryTypes: ['navigation', 'paint', 'resource'],
+    // Observe Core Web Vitals and other performance metrics
+    const entryTypes = ['navigation', 'paint', 'resource', 'largest-contentful-paint', 'first-input', 'layout-shift']
+
+    entryTypes.forEach(type => {
+      try {
+        performanceObserver.value.observe({ entryTypes: [type] })
+      } catch (e) {
+        // Some entry types might not be supported in all browsers
+        console.warn(`Performance entry type '${type}' not supported`)
+      }
     })
+  }
+
+  /**
+   * Get performance score based on Core Web Vitals
+   */
+  const getPerformanceScore = () => {
+    const { lcp, fid, cls } = metrics
+
+    if (!lcp && !fid && !cls) return null
+
+    let score = 100
+
+    // LCP scoring (Good: <2.5s, Needs Improvement: 2.5-4s, Poor: >4s)
+    if (lcp) {
+      if (lcp > 4000) score -= 30
+      else if (lcp > 2500) score -= 15
+    }
+
+    // FID scoring (Good: <100ms, Needs Improvement: 100-300ms, Poor: >300ms)
+    if (fid) {
+      if (fid > 300) score -= 25
+      else if (fid > 100) score -= 10
+    }
+
+    // CLS scoring (Good: <0.1, Needs Improvement: 0.1-0.25, Poor: >0.25)
+    if (cls) {
+      if (cls > 0.25) score -= 25
+      else if (cls > 0.1) score -= 10
+    }
+
+    return Math.max(0, score)
+  }
+
+  /**
+   * Get performance recommendations
+   */
+  const getPerformanceRecommendations = () => {
+    const recommendations = []
+    const { lcp, fid, cls, ttfb } = metrics
+
+    if (lcp > 2500) {
+      recommendations.push({
+        type: 'lcp',
+        severity: lcp > 4000 ? 'high' : 'medium',
+        message: 'Largest Contentful Paint is slow. Consider optimizing images and critical resources.',
+        value: `${lcp}ms`
+      })
+    }
+
+    if (fid > 100) {
+      recommendations.push({
+        type: 'fid',
+        severity: fid > 300 ? 'high' : 'medium',
+        message: 'First Input Delay is high. Consider reducing JavaScript execution time.',
+        value: `${fid}ms`
+      })
+    }
+
+    if (cls > 0.1) {
+      recommendations.push({
+        type: 'cls',
+        severity: cls > 0.25 ? 'high' : 'medium',
+        message: 'Cumulative Layout Shift is high. Ensure images and ads have dimensions.',
+        value: cls.toFixed(3)
+      })
+    }
+
+    if (ttfb > 600) {
+      recommendations.push({
+        type: 'ttfb',
+        severity: ttfb > 1000 ? 'high' : 'medium',
+        message: 'Time to First Byte is slow. Consider server optimization.',
+        value: `${ttfb}ms`
+      })
+    }
+
+    return recommendations
+  }
+
+  /**
+   * Format metrics for display
+   */
+  const formatMetrics = () => {
+    const { lcp, fid, cls, fcp, ttfb } = metrics
+
+    return {
+      lcp: lcp ? `${lcp}ms` : 'N/A',
+      fid: fid ? `${fid}ms` : 'N/A',
+      cls: cls ? cls.toFixed(3) : 'N/A',
+      fcp: fcp ? `${fcp}ms` : 'N/A',
+      ttfb: ttfb ? `${ttfb}ms` : 'N/A'
+    }
   }
 
   /**
@@ -404,5 +573,8 @@ export const usePerformance = () => {
     measureComponentLoad,
     collectPerformanceMetrics,
     updateMemoryUsage,
+    getPerformanceScore,
+    getPerformanceRecommendations,
+    formatMetrics,
   }
 }

@@ -379,10 +379,10 @@ type TaskCategory = 'content' | 'marketing' | 'analytics' | 'seo' | 'monetizatio
 type TaskFilter = 'all' | 'pending' | 'completed' | 'in_progress' | 'high_priority' | 'due_today' | 'overdue'
 type TaskPriority = 'low' | 'medium' | 'high' | 'urgent'
 
-// Set page title
-useHead({
-  title: 'Dashboard - Vidalytics'
-})
+// SEO optimization
+const { setDashboardSEO, setWebsiteStructuredData } = useSEO()
+setDashboardSEO()
+setWebsiteStructuredData()
 
 const tasksStore = useTasksStore()
 

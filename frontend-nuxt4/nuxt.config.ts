@@ -103,29 +103,110 @@ export default defineNuxtConfig({
     '/api/**': { headers: { 'cache-control': 'no-cache' } },
   },
 
-  // Head configuration for performance
+  // Head configuration for SEO and performance
   app: {
     head: {
       charset: 'utf-8',
       viewport: 'width=device-width, initial-scale=1',
 
-      // Preload critical resources
-      link: [
-        {
-          rel: 'dns-prefetch',
-          href: 'https://api.vidalytics.com',
-        },
-      ],
-
-      // Performance meta tags
+      // SEO meta tags
+      title: 'MYTA - Your AI Agent for YouTube Content and Growth',
       meta: [
+        // Basic SEO
+        {
+          name: 'description',
+          content:
+            'MYTA is your AI-powered YouTube analytics and content optimization platform. Track performance, get AI insights, and grow your channel with intelligent recommendations.',
+        },
+        {
+          name: 'keywords',
+          content:
+            'YouTube analytics, AI content optimization, YouTube growth, video analytics, content strategy, YouTube AI, channel optimization, video performance',
+        },
+        { name: 'author', content: 'MYTA' },
+        { name: 'robots', content: 'index, follow' },
+
+        // Open Graph / Facebook
+        { property: 'og:type', content: 'website' },
+        { property: 'og:title', content: 'MYTA - Your AI Agent for YouTube Content and Growth' },
+        {
+          property: 'og:description',
+          content:
+            'AI-powered YouTube analytics and content optimization platform. Track performance, get insights, and grow your channel.',
+        },
+        { property: 'og:image', content: '/MY YT AGENT.png' },
+        { property: 'og:url', content: 'https://myta.app' },
+        { property: 'og:site_name', content: 'MYTA' },
+
+        // Twitter Card
+        { name: 'twitter:card', content: 'summary_large_image' },
+        { name: 'twitter:title', content: 'MYTA - Your AI Agent for YouTube Content and Growth' },
+        {
+          name: 'twitter:description',
+          content: 'AI-powered YouTube analytics and content optimization platform.',
+        },
+        { name: 'twitter:image', content: '/MY YT AGENT.png' },
+
+        // Performance and mobile
         { name: 'format-detection', content: 'telephone=no' },
         { name: 'theme-color', content: '#FF6B9D' },
+        { name: 'mobile-web-app-capable', content: 'yes' },
+        { name: 'apple-mobile-web-app-capable', content: 'yes' },
+        { name: 'apple-mobile-web-app-status-bar-style', content: 'black-translucent' },
+
+        // Additional SEO
+        { name: 'language', content: 'en' },
+        { name: 'revisit-after', content: '7 days' },
+        { name: 'rating', content: 'general' },
+      ],
+
+      // Preload critical resources and performance optimization
+      link: [
+        // DNS prefetch for external resources
+        { rel: 'dns-prefetch', href: 'https://api.myta.app' },
+        { rel: 'dns-prefetch', href: 'https://fonts.googleapis.com' },
+        { rel: 'dns-prefetch', href: 'https://www.googleapis.com' },
+
+        // Favicon and app icons
+        { rel: 'icon', type: 'image/x-icon', href: '/favicon.ico' },
+        { rel: 'apple-touch-icon', sizes: '180x180', href: '/apple-touch-icon.png' },
+        { rel: 'icon', type: 'image/png', sizes: '32x32', href: '/favicon-32x32.png' },
+        { rel: 'icon', type: 'image/png', sizes: '16x16', href: '/favicon-16x16.png' },
+        { rel: 'manifest', href: '/site.webmanifest' },
+
+        // Canonical URL
+        { rel: 'canonical', href: 'https://myta.app' },
+      ],
+
+      // Structured data for SEO
+      script: [
+        {
+          type: 'application/ld+json',
+          children: JSON.stringify({
+            '@context': 'https://schema.org',
+            '@type': 'SoftwareApplication',
+            name: 'MYTA',
+            description: 'AI-powered YouTube analytics and content optimization platform',
+            url: 'https://myta.app',
+            applicationCategory: 'BusinessApplication',
+            operatingSystem: 'Web',
+            offers: {
+              '@type': 'Offer',
+              price: '0',
+              priceCurrency: 'USD',
+            },
+            creator: {
+              '@type': 'Organization',
+              name: 'MYTA',
+              url: 'https://myta.app',
+            },
+          }),
+        },
       ],
     },
   },
 
-  // Modules
+  // Modules for SEO and performance
   modules: ['@nuxtjs/tailwindcss', '@pinia/nuxt', '@vueuse/nuxt'],
 
   // Pinia configuration
