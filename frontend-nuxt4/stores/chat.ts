@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia'
-import { ref, computed, readonly } from 'vue'
 import { v4 as uuidv4 } from 'uuid'
+import { computed, readonly, ref } from 'vue'
 import type { ChatMessage, ChatSession, MessageType } from '../types/agents'
 
 export const useChatStore = defineStore('chat', () => {
@@ -9,12 +9,37 @@ export const useChatStore = defineStore('chat', () => {
   const activeSessionId = ref<string | null>(null)
   const loading = ref(false)
   const error = ref<string | null>(null)
+  const typingAgents = ref<Set<string>>(new Set())
+  const isConnected = ref(false)
+  const messageQueue = ref<ChatMessage[]>([])
+  const lastActivity = ref<Date | null>(null)
 
   // Getters
   const allSessions = computed(() => Array.from(sessions.value.values()))
   const activeSession = computed(() =>
     activeSessionId.value ? sessions.value.get(activeSessionId.value) : null
   )
+
+  const recentSessions = computed(() =>
+    allSessions.value.sort((a, b) => b.updatedAt.getTime() - a.updatedAt.getTime()).slice(0, 10)
+  )
+
+  const sessionsByAgent = computed(() => {
+    const byAgent: Record<string, ChatSession[]> = {}
+    allSessions.value.forEach(session => {
+      if (!byAgent[session.agentId]) byAgent[session.agentId] = []
+      byAgent[session.agentId].push(session)
+    })
+    return byAgent
+  })
+
+  const totalMessages = computed(() =>
+    allSessions.value.reduce((total, session) => total + session.messages.length, 0)
+  )
+
+  const isAnyAgentTyping = computed(() => typingAgents.value.size > 0)
+
+  const activeSessionMessages = computed(() => activeSession.value?.messages || [])
 
   // Actions
   const createSession = (agentId: string, title?: string): string => {
@@ -64,7 +89,74 @@ export const useChatStore = defineStore('chat', () => {
   }
 
   const setAgentTyping = (agentId: string, typing: boolean) => {
-    console.log(`Agent ${agentId} typing: ${typing}`)
+    if (typing) {
+      typingAgents.value.add(agentId)
+    } else {
+      typingAgents.value.delete(agentId)
+    }
+  }
+
+  const setActiveSession = (sessionId: string | null) => {
+    activeSessionId.value = sessionId
+    if (sessionId) {
+      lastActivity.value = new Date()
+    }
+  }
+
+  const closeSession = (sessionId: string) => {
+    const session = sessions.value.get(sessionId)
+    if (session) {
+      session.isActive = false
+      if (activeSessionId.value === sessionId) {
+        activeSessionId.value = null
+      }
+    }
+  }
+
+  const deleteSession = (sessionId: string) => {
+    sessions.value.delete(sessionId)
+    if (activeSessionId.value === sessionId) {
+      activeSessionId.value = null
+    }
+  }
+
+  const updateConnectionStatus = (connected: boolean) => {
+    isConnected.value = connected
+    if (!connected) {
+      typingAgents.value.clear()
+    }
+  }
+
+  const addMessageToQueue = (message: ChatMessage) => {
+    messageQueue.value.push(message)
+  }
+
+  const processMessageQueue = () => {
+    while (messageQueue.value.length > 0) {
+      const message = messageQueue.value.shift()
+      if (message) {
+        receiveMessage(message)
+      }
+    }
+  }
+
+  const clearAllSessions = () => {
+    sessions.value.clear()
+    activeSessionId.value = null
+    typingAgents.value.clear()
+    messageQueue.value = []
+  }
+
+  const getSessionById = (sessionId: string) => {
+    return sessions.value.get(sessionId)
+  }
+
+  const updateSessionTitle = (sessionId: string, title: string) => {
+    const session = sessions.value.get(sessionId)
+    if (session) {
+      session.title = title
+      session.updatedAt = new Date()
+    }
   }
 
   return {
@@ -73,15 +165,32 @@ export const useChatStore = defineStore('chat', () => {
     activeSessionId: readonly(activeSessionId),
     loading: readonly(loading),
     error: readonly(error),
+    typingAgents: readonly(typingAgents),
+    isConnected: readonly(isConnected),
+    lastActivity: readonly(lastActivity),
 
     // Getters
     allSessions,
     activeSession,
+    recentSessions,
+    sessionsByAgent,
+    totalMessages,
+    isAnyAgentTyping,
+    activeSessionMessages,
 
     // Actions
     createSession,
     sendMessage,
     receiveMessage,
     setAgentTyping,
+    setActiveSession,
+    closeSession,
+    deleteSession,
+    updateConnectionStatus,
+    addMessageToQueue,
+    processMessageQueue,
+    clearAllSessions,
+    getSessionById,
+    updateSessionTitle,
   }
 })

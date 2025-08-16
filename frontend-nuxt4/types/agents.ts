@@ -7,6 +7,10 @@ export interface Agent {
   description: string
   avatar?: string
   lastActive?: Date
+  color?: string
+  personality?: string
+  specialization?: string
+  metrics?: AgentMetrics
 }
 
 export type AgentType =
@@ -94,3 +98,33 @@ export type WSMessageType =
   | 'user_left'
   | 'error'
   | 'heartbeat'
+
+export interface AgentMetrics {
+  totalInteractions: number
+  averageResponseTime: number
+  successRate: number
+  lastInteraction?: Date
+  insightsGenerated: number
+  userSatisfactionScore?: number
+}
+
+export interface AgentPerformance {
+  agentId: string
+  period: 'hour' | 'day' | 'week' | 'month'
+  metrics: AgentMetrics
+  trends: {
+    interactions: number[]
+    responseTime: number[]
+    successRate: number[]
+  }
+}
+
+export interface MultiAgentCoordination {
+  sessionId: string
+  involvedAgents: string[]
+  coordinationType: 'sequential' | 'parallel' | 'hierarchical'
+  status: 'pending' | 'active' | 'completed' | 'failed'
+  startTime: Date
+  endTime?: Date
+  results?: any
+}

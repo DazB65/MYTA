@@ -180,6 +180,7 @@ const showAgentModal = ref(false)
 // Navigation items
 const mainMenuItems = [
   { name: 'Dashboard', path: '/dashboard' },
+  { name: 'Tasks', path: '/tasks' },
   { name: 'Pillars', path: '/pillars' },
   { name: 'Videos', path: '/videos' },
   { name: 'Content Studio', path: '/content-studio' }

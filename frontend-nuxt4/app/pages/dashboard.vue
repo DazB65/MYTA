@@ -2,13 +2,29 @@
   <div>
     <!-- Dashboard Content -->
     <div class="space-y-6 pt-32 px-6">
-
-
-
+      <!-- Productivity Stats -->
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+        <div class="rounded-xl bg-gray-800 p-4 text-center">
+          <div class="text-2xl font-bold text-green-400">{{ taskStats.completed }}</div>
+          <div class="text-sm text-gray-400">Completed Today</div>
+        </div>
+        <div class="rounded-xl bg-gray-800 p-4 text-center">
+          <div class="text-2xl font-bold text-blue-400">{{ taskStats.inProgress }}</div>
+          <div class="text-sm text-gray-400">In Progress</div>
+        </div>
+        <div class="rounded-xl bg-gray-800 p-4 text-center">
+          <div class="text-2xl font-bold text-yellow-400">{{ taskStats.pending }}</div>
+          <div class="text-sm text-gray-400">Pending</div>
+        </div>
+        <div class="rounded-xl bg-gray-800 p-4 text-center">
+          <div class="text-2xl font-bold text-red-400">{{ taskStats.overdue }}</div>
+          <div class="text-sm text-gray-400">Overdue</div>
+        </div>
+      </div>
 
       <!-- Dashboard Content Grid -->
       <div class="grid grid-cols-1 gap-6 lg:grid-cols-2">
-        <!-- Task Manager Compartment -->
+        <!-- Dynamic Task Manager Compartment -->
         <div class="rounded-xl bg-gray-800 p-6">
           <div class="mb-6 flex items-center justify-between">
             <div class="flex items-center space-x-3">
@@ -18,125 +34,158 @@
                 </svg>
               </div>
               <div>
-                <h3 class="text-lg font-semibold text-white">Task Manager</h3>
-                <p class="text-sm text-gray-400">Out of 5 tasks completed</p>
+                <h3 class="text-lg font-semibold text-white">Today's Tasks</h3>
+                <p class="text-sm text-gray-400">{{ taskStats.completed }} of {{ taskStats.total }} completed</p>
               </div>
             </div>
-            <button class="text-gray-400 hover:text-white">
+            <NuxtLink to="/tasks" class="text-gray-400 hover:text-white transition-colors">
               <svg class="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
-                <path d="M10 6a2 2 0 110-4 2 2 0 010 4zM10 12a2 2 0 110-4 2 2 0 010 4zM10 18a2 2 0 110-4 2 2 0 010 4z"/>
+                <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 111.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"/>
               </svg>
+            </NuxtLink>
+          </div>
+
+          <!-- Quick Actions -->
+          <div class="mb-6 flex items-center justify-between">
+            <div class="flex space-x-2">
+              <button
+                :class="dashboardFilter === 'all' ? 'rounded-full bg-pink-500 px-4 py-2 text-sm text-white' : 'rounded-full bg-gray-700 px-4 py-2 text-sm text-gray-300 hover:bg-gray-600'"
+                @click="dashboardFilter = 'all'"
+              >
+                All
+              </button>
+              <button
+                :class="dashboardFilter === 'due_today' ? 'rounded-full bg-pink-500 px-4 py-2 text-sm text-white' : 'rounded-full bg-gray-700 px-4 py-2 text-sm text-gray-300 hover:bg-gray-600'"
+                @click="dashboardFilter = 'due_today'"
+              >
+                Due Today
+              </button>
+              <button
+                :class="dashboardFilter === 'high_priority' ? 'rounded-full bg-pink-500 px-4 py-2 text-sm text-white' : 'rounded-full bg-gray-700 px-4 py-2 text-sm text-gray-300 hover:bg-gray-600'"
+                @click="dashboardFilter = 'high_priority'"
+              >
+                High Priority
+              </button>
+            </div>
+            <button class="rounded-lg bg-pink-500 px-4 py-2 text-sm text-white hover:bg-pink-600" @click="showCreateModal = true">
+              ➕ Add Task
             </button>
           </div>
 
-          <!-- Filter Buttons -->
-          <div class="mb-6 flex space-x-2">
-            <button class="rounded-full bg-pink-500 px-4 py-2 text-sm text-white">
-              All
-            </button>
-            <button class="rounded-full bg-gray-700 px-4 py-2 text-sm text-gray-300 hover:bg-gray-600">
-              Pending
-            </button>
-            <button class="rounded-full bg-gray-700 px-4 py-2 text-sm text-gray-300 hover:bg-gray-600">
-              Completed
-            </button>
-          </div>
-
-          <!-- Add New Goal Button -->
-          <div class="mb-6 flex items-center space-x-2">
-            <button class="flex h-6 w-6 items-center justify-center rounded-full bg-pink-500 text-white">
-              <svg class="h-4 w-4" fill="currentColor" viewBox="0 0 20 20">
-                <path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clip-rule="evenodd"/>
-              </svg>
-            </button>
-            <span class="text-sm font-medium text-pink-500">Add New Goal</span>
-          </div>
-
-          <!-- Task List -->
-          <div class="space-y-4">
-            <!-- Task 1 -->
-            <div class="flex items-center justify-between rounded-lg bg-gray-700 p-4">
+          <!-- Dynamic Task List -->
+          <div class="space-y-3">
+            <div
+              v-for="task in dashboardTasks"
+              :key="task.id"
+              class="flex items-center justify-between rounded-lg bg-gray-700 p-4 hover:bg-gray-600 transition-colors cursor-pointer"
+              :class="{
+                'border-l-4 border-red-500': isOverdue(task),
+                'border-l-4 border-yellow-500': isDueToday(task),
+              }"
+              @click="editTask(task)"
+            >
               <div class="flex items-center space-x-3">
-                <div class="h-4 w-4 rounded-full border-2 border-pink-500"></div>
-                <div>
-                  <h4 class="font-medium text-white">Create engaging video content</h4>
-                  <p class="text-sm text-gray-400">
-                    Develop compelling video content that resonates with your target audience
+                <input
+                  :checked="task.completed"
+                  type="checkbox"
+                  class="rounded border-gray-600 bg-gray-700 text-pink-500 focus:ring-pink-500"
+                  @click.stop
+                  @change="toggleTaskCompletion(task.id)"
+                />
+                <div class="flex-1">
+                  <h4
+                    class="font-medium"
+                    :class="task.completed ? 'line-through text-gray-500' : 'text-white'"
+                  >
+                    {{ task.title }}
+                  </h4>
+                  <p
+                    v-if="task.description"
+                    class="text-sm mt-1"
+                    :class="task.completed ? 'text-gray-500' : 'text-gray-400'"
+                  >
+                    {{ truncateText(task.description, 60) }}
                   </p>
                   <div class="mt-2 flex items-center space-x-2">
-                    <span class="rounded bg-gray-600 px-2 py-1 text-xs text-gray-300">Content</span>
-                    <span class="text-xs text-gray-400">📅 Due: 18/7/2025</span>
+                    <span class="rounded bg-gray-600 px-2 py-1 text-xs text-gray-300">
+                      {{ formatCategory(task.category) }}
+                    </span>
+                    <span
+                      class="rounded px-2 py-1 text-xs"
+                      :class="getPriorityClass(task.priority)"
+                    >
+                      {{ formatPriority(task.priority) }}
+                    </span>
+                    <span class="text-xs text-gray-400">
+                      {{ formatDueDate(task.dueDate) }}
+                    </span>
                   </div>
                 </div>
               </div>
-              <button class="text-gray-400 hover:text-white">
+              <button
+                class="text-gray-400 hover:text-white transition-colors"
+                @click.stop="editTask(task)"
+              >
+                <svg class="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
+                  <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z"/>
+                </svg>
+              </button>
+            </div>
+
+            <!-- Empty State -->
+            <div v-if="dashboardTasks.length === 0" class="text-center py-8">
+              <div class="text-gray-400 mb-4">
+                <span class="text-4xl">📝</span>
+              </div>
+              <h5 class="text-lg font-medium text-white mb-2">No tasks found</h5>
+              <p class="text-gray-400 mb-4">Create your first task to get started</p>
+              <button
+                class="rounded-lg bg-pink-500 px-4 py-2 text-sm text-white hover:bg-pink-600"
+                @click="showCreateModal = true"
+              >
+                Create Task
+              </button>
+            </div>
+
+            <!-- View All Tasks Link -->
+            <div v-if="dashboardTasks.length > 0" class="text-center pt-4">
+              <NuxtLink
+                to="/tasks"
+                class="text-sm text-pink-500 hover:text-pink-400 transition-colors"
+              >
+                View All Tasks ({{ taskStats.total }}) →
+              </NuxtLink>
+            </div>
+          </div>
+        </div>
+
+        <!-- Channel Goals & AI Insights -->
+        <div class="space-y-6">
+          <!-- Channel Goals -->
+          <div class="rounded-xl bg-gray-800 p-6">
+            <div class="mb-6 flex items-center justify-between">
+              <div class="flex items-center space-x-3">
+                <div class="flex h-10 w-10 items-center justify-center rounded-lg bg-blue-500">
+                  <svg class="h-6 w-6 text-white" fill="currentColor" viewBox="0 0 20 20">
+                    <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                  </svg>
+                </div>
+                <div>
+                  <h3 class="text-lg font-semibold text-white">Channel Goals</h3>
+                  <p class="text-sm text-gray-400">Track your progress</p>
+                </div>
+              </div>
+              <button class="text-gray-400 hover:text-white transition-colors">
                 <svg class="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
                   <path d="M10 6a2 2 0 110-4 2 2 0 010 4zM10 12a2 2 0 110-4 2 2 0 010 4zM10 18a2 2 0 110-4 2 2 0 010 4z"/>
                 </svg>
               </button>
             </div>
 
-            <!-- Task 2 -->
-            <div class="flex items-center justify-between rounded-lg bg-gray-700 p-4">
-              <div class="flex items-center space-x-3">
-                <div class="h-4 w-4 rounded-full bg-pink-500"></div>
-                <div>
-                  <h4 class="font-medium text-white line-through">Optimize video SEO</h4>
-                  <p class="text-sm text-gray-400">
-                    Improve video titles, descriptions, and tags for better discoverability
-                  </p>
-                  <div class="mt-2 flex items-center space-x-2">
-                    <span class="rounded bg-gray-600 px-2 py-1 text-xs text-gray-300">SEO</span>
-                    <span class="text-xs text-gray-400">✅ Completed</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <!-- Task 3 -->
-            <div class="flex items-center justify-between rounded-lg bg-gray-700 p-4">
-              <div class="flex items-center space-x-3">
-                <div class="h-4 w-4 rounded-full border-2 border-pink-500"></div>
-                <div>
-                  <h4 class="font-medium text-white">Engage with audience</h4>
-                  <p class="text-sm text-gray-400">
-                    Respond to comments and build community engagement
-                  </p>
-                  <div class="mt-2 flex items-center space-x-2">
-                    <span class="rounded bg-gray-600 px-2 py-1 text-xs text-gray-300">Community</span>
-                    <span class="text-xs text-gray-400">📅 Due: 20/7/2025</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Channel Goals Compartment -->
-        <div class="rounded-xl bg-gray-800 p-6">
-          <div class="mb-6 flex items-center justify-between">
-            <div class="flex items-center space-x-3">
-              <div class="flex h-10 w-10 items-center justify-center rounded-lg bg-pink-500">
-                <svg class="h-6 w-6 text-white" fill="currentColor" viewBox="0 0 20 20">
-                  <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                </svg>
-              </div>
-              <div>
-                <h3 class="text-lg font-semibold text-white">Channel Goals</h3>
-                <p class="text-sm text-gray-400">Track your progress</p>
-              </div>
-            </div>
-            <button class="text-gray-400 hover:text-white">
-              <svg class="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
-                <path d="M10 6a2 2 0 110-4 2 2 0 010 4zM10 12a2 2 0 110-4 2 2 0 010 4zM10 18a2 2 0 110-4 2 2 0 010 4z"/>
-              </svg>
-            </button>
-          </div>
-
-          <!-- Goals Grid -->
-          <div class="space-y-6">
-            <!-- Views Goal -->
-            <div class="rounded-lg bg-gradient-to-r from-blue-500 to-purple-600 p-4 text-white">
+            <!-- Goals Grid -->
+            <div class="space-y-6">
+              <!-- Views Goal -->
+              <div class="rounded-lg bg-gradient-to-r from-blue-500 to-purple-600 p-4 text-white">
               <div class="mb-4 flex items-center justify-between">
                 <div class="flex items-center space-x-2">
                   <svg class="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
@@ -197,8 +246,8 @@
               </div>
             </div>
 
-            <!-- Subscribers Goal -->
-            <div class="rounded-lg bg-gradient-to-r from-pink-500 to-red-500 p-4 text-white">
+              <!-- Subscribers Goal -->
+              <div class="rounded-lg bg-gradient-to-r from-pink-500 to-red-500 p-4 text-white">
               <div class="mb-4 flex items-center justify-between">
                 <div class="flex items-center space-x-2">
                   <svg class="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
@@ -229,41 +278,269 @@
             </div>
           </div>
 
-          <!-- Quick Actions -->
-          <div class="mt-6 grid grid-cols-2 gap-4">
-            <button class="flex items-center justify-center space-x-2 rounded-lg bg-gray-700 p-3 text-sm text-white hover:bg-gray-600">
-              <svg class="h-4 w-4" fill="currentColor" viewBox="0 0 20 20">
-                <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z"/>
-              </svg>
-              <span>AI Assistant</span>
-            </button>
-            <button class="flex items-center justify-center space-x-2 rounded-lg bg-pink-500 p-3 text-sm text-white hover:bg-pink-600">
-              <svg class="h-4 w-4" fill="currentColor" viewBox="0 0 20 20">
-                <path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clip-rule="evenodd"/>
-              </svg>
-              <span>Add New Task</span>
-            </button>
+            <!-- Quick Actions -->
+            <div class="mt-6 grid grid-cols-2 gap-4">
+              <button
+                class="flex items-center justify-center space-x-2 rounded-lg bg-gray-700 p-3 text-sm text-white hover:bg-gray-600"
+                @click="openAgentModal"
+              >
+                <span>🤖</span>
+                <span>AI Assistant</span>
+              </button>
+              <button
+                class="flex items-center justify-center space-x-2 rounded-lg bg-pink-500 p-3 text-sm text-white hover:bg-pink-600"
+                @click="showCreateModal = true"
+              >
+                <span>➕</span>
+                <span>Add New Task</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- AI Task Suggestions -->
+          <div v-if="aiSuggestions.length > 0" class="rounded-xl bg-gray-800 p-6">
+            <div class="mb-4 flex items-center space-x-2">
+              <span class="text-lg">🤖</span>
+              <h3 class="text-lg font-semibold text-white">AI Suggestions</h3>
+            </div>
+
+            <div class="space-y-3">
+              <div
+                v-for="suggestion in aiSuggestions.slice(0, 2)"
+                :key="suggestion.id"
+                class="flex items-center justify-between p-3 rounded-lg bg-gray-700 hover:bg-gray-600 transition-colors"
+              >
+                <div class="flex items-center space-x-3">
+                  <div
+                    class="w-8 h-8 rounded-lg flex items-center justify-center bg-gray-600"
+                  >
+                    <span class="text-sm">{{ suggestion.icon }}</span>
+                  </div>
+                  <div>
+                    <h4 class="font-medium text-white">{{ suggestion.title }}</h4>
+                    <p class="text-sm text-gray-400">{{ suggestion.description }}</p>
+                  </div>
+                </div>
+                <div class="flex items-center space-x-2">
+                  <button
+                    class="text-gray-400 hover:text-white px-2 py-1 text-sm"
+                    @click="dismissSuggestion(suggestion.id)"
+                  >
+                    ✕
+                  </button>
+                  <button
+                    class="rounded bg-pink-500 px-3 py-1 text-sm text-white hover:bg-pink-600"
+                    @click="createFromSuggestion(suggestion)"
+                  >
+                    Create
+                  </button>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </div>
+
+      <!-- Create Task Modal -->
+      <TaskModal
+        v-if="showCreateModal || editingTask"
+        :task="editingTask"
+        @close="closeModal"
+        @save="saveTask"
+      />
     </div>
   </div>
 </template>
 
-<script setup>
-import { computed } from 'vue'
+<script setup lang="ts">
+import { computed, ref } from 'vue'
+import { useTasksStore } from '../../stores/tasks'
+
+// Type imports
+type Task = {
+  id: string
+  title: string
+  description: string
+  status: 'pending' | 'in_progress' | 'completed' | 'cancelled' | 'on_hold'
+  priority: 'low' | 'medium' | 'high' | 'urgent'
+  category: 'content' | 'marketing' | 'analytics' | 'seo' | 'monetization' | 'community' | 'planning' | 'research' | 'general'
+  dueDate: Date
+  createdAt: Date
+  updatedAt: Date
+  completed: boolean
+  userId?: string
+  agentId?: string
+  tags: string[]
+  estimatedTime?: number
+  actualTime?: number
+}
+
+type TaskCategory = 'content' | 'marketing' | 'analytics' | 'seo' | 'monetization' | 'community' | 'planning' | 'research' | 'general'
+type TaskFilter = 'all' | 'pending' | 'completed' | 'in_progress' | 'high_priority' | 'due_today' | 'overdue'
+type TaskPriority = 'low' | 'medium' | 'high' | 'urgent'
 
 // Set page title
 useHead({
-  title: 'Dashboard'
+  title: 'Dashboard - Vidalytics'
 })
 
-// Current date
-const currentDate = computed(() => {
-  return new Date().toLocaleDateString('en-US', {
-    day: 'numeric',
-    month: 'long',
-    year: 'numeric'
-  })
+const tasksStore = useTasksStore()
+
+// Local state
+const showCreateModal = ref(false)
+const editingTask = ref<Task | null>(null)
+const dashboardFilter = ref<TaskFilter>('all')
+
+// Computed properties
+const taskStats = computed(() => tasksStore.taskStats)
+
+const dashboardTasks = computed(() => {
+  let tasks = tasksStore.filteredTasks
+
+  // Apply dashboard-specific filter
+  switch (dashboardFilter.value) {
+    case 'due_today':
+      const today = new Date()
+      today.setHours(0, 0, 0, 0)
+      const tomorrow = new Date(today)
+      tomorrow.setDate(tomorrow.getDate() + 1)
+      tasks = tasks.filter(task => {
+        const dueDate = new Date(task.dueDate)
+        dueDate.setHours(0, 0, 0, 0)
+        return dueDate >= today && dueDate < tomorrow
+      })
+      break
+    case 'high_priority':
+      tasks = tasks.filter(task => task.priority === 'high' || task.priority === 'urgent')
+      break
+  }
+
+  // Limit to 5 tasks for dashboard
+  return tasks.slice(0, 5)
 })
+
+// AI Suggestions (mock data - would come from AI service)
+const aiSuggestions = ref([
+  {
+    id: '1',
+    title: 'Optimize video thumbnails',
+    description: 'Your CTR could improve with better thumbnails',
+    priority: 'high' as TaskPriority,
+    category: 'content' as TaskCategory,
+    icon: '🎨',
+    color: '#9333ea',
+    estimatedTime: 60,
+  },
+  {
+    id: '2',
+    title: 'Research trending keywords',
+    description: 'New keywords are trending in your niche',
+    priority: 'medium' as TaskPriority,
+    category: 'seo' as TaskCategory,
+    icon: '🔍',
+    color: '#059669',
+    estimatedTime: 45,
+  },
+])
+
+// Methods
+const toggleTaskCompletion = (taskId: string) => {
+  tasksStore.toggleTaskCompletion(taskId)
+}
+
+const editTask = (task: Task) => {
+  editingTask.value = task
+}
+
+const closeModal = () => {
+  showCreateModal.value = false
+  editingTask.value = null
+}
+
+const saveTask = (taskData: any) => {
+  if (editingTask.value) {
+    tasksStore.updateTask({ id: editingTask.value.id, ...taskData })
+  } else {
+    tasksStore.addTask(taskData)
+  }
+  closeModal()
+}
+
+const createFromSuggestion = (suggestion: any) => {
+  const tomorrow = new Date()
+  tomorrow.setDate(tomorrow.getDate() + 1)
+
+  tasksStore.addTask({
+    title: suggestion.title,
+    description: suggestion.description,
+    priority: suggestion.priority,
+    category: suggestion.category,
+    dueDate: tomorrow,
+    estimatedTime: suggestion.estimatedTime,
+    tags: ['ai-suggested'],
+  })
+
+  dismissSuggestion(suggestion.id)
+}
+
+const dismissSuggestion = (id: string) => {
+  const index = aiSuggestions.value.findIndex(s => s.id === id)
+  if (index !== -1) {
+    aiSuggestions.value.splice(index, 1)
+  }
+}
+
+const openAgentModal = () => {
+  // This would open the agent modal - integrate with existing agent system
+  console.log('Opening agent modal...')
+}
+
+// Utility functions
+const formatCategory = (category: string) => {
+  return category.charAt(0).toUpperCase() + category.slice(1).replace('_', ' ')
+}
+
+const formatPriority = (priority: string) => {
+  return priority.charAt(0).toUpperCase() + priority.slice(1)
+}
+
+const getPriorityClass = (priority: TaskPriority) => {
+  switch (priority) {
+    case 'urgent': return 'bg-red-500 text-white'
+    case 'high': return 'bg-orange-500 text-white'
+    case 'medium': return 'bg-yellow-500 text-black'
+    case 'low': return 'bg-green-500 text-white'
+    default: return 'bg-gray-500 text-white'
+  }
+}
+
+const isOverdue = (task: Task) => {
+  return new Date(task.dueDate) < new Date() && !task.completed
+}
+
+const isDueToday = (task: Task) => {
+  const today = new Date()
+  const dueDate = new Date(task.dueDate)
+  return today.toDateString() === dueDate.toDateString() && !task.completed
+}
+
+const formatDueDate = (date: Date) => {
+  const now = new Date()
+  const dueDate = new Date(date)
+  const diffTime = dueDate.getTime() - now.getTime()
+  const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24))
+
+  if (diffDays === 0) return 'Due today'
+  if (diffDays === 1) return 'Due tomorrow'
+  if (diffDays === -1) return 'Due yesterday'
+  if (diffDays < 0) return `${Math.abs(diffDays)}d overdue`
+  if (diffDays <= 7) return `Due in ${diffDays}d`
+
+  return dueDate.toLocaleDateString()
+}
+
+const truncateText = (text: string, maxLength: number) => {
+  if (text.length <= maxLength) return text
+  return text.substring(0, maxLength) + '...'
+}
 </script>
