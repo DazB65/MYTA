@@ -490,6 +490,11 @@
 </template>
 
 <script setup>
+// Protect this route with authentication
+definePageMeta({
+  middleware: 'auth'
+})
+
 // Content Pillars Analytics Dashboard
 // Static data display matching the design from the image
 </script>

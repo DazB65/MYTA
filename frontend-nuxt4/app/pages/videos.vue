@@ -286,6 +286,11 @@
 </template>
 
 <script setup>
+// Protect this route with authentication
+definePageMeta({
+  middleware: 'auth'
+})
+
 // Sample data for videos
 const recentVideos = ref([
   {

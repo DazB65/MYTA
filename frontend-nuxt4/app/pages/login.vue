@@ -147,9 +147,10 @@
 import { reactive, ref } from 'vue'
 import { useAuthStore } from '../../stores/auth'
 
-// Remove the default layout
+// Remove the default layout and add guest middleware
 definePageMeta({
-  layout: false
+  layout: false,
+  middleware: 'guest'
 })
 
 // SEO
@@ -192,36 +193,38 @@ const handleLogin = async () => {
       password: formData.password
     })
 
-    // Redirect to dashboard on success
-    await router.push('/dashboard')
+    // Redirect to original destination or dashboard
+    const route = useRoute();
+    const redirectTo = route.query.redirect || '/dashboard';
+    await router.push(redirectTo);
   } catch (err) {
-    error.value = err.message || 'Login failed. Please check your credentials.'
+    error.value = err.message || 'Login failed. Please check your credentials.';
   } finally {
-    loading.value = false
+    loading.value = false;
   }
 }
 
 // Handle Google OAuth login
 const handleGoogleLogin = async () => {
-  loading.value = true
-  error.value = ''
+  loading.value = true;
+  error.value = '';
 
   try {
     // TODO: Implement Google OAuth flow
-    error.value = 'Google login coming soon!'
+    error.value = 'Google login coming soon!';
   } catch (err) {
-    error.value = err.message || 'Google login failed'
+    error.value = err.message || 'Google login failed';
   } finally {
-    loading.value = false
+    loading.value = false;
   }
-}
+};
 
 // Auto-redirect if already logged in
 onMounted(() => {
   if (authStore.isLoggedIn) {
-    router.push('/dashboard')
+    router.push('/dashboard');
   }
-})
+});
 </script>
 
 <style scoped>

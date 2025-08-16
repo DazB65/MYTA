@@ -356,6 +356,11 @@
 import { computed, ref } from 'vue'
 import { useTasksStore } from '../../stores/tasks'
 
+// Protect this route with authentication
+definePageMeta({
+  middleware: 'auth'
+})
+
 // Type imports
 type Task = {
   id: string

@@ -465,6 +465,11 @@
 </template>
 
 <script setup>
+// Protect this route with authentication
+definePageMeta({
+  middleware: 'auth'
+})
+
 // Content items data
 const contentItems = ref([
   // Ideas

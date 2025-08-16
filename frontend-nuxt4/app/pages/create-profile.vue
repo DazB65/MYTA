@@ -215,9 +215,10 @@
 <script setup>
 import { computed, ref } from 'vue'
 
-// Remove the default layout with header
+// Remove the default layout with header and add guest middleware
 definePageMeta({
-  layout: false
+  layout: false,
+  middleware: 'guest'
 })
 
 // Agent data with images from the public folder

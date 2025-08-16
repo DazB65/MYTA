@@ -76,6 +76,11 @@ import ChartsDashboard from '../../components/analytics/ChartsDashboard.vue'
 import YouTubeConnectModal from '../../components/modals/YouTubeConnectModal.vue'
 import { useAnalytics } from '../../composables/useAnalytics'
 
+// Protect this route with authentication
+definePageMeta({
+  middleware: 'auth'
+})
+
 // SEO optimization
 const { setAnalyticsSEO, setSoftwareApplicationStructuredData } = useSEO()
 setAnalyticsSEO()

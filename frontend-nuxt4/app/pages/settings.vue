@@ -287,6 +287,11 @@
 <script setup>
 import { computed, ref } from 'vue'
 
+// Protect this route with authentication
+definePageMeta({
+  middleware: 'auth'
+})
+
 // Agent customization state
 const agentName = ref('Professional Assistant')
 const selectedAgent = ref(1)
