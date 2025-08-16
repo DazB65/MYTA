@@ -78,7 +78,7 @@
 
 <script setup>
 import { ref } from 'vue'
-import { useAnalytics } from '~/composables/useAnalytics'
+import { useAnalytics } from '../../composables/useAnalytics'
 
 // Define emits
 const emit = defineEmits(['close', 'connect'])
