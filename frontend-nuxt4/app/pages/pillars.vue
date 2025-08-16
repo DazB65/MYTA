@@ -3,7 +3,7 @@
 
 
     <!-- Main Content Area -->
-    <div class="p-6">
+    <div class="p-6 pt-32">
       <!-- Header -->
       <div class="mb-6 flex items-center justify-between">
         <div>

@@ -102,8 +102,7 @@ const mainMenuItems = [
   { name: 'Dashboard', path: '/dashboard' },
   { name: 'Pillars', path: '/pillars' },
   { name: 'Videos', path: '/videos' },
-  { name: 'Content Studio', path: '/content-studio' },
-  { name: 'AI Assistant', path: '/ai-assistant' }
+  { name: 'Content Studio', path: '/content-studio' }
 ]
 
 // User data (replace with actual user store)

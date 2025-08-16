@@ -1,10 +1,10 @@
 <template>
   <div class="min-h-screen bg-gray-900">
-    <!-- Header -->
-    <AppHeader />
-    
+    <!-- Unified Header -->
+    <UnifiedHeader />
+
     <!-- Main Content -->
-    <main class="pt-16">
+    <main class="pt-40">
       <slot />
     </main>
   </div>

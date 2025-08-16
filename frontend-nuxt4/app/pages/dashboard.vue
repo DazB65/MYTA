@@ -1,13 +1,10 @@
 <template>
   <div>
     <!-- Dashboard Content -->
-    <div class="space-y-6">
+    <div class="space-y-6 pt-32 px-6">
 
 
-      <!-- iPhone Banner Section -->
-      <div class="mb-6">
-        <IPhoneCompartment />
-      </div>
+
 
       <!-- Dashboard Content Grid -->
       <div class="grid grid-cols-1 gap-6 lg:grid-cols-2">
