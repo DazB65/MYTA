@@ -4,14 +4,15 @@
       <!-- Header Container -->
       <div class="rounded-xl bg-gray-800 p-4">
       <!-- Top Navigation Bar -->
-      <div class="flex items-center justify-between mb-3">
-        <!-- Left: Logo (Vidalytics text only) -->
-        <div class="flex items-center">
+      <div class="flex items-center justify-between mb-3 h-12">
+        <!-- Left: Logo -->
+        <div class="flex items-center overflow-visible -ml-8">
           <NuxtLink to="/dashboard" class="flex items-center">
-            <div class="flex h-8 w-8 items-center justify-center rounded bg-pink-500 mr-2">
-              <span class="text-sm text-white">✨</span>
-            </div>
-            <h1 class="text-lg font-bold text-white">Vidalytics</h1>
+            <img
+              src="/MY YT AGENT.png"
+              alt="MY YT AGENT"
+              class="h-72 w-72 rounded mt-8"
+            />
           </NuxtLink>
         </div>
 
@@ -78,22 +79,10 @@
       <!-- iPhone Compartment Section -->
         <!-- Action Buttons with Navigation -->
         <div class="mb-4 flex items-center justify-between">
-          <!-- Connect YouTube Button -->
-          <button
-            class="flex items-center space-x-2 rounded-lg bg-red-600 px-4 py-2 text-white transition-colors hover:bg-red-700"
-            @click="showConnectModal = true"
-          >
-            <svg class="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
-              <path
-                fill-rule="evenodd"
-                d="M3 4a1 1 0 011-1h12a1 1 0 011 1v1a1 1 0 01-1 1H4a1 1 0 01-1-1V4zm0 4a1 1 0 011-1h6a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h6a1 1 0 110 2H4a1 1 0 01-1-1z"
-                clip-rule="evenodd"
-              />
-            </svg>
-            <span>Connect YouTube</span>
-          </button>
+          <!-- Left spacer -->
+          <div class="flex-1"></div>
 
-          <!-- Main Navigation -->
+          <!-- Center: Main Navigation -->
           <nav class="flex items-center space-x-1">
             <NuxtLink
               v-for="item in mainMenuItems"
@@ -106,18 +95,38 @@
             </NuxtLink>
           </nav>
 
-          <!-- Agent Button -->
-          <button
-            class="flex items-center space-x-2 rounded-lg bg-purple-600 px-4 py-2 text-white transition-colors hover:bg-purple-700"
-            @click="showAgentModal = true"
-          >
-            <svg class="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
-              <path
-                d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"
-              />
-            </svg>
-            <span>Agent</span>
-          </button>
+          <!-- Right: Action Buttons -->
+          <div class="flex-1 flex justify-end">
+            <div class="flex items-center space-x-3">
+              <!-- Connect YouTube Button -->
+              <button
+                class="flex items-center space-x-2 rounded-lg bg-red-600 px-4 py-2 text-white transition-colors hover:bg-red-700"
+                @click="showConnectModal = true"
+              >
+                <svg class="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
+                  <path
+                    fill-rule="evenodd"
+                    d="M3 4a1 1 0 011-1h12a1 1 0 011 1v1a1 1 0 01-1 1H4a1 1 0 01-1-1V4zm0 4a1 1 0 011-1h6a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h6a1 1 0 110 2H4a1 1 0 01-1-1z"
+                    clip-rule="evenodd"
+                  />
+                </svg>
+                <span>Connect YouTube</span>
+              </button>
+
+              <!-- Agent Button -->
+              <button
+                class="flex items-center space-x-2 rounded-lg bg-purple-600 px-4 py-2 text-white transition-colors hover:bg-purple-700"
+                @click="showAgentModal = true"
+              >
+                <svg class="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
+                  <path
+                    d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"
+                  />
+                </svg>
+                <span>Agent</span>
+              </button>
+            </div>
+          </div>
         </div>
 
         <!-- YouTube Banner Preview -->
