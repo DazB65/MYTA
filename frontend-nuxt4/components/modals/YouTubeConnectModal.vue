@@ -38,6 +38,15 @@
         </div>
 
         <div class="connection-actions">
+          <!-- Error message -->
+          <div v-if="error" class="error-message">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+              <circle cx="12" cy="12" r="10" stroke="#ef4444" stroke-width="2"/>
+              <path d="M15 9l-6 6M9 9l6 6" stroke="#ef4444" stroke-width="2" stroke-linecap="round"/>
+            </svg>
+            {{ error }}
+          </div>
+
           <button class="connect-button" :disabled="connecting" @click="handleConnect">
             <svg v-if="connecting" class="spinner" width="20" height="20" viewBox="0 0 24 24">
               <circle
@@ -69,12 +78,17 @@
 
 <script setup>
 import { ref } from 'vue'
+import { useAnalytics } from '~/composables/useAnalytics'
 
 // Define emits
 const emit = defineEmits(['close', 'connect'])
 
 // Component state
 const connecting = ref(false)
+const error = ref(null)
+
+// Analytics composable
+const { connectYouTube } = useAnalytics()
 
 // Event handlers
 const handleOverlayClick = () => {
@@ -83,19 +97,22 @@ const handleOverlayClick = () => {
 
 const handleConnect = async () => {
   connecting.value = true
+  error.value = null
 
   try {
-    // Simulate connection process
-    await new Promise(resolve => setTimeout(resolve, 1500))
+    // Use a default user ID for now - in production this would come from auth
+    const userId = 'default_user'
+
+    // Connect to YouTube using real OAuth
+    await connectYouTube(userId)
 
     // Emit connect event
     emit('connect')
 
-    // Close modal
-    emit('close')
-  } catch (error) {
-    console.error('Failed to connect YouTube:', error)
-  } finally {
+    // Note: Modal will close when OAuth redirects back
+  } catch (err) {
+    console.error('Failed to connect YouTube:', err)
+    error.value = err.message
     connecting.value = false
   }
 }
@@ -209,6 +226,19 @@ const handleConnect = async () => {
 
 .connection-actions {
   text-align: center;
+}
+
+.error-message {
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  color: #dc2626;
+  padding: 12px;
+  border-radius: 8px;
+  margin-bottom: 16px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
 }
 
 .connect-button {

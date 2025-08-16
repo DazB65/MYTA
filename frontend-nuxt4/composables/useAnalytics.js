@@ -38,7 +38,7 @@ export const useAnalytics = () => {
 
   let refreshTimer = null
 
-  // API base URL - will be configured based on environment
+  // API base URL - configured for MYTA backend
   const API_BASE =
     process.env.NODE_ENV === 'production' ? 'https://your-api-domain.com' : 'http://localhost:8000'
 
@@ -114,11 +114,37 @@ export const useAnalytics = () => {
     return Promise.resolve({ status: 'success', data: {} })
   }
 
-  // API helper function - using mock data for frontend development
+  // API helper function - real backend integration
   const apiCall = async (endpoint, options = {}) => {
-    // For frontend development, return mock data instead of making real API calls
-    console.log(`Mock API call: ${endpoint}`)
-    return getMockData(endpoint)
+    try {
+      const url = `${API_BASE}${endpoint}`
+      console.log(`API call: ${url}`)
+
+      const response = await fetch(url, {
+        method: options.method || 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          ...options.headers,
+        },
+        body: options.body ? JSON.stringify(options.body) : undefined,
+        ...options,
+      })
+
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}: ${response.statusText}`)
+      }
+
+      const data = await response.json()
+      return data
+    } catch (err) {
+      console.error(`API call failed for ${endpoint}:`, err)
+      // Fallback to mock data during development if backend is unavailable
+      if (process.env.NODE_ENV === 'development') {
+        console.warn('Falling back to mock data due to API error')
+        return getMockData(endpoint)
+      }
+      throw err
+    }
   }
 
   // Fetch analytics status
@@ -128,11 +154,18 @@ export const useAnalytics = () => {
     }
 
     try {
-      const result = await apiCall(`/api/analytics/status/${userId}`)
+      // Use the YouTube channel status endpoint
+      const result = await apiCall(`/api/youtube/channel-status/${userId}`)
 
       if (result.status === 'success') {
-        analyticsData.status = { ...result.data }
-        return result.data
+        // Map the response to our expected format
+        const statusData = {
+          youtube_connected: result.data.has_channel || false,
+          analytics_available: result.data.can_fetch_videos || false,
+          channel_id: result.data.channel_id || null,
+        }
+        analyticsData.status = statusData
+        return statusData
       } else {
         throw new Error(result.error || 'Failed to fetch status')
       }
@@ -155,7 +188,16 @@ export const useAnalytics = () => {
       const cacheKey = `overview:${userId}:${days}`
       const result = await cachedApiCall(
         cacheKey,
-        () => apiCall(`/api/analytics/overview/${userId}?days=${days}`),
+        () =>
+          apiCall(`/api/youtube/analytics`, {
+            method: 'POST',
+            body: {
+              channel_id: '', // Will be auto-resolved by backend
+              user_id: userId,
+              include_videos: true,
+              video_count: 10,
+            },
+          }),
         { cacheType: 'analytics' }
       )
 
@@ -356,6 +398,45 @@ export const useAnalytics = () => {
     }
   }
 
+  // YouTube OAuth connection
+  const connectYouTube = async userId => {
+    if (!userId) {
+      throw new Error('User ID is required')
+    }
+
+    try {
+      // Initiate OAuth flow
+      const result = await apiCall('/api/oauth/initiate', {
+        method: 'POST',
+        body: {
+          user_id: userId,
+          return_url: window.location.href,
+        },
+      })
+
+      if (result.authorization_url) {
+        // Redirect to Google OAuth
+        window.location.href = result.authorization_url
+      } else {
+        throw new Error('Failed to get authorization URL')
+      }
+    } catch (err) {
+      error.value = `YouTube connection failed: ${err.message}`
+      throw err
+    }
+  }
+
+  // Check OAuth status
+  const checkOAuthStatus = async userId => {
+    try {
+      const result = await apiCall(`/api/oauth/status/${userId}`)
+      return result
+    } catch (err) {
+      console.warn('OAuth status check failed:', err)
+      return { authenticated: false }
+    }
+  }
+
   // Utility functions
   const formatNumber = num => {
     if (num === null || num === undefined) return '0'
@@ -435,6 +516,10 @@ export const useAnalytics = () => {
     startAutoRefresh,
     stopAutoRefresh,
     cleanup,
+
+    // OAuth methods
+    connectYouTube,
+    checkOAuthStatus,
 
     // Utilities
     formatNumber,
