@@ -10,7 +10,7 @@
               <span class="text-sm text-white">✨</span>
             </div>
             <div>
-              <h1 class="text-lg font-bold text-white">Vidalytics</h1>
+              <h1 class="text-lg font-bold text-white">MYTA</h1>
             </div>
           </NuxtLink>
 

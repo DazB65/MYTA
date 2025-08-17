@@ -44,7 +44,7 @@
       </div>
 
       <!-- Workflow Stats -->
-      <div class="mb-6 grid grid-cols-5 gap-4">
+      <div class="mb-6 grid grid-cols-4 gap-4">
         <div class="rounded-lg bg-forest-800 p-4">
           <div class="flex items-center justify-between">
             <div>
@@ -79,7 +79,7 @@
             </div>
           </div>
         </div>
-        <div class="rounded-lg bg-gray-800 p-4">
+        <div class="rounded-lg bg-forest-800 p-4">
           <div class="flex items-center justify-between">
             <div>
               <p class="text-sm text-gray-400">In Progress</p>
@@ -99,8 +99,8 @@
         <div class="rounded-lg bg-forest-800 p-4">
           <div class="flex items-center justify-between">
             <div>
-              <p class="text-sm text-gray-400">Ready to Publish</p>
-              <p class="text-xl font-bold text-white">{{ getColumnCount('ready') }}</p>
+              <p class="text-sm text-gray-400">Published</p>
+              <p class="text-xl font-bold text-white">{{ getColumnCount('published') }}</p>
             </div>
             <div class="flex h-8 w-8 items-center justify-center rounded-lg bg-orange-500">
               <svg class="h-4 w-4 text-white" fill="currentColor" viewBox="0 0 20 20">
@@ -113,29 +113,14 @@
             </div>
           </div>
         </div>
-        <div class="rounded-lg bg-forest-800 p-4">
-          <div class="flex items-center justify-between">
-            <div>
-              <p class="text-sm text-gray-400">Analytics</p>
-              <p class="text-xl font-bold text-white">{{ getColumnCount('analytics') }}</p>
-            </div>
-            <div class="flex h-8 w-8 items-center justify-center rounded-lg bg-orange-500">
-              <svg class="h-4 w-4 text-white" fill="currentColor" viewBox="0 0 20 20">
-                <path
-                  d="M2 11a1 1 0 011-1h2a1 1 0 011 1v5a1 1 0 01-1 1H3a1 1 0 01-1-1v-5zM8 7a1 1 0 011-1h2a1 1 0 011 1v9a1 1 0 01-1 1H9a1 1 0 01-1-1V7zM14 4a1 1 0 011-1h2a1 1 0 011 1v12a1 1 0 01-1 1h-2a1 1 0 01-1-1V4z"
-                />
-              </svg>
-            </div>
-          </div>
-        </div>
       </div>
 
       <!-- Kanban Board -->
       <div class="rounded-lg bg-forest-800 p-6">
-        <div class="flex space-x-6 overflow-x-auto">
+        <div class="grid grid-cols-4 gap-4 pb-6">
           <!-- Ideas Column -->
-          <div class="w-80 flex-shrink-0">
-            <div class="mb-4 flex items-center justify-between">
+          <div class="flex flex-col bg-forest-800/30 rounded-lg p-4 border border-forest-600/20">
+            <div class="flex items-center justify-between -m-4 mb-4 p-4 bg-forest-700/50 rounded-t-lg">
               <div class="flex items-center space-x-2">
                 <div class="h-3 w-3 rounded-full bg-orange-500"/>
                 <h3 class="font-semibold text-white">Ideas</h3>
@@ -153,11 +138,11 @@
                 </svg>
               </button>
             </div>
-            <div class="min-h-96 space-y-3">
+            <div class="flex-1 space-y-3">
               <div
                 v-for="item in getColumnItems('ideas')"
                 :key="item.id"
-                class="cursor-pointer rounded-lg bg-forest-700 p-4 transition-colors hover:bg-forest-600"
+                class="cursor-pointer rounded-lg bg-forest-700 p-4 transition-colors hover:bg-forest-600 w-full"
               >
                 <div class="mb-2 flex items-start justify-between">
                   <h4 class="text-sm font-medium text-white">{{ item.title }}</h4>
@@ -195,8 +180,8 @@
           </div>
 
           <!-- Planning Column -->
-          <div class="w-80 flex-shrink-0">
-            <div class="mb-4 flex items-center justify-between">
+          <div class="flex flex-col bg-forest-800/30 rounded-lg p-4 border border-forest-600/20">
+            <div class="flex items-center justify-between -m-4 mb-4 p-4 bg-forest-700/50 rounded-t-lg">
               <div class="flex items-center space-x-2">
                 <div class="h-3 w-3 rounded-full bg-orange-500"/>
                 <h3 class="font-semibold text-white">Planning</h3>
@@ -214,11 +199,11 @@
                 </svg>
               </button>
             </div>
-            <div class="min-h-96 space-y-3">
+            <div class="flex-1 space-y-3">
               <div
                 v-for="item in getColumnItems('planning')"
                 :key="item.id"
-                class="cursor-pointer rounded-lg bg-forest-700 p-4 transition-colors hover:bg-forest-600"
+                class="cursor-pointer rounded-lg bg-forest-700 p-4 transition-colors hover:bg-forest-600 w-full"
               >
                 <div class="mb-2 flex items-start justify-between">
                   <h4 class="text-sm font-medium text-white">{{ item.title }}</h4>
@@ -256,8 +241,8 @@
           </div>
 
           <!-- In Progress Column -->
-          <div class="w-80 flex-shrink-0">
-            <div class="mb-4 flex items-center justify-between">
+          <div class="flex flex-col bg-forest-800/30 rounded-lg p-4 border border-forest-600/20">
+            <div class="flex items-center justify-between -m-4 mb-4 p-4 bg-forest-700/50 rounded-t-lg">
               <div class="flex items-center space-x-2">
                 <div class="h-3 w-3 rounded-full bg-orange-500"/>
                 <h3 class="font-semibold text-white">In Progress</h3>
@@ -275,11 +260,11 @@
                 </svg>
               </button>
             </div>
-            <div class="min-h-96 space-y-3">
+            <div class="flex-1 space-y-3">
               <div
                 v-for="item in getColumnItems('in-progress')"
                 :key="item.id"
-                class="cursor-pointer rounded-lg bg-forest-700 p-4 transition-colors hover:bg-forest-600"
+                class="cursor-pointer rounded-lg bg-forest-700 p-4 transition-colors hover:bg-forest-600 w-full"
               >
                 <div class="mb-2 flex items-start justify-between">
                   <h4 class="text-sm font-medium text-white">{{ item.title }}</h4>
@@ -322,14 +307,14 @@
             </div>
           </div>
 
-          <!-- Ready to Publish Column -->
-          <div class="w-80 flex-shrink-0">
-            <div class="mb-4 flex items-center justify-between">
+          <!-- Published Column -->
+          <div class="flex flex-col bg-forest-800/30 rounded-lg p-4 border border-forest-600/20">
+            <div class="flex items-center justify-between -m-4 mb-4 p-4 bg-forest-700/50 rounded-t-lg">
               <div class="flex items-center space-x-2">
-                <div class="h-3 w-3 rounded-full bg-orange-500"/>
-                <h3 class="font-semibold text-white">Ready to Publish</h3>
+                <div class="h-3 w-3 rounded-full bg-green-500"/>
+                <h3 class="font-semibold text-white">Published</h3>
                 <span class="rounded-full bg-forest-700 px-2 py-1 text-xs text-gray-300">{{
-                  getColumnCount('ready')
+                  getColumnCount('published')
                 }}</span>
               </div>
               <button class="text-gray-400 hover:text-white">
@@ -342,11 +327,11 @@
                 </svg>
               </button>
             </div>
-            <div class="min-h-96 space-y-3">
+            <div class="flex-1 space-y-3">
               <div
-                v-for="item in getColumnItems('ready')"
+                v-for="item in getColumnItems('published')"
                 :key="item.id"
-                class="cursor-pointer rounded-lg bg-forest-700 p-4 transition-colors hover:bg-forest-600"
+                class="cursor-pointer rounded-lg bg-forest-700 p-4 transition-colors hover:bg-forest-600 w-full"
               >
                 <div class="mb-2 flex items-start justify-between">
                   <h4 class="text-sm font-medium text-white">{{ item.title }}</h4>
@@ -361,103 +346,21 @@
                 <p class="mb-3 text-xs text-gray-300">{{ item.description }}</p>
                 <div class="flex items-center justify-between">
                   <div class="flex items-center space-x-2">
-                    <span
-                      :class="
-                        item.priority === 'high'
-                          ? 'bg-red-500'
-                          : item.priority === 'medium'
-                            ? 'bg-yellow-500'
-                            : 'bg-green-500'
-                      "
-                      class="h-2 w-2 rounded-full"
-                    />
-                    <span class="text-xs text-gray-400">{{ item.priority }}</span>
+                    <span class="h-2 w-2 rounded-full bg-green-500"/>
+                    <span class="text-xs text-gray-400">Published</span>
                   </div>
                   <div class="flex items-center space-x-1">
                     <div class="flex h-6 w-6 items-center justify-center rounded-full bg-orange-500">
                       <span class="text-xs text-white">{{ item.assignee }}</span>
                     </div>
-                    <button
-                      class="rounded bg-orange-500 px-2 py-1 text-xs text-white hover:bg-orange-600"
-                    >
-                      Publish
-                    </button>
+                    <span class="text-xs text-green-400">{{ item.publishDate || 'Live' }}</span>
                   </div>
                 </div>
               </div>
             </div>
           </div>
 
-          <!-- Analytics Column -->
-          <div class="w-80 flex-shrink-0">
-            <div class="mb-4 flex items-center justify-between">
-              <div class="flex items-center space-x-2">
-                <div class="h-3 w-3 rounded-full bg-orange-500"/>
-                <h3 class="font-semibold text-white">Analytics</h3>
-                <span class="rounded-full bg-forest-700 px-2 py-1 text-xs text-gray-300">{{
-                  getColumnCount('analytics')
-                }}</span>
-              </div>
-              <button class="text-gray-400 hover:text-white">
-                <svg class="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
-                  <path
-                    fill-rule="evenodd"
-                    d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z"
-                    clip-rule="evenodd"
-                  />
-                </svg>
-              </button>
-            </div>
-            <div class="min-h-96 space-y-3">
-              <div
-                v-for="item in getColumnItems('analytics')"
-                :key="item.id"
-                class="cursor-pointer rounded-lg bg-forest-700 p-4 transition-colors hover:bg-forest-600"
-              >
-                <div class="mb-2 flex items-start justify-between">
-                  <h4 class="text-sm font-medium text-white">{{ item.title }}</h4>
-                  <button class="text-gray-400 hover:text-white">
-                    <svg class="h-4 w-4" fill="currentColor" viewBox="0 0 20 20">
-                      <path
-                        d="M10 6a2 2 0 110-4 2 2 0 010 4zM10 12a2 2 0 110-4 2 2 0 010 4zM10 18a2 2 0 110-4 2 2 0 010 4z"
-                      />
-                    </svg>
-                  </button>
-                </div>
-                <p class="mb-3 text-xs text-gray-300">{{ item.description }}</p>
-                <div v-if="item.metrics" class="mb-3">
-                  <div class="mb-1 flex justify-between text-xs text-gray-400">
-                    <span>Views: {{ item.metrics.views }}</span>
-                    <span>Engagement: {{ item.metrics.engagement }}%</span>
-                  </div>
-                  <div class="flex justify-between text-xs text-gray-400">
-                    <span>Likes: {{ item.metrics.likes }}</span>
-                    <span>Shares: {{ item.metrics.shares }}</span>
-                  </div>
-                </div>
-                <div class="flex items-center justify-between">
-                  <div class="flex items-center space-x-2">
-                    <span
-                      :class="
-                        item.priority === 'high'
-                          ? 'bg-red-500'
-                          : item.priority === 'medium'
-                            ? 'bg-yellow-500'
-                            : 'bg-green-500'
-                      "
-                      class="h-2 w-2 rounded-full"
-                    />
-                    <span class="text-xs text-gray-400">{{ item.priority }}</span>
-                  </div>
-                  <div class="flex items-center space-x-1">
-                    <div class="flex h-6 w-6 items-center justify-center rounded-full bg-orange-500">
-                      <span class="text-xs text-white">{{ item.assignee }}</span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
+
         </div>
       </div>
     </div>
@@ -543,56 +446,36 @@ const contentItems = ref([
     createdAt: '2023-12-09',
   },
 
-  // Ready to Publish
+  // Published
   {
     id: 8,
     title: 'TikTok Algorithm Secrets',
     description: 'Deep dive into how TikTok algorithm works in 2024',
-    status: 'ready',
+    status: 'published',
     priority: 'high',
     assignee: 'M',
+    publishDate: 'Dec 8, 2023',
     createdAt: '2023-12-08',
   },
   {
     id: 9,
     title: 'Content Monetization Guide',
     description: 'Complete guide to monetizing your content across platforms',
-    status: 'ready',
+    status: 'published',
     priority: 'medium',
     assignee: 'M',
+    publishDate: 'Dec 7, 2023',
     createdAt: '2023-12-07',
   },
-
-  // Analytics
   {
     id: 10,
     title: 'Q4 Performance Report',
     description: 'Comprehensive analysis of Q4 content performance',
-    status: 'analytics',
+    status: 'published',
     priority: 'high',
     assignee: 'M',
-    metrics: {
-      views: '2.4M',
-      engagement: '8.7',
-      likes: '156K',
-      shares: '23K',
-    },
+    publishDate: 'Dec 6, 2023',
     createdAt: '2023-12-06',
-  },
-  {
-    id: 11,
-    title: 'Viral Video Analysis',
-    description: 'Breakdown of what made our top videos go viral',
-    status: 'analytics',
-    priority: 'medium',
-    assignee: 'M',
-    metrics: {
-      views: '1.8M',
-      engagement: '12.3',
-      likes: '89K',
-      shares: '45K',
-    },
-    createdAt: '2023-12-05',
   },
 ])
 

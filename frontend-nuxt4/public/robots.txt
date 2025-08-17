@@ -5,7 +5,6 @@ Allow: /
 Disallow: /api/
 Disallow: /admin/
 Disallow: /_nuxt/
-Disallow: /analytics-test
 
 # Allow important pages
 Allow: /dashboard
