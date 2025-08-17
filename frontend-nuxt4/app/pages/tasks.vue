@@ -34,25 +34,6 @@
 
       <!-- Dashboard View -->
       <div v-if="currentView === 'dashboard'" class="space-y-6">
-        <!-- Task Stats Overview -->
-        <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-          <div class="rounded-xl bg-forest-800 p-4 text-center">
-            <div class="text-2xl font-bold text-green-400">{{ taskStats.completed }}</div>
-            <div class="text-sm text-gray-400">Completed</div>
-          </div>
-          <div class="rounded-xl bg-forest-800 p-4 text-center">
-            <div class="text-2xl font-bold text-blue-400">{{ taskStats.inProgress }}</div>
-            <div class="text-sm text-gray-400">In Progress</div>
-          </div>
-          <div class="rounded-xl bg-forest-800 p-4 text-center">
-            <div class="text-2xl font-bold text-yellow-400">{{ taskStats.pending }}</div>
-            <div class="text-sm text-gray-400">Pending</div>
-          </div>
-          <div class="rounded-xl bg-forest-800 p-4 text-center">
-            <div class="text-2xl font-bold text-red-400">{{ taskStats.overdue }}</div>
-            <div class="text-sm text-gray-400">Overdue</div>
-          </div>
-        </div>
       </div>
 
       <!-- Task Manager View -->
