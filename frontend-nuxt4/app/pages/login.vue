@@ -1,5 +1,5 @@
 <template>
-  <div class="min-h-screen bg-gradient-to-br from-gray-900 via-purple-900 to-gray-900">
+  <div class="min-h-screen bg-gradient-to-br from-forest-900 via-forest-800 to-forest-900">
     <!-- Background Pattern -->
     <div class="absolute inset-0 bg-[url('/grid-pattern.svg')] opacity-10" />
     
@@ -10,7 +10,7 @@
         <!-- Logo Section -->
         <div class="mb-8 text-center">
           <div class="flex items-center justify-center mb-4">
-            <img src="/MY YT AGENT.png" alt="MYTA Logo" class="w-32 h-32">
+            <img src="/MY YT AGENT.png" alt="MYTA Logo" class="w-64 h-64">
           </div>
           <h1 class="text-3xl font-bold text-white">Welcome Back</h1>
           <p class="text-gray-400">Sign in to your MYTA account</p>
@@ -29,7 +29,7 @@
                 v-model="formData.email"
                 type="email"
                 required
-                class="w-full p-4 bg-white/10 border border-white/20 rounded-xl text-white placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-pink-400 focus:border-transparent backdrop-blur-sm"
+                class="w-full p-4 bg-white/10 border border-white/20 rounded-xl text-white placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-orange-400 focus:border-transparent backdrop-blur-sm"
                 placeholder="Enter your email"
               >
             </div>
@@ -45,7 +45,7 @@
                   v-model="formData.password"
                   :type="showPassword ? 'text' : 'password'"
                   required
-                  class="w-full p-4 bg-white/10 border border-white/20 rounded-xl text-white placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-pink-400 focus:border-transparent backdrop-blur-sm pr-12"
+                  class="w-full p-4 bg-white/10 border border-white/20 rounded-xl text-white placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-orange-400 focus:border-transparent backdrop-blur-sm pr-12"
                   placeholder="Enter your password"
                 >
                 <button
@@ -65,13 +65,13 @@
                 <input
                   v-model="formData.rememberMe"
                   type="checkbox"
-                  class="w-4 h-4 text-pink-500 bg-white/10 border-white/20 rounded focus:ring-pink-400 focus:ring-2"
+                  class="w-4 h-4 text-orange-500 bg-white/10 border-white/20 rounded focus:ring-orange-400 focus:ring-2"
                 >
                 <span class="ml-2 text-sm text-gray-300">Remember me</span>
               </label>
               <NuxtLink
                 to="/forgot-password"
-                class="text-sm text-pink-400 hover:text-pink-300 transition-colors"
+                class="text-sm text-orange-400 hover:text-orange-300 transition-colors"
               >
                 Forgot password?
               </NuxtLink>
@@ -86,7 +86,7 @@
             <button
               type="submit"
               :disabled="loading"
-              class="w-full bg-gradient-to-r from-pink-500 to-purple-600 text-white font-semibold py-4 px-6 rounded-xl hover:from-pink-600 hover:to-purple-700 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
+              class="w-full bg-gradient-to-r from-orange-500 to-orange-600 text-white font-semibold py-4 px-6 rounded-xl hover:from-orange-600 hover:to-orange-700 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
             >
               <span v-if="loading" class="mr-2">⏳</span>
               {{ loading ? 'Signing In...' : 'Sign In' }}
@@ -98,7 +98,7 @@
                 <div class="w-full border-t border-white/20"></div>
               </div>
               <div class="relative flex justify-center text-sm">
-                <span class="px-2 bg-gray-900 text-gray-400">Or continue with</span>
+                <span class="px-2 bg-forest-900 text-gray-400">Or continue with</span>
               </div>
             </div>
 
@@ -122,7 +122,7 @@
             Don't have an account?
             <NuxtLink
               to="/create-profile"
-              class="text-pink-400 hover:text-pink-300 transition-colors font-semibold"
+              class="text-orange-400 hover:text-orange-300 transition-colors font-semibold"
             >
               Sign up here
             </NuxtLink>
@@ -136,10 +136,10 @@
       </div>
     </div>
     
-    <!-- Floating Elements -->
-    <div class="absolute top-10 left-10 h-20 w-20 rounded-full bg-pink-500/20 blur-xl" />
-    <div class="absolute bottom-10 right-10 h-32 w-32 rounded-full bg-purple-500/20 blur-xl" />
-    <div class="absolute top-1/2 right-20 h-16 w-16 rounded-full bg-blue-500/20 blur-xl" />
+    <!-- Full Screen Agent Background -->
+    <div class="absolute inset-0 pointer-events-none">
+      <img src="/agent1.png" alt="Agent 1" class="w-full h-full object-cover opacity-10">
+    </div>
   </div>
 </template>
 
@@ -226,6 +226,72 @@ onMounted(() => {
   }
 });
 </script>
+
+<style scoped>
+/* Floating animations for agents */
+@keyframes float-slow {
+  0%, 100% {
+    transform: translateY(0px) rotate(0deg);
+  }
+  50% {
+    transform: translateY(-20px) rotate(5deg);
+  }
+}
+
+@keyframes float-medium {
+  0%, 100% {
+    transform: translateY(0px) rotate(0deg);
+  }
+  50% {
+    transform: translateY(-15px) rotate(-3deg);
+  }
+}
+
+@keyframes float-fast {
+  0%, 100% {
+    transform: translateY(0px) rotate(0deg);
+  }
+  50% {
+    transform: translateY(-10px) rotate(3deg);
+  }
+}
+
+.animate-float-slow {
+  animation: float-slow 6s ease-in-out infinite;
+}
+
+.animate-float-medium {
+  animation: float-medium 4s ease-in-out infinite;
+}
+
+.animate-float-fast {
+  animation: float-fast 3s ease-in-out infinite;
+}
+
+.animation-delay-500 {
+  animation-delay: 0.5s;
+}
+
+.animation-delay-1000 {
+  animation-delay: 1s;
+}
+
+.animation-delay-1500 {
+  animation-delay: 1.5s;
+}
+
+.animation-delay-2000 {
+  animation-delay: 2s;
+}
+
+.animation-delay-3000 {
+  animation-delay: 3s;
+}
+
+.animation-delay-4000 {
+  animation-delay: 4s;
+}
+</style>
 
 <style scoped>
 /* Login page animations */

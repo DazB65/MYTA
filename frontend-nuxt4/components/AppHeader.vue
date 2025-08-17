@@ -1,12 +1,12 @@
 <template>
-  <header class="fixed top-0 left-0 right-0 z-50 bg-gray-800/95 backdrop-blur-sm border-b border-gray-700">
+  <header class="fixed top-0 left-0 right-0 z-50 bg-forest-800/95 backdrop-blur-sm border-b border-forest-700">
     <div class="px-6 py-3">
       <div class="flex items-center justify-between">
         <!-- Left: Logo and Navigation -->
         <div class="flex items-center space-x-8">
           <!-- Logo -->
           <NuxtLink to="/dashboard" class="flex items-center space-x-2">
-            <div class="flex h-8 w-8 items-center justify-center rounded bg-pink-500">
+            <div class="flex h-8 w-8 items-center justify-center rounded bg-orange-500">
               <span class="text-sm text-white">✨</span>
             </div>
             <div>
@@ -20,8 +20,8 @@
               v-for="item in mainMenuItems"
               :key="item.path"
               :to="item.path"
-              class="px-3 py-2 rounded-lg text-sm font-medium text-gray-300 hover:text-white hover:bg-gray-700 transition-colors"
-              active-class="bg-pink-500 text-white hover:bg-pink-600"
+              class="px-3 py-2 rounded-lg text-sm font-medium text-gray-300 hover:text-white hover:bg-forest-700 transition-colors"
+              active-class="bg-orange-500 text-white hover:bg-orange-600"
             >
               {{ item.name }}
             </NuxtLink>
@@ -33,7 +33,7 @@
           <!-- Settings -->
           <NuxtLink
             to="/settings"
-            class="p-2 rounded-lg text-gray-400 hover:text-white hover:bg-gray-700 transition-colors"
+            class="p-2 rounded-lg text-gray-400 hover:text-white hover:bg-forest-700 transition-colors"
             title="Settings"
           >
             <svg class="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
@@ -51,7 +51,7 @@
               <p class="text-sm text-white font-medium">{{ userName }}</p>
               <p class="text-xs text-gray-400">{{ timeOfDay }}</p>
             </div>
-            <div class="flex h-8 w-8 items-center justify-center rounded-full bg-pink-500">
+            <div class="flex h-8 w-8 items-center justify-center rounded-full bg-orange-500">
               <span class="text-sm font-bold text-white">{{ userInitials }}</span>
             </div>
           </div>
@@ -59,7 +59,7 @@
           <!-- Mobile Menu Button -->
           <button
             @click="toggleMobileMenu"
-            class="md:hidden p-2 rounded-lg text-gray-400 hover:text-white hover:bg-gray-700 transition-colors"
+            class="md:hidden p-2 rounded-lg text-gray-400 hover:text-white hover:bg-forest-700 transition-colors"
           >
             <svg class="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
               <path
@@ -73,15 +73,15 @@
       </div>
 
       <!-- Mobile Navigation Menu -->
-      <div v-if="showMobileMenu" class="md:hidden mt-4 pt-4 border-t border-gray-700">
+      <div v-if="showMobileMenu" class="md:hidden mt-4 pt-4 border-t border-forest-700">
         <nav class="space-y-2">
           <NuxtLink
             v-for="item in mainMenuItems"
             :key="item.path"
             :to="item.path"
             @click="closeMobileMenu"
-            class="block px-3 py-2 rounded-lg text-sm font-medium text-gray-300 hover:text-white hover:bg-gray-700 transition-colors"
-            active-class="bg-pink-500 text-white hover:bg-pink-600"
+            class="block px-3 py-2 rounded-lg text-sm font-medium text-gray-300 hover:text-white hover:bg-forest-700 transition-colors"
+            active-class="bg-orange-500 text-white hover:bg-orange-600"
           >
             {{ item.name }}
           </NuxtLink>

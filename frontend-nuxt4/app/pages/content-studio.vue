@@ -1,5 +1,5 @@
 <template>
-  <div class="min-h-screen bg-gray-900 text-white">
+  <div class="min-h-screen bg-forest-900 text-white">
 
     <!-- Main Content Area -->
     <div class="p-6 pt-32">
@@ -14,7 +14,7 @@
             <input
               type="text"
               placeholder="Search content..."
-              class="w-64 rounded-lg bg-gray-800 px-4 py-2 pl-10 text-white focus:outline-none focus:ring-2 focus:ring-pink-500"
+              class="w-64 rounded-lg bg-forest-800 px-4 py-2 pl-10 text-white focus:outline-none focus:ring-2 focus:ring-orange-500"
             />
             <svg
               class="absolute left-3 top-2.5 h-5 w-5 text-gray-400"
@@ -29,7 +29,7 @@
             </svg>
           </div>
           <button
-            class="flex items-center space-x-2 rounded-lg bg-pink-500 px-4 py-2 text-white transition-colors hover:bg-pink-600"
+            class="flex items-center space-x-2 rounded-lg bg-orange-500 px-4 py-2 text-white transition-colors hover:bg-orange-600"
           >
             <svg class="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
               <path
@@ -45,13 +45,13 @@
 
       <!-- Workflow Stats -->
       <div class="mb-6 grid grid-cols-5 gap-4">
-        <div class="rounded-lg bg-gray-800 p-4">
+        <div class="rounded-lg bg-forest-800 p-4">
           <div class="flex items-center justify-between">
             <div>
               <p class="text-sm text-gray-400">Ideas</p>
               <p class="text-xl font-bold text-white">{{ getColumnCount('ideas') }}</p>
             </div>
-            <div class="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-500">
+            <div class="flex h-8 w-8 items-center justify-center rounded-lg bg-orange-500">
               <svg class="h-4 w-4 text-white" fill="currentColor" viewBox="0 0 20 20">
                 <path
                   fill-rule="evenodd"
@@ -62,13 +62,13 @@
             </div>
           </div>
         </div>
-        <div class="rounded-lg bg-gray-800 p-4">
+        <div class="rounded-lg bg-forest-800 p-4">
           <div class="flex items-center justify-between">
             <div>
               <p class="text-sm text-gray-400">Planning</p>
               <p class="text-xl font-bold text-white">{{ getColumnCount('planning') }}</p>
             </div>
-            <div class="flex h-8 w-8 items-center justify-center rounded-lg bg-yellow-500">
+            <div class="flex h-8 w-8 items-center justify-center rounded-lg bg-orange-500">
               <svg class="h-4 w-4 text-white" fill="currentColor" viewBox="0 0 20 20">
                 <path
                   fill-rule="evenodd"
@@ -96,13 +96,13 @@
             </div>
           </div>
         </div>
-        <div class="rounded-lg bg-gray-800 p-4">
+        <div class="rounded-lg bg-forest-800 p-4">
           <div class="flex items-center justify-between">
             <div>
               <p class="text-sm text-gray-400">Ready to Publish</p>
               <p class="text-xl font-bold text-white">{{ getColumnCount('ready') }}</p>
             </div>
-            <div class="flex h-8 w-8 items-center justify-center rounded-lg bg-green-500">
+            <div class="flex h-8 w-8 items-center justify-center rounded-lg bg-orange-500">
               <svg class="h-4 w-4 text-white" fill="currentColor" viewBox="0 0 20 20">
                 <path
                   fill-rule="evenodd"
@@ -113,13 +113,13 @@
             </div>
           </div>
         </div>
-        <div class="rounded-lg bg-gray-800 p-4">
+        <div class="rounded-lg bg-forest-800 p-4">
           <div class="flex items-center justify-between">
             <div>
               <p class="text-sm text-gray-400">Analytics</p>
               <p class="text-xl font-bold text-white">{{ getColumnCount('analytics') }}</p>
             </div>
-            <div class="flex h-8 w-8 items-center justify-center rounded-lg bg-purple-500">
+            <div class="flex h-8 w-8 items-center justify-center rounded-lg bg-orange-500">
               <svg class="h-4 w-4 text-white" fill="currentColor" viewBox="0 0 20 20">
                 <path
                   d="M2 11a1 1 0 011-1h2a1 1 0 011 1v5a1 1 0 01-1 1H3a1 1 0 01-1-1v-5zM8 7a1 1 0 011-1h2a1 1 0 011 1v9a1 1 0 01-1 1H9a1 1 0 01-1-1V7zM14 4a1 1 0 011-1h2a1 1 0 011 1v12a1 1 0 01-1 1h-2a1 1 0 01-1-1V4z"
@@ -131,15 +131,15 @@
       </div>
 
       <!-- Kanban Board -->
-      <div class="rounded-lg bg-gray-800 p-6">
+      <div class="rounded-lg bg-forest-800 p-6">
         <div class="flex space-x-6 overflow-x-auto">
           <!-- Ideas Column -->
           <div class="w-80 flex-shrink-0">
             <div class="mb-4 flex items-center justify-between">
               <div class="flex items-center space-x-2">
-                <div class="h-3 w-3 rounded-full bg-blue-500"/>
+                <div class="h-3 w-3 rounded-full bg-orange-500"/>
                 <h3 class="font-semibold text-white">Ideas</h3>
-                <span class="rounded-full bg-gray-700 px-2 py-1 text-xs text-gray-300">{{
+                <span class="rounded-full bg-forest-700 px-2 py-1 text-xs text-gray-300">{{
                   getColumnCount('ideas')
                 }}</span>
               </div>
@@ -157,7 +157,7 @@
               <div
                 v-for="item in getColumnItems('ideas')"
                 :key="item.id"
-                class="cursor-pointer rounded-lg bg-gray-700 p-4 transition-colors hover:bg-gray-600"
+                class="cursor-pointer rounded-lg bg-forest-700 p-4 transition-colors hover:bg-forest-600"
               >
                 <div class="mb-2 flex items-start justify-between">
                   <h4 class="text-sm font-medium text-white">{{ item.title }}</h4>
@@ -185,7 +185,7 @@
                     <span class="text-xs text-gray-400">{{ item.priority }}</span>
                   </div>
                   <div class="flex items-center space-x-1">
-                    <div class="flex h-6 w-6 items-center justify-center rounded-full bg-pink-500">
+                    <div class="flex h-6 w-6 items-center justify-center rounded-full bg-orange-500">
                       <span class="text-xs text-white">{{ item.assignee }}</span>
                     </div>
                   </div>
@@ -198,9 +198,9 @@
           <div class="w-80 flex-shrink-0">
             <div class="mb-4 flex items-center justify-between">
               <div class="flex items-center space-x-2">
-                <div class="h-3 w-3 rounded-full bg-yellow-500"/>
+                <div class="h-3 w-3 rounded-full bg-orange-500"/>
                 <h3 class="font-semibold text-white">Planning</h3>
-                <span class="rounded-full bg-gray-700 px-2 py-1 text-xs text-gray-300">{{
+                <span class="rounded-full bg-forest-700 px-2 py-1 text-xs text-gray-300">{{
                   getColumnCount('planning')
                 }}</span>
               </div>
@@ -218,7 +218,7 @@
               <div
                 v-for="item in getColumnItems('planning')"
                 :key="item.id"
-                class="cursor-pointer rounded-lg bg-gray-700 p-4 transition-colors hover:bg-gray-600"
+                class="cursor-pointer rounded-lg bg-forest-700 p-4 transition-colors hover:bg-forest-600"
               >
                 <div class="mb-2 flex items-start justify-between">
                   <h4 class="text-sm font-medium text-white">{{ item.title }}</h4>
@@ -246,7 +246,7 @@
                     <span class="text-xs text-gray-400">{{ item.priority }}</span>
                   </div>
                   <div class="flex items-center space-x-1">
-                    <div class="flex h-6 w-6 items-center justify-center rounded-full bg-pink-500">
+                    <div class="flex h-6 w-6 items-center justify-center rounded-full bg-orange-500">
                       <span class="text-xs text-white">{{ item.assignee }}</span>
                     </div>
                   </div>
@@ -261,7 +261,7 @@
               <div class="flex items-center space-x-2">
                 <div class="h-3 w-3 rounded-full bg-orange-500"/>
                 <h3 class="font-semibold text-white">In Progress</h3>
-                <span class="rounded-full bg-gray-700 px-2 py-1 text-xs text-gray-300">{{
+                <span class="rounded-full bg-forest-700 px-2 py-1 text-xs text-gray-300">{{
                   getColumnCount('in-progress')
                 }}</span>
               </div>
@@ -279,7 +279,7 @@
               <div
                 v-for="item in getColumnItems('in-progress')"
                 :key="item.id"
-                class="cursor-pointer rounded-lg bg-gray-700 p-4 transition-colors hover:bg-gray-600"
+                class="cursor-pointer rounded-lg bg-forest-700 p-4 transition-colors hover:bg-forest-600"
               >
                 <div class="mb-2 flex items-start justify-between">
                   <h4 class="text-sm font-medium text-white">{{ item.title }}</h4>
@@ -307,12 +307,12 @@
                     <span class="text-xs text-gray-400">{{ item.priority }}</span>
                   </div>
                   <div class="flex items-center space-x-1">
-                    <div class="flex h-6 w-6 items-center justify-center rounded-full bg-pink-500">
+                    <div class="flex h-6 w-6 items-center justify-center rounded-full bg-orange-500">
                       <span class="text-xs text-white">{{ item.assignee }}</span>
                     </div>
                   </div>
                 </div>
-                <div v-if="item.progress" class="h-2 w-full rounded-full bg-gray-600">
+                <div v-if="item.progress" class="h-2 w-full rounded-full bg-forest-600">
                   <div
                     class="h-2 rounded-full bg-orange-500"
                     :style="`width: ${item.progress}%`"
@@ -326,9 +326,9 @@
           <div class="w-80 flex-shrink-0">
             <div class="mb-4 flex items-center justify-between">
               <div class="flex items-center space-x-2">
-                <div class="h-3 w-3 rounded-full bg-green-500"/>
+                <div class="h-3 w-3 rounded-full bg-orange-500"/>
                 <h3 class="font-semibold text-white">Ready to Publish</h3>
-                <span class="rounded-full bg-gray-700 px-2 py-1 text-xs text-gray-300">{{
+                <span class="rounded-full bg-forest-700 px-2 py-1 text-xs text-gray-300">{{
                   getColumnCount('ready')
                 }}</span>
               </div>
@@ -346,7 +346,7 @@
               <div
                 v-for="item in getColumnItems('ready')"
                 :key="item.id"
-                class="cursor-pointer rounded-lg bg-gray-700 p-4 transition-colors hover:bg-gray-600"
+                class="cursor-pointer rounded-lg bg-forest-700 p-4 transition-colors hover:bg-forest-600"
               >
                 <div class="mb-2 flex items-start justify-between">
                   <h4 class="text-sm font-medium text-white">{{ item.title }}</h4>
@@ -374,11 +374,11 @@
                     <span class="text-xs text-gray-400">{{ item.priority }}</span>
                   </div>
                   <div class="flex items-center space-x-1">
-                    <div class="flex h-6 w-6 items-center justify-center rounded-full bg-pink-500">
+                    <div class="flex h-6 w-6 items-center justify-center rounded-full bg-orange-500">
                       <span class="text-xs text-white">{{ item.assignee }}</span>
                     </div>
                     <button
-                      class="rounded bg-green-500 px-2 py-1 text-xs text-white hover:bg-green-600"
+                      class="rounded bg-orange-500 px-2 py-1 text-xs text-white hover:bg-orange-600"
                     >
                       Publish
                     </button>
@@ -392,9 +392,9 @@
           <div class="w-80 flex-shrink-0">
             <div class="mb-4 flex items-center justify-between">
               <div class="flex items-center space-x-2">
-                <div class="h-3 w-3 rounded-full bg-purple-500"/>
+                <div class="h-3 w-3 rounded-full bg-orange-500"/>
                 <h3 class="font-semibold text-white">Analytics</h3>
-                <span class="rounded-full bg-gray-700 px-2 py-1 text-xs text-gray-300">{{
+                <span class="rounded-full bg-forest-700 px-2 py-1 text-xs text-gray-300">{{
                   getColumnCount('analytics')
                 }}</span>
               </div>
@@ -412,7 +412,7 @@
               <div
                 v-for="item in getColumnItems('analytics')"
                 :key="item.id"
-                class="cursor-pointer rounded-lg bg-gray-700 p-4 transition-colors hover:bg-gray-600"
+                class="cursor-pointer rounded-lg bg-forest-700 p-4 transition-colors hover:bg-forest-600"
               >
                 <div class="mb-2 flex items-start justify-between">
                   <h4 class="text-sm font-medium text-white">{{ item.title }}</h4>
@@ -450,7 +450,7 @@
                     <span class="text-xs text-gray-400">{{ item.priority }}</span>
                   </div>
                   <div class="flex items-center space-x-1">
-                    <div class="flex h-6 w-6 items-center justify-center rounded-full bg-pink-500">
+                    <div class="flex h-6 w-6 items-center justify-center rounded-full bg-orange-500">
                       <span class="text-xs text-white">{{ item.assignee }}</span>
                     </div>
                   </div>

@@ -1,5 +1,5 @@
 <template>
-  <div class="min-h-screen bg-gray-900 text-white">
+  <div class="min-h-screen bg-forest-900 text-white">
 
 
 
@@ -16,7 +16,7 @@
             <input
               type="text"
               placeholder="Search videos..."
-              class="w-64 rounded-lg bg-gray-800 px-4 py-2 pl-10 text-white focus:outline-none focus:ring-2 focus:ring-pink-500"
+              class="w-64 rounded-lg bg-forest-800 px-4 py-2 pl-10 text-white focus:outline-none focus:ring-2 focus:ring-orange-500"
             />
             <svg
               class="absolute left-3 top-2.5 h-5 w-5 text-gray-400"
@@ -31,7 +31,7 @@
             </svg>
           </div>
           <button
-            class="flex items-center space-x-2 rounded-lg bg-pink-500 px-4 py-2 text-white transition-colors hover:bg-pink-600"
+            class="flex items-center space-x-2 rounded-lg bg-orange-500 px-4 py-2 text-white transition-colors hover:bg-orange-600"
           >
             <svg class="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
               <path
@@ -47,14 +47,14 @@
 
       <!-- Analytics Overview -->
       <div class="mb-8 grid grid-cols-4 gap-6">
-        <div class="rounded-lg bg-gray-800 p-6">
+        <div class="rounded-lg bg-forest-800 p-6">
           <div class="flex items-center justify-between">
             <div>
               <p class="text-sm text-gray-400">Total Views</p>
               <p class="text-2xl font-bold text-white">2.04M</p>
               <p class="text-sm text-green-400">+12.5% vs last month</p>
             </div>
-            <div class="flex h-12 w-12 items-center justify-center rounded-lg bg-blue-500">
+            <div class="flex h-12 w-12 items-center justify-center rounded-lg bg-orange-500">
               <svg class="h-6 w-6 text-white" fill="currentColor" viewBox="0 0 20 20">
                 <path d="M10 12a2 2 0 100-4 2 2 0 000 4z"/>
                 <path
@@ -67,14 +67,14 @@
           </div>
         </div>
 
-        <div class="rounded-lg bg-gray-800 p-6">
+        <div class="rounded-lg bg-forest-800 p-6">
           <div class="flex items-center justify-between">
             <div>
               <p class="text-sm text-gray-400">Avg Duration</p>
               <p class="text-2xl font-bold text-white">5.3m</p>
               <p class="text-sm text-green-400">+8.2% vs last month</p>
             </div>
-            <div class="flex h-12 w-12 items-center justify-center rounded-lg bg-green-500">
+            <div class="flex h-12 w-12 items-center justify-center rounded-lg bg-orange-500">
               <svg class="h-6 w-6 text-white" fill="currentColor" viewBox="0 0 20 20">
                 <path
                   fill-rule="evenodd"
@@ -86,14 +86,14 @@
           </div>
         </div>
 
-        <div class="rounded-lg bg-gray-800 p-6">
+        <div class="rounded-lg bg-forest-800 p-6">
           <div class="flex items-center justify-between">
             <div>
               <p class="text-sm text-gray-400">Engagement</p>
               <p class="text-2xl font-bold text-white">34.6%</p>
               <p class="text-sm text-red-400">-2.1% vs last month</p>
             </div>
-            <div class="flex h-12 w-12 items-center justify-center rounded-lg bg-purple-500">
+            <div class="flex h-12 w-12 items-center justify-center rounded-lg bg-orange-500">
               <svg class="h-6 w-6 text-white" fill="currentColor" viewBox="0 0 20 20">
                 <path
                   d="M2 10.5a1.5 1.5 0 113 0v6a1.5 1.5 0 01-3 0v-6zM6 10.333v5.43a2 2 0 001.106 1.79l.05.025A4 4 0 008.943 18h5.416a2 2 0 001.962-1.608l1.2-6A2 2 0 0015.56 8H12V4a2 2 0 00-2-2 1 1 0 00-1 1v.667a4 4 0 01-.8 2.4L6.8 7.933a4 4 0 00-.8 2.4z"
@@ -103,14 +103,14 @@
           </div>
         </div>
 
-        <div class="rounded-lg bg-gray-800 p-6">
+        <div class="rounded-lg bg-forest-800 p-6">
           <div class="flex items-center justify-between">
             <div>
               <p class="text-sm text-gray-400">Revenue</p>
               <p class="text-2xl font-bold text-white">$70.2K</p>
               <p class="text-sm text-green-400">+15.3% vs last month</p>
             </div>
-            <div class="flex h-12 w-12 items-center justify-center rounded-lg bg-yellow-500">
+            <div class="flex h-12 w-12 items-center justify-center rounded-lg bg-orange-500">
               <svg class="h-6 w-6 text-white" fill="currentColor" viewBox="0 0 20 20">
                 <path
                   d="M8.433 7.418c.155-.103.346-.196.567-.267v1.698a2.305 2.305 0 01-.567-.267C8.07 8.34 8 8.114 8 8c0-.114.07-.34.433-.582zM11 12.849v-1.698c.22.071.412.164.567.267.364.243.433.468.433.582 0 .114-.07.34-.433.582a2.305 2.305 0 01-.567.267z"
@@ -127,11 +127,11 @@
       </div>
 
       <!-- Recent Videos Section -->
-      <div class="mb-8 rounded-lg bg-gray-800 p-6">
+      <div class="mb-8 rounded-lg bg-forest-800 p-6">
         <div class="mb-6 flex items-center justify-between">
           <h3 class="text-xl font-bold text-white">Recent Videos</h3>
           <div class="flex items-center space-x-4">
-            <select class="rounded-lg bg-gray-700 px-3 py-2 text-sm text-white">
+            <select class="rounded-lg bg-forest-700 px-3 py-2 text-sm text-white">
               <option>Last 30 days</option>
               <option>Last 7 days</option>
               <option>Last 90 days</option>
@@ -151,7 +151,7 @@
         <!-- Video Grid -->
         <div class="grid grid-cols-6 gap-4">
           <div v-for="video in recentVideos" :key="video.id" class="group cursor-pointer">
-            <div class="relative mb-3 aspect-video overflow-hidden rounded-lg bg-gray-700">
+            <div class="relative mb-3 aspect-video overflow-hidden rounded-lg bg-forest-700">
               <img :src="video.thumbnail" :alt="video.title" class="h-full w-full object-cover" />
               <div
                 class="absolute inset-0 flex items-center justify-center bg-black bg-opacity-0 transition-all duration-200 group-hover:bg-opacity-30"
@@ -181,11 +181,11 @@
       </div>
 
       <!-- Performance Table -->
-      <div class="rounded-lg bg-gray-800 p-6">
+      <div class="rounded-lg bg-forest-800 p-6">
         <div class="mb-6 flex items-center justify-between">
           <h3 class="text-xl font-bold text-white">Video Performance</h3>
           <div class="flex items-center space-x-2">
-            <button class="rounded bg-pink-500 px-3 py-1 text-sm text-white">All</button>
+            <button class="rounded bg-orange-500 px-3 py-1 text-sm text-white">All</button>
             <button class="rounded px-3 py-1 text-sm text-gray-400 hover:text-white">
               Published
             </button>
@@ -210,7 +210,7 @@
               <tr
                 v-for="video in performanceVideos"
                 :key="video.id"
-                class="border-b border-gray-700 hover:bg-gray-700"
+                class="border-b border-forest-600 hover:bg-forest-700"
               >
                 <td class="px-4 py-4">
                   <div class="flex items-center space-x-3">

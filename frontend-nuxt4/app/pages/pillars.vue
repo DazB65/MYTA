@@ -1,5 +1,5 @@
 <template>
-  <div class="min-h-screen bg-gray-900 text-white">
+  <div class="min-h-screen bg-forest-900 text-white">
 
 
     <!-- Main Content Area -->
@@ -13,7 +13,7 @@
         <div class="flex items-center space-x-4">
           <div class="text-sm text-gray-400">Last 30 days</div>
           <button
-            class="flex items-center space-x-2 rounded-lg bg-blue-500 px-4 py-2 text-white transition-colors hover:bg-blue-600"
+            class="flex items-center space-x-2 rounded-lg bg-orange-500 px-4 py-2 text-white transition-colors hover:bg-orange-600"
           >
             <svg class="h-4 w-4" fill="currentColor" viewBox="0 0 20 20">
               <path
@@ -30,10 +30,10 @@
       <!-- Content Pillars Grid -->
       <div class="grid grid-cols-1 gap-6 lg:grid-cols-2">
         <!-- Game Development Pillar -->
-        <div class="rounded-xl bg-gray-800 p-6">
+        <div class="rounded-xl bg-forest-800 p-6">
           <div class="mb-4 flex items-center justify-between">
             <div class="flex items-center space-x-3">
-              <div class="flex h-10 w-10 items-center justify-center rounded-lg bg-blue-500">
+              <div class="flex h-10 w-10 items-center justify-center rounded-lg bg-orange-500">
                 <svg class="h-6 w-6 text-white" fill="currentColor" viewBox="0 0 20 20">
                   <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
                 </svg>
@@ -125,7 +125,7 @@
             <div class="text-sm text-gray-400">Top performing content pillar</div>
             <div class="flex space-x-2">
               <button class="px-3 py-1 text-sm text-gray-300 hover:text-white">View Details</button>
-              <button class="rounded bg-blue-500 px-3 py-1 text-sm text-white hover:bg-blue-600">
+              <button class="rounded bg-orange-500 px-3 py-1 text-sm text-white hover:bg-orange-600">
                 Create Content
               </button>
             </div>
@@ -133,10 +133,10 @@
         </div>
 
         <!-- Game Reviews Pillar -->
-        <div class="rounded-xl bg-gray-800 p-6">
+        <div class="rounded-xl bg-forest-800 p-6">
           <div class="mb-4 flex items-center justify-between">
             <div class="flex items-center space-x-3">
-              <div class="flex h-10 w-10 items-center justify-center rounded-lg bg-purple-500">
+              <div class="flex h-10 w-10 items-center justify-center rounded-lg bg-orange-500">
                 <svg class="h-6 w-6 text-white" fill="currentColor" viewBox="0 0 20 20">
                   <path
                     d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"
@@ -231,7 +231,7 @@
             <div class="flex space-x-2">
               <button class="px-3 py-1 text-sm text-gray-300 hover:text-white">View Details</button>
               <button
-                class="rounded bg-purple-500 px-3 py-1 text-sm text-white hover:bg-purple-600"
+                class="rounded bg-orange-500 px-3 py-1 text-sm text-white hover:bg-orange-600"
               >
                 Create Content
               </button>
@@ -240,7 +240,7 @@
         </div>
 
         <!-- Gaming Tips Pillar -->
-        <div class="rounded-xl bg-gray-800 p-6">
+        <div class="rounded-xl bg-forest-800 p-6">
           <div class="mb-4 flex items-center justify-between">
             <div class="flex items-center space-x-3">
               <div class="flex h-10 w-10 items-center justify-center rounded-lg bg-orange-500">
@@ -348,10 +348,10 @@
           </div>
         </div>
         <!-- Gaming News Pillar -->
-        <div class="rounded-xl bg-gray-800 p-6">
+        <div class="rounded-xl bg-forest-800 p-6">
           <div class="mb-4 flex items-center justify-between">
             <div class="flex items-center space-x-3">
-              <div class="flex h-10 w-10 items-center justify-center rounded-lg bg-red-500">
+              <div class="flex h-10 w-10 items-center justify-center rounded-lg bg-orange-500">
                 <svg class="h-6 w-6 text-white" fill="currentColor" viewBox="0 0 20 20">
                   <path
                     d="M2 3a1 1 0 011-1h2.153a1 1 0 01.986.836l.74 4.435a1 1 0 01-.54 1.06l-1.548.773a11.037 11.037 0 006.105 6.105l.774-1.548a1 1 0 011.059-.54l4.435.74a1 1 0 01.836.986V17a1 1 0 01-1 1h-2C7.82 18 2 12.18 2 5V3z"
@@ -445,7 +445,7 @@
             <div class="text-sm text-gray-400">Needs improvement in content strategy</div>
             <div class="flex space-x-2">
               <button class="px-3 py-1 text-sm text-gray-300 hover:text-white">View Details</button>
-              <button class="rounded bg-red-500 px-3 py-1 text-sm text-white hover:bg-red-600">
+              <button class="rounded bg-orange-500 px-3 py-1 text-sm text-white hover:bg-orange-600">
                 Create Content
               </button>
             </div>
@@ -454,11 +454,11 @@
       </div>
 
       <!-- AI Suggested Pillar -->
-      <div class="mt-6 rounded-xl border border-blue-500/20 bg-gray-800 p-6">
+      <div class="mt-6 rounded-xl border border-orange-500/20 bg-forest-800 p-6">
         <div class="mb-4 flex items-center justify-between">
           <div class="flex items-center space-x-3">
             <div
-              class="flex h-10 w-10 items-center justify-center rounded-lg bg-gradient-to-r from-blue-500 to-purple-500"
+              class="flex h-10 w-10 items-center justify-center rounded-lg bg-gradient-to-r from-orange-500 to-orange-600"
             >
               <svg class="h-6 w-6 text-white" fill="currentColor" viewBox="0 0 20 20">
                 <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
@@ -466,7 +466,7 @@
             </div>
             <div>
               <h3 class="text-lg font-semibold text-white">AI Suggested: Metaverse Coverage</h3>
-              <p class="text-sm text-blue-400">NEW</p>
+              <p class="text-sm text-orange-400">NEW</p>
             </div>
           </div>
           <div class="flex space-x-2">
@@ -475,7 +475,7 @@
             >
               Dismiss
             </button>
-            <button class="rounded bg-blue-500 px-3 py-1 text-sm text-white hover:bg-blue-600">
+            <button class="rounded bg-orange-500 px-3 py-1 text-sm text-white hover:bg-orange-600">
               Create Pillar
             </button>
           </div>

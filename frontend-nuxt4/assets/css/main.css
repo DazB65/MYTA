@@ -298,15 +298,17 @@ body {
 
 /* Special Button Effects */
 .btn-connect {
-  background: linear-gradient(135deg, #ff6b9d 0%, #c44569 100%);
-  color: white;
+  background: linear-gradient(135deg, #f97316 0%, #ea580c 100%) !important;
+  color: white !important;
   position: relative;
+  border: none !important;
 }
 
 .btn-connect:hover:not(:disabled) {
   transform: translateY(-2px);
-  box-shadow: 0 8px 25px rgba(255, 107, 157, 0.4);
+  box-shadow: 0 8px 25px rgba(249, 115, 22, 0.4) !important;
   filter: brightness(1.1);
+  background: linear-gradient(135deg, #f97316 0%, #ea580c 100%) !important;
 }
 
 .btn-connect:active:not(:disabled) {
@@ -314,15 +316,17 @@ body {
 }
 
 .btn-agent {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  color: white;
+  background: linear-gradient(135deg, #f97316 0%, #ea580c 100%) !important;
+  color: white !important;
   position: relative;
+  border: none !important;
 }
 
 .btn-agent:hover:not(:disabled) {
   transform: translateY(-2px);
-  box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
+  box-shadow: 0 8px 25px rgba(249, 115, 22, 0.4) !important;
   filter: brightness(1.1);
+  background: linear-gradient(135deg, #f97316 0%, #ea580c 100%) !important;
 }
 
 .btn-agent:active:not(:disabled) {

@@ -1,10 +1,10 @@
 <template>
-  <div class="min-h-screen bg-gradient-to-br from-indigo-900 via-purple-900 to-pink-800 relative overflow-hidden">
+  <div class="min-h-screen bg-gradient-to-br from-forest-900 via-forest-800 to-forest-700 relative overflow-hidden">
     <!-- Background Elements -->
     <div class="absolute inset-0">
-      <div class="absolute top-20 left-20 w-72 h-72 bg-blue-500 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-blob"></div>
-      <div class="absolute top-40 right-20 w-72 h-72 bg-purple-500 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-blob animation-delay-2000"></div>
-      <div class="absolute bottom-20 left-40 w-72 h-72 bg-pink-500 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-blob animation-delay-4000"></div>
+      <div class="absolute top-20 left-20 w-72 h-72 bg-orange-500 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-blob"></div>
+      <div class="absolute top-40 right-20 w-72 h-72 bg-forest-500 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-blob animation-delay-2000"></div>
+      <div class="absolute bottom-20 left-40 w-72 h-72 bg-orange-400 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-blob animation-delay-4000"></div>
     </div>
 
     <div class="relative z-10 min-h-screen px-6">
@@ -54,7 +54,7 @@
                   <textarea
                     v-model="formData.motivation"
                     placeholder="Share what motivates you to create content..."
-                    class="w-full p-4 bg-white/10 border border-white/20 rounded-xl text-white placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-pink-400 focus:border-transparent backdrop-blur-sm resize-none"
+                    class="w-full p-4 bg-white/10 border border-white/20 rounded-xl text-white placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-orange-400 focus:border-transparent backdrop-blur-sm resize-none"
                     rows="3"
                   ></textarea>
                 </div>
@@ -67,7 +67,7 @@
                     </label>
                     <select
                       v-model="formData.niche"
-                      class="w-full p-4 bg-white/10 border border-white/20 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-pink-400 focus:border-transparent backdrop-blur-sm"
+                      class="w-full p-4 bg-white/10 border border-white/20 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-orange-400 focus:border-transparent backdrop-blur-sm"
                     >
                       <option value="" class="text-gray-800">Select your niche</option>
                       <option value="gaming" class="text-gray-800">Gaming</option>
@@ -91,7 +91,7 @@
                     </label>
                     <select
                       v-model="formData.contentType"
-                      class="w-full p-4 bg-white/10 border border-white/20 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-pink-400 focus:border-transparent backdrop-blur-sm"
+                      class="w-full p-4 bg-white/10 border border-white/20 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-orange-400 focus:border-transparent backdrop-blur-sm"
                     >
                       <option value="" class="text-gray-800">Select content type</option>
                       <option value="tutorials" class="text-gray-800">Tutorials</option>
@@ -116,7 +116,7 @@
                     </label>
                     <select
                       v-model="formData.uploadFrequency"
-                      class="w-full p-4 bg-white/10 border border-white/20 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-pink-400 focus:border-transparent backdrop-blur-sm"
+                      class="w-full p-4 bg-white/10 border border-white/20 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-orange-400 focus:border-transparent backdrop-blur-sm"
                     >
                       <option value="" class="text-gray-800">Select frequency</option>
                       <option value="daily" class="text-gray-800">Daily</option>
@@ -133,7 +133,7 @@
                     </label>
                     <select
                       v-model="formData.targetGoal"
-                      class="w-full p-4 bg-white/10 border border-white/20 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-pink-400 focus:border-transparent backdrop-blur-sm"
+                      class="w-full p-4 bg-white/10 border border-white/20 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-orange-400 focus:border-transparent backdrop-blur-sm"
                     >
                       <option value="" class="text-gray-800">Select your goal</option>
                       <option value="subscribers" class="text-gray-800">Grow Subscribers</option>
@@ -154,7 +154,7 @@
                   <textarea
                     v-model="formData.additionalNotes"
                     placeholder="Tell us about your future plans..."
-                    class="w-full p-4 bg-white/10 border border-white/20 rounded-xl text-white placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-pink-400 focus:border-transparent backdrop-blur-sm resize-none"
+                    class="w-full p-4 bg-white/10 border border-white/20 rounded-xl text-white placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-orange-400 focus:border-transparent backdrop-blur-sm resize-none"
                     rows="3"
                   ></textarea>
                 </div>
@@ -164,7 +164,7 @@
                   <button
                     type="submit"
                     :disabled="!isFormValid"
-                    class="w-full bg-gradient-to-r from-pink-500 to-purple-600 text-white font-bold py-4 px-8 rounded-xl hover:from-pink-600 hover:to-purple-700 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed transform hover:scale-105"
+                    class="w-full bg-gradient-to-r from-orange-500 to-orange-600 text-white font-bold py-4 px-8 rounded-xl hover:from-orange-600 hover:to-orange-700 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed transform hover:scale-105"
                   >
                     Connect Your YouTube Channel
                   </button>
@@ -173,7 +173,7 @@
             </div>
 
             <!-- Right Side - Visual Content -->
-            <div class="relative bg-gradient-to-br from-purple-600 to-pink-600 p-8 lg:p-12 flex items-center justify-center">
+            <div class="relative bg-gradient-to-br from-forest-600 to-orange-600 p-8 lg:p-12 flex items-center justify-center">
               <!-- AI Robot Illustration -->
               <div class="text-center">
                 <h3 class="text-2xl font-bold text-white mb-6">
@@ -341,8 +341,8 @@ const handleSubmit = () => {
 
 /* Agent card styles */
 .agent-card.selected {
-  @apply bg-white/30 border-pink-400 scale-105;
-  box-shadow: 0 0 30px rgba(236, 72, 153, 0.5);
+  @apply bg-white/30 border-orange-400 scale-105;
+  box-shadow: 0 0 30px rgba(249, 115, 22, 0.5);
 }
 
 .agent-card:hover {

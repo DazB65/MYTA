@@ -37,6 +37,9 @@ onErrorCaptured((error, instance, info) => {
 </script>
 
 <style>
+/* Import main CSS file */
+@import '../assets/css/main.css';
+
 /* Global styles */
 html {
   scroll-behavior: smooth;
