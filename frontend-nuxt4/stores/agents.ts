@@ -29,7 +29,7 @@ export const useAgentsStore = defineStore('agents', () => {
       description:
         'AI Content Creator - Professional & Analytical specialist for content optimization',
       avatar: '/Agent1.png',
-      color: '#9333ea', // Purple
+      color: '#ea580c', // Orange
       personality: 'Professional & Analytical',
       specialization: 'Content Creation & Analysis',
     },
@@ -46,7 +46,7 @@ export const useAgentsStore = defineStore('agents', () => {
       ],
       description: 'Marketing Specialist - Strategic & Data-Driven expert for audience insights',
       avatar: '/Agent2.png',
-      color: '#2563eb', // Blue
+      color: '#eab308', // Yellow
       personality: 'Strategic & Data-Driven',
       specialization: 'Marketing & Audience Analysis',
     },

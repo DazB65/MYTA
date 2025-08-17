@@ -138,10 +138,30 @@
                 <span>Connect YouTube</span>
               </button>
 
-              <!-- Agent Button -->
+              <!-- Selected Agent Button -->
               <button
-                class="btn btn-agent"
+                v-if="selectedAgent"
+                :class="agentButtonClasses"
                 @click="showAgentModal = true"
+                :title="`Chat with ${selectedAgent.name}`"
+              >
+                <div class="w-6 h-6 rounded-lg overflow-hidden bg-white/30 flex items-center justify-center border border-white/20">
+                  <img
+                    :src="selectedAgent.image"
+                    :alt="selectedAgent.name"
+                    class="w-full h-full object-cover"
+                  />
+                </div>
+                <span class="font-medium">{{ agentName || selectedAgent.name }}</span>
+                <div class="w-2 h-2 rounded-full bg-green-400 shadow-sm" :title="`${selectedAgent.name} is online`"></div>
+              </button>
+
+              <!-- Fallback Agent Button -->
+              <button
+                v-else
+                class="flex items-center space-x-2 rounded-lg bg-forest-700 px-3 py-2 text-sm text-white hover:bg-forest-600 transition-colors"
+                @click="showAgentModal = true"
+                title="Chat with Agent"
               >
                 <svg class="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
                   <path
@@ -201,12 +221,16 @@
 
 <script setup>
 import { computed, onMounted, onUnmounted, ref } from 'vue'
+import { useAgentSettings } from '../composables/useAgentSettings'
 import { useAuthStore } from '../stores/auth'
 import AgentModal from './dashboard/AgentModal.vue'
 import YouTubeConnectModal from './modals/YouTubeConnectModal.vue'
 
 // Auth store
 const authStore = useAuthStore()
+
+// Agent settings
+const { selectedAgent, agentName } = useAgentSettings()
 
 // Mobile menu state
 const showMobileMenu = ref(false)
@@ -246,6 +270,29 @@ const timeOfDay = computed(() => {
   if (hour < 12) return 'Good Morning'
   if (hour < 17) return 'Good Afternoon'
   return 'Good Evening'
+})
+
+// Computed property for agent button classes
+const agentButtonClasses = computed(() => {
+  if (!selectedAgent.value) return []
+
+  const colorMap = {
+    'bg-purple-600': 'hover:bg-purple-700',
+    'bg-blue-600': 'hover:bg-blue-700',
+    'bg-green-600': 'hover:bg-green-700',
+    'bg-orange-600': 'hover:bg-orange-700',
+    'bg-pink-600': 'hover:bg-pink-700',
+    'bg-red-600': 'hover:bg-red-700',
+    'bg-yellow-600': 'hover:bg-yellow-700',
+  }
+
+  const hoverColor = colorMap[selectedAgent.value.color] || 'hover:bg-forest-600'
+
+  return [
+    'flex items-center space-x-2 rounded-lg px-3 py-2 text-sm text-white transition-colors',
+    selectedAgent.value.color,
+    hoverColor
+  ]
 })
 
 // Mobile menu functions

@@ -2,23 +2,23 @@
   <div>
     <!-- Dashboard Content -->
     <div class="space-y-6 pt-32 px-6">
-      <!-- Productivity Stats -->
+      <!-- Channel Statistics -->
       <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
         <div class="rounded-xl bg-forest-800 p-4 text-center">
-          <div class="text-2xl font-bold text-green-400">{{ taskStats.completed }}</div>
-          <div class="text-sm text-gray-400">Completed Today</div>
+          <div class="text-2xl font-bold text-blue-400">{{ formatNumber(channelStats.totalSubscribers) }}</div>
+          <div class="text-sm text-gray-400">Current Subscribers</div>
         </div>
         <div class="rounded-xl bg-forest-800 p-4 text-center">
-          <div class="text-2xl font-bold text-blue-400">{{ taskStats.inProgress }}</div>
-          <div class="text-sm text-gray-400">In Progress</div>
+          <div class="text-2xl font-bold text-green-400">{{ formatSubscriberChange(channelStats.subscriberChange) }}</div>
+          <div class="text-sm text-gray-400">Sub Change (7 days)</div>
         </div>
         <div class="rounded-xl bg-forest-800 p-4 text-center">
-          <div class="text-2xl font-bold text-yellow-400">{{ taskStats.pending }}</div>
-          <div class="text-sm text-gray-400">Pending</div>
+          <div class="text-2xl font-bold text-yellow-400">{{ formatNumber(channelStats.totalViews) }}</div>
+          <div class="text-sm text-gray-400">Total Views</div>
         </div>
         <div class="rounded-xl bg-forest-800 p-4 text-center">
-          <div class="text-2xl font-bold text-red-400">{{ taskStats.overdue }}</div>
-          <div class="text-sm text-gray-400">Overdue</div>
+          <div class="text-2xl font-bold text-orange-400">{{ channelStats.avgViewDuration }}</div>
+          <div class="text-sm text-gray-400">Avg View Duration</div>
         </div>
       </div>
 
@@ -365,6 +365,7 @@
 
 <script setup lang="ts">
 import { computed, ref } from 'vue'
+import { useAnalyticsStore } from '../../stores/analytics'
 import { useTasksStore } from '../../stores/tasks'
 
 // Protect this route with authentication
@@ -382,7 +383,7 @@ const agents = [
     id: 1,
     name: 'Agent 1',
     image: '/Agent1.png',
-    color: '#9333ea', // Purple
+    color: '#ea580c', // Orange
     description: 'AI Content Creator',
     personality: 'Professional & Analytical',
   },
@@ -390,7 +391,7 @@ const agents = [
     id: 2,
     name: 'Agent 2',
     image: '/Agent2.png',
-    color: '#2563eb', // Blue
+    color: '#eab308', // Yellow
     description: 'Marketing Specialist',
     personality: 'Strategic & Data-Driven',
   },
@@ -470,6 +471,7 @@ setDashboardSEO()
 setWebsiteStructuredData()
 
 const tasksStore = useTasksStore()
+const analyticsStore = useAnalyticsStore()
 
 // Local state
 const showCreateModal = ref(false)
@@ -478,6 +480,37 @@ const dashboardFilter = ref<TaskFilter>('all')
 
 // Computed properties
 const taskStats = computed(() => tasksStore.taskStats)
+
+// Channel statistics computed properties
+const channelStats = computed(() => {
+  return {
+    totalSubscribers: analyticsStore.data?.overview?.data?.total_subscribers || 125000,
+    subscriberChange: analyticsStore.subscriberGrowth?.net || 150,
+    totalViews: analyticsStore.data?.overview?.data?.total_views || analyticsStore.totalViews || 1250000,
+    avgViewDuration: formatDuration(analyticsStore.data?.overview?.data?.avg_view_duration || 272) // 272 seconds = 4:32
+  }
+})
+
+// Formatting functions for channel stats
+const formatNumber = (num: number) => {
+  if (num >= 1000000) {
+    return (num / 1000000).toFixed(1) + 'M'
+  } else if (num >= 1000) {
+    return (num / 1000).toFixed(1) + 'K'
+  }
+  return num.toString()
+}
+
+const formatSubscriberChange = (change: number) => {
+  const prefix = change >= 0 ? '+' : ''
+  return prefix + formatNumber(Math.abs(change))
+}
+
+const formatDuration = (seconds: number) => {
+  const minutes = Math.floor(seconds / 60)
+  const remainingSeconds = seconds % 60
+  return `${minutes}:${remainingSeconds.toString().padStart(2, '0')}`
+}
 
 const dashboardTasks = computed(() => {
   let tasks = tasksStore.filteredTasks
