@@ -221,64 +221,7 @@
         </div>
       </div>
 
-      <!-- Task Analytics -->
-      <div v-if="currentView === 'dashboard'" class="rounded-xl bg-forest-800 p-6">
-        <h3 class="text-lg font-semibold text-white mb-6">Task Analytics</h3>
 
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          <!-- Completion Rate -->
-          <div class="text-center">
-            <div class="relative w-20 h-20 mx-auto mb-3">
-              <svg class="w-20 h-20 transform -rotate-90" viewBox="0 0 36 36">
-                <path
-                  class="text-gray-600"
-                  stroke="currentColor"
-                  stroke-width="3"
-                  fill="none"
-                  d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
-                />
-                <path
-                  class="text-green-400"
-                  stroke="currentColor"
-                  stroke-width="3"
-                  fill="none"
-                  stroke-linecap="round"
-                  :stroke-dasharray="`${taskStats.completionRate}, 100`"
-                  d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
-                />
-              </svg>
-              <div class="absolute inset-0 flex items-center justify-center">
-                <span class="text-lg font-bold text-white">{{ taskStats.completionRate }}%</span>
-              </div>
-            </div>
-            <div class="text-sm text-gray-400">Completion Rate</div>
-          </div>
-
-          <!-- Average Time -->
-          <div class="text-center">
-            <div class="text-2xl font-bold text-blue-400 mb-2">
-              {{ averageTaskTime }}
-            </div>
-            <div class="text-sm text-gray-400">Avg. Task Time</div>
-          </div>
-
-          <!-- Tasks This Week -->
-          <div class="text-center">
-            <div class="text-2xl font-bold text-yellow-400 mb-2">
-              {{ tasksThisWeek }}
-            </div>
-            <div class="text-sm text-gray-400">Tasks This Week</div>
-          </div>
-
-          <!-- Productivity Score -->
-          <div class="text-center">
-            <div class="text-2xl font-bold text-pink-400 mb-2">
-              {{ productivityScore }}
-            </div>
-            <div class="text-sm text-gray-400">Productivity Score</div>
-          </div>
-        </div>
-      </div>
     </div>
   </div>
 </template>
