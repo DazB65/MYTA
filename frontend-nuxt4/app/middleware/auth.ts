@@ -12,6 +12,11 @@ export default defineNuxtRouteMiddleware(async (to, from) => {
   try {
     const authStore = useAuthStore()
 
+    // Initialize auth if not already done (important for page refreshes)
+    if (!authStore.isAuthenticated && process.client) {
+      await authStore.initializeAuth()
+    }
+
     // Check if user is authenticated and token is valid
     if (!authStore.isLoggedIn) {
       // Redirect to login page with return URL

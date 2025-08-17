@@ -5,9 +5,14 @@
 
 export default defineNuxtPlugin(async () => {
   const authStore = useAuthStore()
-  
+
   // Initialize auth state from storage
-  await authStore.initializeAuth()
+  try {
+    await authStore.initializeAuth()
+    console.log('Auth plugin: Authentication initialized')
+  } catch (error) {
+    console.warn('Auth plugin: Failed to initialize auth:', error)
+  }
   
   // Set up automatic token refresh
   if (process.client) {

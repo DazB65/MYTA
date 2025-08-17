@@ -133,6 +133,9 @@ export const useAuthStore = defineStore('auth', () => {
     // Only run on client side
     if (!process.client) return
 
+    // Prevent multiple initializations
+    if (loading.value) return
+
     loading.value = true
 
     try {
@@ -151,12 +154,18 @@ export const useAuthStore = defineStore('auth', () => {
         // Set token expiry (assume 24 hours if not stored)
         tokenExpiry.value = new Date(Date.now() + 24 * 60 * 60 * 1000)
 
-        console.log('Session restored from storage')
+        console.log('Session restored from storage for user:', storedUser.email)
 
         // Optionally validate token with backend here
         // await validateToken(storedToken)
       } else {
-        console.log('No stored session found')
+        console.log('No stored session found - user needs to login')
+        // Ensure clean state
+        user.value = null
+        token.value = null
+        refreshToken.value = null
+        isAuthenticated.value = false
+        tokenExpiry.value = null
       }
     } catch (error) {
       console.warn('Failed to initialize auth:', error)
