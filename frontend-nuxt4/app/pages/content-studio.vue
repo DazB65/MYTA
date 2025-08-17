@@ -43,77 +43,7 @@
         </div>
       </div>
 
-      <!-- Workflow Stats -->
-      <div class="mb-6 grid grid-cols-4 gap-4">
-        <div class="rounded-lg bg-forest-800 p-4">
-          <div class="flex items-center justify-between">
-            <div>
-              <p class="text-sm text-gray-400">Ideas</p>
-              <p class="text-xl font-bold text-white">{{ getColumnCount('ideas') }}</p>
-            </div>
-            <div class="flex h-8 w-8 items-center justify-center rounded-lg bg-orange-500">
-              <svg class="h-4 w-4 text-white" fill="currentColor" viewBox="0 0 20 20">
-                <path
-                  fill-rule="evenodd"
-                  d="M11.3 1.046A1 1 0 0112 2v5h4a1 1 0 01.82 1.573l-7 10A1 1 0 018 18v-5H4a1 1 0 01-.82-1.573l7-10a1 1 0 011.12-.38z"
-                  clip-rule="evenodd"
-                />
-              </svg>
-            </div>
-          </div>
-        </div>
-        <div class="rounded-lg bg-forest-800 p-4">
-          <div class="flex items-center justify-between">
-            <div>
-              <p class="text-sm text-gray-400">Planning</p>
-              <p class="text-xl font-bold text-white">{{ getColumnCount('planning') }}</p>
-            </div>
-            <div class="flex h-8 w-8 items-center justify-center rounded-lg bg-orange-500">
-              <svg class="h-4 w-4 text-white" fill="currentColor" viewBox="0 0 20 20">
-                <path
-                  fill-rule="evenodd"
-                  d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z"
-                  clip-rule="evenodd"
-                />
-              </svg>
-            </div>
-          </div>
-        </div>
-        <div class="rounded-lg bg-forest-800 p-4">
-          <div class="flex items-center justify-between">
-            <div>
-              <p class="text-sm text-gray-400">In Progress</p>
-              <p class="text-xl font-bold text-white">{{ getColumnCount('in-progress') }}</p>
-            </div>
-            <div class="flex h-8 w-8 items-center justify-center rounded-lg bg-orange-500">
-              <svg class="h-4 w-4 text-white" fill="currentColor" viewBox="0 0 20 20">
-                <path
-                  fill-rule="evenodd"
-                  d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z"
-                  clip-rule="evenodd"
-                />
-              </svg>
-            </div>
-          </div>
-        </div>
-        <div class="rounded-lg bg-forest-800 p-4">
-          <div class="flex items-center justify-between">
-            <div>
-              <p class="text-sm text-gray-400">Published</p>
-              <p class="text-xl font-bold text-white">{{ getColumnCount('published') }}</p>
-            </div>
-            <div class="flex h-8 w-8 items-center justify-center rounded-lg bg-orange-500">
-              <svg class="h-4 w-4 text-white" fill="currentColor" viewBox="0 0 20 20">
-                <path
-                  fill-rule="evenodd"
-                  d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
-                  clip-rule="evenodd"
-                />
-              </svg>
-            </div>
-          </div>
-        </div>
-      </div>
+
 
       <!-- Kanban Board -->
       <div class="rounded-lg bg-forest-800 p-6">
@@ -363,6 +293,125 @@
 
         </div>
       </div>
+
+      <!-- Agent Content Suggestions -->
+      <div class="mt-6 rounded-lg bg-forest-800 p-6">
+        <div class="mb-6 flex items-center justify-between">
+          <div class="flex items-center space-x-3">
+            <div class="flex h-10 w-10 items-center justify-center rounded-lg overflow-hidden" :style="{ backgroundColor: selectedAgentData.color + '20' }">
+              <img
+                v-if="selectedAgentData.image"
+                :src="selectedAgentData.image"
+                :alt="selectedAgentData.name"
+                class="h-full w-full object-cover"
+              />
+              <svg v-else class="h-6 w-6 text-white" fill="currentColor" viewBox="0 0 20 20">
+                <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
+              </svg>
+            </div>
+            <div>
+              <h3 class="text-lg font-semibold text-white">{{ selectedAgentData.name }} Content Suggestions</h3>
+              <p class="text-sm text-gray-400">Personalized recommendations to boost your content strategy</p>
+            </div>
+          </div>
+          <button class="flex items-center space-x-2 rounded-lg bg-forest-700 px-4 py-2 text-sm text-white hover:bg-forest-600 transition-colors">
+            <svg class="h-4 w-4" fill="currentColor" viewBox="0 0 20 20">
+              <path fill-rule="evenodd" d="M4 2a1 1 0 011 1v2.101a7.002 7.002 0 0111.601 2.566 1 1 0 11-1.885.666A5.002 5.002 0 005.999 7H9a1 1 0 010 2H4a1 1 0 01-1-1V3a1 1 0 011-1zm.008 9.057a1 1 0 011.276.61A5.002 5.002 0 0014.001 13H11a1 1 0 110-2h5a1 1 0 011 1v5a1 1 0 11-2 0v-2.101a7.002 7.002 0 01-11.601-2.566 1 1 0 01.61-1.276z" clip-rule="evenodd"/>
+            </svg>
+            <span>Refresh</span>
+          </button>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          <!-- Trending Topics -->
+          <div class="rounded-lg bg-forest-700/50 p-4 border border-forest-600/20">
+            <div class="mb-3 flex items-center space-x-2">
+              <div class="h-2 w-2 rounded-full bg-red-500"></div>
+              <h4 class="text-sm font-semibold text-white">Trending Now</h4>
+            </div>
+            <div class="space-y-2">
+              <div class="cursor-pointer rounded-md bg-forest-700 p-3 hover:bg-forest-600 transition-colors">
+                <p class="text-sm text-white font-medium">Agent Tools for Content Creation</p>
+                <p class="text-xs text-gray-400 mt-1">High engagement potential</p>
+              </div>
+              <div class="cursor-pointer rounded-md bg-forest-700 p-3 hover:bg-forest-600 transition-colors">
+                <p class="text-sm text-white font-medium">2024 Social Media Predictions</p>
+                <p class="text-xs text-gray-400 mt-1">Seasonal relevance</p>
+              </div>
+              <div class="cursor-pointer rounded-md bg-forest-700 p-3 hover:bg-forest-600 transition-colors">
+                <p class="text-sm text-white font-medium">Short-form Video Strategies</p>
+                <p class="text-xs text-gray-400 mt-1">Platform trending</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Content Ideas -->
+          <div class="rounded-lg bg-forest-700/50 p-4 border border-forest-600/20">
+            <div class="mb-3 flex items-center space-x-2">
+              <div class="h-2 w-2 rounded-full bg-blue-500"></div>
+              <h4 class="text-sm font-semibold text-white">Content Ideas</h4>
+            </div>
+            <div class="space-y-2">
+              <div class="cursor-pointer rounded-md bg-forest-700 p-3 hover:bg-forest-600 transition-colors">
+                <p class="text-sm text-white font-medium">Behind-the-Scenes Content</p>
+                <p class="text-xs text-gray-400 mt-1">Builds audience connection</p>
+              </div>
+              <div class="cursor-pointer rounded-md bg-forest-700 p-3 hover:bg-forest-600 transition-colors">
+                <p class="text-sm text-white font-medium">Tutorial Series: Beginner to Pro</p>
+                <p class="text-xs text-gray-400 mt-1">Educational content</p>
+              </div>
+              <div class="cursor-pointer rounded-md bg-forest-700 p-3 hover:bg-forest-600 transition-colors">
+                <p class="text-sm text-white font-medium">Community Q&A Sessions</p>
+                <p class="text-xs text-gray-400 mt-1">Interactive engagement</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Optimization Tips -->
+          <div class="rounded-lg bg-forest-700/50 p-4 border border-forest-600/20">
+            <div class="mb-3 flex items-center space-x-2">
+              <div class="h-2 w-2 rounded-full bg-green-500"></div>
+              <h4 class="text-sm font-semibold text-white">Optimization Tips</h4>
+            </div>
+            <div class="space-y-2">
+              <div class="cursor-pointer rounded-md bg-forest-700 p-3 hover:bg-forest-600 transition-colors">
+                <p class="text-sm text-white font-medium">Post at 2-4 PM for max reach</p>
+                <p class="text-xs text-gray-400 mt-1">Timing optimization</p>
+              </div>
+              <div class="cursor-pointer rounded-md bg-forest-700 p-3 hover:bg-forest-600 transition-colors">
+                <p class="text-sm text-white font-medium">Use 3-5 hashtags per post</p>
+                <p class="text-xs text-gray-400 mt-1">Hashtag strategy</p>
+              </div>
+              <div class="cursor-pointer rounded-md bg-forest-700 p-3 hover:bg-forest-600 transition-colors">
+                <p class="text-sm text-white font-medium">Add captions to videos</p>
+                <p class="text-xs text-gray-400 mt-1">Accessibility boost</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Quick Actions -->
+        <div class="mt-6 flex flex-wrap gap-3">
+          <button class="flex items-center space-x-2 rounded-lg bg-orange-500 px-4 py-2 text-sm text-white hover:bg-orange-600 transition-colors">
+            <svg class="h-4 w-4" fill="currentColor" viewBox="0 0 20 20">
+              <path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clip-rule="evenodd"/>
+            </svg>
+            <span>Add to Ideas</span>
+          </button>
+          <button class="flex items-center space-x-2 rounded-lg bg-forest-700 px-4 py-2 text-sm text-white hover:bg-forest-600 transition-colors">
+            <svg class="h-4 w-4" fill="currentColor" viewBox="0 0 20 20">
+              <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z"/>
+            </svg>
+            <span>Customize Suggestions</span>
+          </button>
+          <button class="flex items-center space-x-2 rounded-lg bg-forest-700 px-4 py-2 text-sm text-white hover:bg-forest-600 transition-colors">
+            <svg class="h-4 w-4" fill="currentColor" viewBox="0 0 20 20">
+              <path d="M3 4a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-1 1H4a1 1 0 01-1-1V4zM3 10a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H4a1 1 0 01-1-1v-6zM14 9a1 1 0 00-1 1v6a1 1 0 001 1h2a1 1 0 001-1v-6a1 1 0 00-1-1h-2z"/>
+            </svg>
+            <span>View Analytics</span>
+          </button>
+        </div>
+      </div>
     </div>
   </div>
 </template>
@@ -371,6 +420,80 @@
 // Protect this route with authentication
 definePageMeta({
   middleware: 'auth'
+})
+
+// Agent settings state
+const selectedAgent = ref(1)
+const agentName = ref('Professional Assistant')
+
+// Available agents (same as in settings and modal)
+const agents = [
+  {
+    id: 1,
+    name: 'Agent 1',
+    image: '/Agent1.png',
+    color: '#9333ea', // Purple
+    description: 'AI Content Creator',
+    personality: 'Professional & Analytical',
+  },
+  {
+    id: 2,
+    name: 'Agent 2',
+    image: '/Agent2.png',
+    color: '#2563eb', // Blue
+    description: 'Marketing Specialist',
+    personality: 'Strategic & Data-Driven',
+  },
+  {
+    id: 3,
+    name: 'Agent 3',
+    image: '/Agent3.png',
+    color: '#16a34a', // Green
+    description: 'Analytics Expert',
+    personality: 'Detail-Oriented & Insightful',
+  },
+  {
+    id: 4,
+    name: 'Agent 4',
+    image: '/Agent4.png',
+    color: '#ea580c', // Orange
+    description: 'Creative Assistant',
+    personality: 'Innovative & Artistic',
+  },
+  {
+    id: 5,
+    name: 'Agent 5',
+    image: '/Agent5.png',
+    color: '#dc2626', // Red/Pink
+    description: 'Strategy Advisor',
+    personality: 'Visionary & Strategic',
+  },
+]
+
+// Computed property for selected agent data
+const selectedAgentData = computed(() => {
+  const agent = agents.find(agent => agent.id === selectedAgent.value) || agents[0]
+  return {
+    ...agent,
+    name: agentName.value || agent.name
+  }
+})
+
+// Load agent settings from localStorage
+const loadAgentSettings = () => {
+  if (typeof window !== 'undefined') {
+    const savedSettings = localStorage.getItem('agentSettings')
+    if (savedSettings) {
+      const settings = JSON.parse(savedSettings)
+      selectedAgent.value = settings.selectedAgent || 1
+      agentName.value = settings.name || 'Professional Assistant'
+    }
+  }
+}
+
+// Load settings on component mount
+onMounted(() => {
+  loadAgentSettings()
 })
 
 // Content items data
