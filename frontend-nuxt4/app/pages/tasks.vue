@@ -1,5 +1,5 @@
 <template>
-  <div class="min-h-screen bg-gray-900 text-white p-6 pt-32">
+  <div class="min-h-screen bg-forest-900 text-white p-6 pt-32">
     <div class="max-w-7xl mx-auto space-y-8">
       <!-- Page Header -->
       <div class="flex items-center justify-between">
@@ -12,13 +12,13 @@
 
         <div class="flex items-center space-x-3">
           <button
-            :class="currentView === 'dashboard' ? 'rounded-lg bg-pink-500 px-4 py-2 text-sm text-white' : 'rounded-lg bg-gray-700 px-4 py-2 text-sm text-gray-300 hover:bg-gray-600'"
+            :class="currentView === 'dashboard' ? 'rounded-lg bg-orange-500 px-4 py-2 text-sm text-white' : 'rounded-lg bg-forest-700 px-4 py-2 text-sm text-gray-300 hover:bg-forest-600'"
             @click="currentView = 'dashboard'"
           >
             📊 Dashboard
           </button>
           <button
-            :class="currentView === 'manager' ? 'rounded-lg bg-pink-500 px-4 py-2 text-sm text-white' : 'rounded-lg bg-gray-700 px-4 py-2 text-sm text-gray-300 hover:bg-gray-600'"
+            :class="currentView === 'manager' ? 'rounded-lg bg-orange-500 px-4 py-2 text-sm text-white' : 'rounded-lg bg-forest-700 px-4 py-2 text-sm text-gray-300 hover:bg-forest-600'"
             @click="currentView = 'manager'"
           >
             📋 Task Manager
@@ -36,19 +36,19 @@
       <div v-if="currentView === 'dashboard'" class="space-y-6">
         <!-- Task Stats Overview -->
         <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-          <div class="rounded-xl bg-gray-800 p-4 text-center">
+          <div class="rounded-xl bg-forest-800 p-4 text-center">
             <div class="text-2xl font-bold text-green-400">{{ taskStats.completed }}</div>
             <div class="text-sm text-gray-400">Completed</div>
           </div>
-          <div class="rounded-xl bg-gray-800 p-4 text-center">
+          <div class="rounded-xl bg-forest-800 p-4 text-center">
             <div class="text-2xl font-bold text-blue-400">{{ taskStats.inProgress }}</div>
             <div class="text-sm text-gray-400">In Progress</div>
           </div>
-          <div class="rounded-xl bg-gray-800 p-4 text-center">
+          <div class="rounded-xl bg-forest-800 p-4 text-center">
             <div class="text-2xl font-bold text-yellow-400">{{ taskStats.pending }}</div>
             <div class="text-sm text-gray-400">Pending</div>
           </div>
-          <div class="rounded-xl bg-gray-800 p-4 text-center">
+          <div class="rounded-xl bg-forest-800 p-4 text-center">
             <div class="text-2xl font-bold text-red-400">{{ taskStats.overdue }}</div>
             <div class="text-sm text-gray-400">Overdue</div>
           </div>
@@ -58,13 +58,13 @@
       <!-- Task Manager View -->
       <div v-if="currentView === 'manager'" class="space-y-6">
         <!-- Filters and Search -->
-        <div class="rounded-xl bg-gray-800 p-6">
+        <div class="rounded-xl bg-forest-800 p-6">
           <div class="flex flex-col md:flex-row gap-4 items-center justify-between">
             <div class="flex flex-wrap gap-2">
               <button
                 v-for="filter in filters"
                 :key="filter.value"
-                :class="activeFilter === filter.value ? 'rounded-full bg-pink-500 px-4 py-2 text-sm text-white' : 'rounded-full bg-gray-700 px-4 py-2 text-sm text-gray-300 hover:bg-gray-600'"
+                :class="activeFilter === filter.value ? 'rounded-full bg-orange-500 px-4 py-2 text-sm text-white' : 'rounded-full bg-forest-700 px-4 py-2 text-sm text-gray-300 hover:bg-forest-600'"
                 @click="activeFilter = filter.value"
               >
                 {{ filter.label }}
@@ -75,7 +75,7 @@
                 v-model="searchQuery"
                 type="text"
                 placeholder="Search tasks..."
-                class="rounded-lg bg-gray-700 border border-gray-600 px-3 py-2 text-sm text-white placeholder-gray-400 focus:border-pink-500 focus:outline-none"
+                class="rounded-lg bg-forest-700 border border-forest-600 px-3 py-2 text-sm text-white placeholder-gray-400 focus:border-orange-500 focus:outline-none"
               />
               <button
                 class="rounded-lg bg-pink-500 px-4 py-2 text-sm text-white hover:bg-pink-600"
@@ -88,12 +88,12 @@
         </div>
 
         <!-- Task List -->
-        <div class="rounded-xl bg-gray-800 p-6">
+        <div class="rounded-xl bg-forest-800 p-6">
           <div class="space-y-3">
             <div
               v-for="task in filteredTasks"
               :key="task.id"
-              class="flex items-center justify-between rounded-lg bg-gray-700 p-4 hover:bg-gray-600 transition-colors"
+              class="flex items-center justify-between rounded-lg bg-forest-700 p-4 hover:bg-forest-600 transition-colors"
               :class="{
                 'border-l-4 border-red-500': isOverdue(task),
                 'border-l-4 border-yellow-500': isDueToday(task),
@@ -103,7 +103,7 @@
                 <input
                   :checked="task.completed"
                   type="checkbox"
-                  class="rounded border-gray-600 bg-gray-700 text-pink-500 focus:ring-pink-500"
+                  class="rounded border-forest-600 bg-forest-700 text-orange-500 focus:ring-orange-500"
                   @change="toggleTaskCompletion(task.id)"
                 />
                 <div class="flex-1">
@@ -121,7 +121,7 @@
                     {{ task.description }}
                   </p>
                   <div class="mt-2 flex items-center space-x-2">
-                    <span class="rounded bg-gray-600 px-2 py-1 text-xs text-gray-300">
+                    <span class="rounded bg-forest-600 px-2 py-1 text-xs text-gray-300">
                       {{ formatCategory(task.category) }}
                     </span>
                     <span
@@ -179,7 +179,7 @@
       />
 
       <!-- AI Task Suggestions -->
-      <div v-if="currentView === 'dashboard' && aiSuggestions.length > 0" class="rounded-xl bg-gray-800 p-6">
+      <div v-if="currentView === 'dashboard' && aiSuggestions.length > 0" class="rounded-xl bg-forest-800 p-6">
         <div class="mb-4 flex items-center space-x-2">
           <span class="text-lg">🤖</span>
           <h3 class="text-lg font-semibold text-white">AI Task Suggestions</h3>
@@ -189,10 +189,10 @@
           <div
             v-for="suggestion in aiSuggestions"
             :key="suggestion.id"
-            class="flex items-center justify-between p-4 rounded-lg bg-gray-700 hover:bg-gray-600 transition-colors"
+            class="flex items-center justify-between p-4 rounded-lg bg-forest-700 hover:bg-forest-600 transition-colors"
           >
             <div class="flex items-center space-x-3">
-              <div class="w-10 h-10 rounded-lg flex items-center justify-center bg-gray-600">
+              <div class="w-10 h-10 rounded-lg flex items-center justify-center bg-forest-600">
                 <span class="text-lg">{{ suggestion.icon }}</span>
               </div>
               <div>
@@ -205,7 +205,7 @@
                   >
                     {{ formatPriority(suggestion.priority) }}
                   </span>
-                  <span class="rounded bg-gray-600 px-2 py-1 text-xs text-gray-300">
+                  <span class="rounded bg-forest-600 px-2 py-1 text-xs text-gray-300">
                     {{ formatCategory(suggestion.category) }}
                   </span>
                 </div>
@@ -219,7 +219,7 @@
                 ✕
               </button>
               <button
-                class="rounded bg-pink-500 px-3 py-1 text-sm text-white hover:bg-pink-600"
+                class="rounded bg-orange-500 px-3 py-1 text-sm text-white hover:bg-orange-600"
                 @click="createFromSuggestion(suggestion)"
               >
                 Create Task
@@ -230,7 +230,7 @@
       </div>
 
       <!-- Task Analytics -->
-      <div v-if="currentView === 'dashboard'" class="rounded-xl bg-gray-800 p-6">
+      <div v-if="currentView === 'dashboard'" class="rounded-xl bg-forest-800 p-6">
         <h3 class="text-lg font-semibold text-white mb-6">Task Analytics</h3>
 
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -519,7 +519,7 @@ const getPriorityClass = (priority: TaskPriority) => {
     case 'high': return 'bg-orange-500 text-white'
     case 'medium': return 'bg-yellow-500 text-black'
     case 'low': return 'bg-green-500 text-white'
-    default: return 'bg-gray-500 text-white'
+    default: return 'bg-forest-600 text-white'
   }
 }
 

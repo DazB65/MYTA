@@ -2,7 +2,7 @@
   <header class="fixed top-0 left-0 right-0 z-50">
     <div class="p-6">
       <!-- Header Container -->
-      <div class="rounded-xl bg-gray-800 p-4">
+      <div class="rounded-xl bg-background-card p-4">
       <!-- Top Navigation Bar -->
       <div class="flex items-center justify-between mb-3 h-12">
         <!-- Left: Logo -->
@@ -113,7 +113,7 @@
               v-for="item in mainMenuItems"
               :key="item.path"
               :to="item.path"
-              class="px-3 py-2 rounded-lg text-sm font-medium text-gray-300 hover:text-white hover:bg-gray-700 transition-colors"
+              class="px-3 py-2 rounded-lg text-sm font-medium text-gray-300 hover:text-white hover:bg-background-elevated transition-colors"
               active-class="bg-pink-500 text-white hover:bg-pink-600"
             >
               {{ item.name }}
@@ -125,7 +125,7 @@
             <div class="flex items-center space-x-3">
               <!-- Connect YouTube Button -->
               <button
-                class="flex items-center space-x-2 rounded-lg bg-red-600 px-4 py-2 text-white transition-colors hover:bg-red-700"
+                class="btn btn-connect"
                 @click="showConnectModal = true"
               >
                 <svg class="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
@@ -140,7 +140,7 @@
 
               <!-- Agent Button -->
               <button
-                class="flex items-center space-x-2 rounded-lg bg-purple-600 px-4 py-2 text-white transition-colors hover:bg-purple-700"
+                class="btn btn-agent"
                 @click="showAgentModal = true"
               >
                 <svg class="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">

@@ -4,19 +4,19 @@
     <div class="space-y-6 pt-32 px-6">
       <!-- Productivity Stats -->
       <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
-        <div class="rounded-xl bg-gray-800 p-4 text-center">
+        <div class="rounded-xl bg-background-card p-4 text-center">
           <div class="text-2xl font-bold text-green-400">{{ taskStats.completed }}</div>
           <div class="text-sm text-gray-400">Completed Today</div>
         </div>
-        <div class="rounded-xl bg-gray-800 p-4 text-center">
+        <div class="rounded-xl bg-background-card p-4 text-center">
           <div class="text-2xl font-bold text-blue-400">{{ taskStats.inProgress }}</div>
           <div class="text-sm text-gray-400">In Progress</div>
         </div>
-        <div class="rounded-xl bg-gray-800 p-4 text-center">
+        <div class="rounded-xl bg-background-card p-4 text-center">
           <div class="text-2xl font-bold text-yellow-400">{{ taskStats.pending }}</div>
           <div class="text-sm text-gray-400">Pending</div>
         </div>
-        <div class="rounded-xl bg-gray-800 p-4 text-center">
+        <div class="rounded-xl bg-background-card p-4 text-center">
           <div class="text-2xl font-bold text-red-400">{{ taskStats.overdue }}</div>
           <div class="text-sm text-gray-400">Overdue</div>
         </div>
@@ -25,7 +25,7 @@
       <!-- Dashboard Content Grid -->
       <div class="grid grid-cols-1 gap-6 lg:grid-cols-2">
         <!-- Dynamic Task Manager Compartment -->
-        <div class="rounded-xl bg-gray-800 p-6">
+        <div class="rounded-xl bg-background-card p-6">
           <div class="mb-6 flex items-center justify-between">
             <div class="flex items-center space-x-3">
               <div class="flex h-10 w-10 items-center justify-center rounded-lg bg-pink-500">
@@ -49,19 +49,19 @@
           <div class="mb-6 flex items-center justify-between">
             <div class="flex space-x-2">
               <button
-                :class="dashboardFilter === 'all' ? 'rounded-full bg-pink-500 px-4 py-2 text-sm text-white' : 'rounded-full bg-gray-700 px-4 py-2 text-sm text-gray-300 hover:bg-gray-600'"
+                :class="dashboardFilter === 'all' ? 'rounded-full bg-pink-500 px-4 py-2 text-sm text-white' : 'rounded-full bg-background-elevated px-4 py-2 text-sm text-gray-300 hover:bg-surface-3'"
                 @click="dashboardFilter = 'all'"
               >
                 All
               </button>
               <button
-                :class="dashboardFilter === 'due_today' ? 'rounded-full bg-pink-500 px-4 py-2 text-sm text-white' : 'rounded-full bg-gray-700 px-4 py-2 text-sm text-gray-300 hover:bg-gray-600'"
+                :class="dashboardFilter === 'due_today' ? 'rounded-full bg-pink-500 px-4 py-2 text-sm text-white' : 'rounded-full bg-background-elevated px-4 py-2 text-sm text-gray-300 hover:bg-surface-3'"
                 @click="dashboardFilter = 'due_today'"
               >
                 Due Today
               </button>
               <button
-                :class="dashboardFilter === 'high_priority' ? 'rounded-full bg-pink-500 px-4 py-2 text-sm text-white' : 'rounded-full bg-gray-700 px-4 py-2 text-sm text-gray-300 hover:bg-gray-600'"
+                :class="dashboardFilter === 'high_priority' ? 'rounded-full bg-pink-500 px-4 py-2 text-sm text-white' : 'rounded-full bg-background-elevated px-4 py-2 text-sm text-gray-300 hover:bg-surface-3'"
                 @click="dashboardFilter = 'high_priority'"
               >
                 High Priority
@@ -77,7 +77,7 @@
             <div
               v-for="task in dashboardTasks"
               :key="task.id"
-              class="flex items-center justify-between rounded-lg bg-gray-700 p-4 hover:bg-gray-600 transition-colors cursor-pointer"
+              class="flex items-center justify-between rounded-lg bg-background-elevated p-4 hover:bg-surface-3 transition-colors cursor-pointer"
               :class="{
                 'border-l-4 border-red-500': isOverdue(task),
                 'border-l-4 border-yellow-500': isDueToday(task),
@@ -88,7 +88,7 @@
                 <input
                   :checked="task.completed"
                   type="checkbox"
-                  class="rounded border-gray-600 bg-gray-700 text-pink-500 focus:ring-pink-500"
+                  class="rounded border-gray-600 bg-background-elevated text-pink-500 focus:ring-pink-500"
                   @click.stop
                   @change="toggleTaskCompletion(task.id)"
                 />
@@ -107,7 +107,7 @@
                     {{ truncateText(task.description, 60) }}
                   </p>
                   <div class="mt-2 flex items-center space-x-2">
-                    <span class="rounded bg-gray-600 px-2 py-1 text-xs text-gray-300">
+                    <span class="rounded bg-surface-3 px-2 py-1 text-xs text-gray-300">
                       {{ formatCategory(task.category) }}
                     </span>
                     <span
@@ -162,7 +162,7 @@
         <!-- Channel Goals & AI Insights -->
         <div class="space-y-6">
           <!-- Channel Goals -->
-          <div class="rounded-xl bg-gray-800 p-6">
+          <div class="rounded-xl bg-background-card p-6">
             <div class="mb-6 flex items-center justify-between">
               <div class="flex items-center space-x-3">
                 <div class="flex h-10 w-10 items-center justify-center rounded-lg bg-blue-500">
@@ -281,7 +281,7 @@
             <!-- Quick Actions -->
             <div class="mt-6 grid grid-cols-2 gap-4">
               <button
-                class="flex items-center justify-center space-x-2 rounded-lg bg-gray-700 p-3 text-sm text-white hover:bg-gray-600"
+                class="flex items-center justify-center space-x-2 rounded-lg bg-background-elevated p-3 text-sm text-white hover:bg-surface-3"
                 @click="openAgentModal"
               >
                 <span>🤖</span>
@@ -298,7 +298,7 @@
           </div>
 
           <!-- AI Task Suggestions -->
-          <div v-if="aiSuggestions.length > 0" class="rounded-xl bg-gray-800 p-6">
+          <div v-if="aiSuggestions.length > 0" class="rounded-xl bg-background-card p-6">
             <div class="mb-4 flex items-center space-x-2">
               <span class="text-lg">🤖</span>
               <h3 class="text-lg font-semibold text-white">AI Suggestions</h3>
@@ -308,11 +308,11 @@
               <div
                 v-for="suggestion in aiSuggestions.slice(0, 2)"
                 :key="suggestion.id"
-                class="flex items-center justify-between p-3 rounded-lg bg-gray-700 hover:bg-gray-600 transition-colors"
+                class="flex items-center justify-between p-3 rounded-lg bg-background-elevated hover:bg-surface-3 transition-colors"
               >
                 <div class="flex items-center space-x-3">
                   <div
-                    class="w-8 h-8 rounded-lg flex items-center justify-center bg-gray-600"
+                    class="w-8 h-8 rounded-lg flex items-center justify-center bg-surface-3"
                   >
                     <span class="text-sm">{{ suggestion.icon }}</span>
                   </div>
@@ -515,7 +515,7 @@ const getPriorityClass = (priority: TaskPriority) => {
     case 'high': return 'bg-orange-500 text-white'
     case 'medium': return 'bg-yellow-500 text-black'
     case 'low': return 'bg-green-500 text-white'
-    default: return 'bg-gray-500 text-white'
+    default: return 'bg-surface-3 text-white'
   }
 }
 

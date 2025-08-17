@@ -12,19 +12,33 @@ export default {
     extend: {
       // Custom color palette based on existing CSS variables
       colors: {
-        // Background colors
+        // Background colors - Forest Green Theme
         background: {
-          DEFAULT: '#111827', // gray-900
-          card: '#1f2937', // gray-800
-          elevated: '#374151', // gray-700
-          overlay: 'rgba(0, 0, 0, 0.8)',
+          DEFAULT: '#0f1419', // deep forest
+          card: '#1a2f23', // forest card
+          elevated: '#2d4a37', // elevated forest
+          overlay: 'rgba(15, 20, 25, 0.9)', // forest overlay
         },
 
         // Surface colors
         surface: {
-          1: '#212121',
-          2: '#2c2c2c',
-          3: '#374151',
+          1: '#0f1419', // deep forest
+          2: '#1a2f23', // forest
+          3: '#2d4a37', // light forest
+        },
+
+        // Forest color palette
+        forest: {
+          50: '#f0f9f4',
+          100: '#dcf4e3',
+          200: '#bbe8cc',
+          300: '#86d5a7',
+          400: '#4ade80',
+          500: '#22c55e',
+          600: '#16a34a',
+          700: '#2d4a37', // Main interactive elements
+          800: '#1a2f23', // Main containers
+          900: '#0f1419', // Background
         },
 
         // Text colors
@@ -35,40 +49,54 @@ export default {
           muted: '#6b7280', // gray-500
         },
 
-        // Agent-based brand colors
+        // Forest + Orange brand colors
         brand: {
-          primary: '#9333ea', // Agent 1 Purple
-          secondary: '#2563eb', // Agent 2 Blue
-          50: '#f5f3ff',
-          100: '#ede9fe',
-          200: '#ddd6fe',
-          300: '#c4b5fd',
-          400: '#a78bfa',
-          500: '#9333ea', // Agent 1 Purple (primary)
-          600: '#7c3aed',
-          700: '#6d28d9',
-          800: '#5b21b6',
-          900: '#4c1d95',
+          primary: '#f97316', // Orange primary
+          secondary: '#22c55e', // Forest green secondary
+          50: '#fff7ed',
+          100: '#ffedd5',
+          200: '#fed7aa',
+          300: '#fdba74',
+          400: '#fb923c',
+          500: '#f97316', // Orange primary
+          600: '#ea580c',
+          700: '#c2410c',
+          800: '#9a3412',
+          900: '#7c2d12',
+        },
+
+        // Orange color palette (primary accent)
+        orange: {
+          50: '#fff7ed',
+          100: '#ffedd5',
+          200: '#fed7aa',
+          300: '#fdba74',
+          400: '#fb923c',
+          500: '#f97316', // Main orange accent
+          600: '#ea580c',
+          700: '#c2410c',
+          800: '#9a3412',
+          900: '#7c2d12',
         },
 
         // Agent colors
         agent: {
-          1: '#9333ea', // Agent 1 - Purple
+          1: '#f97316', // Agent 1 - Orange (primary)
           2: '#2563eb', // Agent 2 - Blue
           3: '#059669', // Agent 3 - Green
-          4: '#ea580c', // Agent 4 - Orange
+          4: '#ea580c', // Agent 4 - Dark Orange
           5: '#db2777', // Agent 5 - Pink
           boss: '#7c2d12', // Boss Agent - Dark Red/Brown
         },
 
-        // Accent colors (using agent palette)
+        // Accent colors (forest + orange theme)
         accent: {
-          purple: '#9333ea', // Agent 1
+          orange: '#f97316', // Primary accent
           blue: '#2563eb', // Agent 2
           green: '#059669', // Agent 3
-          orange: '#ea580c', // Agent 4
-          pink: '#db2777', // Agent 5
+          amber: '#ea580c', // Agent 4
           red: '#ef4444',
+          primary: '#f97316', // Orange as primary
         },
 
         // Status colors
@@ -149,17 +177,18 @@ export default {
         glass: '16px',
       },
 
-      // Agent-based gradients
+      // Forest + Orange gradients
       backgroundImage: {
-        'gradient-brand': 'linear-gradient(135deg, #9333ea 0%, #2563eb 100%)',
-        'gradient-agent-1': 'linear-gradient(135deg, #9333ea 0%, #7c3aed 100%)',
+        'gradient-brand': 'linear-gradient(135deg, #f97316 0%, #22c55e 100%)',
+        'gradient-agent-1': 'linear-gradient(135deg, #f97316 0%, #ea580c 100%)',
         'gradient-agent-2': 'linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%)',
         'gradient-agent-3': 'linear-gradient(135deg, #059669 0%, #047857 100%)',
         'gradient-agent-4': 'linear-gradient(135deg, #ea580c 0%, #c2410c 100%)',
         'gradient-agent-5': 'linear-gradient(135deg, #db2777 0%, #be185d 100%)',
         'gradient-boss': 'linear-gradient(135deg, #7c2d12 0%, #991b1b 100%)',
+        'gradient-forest-orange': 'linear-gradient(135deg, #0f1419 0%, #f97316 100%)',
         'gradient-multi-agent':
-          'linear-gradient(135deg, #9333ea 0%, #2563eb 25%, #059669 50%, #ea580c 75%, #db2777 100%)',
+          'linear-gradient(135deg, #f97316 0%, #2563eb 25%, #059669 50%, #ea580c 75%, #db2777 100%)',
         'gradient-glass':
           'linear-gradient(135deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.05) 100%)',
       },
