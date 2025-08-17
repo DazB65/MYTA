@@ -8,11 +8,7 @@
         @close="closeModal('youtubeConnect')"
       />
       
-      <!-- Agent Modal -->
-      <AgentModal
-        v-if="modals.agent"
-        @close="closeModal('agent')"
-      />
+
       
       <!-- Settings Modal -->
       <SettingsModal
@@ -36,12 +32,11 @@
 </template>
 
 <script setup>
-import { reactive } from 'vue'
+import { onMounted, onUnmounted, provide, reactive } from 'vue'
 
 // Modal state
 const modals = reactive({
   youtubeConnect: false,
-  agent: false,
   settings: false,
   confirmation: false
 })

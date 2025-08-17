@@ -142,7 +142,7 @@
               <button
                 v-if="selectedAgent"
                 :class="agentButtonClasses"
-                @click="showAgentModal = true"
+                @click="showChatPanel = true"
                 :title="`Chat with ${selectedAgent.name}`"
               >
                 <div class="w-6 h-6 rounded-lg overflow-hidden bg-white/30 flex items-center justify-center border border-white/20">
@@ -160,7 +160,7 @@
               <button
                 v-else
                 class="flex items-center space-x-2 rounded-lg bg-forest-700 px-3 py-2 text-sm text-white hover:bg-forest-600 transition-colors"
-                @click="showAgentModal = true"
+                @click="showChatPanel = true"
                 title="Chat with Agent"
               >
                 <svg class="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
@@ -214,8 +214,8 @@
       @connect="handleYouTubeConnect"
     />
 
-    <!-- Agent Modal -->
-    <AgentModal :is-open="showAgentModal" @close="showAgentModal = false" />
+    <!-- Agent Chat Panel -->
+    <AgentChatPanel :is-open="showChatPanel" @close="showChatPanel = false" />
   </header>
 </template>
 
@@ -223,7 +223,6 @@
 import { computed, onMounted, onUnmounted, ref } from 'vue'
 import { useAgentSettings } from '../composables/useAgentSettings'
 import { useAuthStore } from '../stores/auth'
-import AgentModal from './dashboard/AgentModal.vue'
 import YouTubeConnectModal from './modals/YouTubeConnectModal.vue'
 
 // Auth store
@@ -237,7 +236,7 @@ const showMobileMenu = ref(false)
 
 // iPhone compartment state
 const showConnectModal = ref(false)
-const showAgentModal = ref(false)
+const showChatPanel = ref(false)
 
 // Navigation items
 const mainMenuItems = [
