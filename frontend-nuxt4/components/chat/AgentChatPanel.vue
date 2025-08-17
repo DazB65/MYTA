@@ -10,9 +10,9 @@
 
   <!-- Slide-out Panel -->
   <Transition name="slide-right">
-    <div 
-      v-if="isOpen" 
-      class="fixed right-0 top-0 z-50 h-full w-[400px] bg-forest-800 shadow-2xl border-l border-forest-700"
+    <div
+      v-if="isOpen"
+      class="fixed right-0 top-0 z-50 h-full w-[600px] bg-forest-800 shadow-2xl border-l border-forest-700"
     >
       <!-- Agent Header -->
       <div 
@@ -34,14 +34,27 @@
               <p class="text-sm text-white/80">{{ selectedAgentData.personality }}</p>
             </div>
           </div>
-          <button
-            @click="closeChat"
-            class="p-2 rounded-lg hover:bg-white/10 transition-colors text-white/80 hover:text-white"
-          >
-            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-            </svg>
-          </button>
+          <div class="flex items-center space-x-2">
+            <button
+              @click="showSettings = true"
+              class="p-2 rounded-lg hover:bg-white/10 transition-colors text-white/80 hover:text-white"
+              title="Agent Settings"
+            >
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+              </svg>
+            </button>
+            <button
+              @click="closeChat"
+              class="p-2 rounded-lg hover:bg-white/10 transition-colors text-white/80 hover:text-white"
+              title="Close Chat"
+            >
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+          </div>
         </div>
       </div>
 
@@ -159,6 +172,85 @@
           </button>
         </div>
       </div>
+
+      <!-- Settings Overlay -->
+      <div
+        v-if="showSettings"
+        class="absolute inset-0 bg-black/50 backdrop-blur-sm z-10 flex items-center justify-center p-6"
+        @click="showSettings = false"
+      >
+        <div
+          class="bg-forest-700 rounded-xl p-6 w-full max-w-md border border-forest-600"
+          @click.stop
+        >
+          <div class="flex items-center justify-between mb-6">
+            <h3 class="text-lg font-semibold text-white">Agent Settings</h3>
+            <button
+              @click="showSettings = false"
+              class="p-1 rounded-lg hover:bg-forest-600 transition-colors text-white/80 hover:text-white"
+            >
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+          </div>
+
+          <!-- Agent Name Input -->
+          <div class="mb-6">
+            <label class="block text-sm font-medium text-gray-300 mb-2">Agent Name</label>
+            <input
+              v-model="tempAgentName"
+              type="text"
+              placeholder="Enter agent name..."
+              class="w-full bg-forest-600 border border-forest-500 rounded-lg px-4 py-3 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:border-transparent"
+              :style="{ '--tw-ring-color': selectedAgentData.color }"
+            />
+          </div>
+
+          <!-- Agent Selection -->
+          <div class="mb-6">
+            <label class="block text-sm font-medium text-gray-300 mb-3">Choose Your Agent</label>
+            <div class="grid grid-cols-2 gap-3">
+              <div
+                v-for="agent in availableAgents"
+                :key="agent.id"
+                :class="[
+                  'relative cursor-pointer rounded-lg border-2 p-3 transition-all hover:shadow-md',
+                  tempSelectedAgent === agent.id
+                    ? 'border-orange-500 bg-orange-900/30'
+                    : 'border-forest-500 hover:border-forest-400',
+                ]"
+                @click="tempSelectedAgent = agent.id"
+              >
+                <div class="text-center">
+                  <div class="mx-auto mb-2 h-12 w-12 overflow-hidden rounded-lg">
+                    <img :src="agent.image" :alt="agent.name" class="h-full w-full object-cover" />
+                  </div>
+                  <div class="text-xs font-medium text-gray-300">{{ agent.name }}</div>
+                  <div class="text-xs text-gray-400 mt-1">{{ agent.personality }}</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Action Buttons -->
+          <div class="flex items-center justify-end space-x-3">
+            <button
+              @click="showSettings = false"
+              class="px-4 py-2 rounded-lg bg-forest-600 text-white hover:bg-forest-500 transition-colors"
+            >
+              Cancel
+            </button>
+            <button
+              @click="saveSettings"
+              class="px-4 py-2 rounded-lg font-medium text-white transition-colors"
+              :style="{ backgroundColor: selectedAgentData.color }"
+            >
+              Save Changes
+            </button>
+          </div>
+        </div>
+      </div>
     </div>
   </Transition>
 </template>
@@ -190,6 +282,9 @@ const messageInput = ref('')
 const isSending = ref(false)
 const isTyping = ref(false)
 const typingTimeout = ref<NodeJS.Timeout>()
+const showSettings = ref(false)
+const tempAgentName = ref('')
+const tempSelectedAgent = ref(1)
 
 // Computed
 const selectedAgentData = computed(() => {
@@ -207,6 +302,50 @@ const headerGradient = computed(() => {
 const messages = computed(() => {
   return chatStore.activeSessionMessages || []
 })
+
+// Available agents for selection
+const availableAgents = [
+  {
+    id: 1,
+    name: 'Agent 1',
+    image: '/Agent1.png',
+    color: '#ea580c',
+    description: 'AI Content Creator',
+    personality: 'Professional & Analytical',
+  },
+  {
+    id: 2,
+    name: 'Agent 2',
+    image: '/Agent2.png',
+    color: '#eab308',
+    description: 'Marketing Specialist',
+    personality: 'Strategic & Data-Driven',
+  },
+  {
+    id: 3,
+    name: 'Agent 3',
+    image: '/Agent3.png',
+    color: '#16a34a',
+    description: 'Analytics Expert',
+    personality: 'Detail-Oriented & Insightful',
+  },
+  {
+    id: 4,
+    name: 'Agent 4',
+    image: '/Agent4.png',
+    color: '#ea580c',
+    description: 'Creative Assistant',
+    personality: 'Innovative & Artistic',
+  },
+  {
+    id: 5,
+    name: 'Agent 5',
+    image: '/Agent5.png',
+    color: '#dc2626',
+    description: 'Strategy Advisor',
+    personality: 'Visionary & Strategic',
+  },
+]
 
 // Create or get existing chat session for the selected agent
 const ensureChatSession = () => {
@@ -288,11 +427,45 @@ const handleTyping = () => {
   if (typingTimeout.value) {
     clearTimeout(typingTimeout.value)
   }
-  
+
   // Set new timeout
   typingTimeout.value = setTimeout(() => {
     // Stop typing indicator after 1 second of no input
   }, 1000)
+}
+
+const saveSettings = () => {
+  // Update global agent settings
+  if (tempAgentName.value.trim()) {
+    agentName.value = tempAgentName.value.trim()
+  }
+
+  if (tempSelectedAgent.value !== selectedAgent.value?.id) {
+    const newAgent = availableAgents.find(a => a.id === tempSelectedAgent.value)
+    if (newAgent) {
+      // Save to localStorage (this should ideally use the useAgentSettings composable)
+      const settings = {
+        name: tempAgentName.value.trim() || newAgent.name,
+        selectedAgent: tempSelectedAgent.value
+      }
+      localStorage.setItem('agentSettings', JSON.stringify(settings))
+
+      // Trigger a page reload to update all components with new agent
+      window.location.reload()
+    }
+  } else if (tempAgentName.value.trim()) {
+    // Just update the name
+    const settings = {
+      name: tempAgentName.value.trim(),
+      selectedAgent: selectedAgent.value?.id || 1
+    }
+    localStorage.setItem('agentSettings', JSON.stringify(settings))
+
+    // Update the reactive value
+    agentName.value = tempAgentName.value.trim()
+  }
+
+  showSettings.value = false
 }
 
 // Watch for new messages to auto-scroll
@@ -305,6 +478,14 @@ watch(() => props.isOpen, (isOpen) => {
   if (isOpen) {
     ensureChatSession()
     scrollToBottom()
+  }
+})
+
+// Initialize temp values when settings modal opens
+watch(showSettings, (isOpen) => {
+  if (isOpen) {
+    tempAgentName.value = agentName.value || selectedAgentData.value.name || ''
+    tempSelectedAgent.value = selectedAgent.value?.id || 1
   }
 })
 </script>
