@@ -24,7 +24,7 @@
             📋 Task Manager
           </button>
           <button
-            class="rounded-lg bg-pink-500 px-4 py-2 text-sm text-white hover:bg-pink-600"
+            class="rounded-lg bg-orange-500 px-4 py-2 text-sm text-white hover:bg-orange-600"
             @click="showCreateModal = true"
           >
             ➕ New Task
@@ -78,7 +78,7 @@
                 class="rounded-lg bg-forest-700 border border-forest-600 px-3 py-2 text-sm text-white placeholder-gray-400 focus:border-orange-500 focus:outline-none"
               />
               <button
-                class="rounded-lg bg-pink-500 px-4 py-2 text-sm text-white hover:bg-pink-600"
+                class="rounded-lg bg-orange-500 px-4 py-2 text-sm text-white hover:bg-orange-600"
                 @click="showCreateModal = true"
               >
                 ➕ Add Task
@@ -160,7 +160,7 @@
               <h5 class="text-lg font-medium text-white mb-2">No tasks found</h5>
               <p class="text-gray-400 mb-4">Create your first task to get started</p>
               <button
-                class="rounded-lg bg-pink-500 px-4 py-2 text-sm text-white hover:bg-pink-600"
+                class="rounded-lg bg-orange-500 px-4 py-2 text-sm text-white hover:bg-orange-600"
                 @click="showCreateModal = true"
               >
                 Create Task
@@ -180,9 +180,20 @@
 
       <!-- AI Task Suggestions -->
       <div v-if="currentView === 'dashboard' && aiSuggestions.length > 0" class="rounded-xl bg-forest-800 p-6">
-        <div class="mb-4 flex items-center space-x-2">
-          <span class="text-lg">🤖</span>
-          <h3 class="text-lg font-semibold text-white">AI Task Suggestions</h3>
+        <div class="mb-4 flex items-center space-x-3">
+          <div class="flex h-10 w-10 items-center justify-center rounded-lg overflow-hidden" :style="{ backgroundColor: selectedAgentData.color + '20' }">
+            <img
+              v-if="selectedAgentData.image"
+              :src="selectedAgentData.image"
+              :alt="selectedAgentData.name"
+              class="h-full w-full object-cover"
+            />
+            <span v-else class="text-lg">🤖</span>
+          </div>
+          <div>
+            <h3 class="text-lg font-semibold text-white">{{ selectedAgentData.name }} Suggestions</h3>
+            <p class="text-sm text-gray-400">Smart recommendations for your workflow</p>
+          </div>
         </div>
 
         <div class="space-y-3">
@@ -292,7 +303,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref } from 'vue'
+import { computed, onMounted, ref } from 'vue'
 import { useTasksStore } from '../../stores/tasks'
 
 // Protect this route with authentication
@@ -336,6 +347,80 @@ const showCreateModal = ref(false)
 const editingTask = ref<Task | null>(null)
 const activeFilter = ref<TaskFilter>('all')
 const searchQuery = ref('')
+
+// Agent settings state
+const selectedAgent = ref(1)
+const agentName = ref('Professional Assistant')
+
+// Available agents (same as in settings and modal)
+const agents = [
+  {
+    id: 1,
+    name: 'Agent 1',
+    image: '/Agent1.png',
+    color: '#ea580c', // Orange
+    description: 'AI Content Creator',
+    personality: 'Professional & Analytical',
+  },
+  {
+    id: 2,
+    name: 'Agent 2',
+    image: '/Agent2.png',
+    color: '#eab308', // Yellow
+    description: 'Marketing Specialist',
+    personality: 'Strategic & Data-Driven',
+  },
+  {
+    id: 3,
+    name: 'Agent 3',
+    image: '/Agent3.png',
+    color: '#16a34a', // Green
+    description: 'Analytics Expert',
+    personality: 'Detail-Oriented & Insightful',
+  },
+  {
+    id: 4,
+    name: 'Agent 4',
+    image: '/Agent4.png',
+    color: '#ea580c', // Orange
+    description: 'Creative Assistant',
+    personality: 'Innovative & Artistic',
+  },
+  {
+    id: 5,
+    name: 'Agent 5',
+    image: '/Agent5.png',
+    color: '#dc2626', // Red/Pink
+    description: 'Strategy Advisor',
+    personality: 'Visionary & Strategic',
+  },
+]
+
+// Computed property for selected agent data
+const selectedAgentData = computed(() => {
+  const agent = agents.find(agent => agent.id === selectedAgent.value) || agents[0]
+  return {
+    ...agent,
+    name: agentName.value || agent.name
+  }
+})
+
+// Load agent settings from localStorage
+const loadAgentSettings = () => {
+  if (typeof window !== 'undefined') {
+    const savedSettings = localStorage.getItem('agentSettings')
+    if (savedSettings) {
+      const settings = JSON.parse(savedSettings)
+      selectedAgent.value = settings.selectedAgent || 1
+      agentName.value = settings.name || 'Professional Assistant'
+    }
+  }
+}
+
+// Initialize agent settings on mount
+onMounted(() => {
+  loadAgentSettings()
+})
 
 // Filter options
 const filters = [

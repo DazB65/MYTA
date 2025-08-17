@@ -1,14 +1,11 @@
 <template>
   <div class="min-h-screen bg-background text-white">
-    <!-- Navigation Bar -->
-    <AppHeader />
+    <!-- Unified Header -->
+    <UnifiedHeader />
 
     <!-- Main Content Area -->
-    <main class="min-h-screen">
-      <!-- Page Content -->
-      <div class="p-6">
-        <slot />
-      </div>
+    <main class="pt-40">
+      <slot />
     </main>
     
     <!-- Global Modals -->
@@ -23,7 +20,7 @@
 </template>
 
 <script setup>
-import AppHeader from '~/components/AppHeader.vue'
+import UnifiedHeader from '~/components/UnifiedHeader.vue'
 
 // Global layout composables
 const { $loading } = useNuxtApp()

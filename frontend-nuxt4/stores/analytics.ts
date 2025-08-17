@@ -67,7 +67,7 @@ export const useAnalyticsStore = defineStore('analytics', () => {
   const hasData = computed(() => data.value.overview !== null)
   const isLoading = computed(() => loading.value)
   const healthScore = computed(() => 75) // Mock value
-  const totalViews = computed(() => 125000) // Mock value
+  const totalViews = computed(() => 1250000) // Mock value
   const subscriberGrowth = computed(() => ({ net: 150, rate: 2.5 })) // Mock value
   const revenueMetrics = computed(() => ({ total: 1250, rpm: 3.2, cpm: 1.8 })) // Mock value
   const topVideos = computed(() => []) // Mock empty array

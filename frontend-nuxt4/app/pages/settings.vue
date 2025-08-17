@@ -50,11 +50,11 @@
                   :key="agent.id"
                   :class="[
                     'relative cursor-pointer rounded-lg border-2 p-4 transition-all hover:shadow-md',
-                    selectedAgent === agent.id
+                    selectedAgentId === agent.id
                       ? 'border-orange-500 bg-orange-500/10'
                       : 'border-forest-600 hover:border-forest-500',
                   ]"
-                  @click="selectedAgent = agent.id"
+                  @click="setSelectedAgent(agent.id)"
                 >
                   <div class="text-center">
                     <div class="mx-auto mb-2 h-16 w-16 overflow-hidden rounded-full bg-forest-700">
@@ -70,7 +70,7 @@
 
                   <!-- Selected indicator -->
                   <div
-                    v-if="selectedAgent === agent.id"
+                    v-if="selectedAgentId === agent.id"
                     class="absolute -right-2 -top-2 flex h-6 w-6 items-center justify-center rounded-full bg-orange-500"
                   >
                     <svg class="h-4 w-4 text-white" fill="currentColor" viewBox="0 0 20 20">
@@ -95,8 +95,8 @@
             <div class="flex items-center space-x-3">
               <div class="h-12 w-12 overflow-hidden rounded-lg bg-forest-600">
                 <img
-                  :src="selectedAgentData.image"
-                  :alt="selectedAgentData.name"
+                  :src="selectedAgent.image"
+                  :alt="selectedAgent.name"
                   class="h-full w-full object-cover"
                 />
               </div>
@@ -113,7 +113,7 @@
           <div class="mt-6 flex justify-end">
             <button
               class="rounded-lg bg-orange-500 px-6 py-3 font-medium text-white transition-colors hover:bg-orange-600"
-              @click="saveSettings"
+              @click="handleSaveSettings"
             >
               Save Changes
             </button>
@@ -153,88 +153,23 @@
 </template>
 
 <script setup>
-import { computed, ref } from 'vue'
+import { useAgentSettings } from '../../composables/useAgentSettings'
 
 // Protect this route with authentication
 definePageMeta({
   middleware: 'auth'
 })
 
-// Agent customization state
-const agentName = ref('Professional Assistant')
-const selectedAgent = ref(1)
+// Agent settings
+const { agentName, selectedAgentId, selectedAgent, allAgents, setSelectedAgent, setAgentName, saveSettings } = useAgentSettings()
 
-// Available agents
-const agents = ref([
-  {
-    id: 1,
-    name: 'Agent 1',
-    image: '/Agent1.png',
-    color: 'bg-purple-600',
-    description: 'AI Content Creator',
-    personality: 'Professional & Analytical',
-  },
-  {
-    id: 2,
-    name: 'Agent 2',
-    image: '/Agent2.png',
-    color: 'bg-blue-600',
-    description: 'Marketing Specialist',
-    personality: 'Strategic & Data-Driven',
-  },
-  {
-    id: 3,
-    name: 'Agent 3',
-    image: '/Agent3.png',
-    color: 'bg-green-600',
-    description: 'Analytics Expert',
-    personality: 'Detail-Oriented & Insightful',
-  },
-  {
-    id: 4,
-    name: 'Agent 4',
-    image: '/Agent4.png',
-    color: 'bg-orange-600',
-    description: 'Creative Assistant',
-    personality: 'Innovative & Artistic',
-  },
-  {
-    id: 5,
-    name: 'Agent 5',
-    image: '/Agent5.png',
-    color: 'bg-pink-600',
-    description: 'Strategy Advisor',
-    personality: 'Visionary & Strategic',
-  },
-])
-
-// Computed property for selected agent data
-const selectedAgentData = computed(() => {
-  return agents.value.find(agent => agent.id === selectedAgent.value) || agents.value[0]
-})
+// Use agents from composable
+const agents = allAgents
 
 // Save settings function
-const saveSettings = () => {
-  // Store settings in localStorage for now
-  localStorage.setItem(
-    'agentSettings',
-    JSON.stringify({
-      name: agentName.value,
-      selectedAgent: selectedAgent.value,
-    })
-  )
-
+const handleSaveSettings = () => {
+  saveSettings()
   // Show success message (you could add a toast notification here)
   alert('Agent settings saved successfully!')
 }
-
-// Load settings on component mount
-onMounted(() => {
-  const savedSettings = localStorage.getItem('agentSettings')
-  if (savedSettings) {
-    const settings = JSON.parse(savedSettings)
-    agentName.value = settings.name || 'Professional Assistant'
-    selectedAgent.value = settings.selectedAgent || 1
-  }
-})
 </script>

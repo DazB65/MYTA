@@ -457,11 +457,11 @@
       <div class="mt-6 rounded-xl border border-orange-500/20 bg-forest-800 p-6">
         <div class="mb-4 flex items-center justify-between">
           <div class="flex items-center space-x-3">
-            <div class="flex h-10 w-10 items-center justify-center rounded-lg overflow-hidden" :style="{ backgroundColor: selectedAgentData.color + '20' }">
+            <div class="flex h-10 w-10 items-center justify-center rounded-lg overflow-hidden bg-purple-600/20">
               <img
-                v-if="selectedAgentData.image"
-                :src="selectedAgentData.image"
-                :alt="selectedAgentData.name"
+                v-if="selectedAgent.image"
+                :src="selectedAgent.image"
+                :alt="selectedAgent.name"
                 class="h-full w-full object-cover"
               />
               <svg v-else class="h-6 w-6 text-white" fill="currentColor" viewBox="0 0 20 20">
@@ -469,7 +469,7 @@
               </svg>
             </div>
             <div>
-              <h3 class="text-lg font-semibold text-white">{{ selectedAgentData.name }} Suggested: Metaverse Coverage</h3>
+              <h3 class="text-lg font-semibold text-white">{{ agentName || selectedAgent.name }} Suggested: Metaverse Coverage</h3>
               <p class="text-sm text-orange-400">NEW</p>
             </div>
           </div>
@@ -494,84 +494,17 @@
 </template>
 
 <script setup>
+import { useAgentSettings } from '../../composables/useAgentSettings';
+
 // Protect this route with authentication
 definePageMeta({
   middleware: 'auth'
 })
 
-// Agent settings state
-const selectedAgent = ref(1)
-const agentName = ref('Professional Assistant')
+// Agent settings
+const { selectedAgent, agentName } = useAgentSettings()
 
-// Available agents (same as in settings and modal)
-const agents = [
-  {
-    id: 1,
-    name: 'Agent 1',
-    image: '/Agent1.png',
-    color: '#9333ea', // Purple
-    description: 'AI Content Creator',
-    personality: 'Professional & Analytical',
-  },
-  {
-    id: 2,
-    name: 'Agent 2',
-    image: '/Agent2.png',
-    color: '#2563eb', // Blue
-    description: 'Marketing Specialist',
-    personality: 'Strategic & Data-Driven',
-  },
-  {
-    id: 3,
-    name: 'Agent 3',
-    image: '/Agent3.png',
-    color: '#16a34a', // Green
-    description: 'Analytics Expert',
-    personality: 'Detail-Oriented & Insightful',
-  },
-  {
-    id: 4,
-    name: 'Agent 4',
-    image: '/Agent4.png',
-    color: '#ea580c', // Orange
-    description: 'Creative Assistant',
-    personality: 'Innovative & Artistic',
-  },
-  {
-    id: 5,
-    name: 'Agent 5',
-    image: '/Agent5.png',
-    color: '#dc2626', // Red/Pink
-    description: 'Strategy Advisor',
-    personality: 'Visionary & Strategic',
-  },
-]
-
-// Computed property for selected agent data
-const selectedAgentData = computed(() => {
-  const agent = agents.find(agent => agent.id === selectedAgent.value) || agents[0]
-  return {
-    ...agent,
-    name: agentName.value || agent.name
-  }
-})
-
-// Load agent settings from localStorage
-const loadAgentSettings = () => {
-  if (typeof window !== 'undefined') {
-    const savedSettings = localStorage.getItem('agentSettings')
-    if (savedSettings) {
-      const settings = JSON.parse(savedSettings)
-      selectedAgent.value = settings.selectedAgent || 1
-      agentName.value = settings.name || 'Professional Assistant'
-    }
-  }
-}
-
-// Load settings on component mount
-onMounted(() => {
-  loadAgentSettings()
-})
+// Agent data is now handled by the composable
 
 // Content Pillars Analytics Dashboard
 // Static data display matching the design from the image
