@@ -136,7 +136,7 @@
       <div class="mb-4 space-y-3">
         <div class="flex items-start space-x-3">
           <div
-            class="flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-full bg-blue-500"
+            class="flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-full bg-green-600"
           >
             <span class="text-xs font-bold text-white">AI</span>
           </div>
@@ -145,7 +145,7 @@
           </div>
         </div>
 
-        <div class="rounded-lg bg-yellow-500 bg-opacity-20 p-3">
+        <div class="rounded-lg bg-orange-500 bg-opacity-20 p-3">
           <p class="text-sm text-white">What pillar topics are trending this week?</p>
         </div>
 
@@ -171,9 +171,9 @@
         <input
           type="text"
           placeholder="Ask your AI agent anything..."
-          class="flex-1 rounded-lg border border-white border-opacity-20 bg-white bg-opacity-10 px-4 py-2 text-white placeholder-purple-200 focus:outline-none focus:ring-2 focus:ring-white focus:ring-opacity-30"
+          class="flex-1 rounded-lg border border-white border-opacity-20 bg-white bg-opacity-10 px-4 py-2 text-white placeholder-green-200 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-opacity-50"
         />
-        <button class="rounded-lg bg-white bg-opacity-20 p-2 transition-all hover:bg-opacity-30">
+        <button class="rounded-lg bg-orange-500 bg-opacity-80 p-2 transition-all hover:bg-opacity-100">
           <span class="text-white">→</span>
         </button>
       </div>

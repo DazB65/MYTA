@@ -5,12 +5,12 @@
 
     <!-- Modal positioned below iPhone compartment -->
     <div
-      class="absolute overflow-hidden rounded-2xl bg-gray-800 shadow-2xl"
+      class="absolute overflow-hidden rounded-2xl bg-green-900 shadow-2xl"
       style="top: 280px; left: 312px; right: 24px; height: calc(100vh - 300px)"
     >
       <!-- Header -->
       <div
-        class="flex items-center justify-between bg-gradient-to-r from-orange-400 via-pink-500 to-purple-600 p-6"
+        class="flex items-center justify-between bg-gradient-to-r from-green-700 via-green-600 to-orange-500 p-6"
       >
         <div class="flex items-center space-x-4">
           <div class="h-20 w-20 overflow-hidden rounded-xl">
@@ -36,7 +36,7 @@
             </svg>
           </button>
           <button
-            class="flex h-10 w-10 items-center justify-center rounded-full bg-gray-700 hover:bg-gray-600"
+            class="flex h-10 w-10 items-center justify-center rounded-full bg-green-700 hover:bg-green-600"
             @click="openSettings"
           >
             <svg class="h-5 w-5 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
@@ -48,7 +48,7 @@
             </svg>
           </button>
           <button
-            class="flex h-8 w-8 items-center justify-center rounded-full bg-gray-700 hover:bg-gray-600"
+            class="flex h-8 w-8 items-center justify-center rounded-full bg-green-700 hover:bg-green-600"
             @click="closeModal"
           >
             <svg class="h-4 w-4 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
@@ -65,14 +65,14 @@
       <!-- Content -->
       <div class="flex" style="height: calc(100% - 120px)">
         <!-- Tabs -->
-        <div class="w-64 border-r border-gray-700 bg-gray-900 p-4">
+        <div class="w-64 border-r border-green-700 bg-green-800 p-4">
           <div class="space-y-2">
             <button
               :class="[
                 'w-full rounded-lg px-4 py-3 text-left font-medium transition-colors',
                 activeTab === 'chats'
-                  ? 'bg-pink-500 text-white'
-                  : 'text-gray-400 hover:bg-gray-800',
+                  ? 'bg-orange-500 text-white'
+                  : 'text-gray-400 hover:bg-green-800',
               ]"
               @click="activeTab = 'chats'"
             >
@@ -82,8 +82,8 @@
               :class="[
                 'w-full rounded-lg px-4 py-3 text-left font-medium transition-colors',
                 activeTab === 'visualizer'
-                  ? 'bg-pink-500 text-white'
-                  : 'text-gray-400 hover:bg-gray-800',
+                  ? 'bg-orange-500 text-white'
+                  : 'text-gray-400 hover:bg-green-800',
               ]"
               @click="activeTab = 'visualizer'"
             >
@@ -143,7 +143,7 @@
         </div>
 
         <!-- Chat Area -->
-        <div class="flex flex-1 flex-col bg-gray-800">
+        <div class="flex flex-1 flex-col bg-green-900">
           <!-- Chat Messages -->
           <div class="flex-1 overflow-y-auto p-6">
             <div class="space-y-4">
@@ -155,14 +155,14 @@
               >
                 <div
                   class="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full text-sm font-bold text-white"
-                  :class="message.type === 'ai' ? 'bg-purple-600' : 'bg-blue-600'"
+                  :class="message.type === 'ai' ? 'bg-green-600' : 'bg-orange-600'"
                 >
                   {{ message.type === 'ai' ? 'AI' : 'U' }}
                 </div>
                 <div class="flex-1">
                   <div
                     class="rounded-lg p-3"
-                    :class="message.type === 'ai' ? 'bg-gray-700' : 'ml-auto max-w-md bg-blue-600'"
+                    :class="message.type === 'ai' ? 'bg-gray-700' : 'ml-auto max-w-md bg-orange-600'"
                   >
                     <p class="text-sm">
                       <span class="font-medium text-white">
@@ -185,13 +185,13 @@
           </div>
 
           <!-- Input Area -->
-          <div class="border-t border-gray-700 px-6 py-4">
+          <div class="border-t border-green-700 px-6 py-4">
             <div class="flex items-center space-x-3">
               <input
                 v-model="messageInput"
                 type="text"
                 placeholder="Type your question..."
-                class="flex-1 rounded-lg border border-gray-600 bg-gray-700 px-4 py-3 text-white placeholder-gray-400 focus:border-transparent focus:outline-none focus:ring-2 focus:ring-pink-500"
+                class="flex-1 rounded-lg border border-green-600 bg-green-800 px-4 py-3 text-white placeholder-gray-400 focus:border-transparent focus:outline-none focus:ring-2 focus:ring-orange-500"
                 @keyup.enter="sendMessage"
               />
               <button
@@ -210,7 +210,7 @@
                 <span class="hidden sm:inline">Save</span>
               </button>
               <button
-                class="rounded-lg bg-pink-500 px-6 py-3 font-medium text-white transition-colors hover:bg-pink-600"
+                class="rounded-lg bg-orange-500 px-6 py-3 font-medium text-white transition-colors hover:bg-orange-600"
                 @click="sendMessage"
               >
                 Send
@@ -223,13 +223,13 @@
       <!-- Settings Panel -->
       <div
         v-if="showSettings"
-        class="absolute inset-y-0 right-0 w-96 transform border-l border-gray-700 bg-gray-800 transition-transform duration-300 ease-in-out"
+        class="absolute inset-y-0 right-0 w-96 transform border-l border-green-700 bg-green-800 transition-transform duration-300 ease-in-out"
       >
         <!-- Settings Header -->
-        <div class="flex items-center justify-between border-b border-gray-700 p-6">
+        <div class="flex items-center justify-between border-b border-green-700 p-6">
           <h3 class="text-lg font-semibold text-white">Agent Settings</h3>
           <button
-            class="flex h-8 w-8 items-center justify-center rounded-full bg-gray-700 hover:bg-gray-600"
+            class="flex h-8 w-8 items-center justify-center rounded-full bg-green-700 hover:bg-green-600"
             @click="closeSettings"
           >
             <svg class="h-4 w-4 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
@@ -251,7 +251,7 @@
               v-model="tempSettings.name"
               type="text"
               placeholder="Enter your agent's name"
-              class="w-full rounded-lg border border-gray-600 bg-gray-700 px-4 py-3 text-white placeholder-gray-400 focus:border-transparent focus:outline-none focus:ring-2 focus:ring-purple-500"
+              class="w-full rounded-lg border border-green-600 bg-green-700 px-4 py-3 text-white placeholder-gray-400 focus:border-transparent focus:outline-none focus:ring-2 focus:ring-orange-500"
             />
           </div>
 
@@ -265,7 +265,7 @@
                 :class="[
                   'relative cursor-pointer rounded-lg border-2 p-3 transition-all hover:shadow-md',
                   tempSettings.selectedAgent === agent.id
-                    ? 'border-purple-500 bg-purple-900/30'
+                    ? 'border-orange-500 bg-orange-900/30'
                     : 'border-gray-600 hover:border-gray-500',
                 ]"
                 @click="tempSettings.selectedAgent = agent.id"
@@ -280,7 +280,7 @@
                 <!-- Selected indicator -->
                 <div
                   v-if="tempSettings.selectedAgent === agent.id"
-                  class="absolute -right-2 -top-2 flex h-6 w-6 items-center justify-center rounded-full bg-purple-500"
+                  class="absolute -right-2 -top-2 flex h-6 w-6 items-center justify-center rounded-full bg-orange-500"
                 >
                   <svg class="h-4 w-4 text-white" fill="currentColor" viewBox="0 0 20 20">
                     <path
@@ -295,7 +295,7 @@
           </div>
 
           <!-- Preview -->
-          <div class="rounded-lg bg-gray-700 p-4">
+          <div class="rounded-lg bg-green-800 p-4">
             <h4 class="mb-3 text-sm font-medium text-gray-300">Preview</h4>
             <div class="flex items-center space-x-3">
               <div class="h-10 w-10 overflow-hidden rounded-lg bg-gray-100">
@@ -323,7 +323,7 @@
               Cancel
             </button>
             <button
-              class="rounded-lg bg-purple-600 px-4 py-2 text-white transition-colors hover:bg-purple-700"
+              class="rounded-lg bg-orange-600 px-4 py-2 text-white transition-colors hover:bg-orange-700"
               @click="saveAgentSettings"
             >
               Save Changes
