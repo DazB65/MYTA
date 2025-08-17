@@ -144,6 +144,31 @@
         </div>
       </div>
 
+      <!-- Quick Questions -->
+      <div v-if="savedQuestions.length > 0" class="border-t border-forest-700 p-4">
+        <div class="mb-3">
+          <h4 class="text-sm font-medium text-gray-300 mb-2">Quick Questions</h4>
+          <div class="flex flex-wrap gap-2">
+            <button
+              v-for="question in savedQuestions"
+              :key="question.id"
+              @click="useQuickQuestion(question.text)"
+              class="group relative bg-forest-700 hover:bg-forest-600 text-white text-xs px-3 py-2 rounded-lg transition-colors border border-forest-600 hover:border-forest-500"
+            >
+              <span class="pr-4">{{ question.text.length > 30 ? question.text.substring(0, 30) + '...' : question.text }}</span>
+              <button
+                @click.stop="removeSavedQuestion(question.id)"
+                class="absolute right-1 top-1/2 transform -translate-y-1/2 opacity-0 group-hover:opacity-100 text-gray-400 hover:text-red-400 transition-all"
+              >
+                <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </button>
+          </div>
+        </div>
+      </div>
+
       <!-- Input Area -->
       <div class="border-t border-forest-700 p-4">
         <div class="flex items-center space-x-3">
@@ -157,10 +182,20 @@
             @input="handleTyping"
           />
           <button
+            v-if="messageInput.trim() && !savedQuestions.some(q => q.text === messageInput.trim())"
+            @click="saveCurrentQuestion"
+            class="p-3 rounded-lg bg-forest-600 hover:bg-forest-500 text-white transition-colors"
+            title="Save this question"
+          >
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z" />
+            </svg>
+          </button>
+          <button
             @click="sendMessage"
             :disabled="!messageInput.trim() || isSending"
             class="px-4 py-3 rounded-lg font-medium text-white transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-            :style="{ 
+            :style="{
               backgroundColor: messageInput.trim() ? selectedAgentData.color : '#374151',
               ':hover': { backgroundColor: messageInput.trim() ? selectedAgentData.color + 'dd' : '#374151' }
             }"
@@ -256,7 +291,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, nextTick, ref, watch } from 'vue';
+import { computed, nextTick, onMounted, ref, watch } from 'vue';
 import { useAgentSettings } from '../../composables/useAgentSettings';
 import { useChatStore } from '../../stores/chat';
 
@@ -285,6 +320,14 @@ const typingTimeout = ref<NodeJS.Timeout>()
 const showSettings = ref(false)
 const tempAgentName = ref('')
 const tempSelectedAgent = ref(1)
+const savedQuestions = ref<Array<{ id: string; text: string; createdAt: Date }>>([])
+
+// Interface for saved questions
+interface SavedQuestion {
+  id: string
+  text: string
+  createdAt: Date
+}
 
 // Computed
 const selectedAgentData = computed(() => {
@@ -468,6 +511,68 @@ const saveSettings = () => {
   showSettings.value = false
 }
 
+// Saved questions management
+const saveCurrentQuestion = () => {
+  const questionText = messageInput.value.trim()
+  if (!questionText || savedQuestions.value.some(q => q.text === questionText)) return
+
+  const newQuestion: SavedQuestion = {
+    id: Date.now().toString(),
+    text: questionText,
+    createdAt: new Date()
+  }
+
+  savedQuestions.value.unshift(newQuestion)
+
+  // Limit to 10 saved questions
+  if (savedQuestions.value.length > 10) {
+    savedQuestions.value = savedQuestions.value.slice(0, 10)
+  }
+
+  // Save to localStorage
+  saveSavedQuestions()
+}
+
+const useQuickQuestion = (questionText: string) => {
+  messageInput.value = questionText
+  // Auto-focus the input after setting the text
+  nextTick(() => {
+    const inputElement = document.querySelector('input[placeholder="Ask me anything..."]') as HTMLInputElement
+    if (inputElement) {
+      inputElement.focus()
+    }
+  })
+}
+
+const removeSavedQuestion = (questionId: string) => {
+  savedQuestions.value = savedQuestions.value.filter(q => q.id !== questionId)
+  saveSavedQuestions()
+}
+
+const saveSavedQuestions = () => {
+  if (typeof window !== 'undefined') {
+    localStorage.setItem('chatSavedQuestions', JSON.stringify(savedQuestions.value))
+  }
+}
+
+const loadSavedQuestions = () => {
+  if (typeof window !== 'undefined') {
+    const saved = localStorage.getItem('chatSavedQuestions')
+    if (saved) {
+      try {
+        const parsed = JSON.parse(saved)
+        savedQuestions.value = parsed.map((q: any) => ({
+          ...q,
+          createdAt: new Date(q.createdAt)
+        }))
+      } catch (error) {
+        console.error('Failed to load saved questions:', error)
+        savedQuestions.value = []
+      }
+    }
+  }
+}
+
 // Watch for new messages to auto-scroll
 watch(messages, () => {
   scrollToBottom()
@@ -487,6 +592,11 @@ watch(showSettings, (isOpen) => {
     tempAgentName.value = agentName.value || selectedAgentData.value.name || ''
     tempSelectedAgent.value = selectedAgent.value?.id || 1
   }
+})
+
+// Initialize saved questions on mount
+onMounted(() => {
+  loadSavedQuestions()
 })
 </script>
 
