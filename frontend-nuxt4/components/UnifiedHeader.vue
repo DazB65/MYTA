@@ -223,6 +223,7 @@
 import { computed, onMounted, onUnmounted, ref } from 'vue'
 import { useAgentSettings } from '../composables/useAgentSettings'
 import { useAuthStore } from '../stores/auth'
+import AgentChatPanel from './chat/AgentChatPanel.vue'
 import YouTubeConnectModal from './modals/YouTubeConnectModal.vue'
 
 // Auth store
