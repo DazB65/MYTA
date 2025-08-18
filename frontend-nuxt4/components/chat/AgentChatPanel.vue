@@ -12,8 +12,72 @@
   <Transition name="slide-right">
     <div
       v-if="isOpen"
-      class="fixed right-0 top-0 z-50 h-full w-[600px] bg-forest-800 shadow-2xl border-l border-forest-700"
+      class="fixed right-0 top-0 z-50 h-full bg-forest-800 shadow-2xl border-l border-forest-700 flex"
+      style="width: calc(100vw - 280px); left: 280px;"
     >
+      <!-- Left Sidebar for Questions & Suggestions -->
+      <div class="w-80 bg-forest-700 border-r border-forest-600 flex flex-col">
+        <!-- Sidebar Header -->
+        <div class="p-4 border-b border-forest-700">
+          <h3 class="text-sm font-medium text-white">Quick Access</h3>
+        </div>
+
+        <!-- Saved Questions Section -->
+        <div v-if="savedQuestions.length > 0" class="p-4 border-b border-forest-700">
+          <div class="flex items-center justify-between mb-3">
+            <h4 class="text-xs font-medium text-gray-300 uppercase tracking-wide flex items-center">
+              <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z" />
+              </svg>
+              Your Saved Questions
+            </h4>
+          </div>
+          <div class="space-y-2">
+            <div v-for="question in savedQuestions" :key="question.id" class="flex items-center space-x-2">
+              <button
+                @click="loadSavedQuestion(question.text)"
+                class="flex-1 text-left text-sm text-gray-300 hover:text-white bg-forest-600 hover:bg-forest-500 rounded-lg px-3 py-2 transition-colors truncate"
+                :title="question.text"
+              >
+                {{ question.text }}
+              </button>
+              <button
+                @click="removeSavedQuestion(question.id)"
+                class="p-1 text-gray-500 hover:text-red-400 transition-colors"
+                title="Remove saved question"
+              >
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                </svg>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Smart Suggestions Section -->
+        <div v-if="smartSuggestions.length > 0" class="p-4 flex-1 overflow-y-auto">
+          <div class="flex items-center justify-between mb-3">
+            <h4 class="text-xs font-medium text-gray-300 uppercase tracking-wide flex items-center">
+              <span class="text-yellow-400 mr-2">✨</span>
+              Smart Suggestions for {{ selectedAgentData.name }}
+            </h4>
+          </div>
+          <div class="space-y-2">
+            <button
+              v-for="suggestion in smartSuggestions"
+              :key="suggestion.id"
+              @click="loadSmartSuggestion(suggestion.text)"
+              class="w-full text-left text-sm text-gray-300 hover:text-white bg-forest-600 hover:bg-forest-500 rounded-lg px-3 py-2 transition-colors flex items-center space-x-2"
+            >
+              <span class="text-base">{{ suggestion.emoji }}</span>
+              <span class="truncate">{{ suggestion.text }}</span>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Main Chat Area -->
+      <div class="flex-1 flex flex-col">
       <!-- Agent Header -->
       <div 
         class="border-b border-forest-700 p-6"
@@ -61,8 +125,9 @@
       <!-- Chat Messages Area -->
       <div
         ref="messagesContainer"
-        class="flex-1 overflow-y-auto p-4 space-y-4"
-        :style="{ height: `calc(100vh - ${savedQuestions.length > 0 ? '280px' : '200px'})` }"
+        class="flex-1 overflow-y-auto p-4 space-y-4 overscroll-contain"
+        :style="{ height: `calc(100vh - 200px)` }"
+        @wheel.stop
       >
         <!-- Enhanced Welcome Message -->
         <div v-if="messages.length === 0" class="text-center py-8 px-4">
@@ -150,61 +215,6 @@
         </div>
       </div>
 
-      <!-- Quick Questions & Smart Suggestions -->
-      <div v-if="savedQuestions.length > 0 || smartSuggestions.length > 0" class="p-4 space-y-4">
-        <!-- Saved Questions -->
-        <div v-if="savedQuestions.length > 0">
-          <h4 class="text-sm font-medium text-gray-300 mb-2 flex items-center">
-            <svg class="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 24 24">
-              <path d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z" />
-            </svg>
-            Your Saved Questions
-          </h4>
-          <div class="flex flex-wrap gap-2">
-            <div
-              v-for="question in savedQuestions"
-              :key="question.id"
-              class="group relative bg-forest-700 hover:bg-forest-600 text-white text-xs px-3 py-2 rounded-lg transition-colors border border-forest-600 hover:border-forest-500"
-            >
-              <button
-                @click="useQuickQuestion(question.text)"
-                class="w-full text-left pr-4"
-              >
-                {{ question.text.length > 30 ? question.text.substring(0, 30) + '...' : question.text }}
-              </button>
-              <button
-                @click.stop="removeSavedQuestion(question.id)"
-                class="absolute right-1 top-1/2 transform -translate-y-1/2 opacity-0 group-hover:opacity-100 text-gray-400 hover:text-red-400 transition-all"
-              >
-                <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-                </svg>
-              </button>
-            </div>
-          </div>
-        </div>
-
-        <!-- Smart Suggestions -->
-        <div v-if="smartSuggestions.length > 0">
-          <h4 class="text-sm font-medium text-gray-300 mb-2 flex items-center">
-            <span class="mr-2">✨</span>
-            Smart Suggestions for {{ selectedAgentData.name }}
-          </h4>
-          <div class="flex flex-wrap gap-2">
-            <button
-              v-for="suggestion in smartSuggestions"
-              :key="suggestion.id"
-              @click="useQuickQuestion(suggestion.text)"
-              class="bg-gradient-to-r from-forest-700 to-forest-600 hover:from-forest-600 hover:to-forest-500 text-white text-xs px-3 py-2 rounded-lg transition-all border border-forest-500 hover:border-forest-400 flex items-center space-x-1"
-              :style="{ borderColor: selectedAgentData.color + '40' }"
-            >
-              <span>{{ suggestion.icon }}</span>
-              <span>{{ suggestion.text.length > 35 ? suggestion.text.substring(0, 35) + '...' : suggestion.text }}</span>
-            </button>
-          </div>
-        </div>
-      </div>
-
       <!-- Input Area - Always visible -->
       <div class="border-t border-forest-700 p-4">
         <div class="flex items-center space-x-3">
@@ -256,6 +266,7 @@
           </button>
         </div>
       </div>
+      </div> <!-- Close Main Chat Area -->
 
       <!-- Settings Overlay -->
       <div
@@ -335,13 +346,15 @@
           </div>
         </div>
       </div>
-    </div>
+    </div> <!-- Close Overall Container -->
   </Transition>
 </template>
 
 <script setup lang="ts">
 import { computed, nextTick, onMounted, ref, watch } from 'vue';
 import { useAgentSettings } from '../../composables/useAgentSettings';
+import { useSmartQuestions } from '../../composables/useSmartQuestions';
+import { useToast } from '../../composables/useToast';
 import { useChatStore } from '../../stores/chat';
 import MessageBubble from './MessageBubble.vue';
 
@@ -711,6 +724,29 @@ const saveCurrentQuestion = () => {
 
 const useQuickQuestion = (questionText: string) => {
   messageInput.value = questionText
+  // Auto-focus the input after setting the text
+  nextTick(() => {
+    const inputElement = document.querySelector('input[placeholder="Ask me anything..."]') as HTMLInputElement
+    if (inputElement) {
+      inputElement.focus()
+    }
+  })
+}
+
+// Sidebar methods
+const loadSavedQuestion = (questionText: string) => {
+  messageInput.value = questionText
+  // Auto-focus the input after setting the text
+  nextTick(() => {
+    const inputElement = document.querySelector('input[placeholder="Ask me anything..."]') as HTMLInputElement
+    if (inputElement) {
+      inputElement.focus()
+    }
+  })
+}
+
+const loadSmartSuggestion = (suggestionText: string) => {
+  messageInput.value = suggestionText
   // Auto-focus the input after setting the text
   nextTick(() => {
     const inputElement = document.querySelector('input[placeholder="Ask me anything..."]') as HTMLInputElement
