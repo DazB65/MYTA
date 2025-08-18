@@ -477,6 +477,16 @@ const sendMessage = async () => {
     await scrollToBottom()
   } catch (error) {
     console.error('Failed to send message:', error)
+
+    // Restore the message input if sending failed
+    messageInput.value = content
+
+    // Show error toast
+    const { error: showError } = useToast()
+    showError(
+      'Message Failed',
+      error instanceof Error ? error.message : 'Failed to send your message. Please try again.'
+    )
   } finally {
     isSending.value = false
   }
@@ -611,9 +621,16 @@ watch(showSettings, (isOpen) => {
   }
 })
 
-// Initialize saved questions on mount
+// Initialize saved questions and chat data on mount
 onMounted(() => {
+  // Load saved chat data first
+  chatStore.loadChatData()
+
+  // Load saved questions
   loadSavedQuestions()
+
+  // Ensure we have a chat session
+  ensureChatSession()
 })
 </script>
 

@@ -3,14 +3,15 @@
     <!-- Backdrop -->
     <div class="absolute inset-0 bg-black bg-opacity-50" @click="closeModal"/>
 
-    <!-- Modal positioned below iPhone compartment -->
+    <!-- Modal positioned on right side -->
     <div
-      class="absolute overflow-hidden rounded-2xl bg-green-900 shadow-2xl"
-      style="top: 280px; left: 312px; right: 24px; height: calc(100vh - 300px)"
+      class="absolute right-6 top-6 bottom-6 w-[600px] overflow-hidden rounded-2xl shadow-2xl"
+      :style="{ backgroundColor: agentData.color + '20' }"
     >
       <!-- Header -->
       <div
-        class="flex items-center justify-between bg-gradient-to-r from-green-700 via-green-600 to-orange-500 p-6"
+        class="flex items-center justify-between p-6"
+        :style="{ background: `linear-gradient(135deg, ${agentData.color}dd 0%, ${agentData.color} 100%)` }"
       >
         <div class="flex items-center space-x-4">
           <div class="h-20 w-20 overflow-hidden rounded-xl">
@@ -26,7 +27,10 @@
           </div>
         </div>
         <div class="flex items-center space-x-3">
-          <button class="flex h-10 w-10 items-center justify-center rounded-full bg-pink-500">
+          <button
+            class="flex h-10 w-10 items-center justify-center rounded-full text-white hover:opacity-80 transition-opacity"
+            :style="{ backgroundColor: agentData.color }"
+          >
             <svg class="h-5 w-5 text-white" fill="currentColor" viewBox="0 0 20 20">
               <path
                 fill-rule="evenodd"
@@ -36,7 +40,8 @@
             </svg>
           </button>
           <button
-            class="flex h-10 w-10 items-center justify-center rounded-full bg-green-700 hover:bg-green-600"
+            class="flex h-10 w-10 items-center justify-center rounded-full text-white hover:opacity-80 transition-opacity"
+            :style="{ backgroundColor: agentData.color + 'aa' }"
             @click="openSettings"
           >
             <svg class="h-5 w-5 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
@@ -48,10 +53,11 @@
             </svg>
           </button>
           <button
-            class="flex h-8 w-8 items-center justify-center rounded-full bg-green-700 hover:bg-green-600"
+            class="flex h-8 w-8 items-center justify-center rounded-full text-white hover:opacity-80 transition-opacity"
+            :style="{ backgroundColor: agentData.color + '66' }"
             @click="closeModal"
           >
-            <svg class="h-4 w-4 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
+            <svg class="h-4 w-4 text-white" fill="currentColor" viewBox="0 0 20 20">
               <path
                 fill-rule="evenodd"
                 d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
@@ -65,14 +71,14 @@
       <!-- Content -->
       <div class="flex" style="height: calc(100% - 120px)">
         <!-- Tabs -->
-        <div class="w-64 border-r border-green-700 bg-green-800 p-4">
+        <div class="w-64 border-r p-4" :style="{ borderColor: agentData.color + '44', backgroundColor: agentData.color + '11' }">
           <div class="space-y-2">
             <button
               :class="[
                 'w-full rounded-lg px-4 py-3 text-left font-medium transition-colors',
                 activeTab === 'chats'
                   ? 'bg-orange-500 text-white'
-                  : 'text-gray-400 hover:bg-green-800',
+                  : 'text-gray-400',
               ]"
               @click="activeTab = 'chats'"
             >
@@ -83,7 +89,7 @@
                 'w-full rounded-lg px-4 py-3 text-left font-medium transition-colors',
                 activeTab === 'visualizer'
                   ? 'bg-orange-500 text-white'
-                  : 'text-gray-400 hover:bg-green-800',
+                  : 'text-gray-400',
               ]"
               @click="activeTab = 'visualizer'"
             >
@@ -143,7 +149,7 @@
         </div>
 
         <!-- Chat Area -->
-        <div class="flex flex-1 flex-col bg-green-900">
+        <div class="flex flex-1 flex-col" :style="{ backgroundColor: agentData.color + '08' }">
           <!-- Chat Messages -->
           <div class="flex-1 overflow-y-auto p-6">
             <div class="space-y-4">
@@ -155,7 +161,7 @@
               >
                 <div
                   class="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full text-sm font-bold text-white"
-                  :class="message.type === 'ai' ? 'bg-green-600' : 'bg-orange-600'"
+                  :style="{ backgroundColor: message.type === 'ai' ? agentData.color : '#ea580c' }"
                 >
                   {{ message.type === 'ai' ? 'AI' : 'U' }}
                 </div>
@@ -185,13 +191,18 @@
           </div>
 
           <!-- Input Area -->
-          <div class="border-t border-green-700 px-6 py-4">
+          <div class="border-t px-6 py-4" :style="{ borderColor: agentData.color + '44' }">
             <div class="flex items-center space-x-3">
               <input
                 v-model="messageInput"
                 type="text"
                 placeholder="Type your question..."
-                class="flex-1 rounded-lg border border-green-600 bg-green-800 px-4 py-3 text-white placeholder-gray-400 focus:border-transparent focus:outline-none focus:ring-2 focus:ring-orange-500"
+                class="flex-1 rounded-lg border px-4 py-3 text-white placeholder-gray-400 focus:border-transparent focus:outline-none focus:ring-2"
+                :style="{
+                  borderColor: agentData.color + '66',
+                  backgroundColor: agentData.color + '22',
+                  '--tw-ring-color': agentData.color
+                }"
                 @keyup.enter="sendMessage"
               />
               <button

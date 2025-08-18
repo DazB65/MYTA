@@ -4,11 +4,12 @@
 
 
     <!-- Main Content Area -->
-    <div class="p-6 pt-32">
+    <div class="p-6 pt-24">
       <!-- Header -->
-      <div class="mb-6 flex items-center justify-between">
-        <div>
-          <h1 class="text-2xl font-bold text-white mb-2">Video Analytics</h1>
+      <div class="mb-4 flex items-center justify-between">
+        <div class="flex items-center space-x-4">
+          <h1 class="text-2xl font-bold text-white">Video Analytics</h1>
+          <span class="text-gray-400">•</span>
           <p class="text-gray-400">Track performance and manage your content</p>
         </div>
         <div class="flex items-center space-x-4">

@@ -1,11 +1,12 @@
 <template>
   <div class="min-h-screen bg-forest-900 text-white">
     <!-- Settings Content -->
-    <div class="p-6 pt-32">
+    <div class="p-6 pt-24">
       <!-- Page Header -->
-      <div class="mb-6 flex items-center justify-between">
-        <div>
-          <h1 class="text-2xl font-bold text-white mb-2">Settings</h1>
+      <div class="mb-4 flex items-center justify-between">
+        <div class="flex items-center space-x-4">
+          <h1 class="text-2xl font-bold text-white">Settings</h1>
+          <span class="text-gray-400">•</span>
           <p class="text-gray-400">Manage your account and application preferences</p>
         </div>
         <div class="flex items-center space-x-4">
@@ -53,12 +54,12 @@
                 <div
                   v-for="agent in agents"
                   :key="agent.id"
-                  :class="[
-                    'relative cursor-pointer rounded-lg border-2 p-4 transition-all hover:shadow-md',
-                    selectedAgentId === agent.id
-                      ? 'border-orange-500 bg-orange-500/10'
-                      : 'border-forest-600 hover:border-forest-500',
-                  ]"
+                  class="relative cursor-pointer rounded-lg border-2 p-4 transition-all hover:shadow-md"
+                  :class="selectedAgentId === agent.id ? '' : 'border-forest-600 hover:border-forest-500'"
+                  :style="selectedAgentId === agent.id ? {
+                    borderColor: agent.color,
+                    backgroundColor: agent.color + '20'
+                  } : {}"
                   @click="setSelectedAgent(agent.id)"
                 >
                   <div class="text-center">
@@ -76,7 +77,8 @@
                   <!-- Selected indicator -->
                   <div
                     v-if="selectedAgentId === agent.id"
-                    class="absolute -right-2 -top-2 flex h-6 w-6 items-center justify-center rounded-full bg-orange-500"
+                    class="absolute -right-2 -top-2 flex h-6 w-6 items-center justify-center rounded-full"
+                    :style="{ backgroundColor: agent.color }"
                   >
                     <svg class="h-4 w-4 text-white" fill="currentColor" viewBox="0 0 20 20">
                       <path
@@ -117,7 +119,8 @@
           <!-- Save Button -->
           <div class="mt-6 flex justify-end">
             <button
-              class="rounded-lg bg-orange-500 px-6 py-3 font-medium text-white transition-colors hover:bg-orange-600"
+              class="rounded-lg px-6 py-3 font-medium text-white transition-colors hover:opacity-90"
+              :style="{ backgroundColor: selectedAgent.color }"
               @click="handleSaveSettings"
             >
               Save Changes
@@ -171,10 +174,16 @@ const { agentName, selectedAgentId, selectedAgent, allAgents, setSelectedAgent, 
 // Use agents from composable
 const agents = allAgents
 
+// Toast notifications
+const { success, error } = useToast()
+
 // Save settings function
 const handleSaveSettings = () => {
-  saveSettings()
-  // Show success message (you could add a toast notification here)
-  alert('Agent settings saved successfully!')
+  try {
+    saveSettings()
+    success('Settings Saved', 'Your agent settings have been saved successfully!')
+  } catch (err) {
+    error('Save Failed', 'Failed to save your settings. Please try again.')
+  }
 }
 </script>

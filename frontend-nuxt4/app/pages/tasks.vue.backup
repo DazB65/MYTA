@@ -1,11 +1,12 @@
 <template>
   <div class="min-h-screen bg-forest-900 text-white">
-    <div class="p-4 pt-32">
-      <div class="space-y-8">
-      <!-- Page Header -->
-      <div class="flex items-center justify-between">
-        <div>
-          <h1 class="text-2xl font-bold text-white mb-2">Task Management</h1>
+    <div class="p-6 pt-24">
+      <div class="max-w-7xl mx-auto space-y-6">
+        <!-- Page Header -->
+        <div class="flex items-center justify-between">
+        <div class="flex items-center space-x-4">
+          <h1 class="text-2xl font-bold text-white">Task Management</h1>
+          <span class="text-gray-400">•</span>
           <p class="text-gray-400">
             Organize and track your content creation tasks with AI-powered insights
           </p>
@@ -16,7 +17,7 @@
             :class="currentView === 'dashboard' ? 'rounded-lg bg-orange-500 px-4 py-2 text-sm text-white' : 'rounded-lg bg-forest-700 px-4 py-2 text-sm text-gray-300 hover:bg-forest-600'"
             @click="currentView = 'dashboard'"
           >
-            📅 Calendar
+            📊 Dashboard
           </button>
           <button
             :class="currentView === 'manager' ? 'rounded-lg bg-orange-500 px-4 py-2 text-sm text-white' : 'rounded-lg bg-forest-700 px-4 py-2 text-sm text-gray-300 hover:bg-forest-600'"
@@ -33,88 +34,87 @@
         </div>
       </div>
 
-      <!-- Dashboard View -->
+      <!-- Calendar View -->
       <div v-if="currentView === 'dashboard'" class="space-y-6">
-        <!-- Two Column Layout: Calendar + Levi Suggestions -->
+        <!-- Two Column Layout: Calendar + Suggestions -->
         <div class="grid grid-cols-1 gap-6 lg:grid-cols-3">
           <!-- Left Column: Calendar (2/3 width) -->
           <div class="lg:col-span-2">
             <!-- Calendar Container -->
             <div class="rounded-xl bg-forest-800 p-6">
-              <!-- Calendar Header -->
-              <div class="mb-6 flex items-center justify-between">
-                <div class="flex items-center space-x-4">
-                  <button @click="previousMonth" class="p-2 rounded-lg bg-forest-700 hover:bg-forest-600 text-white">
-                    <svg class="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
-                      <path fill-rule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clip-rule="evenodd"/>
-                    </svg>
-                  </button>
-                  <h2 class="text-xl font-bold text-white">{{ currentMonthYear }}</h2>
-                  <button @click="nextMonth" class="p-2 rounded-lg bg-forest-700 hover:bg-forest-600 text-white">
-                    <svg class="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
-                      <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"/>
-                    </svg>
-                  </button>
-                </div>
-                <div class="flex items-center space-x-2">
-                  <button @click="goToToday" class="px-4 py-2 rounded-lg bg-orange-500 hover:bg-orange-600 text-white text-sm">
-                    Today
-                  </button>
-                </div>
+          <!-- Calendar Header -->
+          <div class="mb-6 flex items-center justify-between">
+            <div class="flex items-center space-x-4">
+              <button @click="previousMonth" class="p-2 rounded-lg bg-forest-700 hover:bg-forest-600 text-white">
+                <svg class="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
+                  <path fill-rule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                </svg>
+              </button>
+              <h2 class="text-xl font-bold text-white">{{ currentMonthYear }}</h2>
+              <button @click="nextMonth" class="p-2 rounded-lg bg-forest-700 hover:bg-forest-600 text-white">
+                <svg class="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
+                  <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"/>
+                </svg>
+              </button>
+            </div>
+            <div class="flex items-center space-x-2">
+              <button @click="goToToday" class="px-4 py-2 rounded-lg bg-orange-500 hover:bg-orange-600 text-white text-sm">
+                Today
+              </button>
+            </div>
+          </div>
+
+          <!-- Calendar Grid -->
+          <div class="grid grid-cols-7 gap-1">
+            <!-- Day Headers -->
+            <div v-for="day in dayHeaders" :key="day" class="p-3 text-center text-sm font-medium text-gray-400">
+              {{ day }}
+            </div>
+
+            <!-- Calendar Days -->
+            <div
+              v-for="day in calendarDays"
+              :key="day.date"
+              :class="[
+                'min-h-[120px] p-2 border border-forest-700 rounded-lg transition-colors',
+                day.isCurrentMonth ? 'bg-forest-700' : 'bg-forest-800/50',
+                day.isToday ? 'ring-2 ring-orange-500' : '',
+                'hover:bg-forest-600 cursor-pointer'
+              ]"
+              @click="selectDate(day)"
+            >
+              <!-- Day Number -->
+              <div class="flex items-center justify-between mb-2">
+                <span :class="[
+                  'text-sm font-medium',
+                  day.isCurrentMonth ? 'text-white' : 'text-gray-500',
+                  day.isToday ? 'text-orange-400' : ''
+                ]">
+                  {{ day.dayNumber }}
+                </span>
+                <button
+                  v-if="day.isCurrentMonth"
+                  @click.stop="addTaskToDate(day)"
+                  class="w-5 h-5 rounded-full bg-orange-500 hover:bg-orange-600 text-white text-xs flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
+                >
+                  +
+                </button>
               </div>
 
-              <!-- Calendar Grid -->
-              <div class="grid grid-cols-7 gap-1">
-                <!-- Day Headers -->
-                <div v-for="day in dayHeaders" :key="day" class="p-3 text-center text-sm font-medium text-gray-400">
-                  {{ day }}
-                </div>
-
-                <!-- Calendar Days -->
+              <!-- Tasks for this day -->
+              <div class="space-y-1">
                 <div
-                  v-for="day in calendarDays"
-                  :key="`${day.date.getFullYear()}-${day.date.getMonth()}-${day.date.getDate()}`"
+                  v-for="task in getTasksForDate(day.date)"
+                  :key="task.id"
                   :class="[
-                    'min-h-[120px] p-2 border border-forest-700 rounded-lg cursor-pointer transition-colors',
-                    day.isCurrentMonth ? 'bg-forest-800 hover:bg-forest-700' : 'bg-forest-900 opacity-50',
-                    day.isToday ? 'ring-2 ring-orange-500' : '',
-                    selectedDate && day.date.toDateString() === selectedDate.toDateString() ? 'bg-forest-600' : ''
+                    'text-xs p-1 rounded truncate cursor-pointer',
+                    getPriorityColor(task.priority),
+                    task.completed ? 'opacity-50 line-through' : ''
                   ]"
-                  @click="selectDate(day.date)"
+                  @click.stop="editTask(task)"
+                  :title="task.title"
                 >
-                  <!-- Day Number -->
-                  <div class="flex items-center justify-between mb-2">
-                    <span :class="[
-                      'text-sm font-medium',
-                      day.isToday ? 'text-orange-400' : day.isCurrentMonth ? 'text-white' : 'text-gray-500'
-                    ]">
-                      {{ day.date.getDate() }}
-                    </span>
-                    <button
-                      v-if="day.isCurrentMonth"
-                      @click.stop="addTaskToDate(day.date)"
-                      class="text-gray-400 hover:text-white text-xs opacity-0 group-hover:opacity-100 transition-opacity"
-                    >
-                      +
-                    </button>
-                  </div>
-
-                  <!-- Tasks for this day -->
-                  <div class="space-y-1">
-                    <div
-                      v-for="task in getTasksForDate(day.date)"
-                      :key="task.id"
-                      :class="[
-                        'text-xs p-1 rounded truncate cursor-pointer',
-                        getPriorityColor(task.priority),
-                        task.completed ? 'opacity-50 line-through' : ''
-                      ]"
-                      @click.stop="editTask(task)"
-                      :title="task.title"
-                    >
-                      {{ task.title }}
-                    </div>
-                  </div>
+                  {{ task.title }}
                 </div>
               </div>
             </div>
@@ -139,21 +139,45 @@
               </div>
 
               <div class="space-y-3">
-                <div
-                  v-for="suggestion in aiSuggestions"
-                  :key="suggestion.id"
-                  class="flex items-center justify-between p-3 rounded-lg bg-forest-700 hover:bg-forest-600 transition-colors"
-                >
+                <div class="flex items-center justify-between p-3 rounded-lg bg-forest-700 hover:bg-forest-600 transition-colors">
                   <div class="flex items-center space-x-3">
                     <div class="w-8 h-8 rounded-lg flex items-center justify-center bg-forest-600">
-                      <span class="text-sm">{{ suggestion.icon }}</span>
+                      <span class="text-sm">🎨</span>
                     </div>
                     <div>
-                      <h4 class="font-medium text-white">{{ suggestion.title }}</h4>
-                      <p class="text-sm text-gray-400">{{ suggestion.description }}</p>
+                      <h4 class="font-medium text-white">Create thumbnail variations</h4>
+                      <p class="text-sm text-gray-400">Based on your recent uploads</p>
                     </div>
                   </div>
-                  <button class="rounded bg-orange-500 px-3 py-1 text-sm text-white hover:bg-orange-600" @click="addSuggestionAsTask(suggestion)">
+                  <button class="rounded bg-orange-500 px-3 py-1 text-sm text-white hover:bg-orange-600">
+                    Add
+                  </button>
+                </div>
+                <div class="flex items-center justify-between p-3 rounded-lg bg-forest-700 hover:bg-forest-600 transition-colors">
+                  <div class="flex items-center space-x-3">
+                    <div class="w-8 h-8 rounded-lg flex items-center justify-center bg-forest-600">
+                      <span class="text-sm">📊</span>
+                    </div>
+                    <div>
+                      <h4 class="font-medium text-white">Analyze competitor content</h4>
+                      <p class="text-sm text-gray-400">Research trending topics</p>
+                    </div>
+                  </div>
+                  <button class="rounded bg-orange-500 px-3 py-1 text-sm text-white hover:bg-orange-600">
+                    Add
+                  </button>
+                </div>
+                <div class="flex items-center justify-between p-3 rounded-lg bg-forest-700 hover:bg-forest-600 transition-colors">
+                  <div class="flex items-center space-x-3">
+                    <div class="w-8 h-8 rounded-lg flex items-center justify-center bg-forest-600">
+                      <span class="text-sm">✍️</span>
+                    </div>
+                    <div>
+                      <h4 class="font-medium text-white">Update video descriptions</h4>
+                      <p class="text-sm text-gray-400">Optimize for SEO</p>
+                    </div>
+                  </div>
+                  <button class="rounded bg-orange-500 px-3 py-1 text-sm text-white hover:bg-orange-600">
                     Add
                   </button>
                 </div>
@@ -168,11 +192,11 @@
           <div class="lg:col-span-2 rounded-xl bg-forest-800 p-6">
             <div class="mb-4 flex items-center justify-between">
               <h3 class="text-lg font-semibold text-white">
-                Tasks for {{ formatDate(selectedDate) }}
+                Tasks for {{ formatSelectedDate(selectedDate) }}
               </h3>
               <button
                 @click="addTaskToSelectedDate"
-                class="rounded-lg bg-orange-500 px-4 py-2 text-sm text-white hover:bg-orange-600"
+                class="px-4 py-2 rounded-lg bg-orange-500 hover:bg-orange-600 text-white text-sm"
               >
                 + Add Task
               </button>
@@ -182,14 +206,14 @@
               <div
                 v-for="task in getTasksForDate(selectedDate)"
                 :key="task.id"
-                class="flex items-center justify-between rounded-lg bg-forest-700 p-4"
+                class="flex items-center justify-between p-4 rounded-lg bg-forest-700 hover:bg-forest-600 transition-colors"
               >
                 <div class="flex items-center space-x-3">
                   <input
                     :checked="task.completed"
-                    @change="toggleTaskCompletion(task.id)"
                     type="checkbox"
-                    class="h-4 w-4 rounded border-gray-300 text-orange-500 focus:ring-orange-500"
+                    class="rounded border-forest-600 bg-forest-700 text-orange-500 focus:ring-orange-500"
+                    @change="toggleTaskCompletion(task.id)"
                   />
                   <div>
                     <h4 :class="['font-medium', task.completed ? 'line-through text-gray-500' : 'text-white']">
@@ -206,7 +230,7 @@
                 </div>
                 <button
                   @click="editTask(task)"
-                  class="text-gray-400 hover:text-white transition-colors p-2"
+                  class="text-gray-400 hover:text-white transition-colors"
                 >
                   <svg class="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
                     <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z"/>
@@ -224,9 +248,9 @@
                 <p class="text-gray-400 mb-4">No tasks scheduled for this date</p>
                 <button
                   @click="addTaskToSelectedDate"
-                  class="rounded-lg bg-orange-500 px-4 py-2 text-sm text-white hover:bg-orange-600"
+                  class="px-4 py-2 rounded-lg bg-orange-500 hover:bg-orange-600 text-white text-sm"
                 >
-                  + Add First Task
+                  Add First Task
                 </button>
               </div>
             </div>
@@ -380,7 +404,67 @@
         @save="saveTask"
       />
 
+      <!-- AI Task Suggestions -->
+      <div v-if="currentView === 'dashboard' && aiSuggestions.length > 0" class="rounded-xl bg-forest-800 p-6">
+        <div class="mb-4 flex items-center space-x-3">
+          <div class="flex h-10 w-10 items-center justify-center rounded-lg overflow-hidden" :style="{ backgroundColor: selectedAgentData.color + '20' }">
+            <img
+              v-if="selectedAgentData.image"
+              :src="selectedAgentData.image"
+              :alt="selectedAgentData.name"
+              class="h-full w-full object-cover"
+            />
+            <span v-else class="text-lg">🤖</span>
+          </div>
+          <div>
+            <h3 class="text-lg font-semibold text-white">{{ selectedAgentData.name }} Suggestions</h3>
+            <p class="text-sm text-gray-400">Smart recommendations for your workflow</p>
+          </div>
+        </div>
 
+        <div class="space-y-3">
+          <div
+            v-for="suggestion in aiSuggestions"
+            :key="suggestion.id"
+            class="flex items-center justify-between p-4 rounded-lg bg-forest-700 hover:bg-forest-600 transition-colors"
+          >
+            <div class="flex items-center space-x-3">
+              <div class="w-10 h-10 rounded-lg flex items-center justify-center bg-forest-600">
+                <span class="text-lg">{{ suggestion.icon }}</span>
+              </div>
+              <div>
+                <h4 class="font-medium text-white">{{ suggestion.title }}</h4>
+                <p class="text-sm text-gray-400">{{ suggestion.description }}</p>
+                <div class="flex items-center space-x-2 mt-1">
+                  <span
+                    class="rounded px-2 py-1 text-xs"
+                    :class="getPriorityClass(suggestion.priority)"
+                  >
+                    {{ formatPriority(suggestion.priority) }}
+                  </span>
+                  <span class="rounded bg-forest-600 px-2 py-1 text-xs text-gray-300">
+                    {{ formatCategory(suggestion.category) }}
+                  </span>
+                </div>
+              </div>
+            </div>
+            <div class="flex items-center space-x-2">
+              <button
+                class="text-gray-400 hover:text-white px-2 py-1 text-sm"
+                @click="dismissSuggestion(suggestion.id)"
+              >
+                ✕
+              </button>
+              <button
+                class="rounded bg-orange-500 px-3 py-1 text-sm text-white hover:bg-orange-600"
+                @click="createFromSuggestion(suggestion)"
+              >
+                Create Task
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
 
 
       </div>
@@ -433,6 +517,111 @@ const showCreateModal = ref(false)
 const editingTask = ref<Task | null>(null)
 const activeFilter = ref<TaskFilter>('all')
 const searchQuery = ref('')
+
+// Calendar state
+const currentDate = ref(new Date())
+const selectedDate = ref<Date | null>(null)
+
+// Calendar computed properties
+const currentMonthYear = computed(() => {
+  return currentDate.value.toLocaleDateString('en-US', {
+    month: 'long',
+    year: 'numeric'
+  })
+})
+
+const dayHeaders = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
+
+const calendarDays = computed(() => {
+  const year = currentDate.value.getFullYear()
+  const month = currentDate.value.getMonth()
+
+  // First day of the month
+  const firstDay = new Date(year, month, 1)
+  // Last day of the month
+  const lastDay = new Date(year, month + 1, 0)
+
+  // Start from the first Sunday of the calendar view
+  const startDate = new Date(firstDay)
+  startDate.setDate(startDate.getDate() - startDate.getDay())
+
+  // End at the last Saturday of the calendar view
+  const endDate = new Date(lastDay)
+  endDate.setDate(endDate.getDate() + (6 - endDate.getDay()))
+
+  const days = []
+  const currentDateObj = new Date(startDate)
+
+  while (currentDateObj <= endDate) {
+    const today = new Date()
+    days.push({
+      date: new Date(currentDateObj),
+      dayNumber: currentDateObj.getDate(),
+      isCurrentMonth: currentDateObj.getMonth() === month,
+      isToday: currentDateObj.toDateString() === today.toDateString()
+    })
+    currentDateObj.setDate(currentDateObj.getDate() + 1)
+  }
+
+  return days
+})
+
+// Calendar methods
+const previousMonth = () => {
+  currentDate.value = new Date(currentDate.value.getFullYear(), currentDate.value.getMonth() - 1, 1)
+}
+
+const nextMonth = () => {
+  currentDate.value = new Date(currentDate.value.getFullYear(), currentDate.value.getMonth() + 1, 1)
+}
+
+const goToToday = () => {
+  currentDate.value = new Date()
+  selectedDate.value = new Date()
+}
+
+const selectDate = (day: any) => {
+  if (day.isCurrentMonth) {
+    selectedDate.value = day.date
+  }
+}
+
+const addTaskToDate = (day: any) => {
+  selectedDate.value = day.date
+  showCreateModal.value = true
+}
+
+const addTaskToSelectedDate = () => {
+  showCreateModal.value = true
+}
+
+const getTasksForDate = (date: Date) => {
+  if (!date) return []
+
+  return tasksStore.tasks.filter(task => {
+    const taskDate = new Date(task.dueDate)
+    return taskDate.toDateString() === date.toDateString()
+  })
+}
+
+const formatSelectedDate = (date: Date) => {
+  return date.toLocaleDateString('en-US', {
+    weekday: 'long',
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric'
+  })
+}
+
+const getPriorityColor = (priority: TaskPriority) => {
+  switch (priority) {
+    case 'urgent': return 'bg-red-500 text-white'
+    case 'high': return 'bg-orange-500 text-white'
+    case 'medium': return 'bg-yellow-500 text-black'
+    case 'low': return 'bg-green-500 text-white'
+    default: return 'bg-forest-600 text-white'
+  }
+}
 
 // Agent settings state
 const selectedAgent = ref(1)
@@ -744,127 +933,6 @@ const deleteTask = (taskId: string) => {
   if (confirm('Are you sure you want to delete this task?')) {
     tasksStore.deleteTask(taskId)
   }
-}
-
-// Calendar functionality
-const currentDate = ref(new Date())
-const selectedDate = ref<Date | null>(null)
-
-const dayHeaders = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
-
-const currentMonthYear = computed(() => {
-  return currentDate.value.toLocaleDateString('en-US', {
-    month: 'long',
-    year: 'numeric'
-  })
-})
-
-const calendarDays = computed(() => {
-  const year = currentDate.value.getFullYear()
-  const month = currentDate.value.getMonth()
-
-  // First day of the month
-  const firstDay = new Date(year, month, 1)
-  // Last day of the month
-  const lastDay = new Date(year, month + 1, 0)
-
-  // Start from the first Sunday of the calendar view
-  const startDate = new Date(firstDay)
-  startDate.setDate(startDate.getDate() - startDate.getDay())
-
-  // End at the last Saturday of the calendar view
-  const endDate = new Date(lastDay)
-  endDate.setDate(endDate.getDate() + (6 - endDate.getDay()))
-
-  const days = []
-  const currentDateObj = new Date(startDate)
-
-  while (currentDateObj <= endDate) {
-    const today = new Date()
-    days.push({
-      date: new Date(currentDateObj),
-      isCurrentMonth: currentDateObj.getMonth() === month,
-      isToday: currentDateObj.toDateString() === today.toDateString(),
-    })
-    currentDateObj.setDate(currentDateObj.getDate() + 1)
-  }
-
-  return days
-})
-
-const previousMonth = () => {
-  currentDate.value = new Date(currentDate.value.getFullYear(), currentDate.value.getMonth() - 1, 1)
-}
-
-const nextMonth = () => {
-  currentDate.value = new Date(currentDate.value.getFullYear(), currentDate.value.getMonth() + 1, 1)
-}
-
-const goToToday = () => {
-  currentDate.value = new Date()
-  selectedDate.value = new Date()
-}
-
-const selectDate = (date: Date) => {
-  selectedDate.value = date
-}
-
-const addTaskToDate = (date: Date) => {
-  selectedDate.value = date
-  showCreateModal.value = true
-}
-
-const addTaskToSelectedDate = () => {
-  if (selectedDate.value) {
-    showCreateModal.value = true
-  }
-}
-
-const getTasksForDate = (date: Date) => {
-  return tasksStore.tasks.filter(task => {
-    const taskDate = new Date(task.dueDate)
-    return (
-      taskDate.getDate() === date.getDate() &&
-      taskDate.getMonth() === date.getMonth() &&
-      taskDate.getFullYear() === date.getFullYear()
-    )
-  })
-}
-
-const formatDate = (date: Date) => {
-  return date.toLocaleDateString('en-US', {
-    weekday: 'long',
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric'
-  })
-}
-
-const getPriorityColor = (priority: TaskPriority) => {
-  switch (priority) {
-    case 'urgent': return 'bg-red-500 text-white'
-    case 'high': return 'bg-orange-500 text-white'
-    case 'medium': return 'bg-yellow-500 text-black'
-    case 'low': return 'bg-green-500 text-white'
-    default: return 'bg-forest-600 text-white'
-  }
-}
-
-const addSuggestionAsTask = (suggestion: any) => {
-  const tomorrow = new Date()
-  tomorrow.setDate(tomorrow.getDate() + 1)
-
-  tasksStore.addTask({
-    title: suggestion.title,
-    description: suggestion.description,
-    priority: suggestion.priority,
-    category: suggestion.category,
-    dueDate: selectedDate.value || tomorrow,
-    estimatedTime: suggestion.estimatedTime,
-    tags: ['ai-suggested'],
-  })
-
-  dismissSuggestion(suggestion.id)
 }
 </script>
 

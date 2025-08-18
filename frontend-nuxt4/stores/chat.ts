@@ -65,19 +65,38 @@ export const useChatStore = defineStore('chat', () => {
       throw new Error('No active chat session')
     }
 
-    const message: ChatMessage = {
-      id: uuidv4(),
-      agentId: activeSession.value.agentId,
-      userId: 'demo-user',
-      content,
-      type,
-      timestamp: new Date(),
-      isFromUser: true,
+    if (!content.trim()) {
+      throw new Error('Message content cannot be empty')
     }
 
-    activeSession.value.messages.push(message)
-    activeSession.value.updatedAt = new Date()
-    return message
+    try {
+      loading.value = true
+      error.value = null
+
+      const message: ChatMessage = {
+        id: uuidv4(),
+        agentId: activeSession.value.agentId,
+        userId: 'demo-user',
+        content: content.trim(),
+        type,
+        timestamp: new Date(),
+        isFromUser: true,
+      }
+
+      activeSession.value.messages.push(message)
+      activeSession.value.updatedAt = new Date()
+      lastActivity.value = new Date()
+
+      // Save to localStorage
+      saveChatData()
+
+      return message
+    } catch (err) {
+      error.value = err instanceof Error ? err.message : 'Failed to send message'
+      throw err
+    } finally {
+      loading.value = false
+    }
   }
 
   const receiveMessage = (message: ChatMessage) => {
@@ -85,7 +104,39 @@ export const useChatStore = defineStore('chat', () => {
     if (session) {
       session.messages.push(message)
       session.updatedAt = new Date()
+      lastActivity.value = new Date()
+      saveChatData()
     }
+  }
+
+  const deleteMessage = (messageId: string) => {
+    if (!activeSession.value) return false
+
+    const messageIndex = activeSession.value.messages.findIndex(msg => msg.id === messageId)
+    if (messageIndex > -1) {
+      activeSession.value.messages.splice(messageIndex, 1)
+      activeSession.value.updatedAt = new Date()
+      saveChatData()
+      return true
+    }
+    return false
+  }
+
+  const clearSession = (sessionId: string) => {
+    const session = sessions.value.get(sessionId)
+    if (session) {
+      session.messages = []
+      session.updatedAt = new Date()
+      saveChatData()
+    }
+  }
+
+  const deleteSession = (sessionId: string) => {
+    sessions.value.delete(sessionId)
+    if (activeSessionId.value === sessionId) {
+      activeSessionId.value = null
+    }
+    saveChatData()
   }
 
   const setAgentTyping = (agentId: string, typing: boolean) => {
@@ -98,8 +149,67 @@ export const useChatStore = defineStore('chat', () => {
 
   const setActiveSession = (sessionId: string | null) => {
     activeSessionId.value = sessionId
-    if (sessionId) {
-      lastActivity.value = new Date()
+    saveChatData()
+  }
+
+  // Persistence functions
+  const saveChatData = () => {
+    if (typeof window === 'undefined') return
+
+    try {
+      const chatData = {
+        sessions: Array.from(sessions.value.entries()).map(([id, session]) => [
+          id,
+          {
+            ...session,
+            createdAt: session.createdAt.toISOString(),
+            updatedAt: session.updatedAt.toISOString(),
+            messages: session.messages.map(msg => ({
+              ...msg,
+              timestamp: msg.timestamp.toISOString()
+            }))
+          }
+        ]),
+        activeSessionId: activeSessionId.value,
+        lastActivity: lastActivity.value?.toISOString()
+      }
+
+      localStorage.setItem('chatData', JSON.stringify(chatData))
+    } catch (error) {
+      console.error('Failed to save chat data:', error)
+    }
+  }
+
+  const loadChatData = () => {
+    if (typeof window === 'undefined') return
+
+    try {
+      const savedData = localStorage.getItem('chatData')
+      if (!savedData) return
+
+      const chatData = JSON.parse(savedData)
+
+      // Restore sessions
+      const restoredSessions = new Map()
+      chatData.sessions.forEach(([id, session]: [string, any]) => {
+        restoredSessions.set(id, {
+          ...session,
+          createdAt: new Date(session.createdAt),
+          updatedAt: new Date(session.updatedAt),
+          messages: session.messages.map((msg: any) => ({
+            ...msg,
+            timestamp: new Date(msg.timestamp)
+          }))
+        })
+      })
+
+      sessions.value = restoredSessions
+      activeSessionId.value = chatData.activeSessionId
+      lastActivity.value = chatData.lastActivity ? new Date(chatData.lastActivity) : null
+    } catch (error) {
+      console.error('Failed to load chat data:', error)
+      // Clear corrupted data
+      localStorage.removeItem('chatData')
     }
   }
 
@@ -110,13 +220,6 @@ export const useChatStore = defineStore('chat', () => {
       if (activeSessionId.value === sessionId) {
         activeSessionId.value = null
       }
-    }
-  }
-
-  const deleteSession = (sessionId: string) => {
-    sessions.value.delete(sessionId)
-    if (activeSessionId.value === sessionId) {
-      activeSessionId.value = null
     }
   }
 
@@ -186,11 +289,15 @@ export const useChatStore = defineStore('chat', () => {
     setActiveSession,
     closeSession,
     deleteSession,
+    deleteMessage,
+    clearSession,
     updateConnectionStatus,
     addMessageToQueue,
     processMessageQueue,
     clearAllSessions,
     getSessionById,
     updateSessionTitle,
+    saveChatData,
+    loadChatData,
   }
 })

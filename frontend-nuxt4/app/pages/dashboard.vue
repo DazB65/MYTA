@@ -1,11 +1,12 @@
 <template>
   <div class="min-h-screen bg-forest-900 text-white">
     <!-- Dashboard Content -->
-    <div class="p-6 pt-32">
+    <div class="p-6 pt-24">
       <!-- Page Header -->
-      <div class="mb-6 flex items-center justify-between">
-        <div>
-          <h1 class="text-2xl font-bold text-white mb-2">Dashboard</h1>
+      <div class="mb-4 flex items-center justify-between">
+        <div class="flex items-center space-x-4">
+          <h1 class="text-2xl font-bold text-white">Dashboard</h1>
+          <span class="text-gray-400">•</span>
           <p class="text-gray-400">Overview of your channel performance and tasks</p>
         </div>
         <div class="flex items-center space-x-4">
@@ -35,8 +36,10 @@
 
       <!-- Dashboard Content Grid -->
       <div class="mb-6 grid grid-cols-1 gap-6 lg:grid-cols-2">
-        <!-- Dynamic Task Manager Compartment -->
-        <div class="rounded-xl bg-forest-800 p-6">
+        <!-- Left Column: Task Manager + Channel Goals -->
+        <div class="space-y-6">
+          <!-- Dynamic Task Manager Compartment -->
+          <div class="rounded-xl bg-forest-800 p-6">
           <div class="mb-6 flex items-center justify-between">
             <div class="flex items-center space-x-3">
               <div class="flex h-10 w-10 items-center justify-center rounded-lg bg-orange-500">
@@ -168,6 +171,7 @@
               </NuxtLink>
             </div>
           </div>
+        </div>
         </div>
 
         <!-- Channel Goals & AI Insights -->
@@ -308,6 +312,11 @@
             </div>
           </div>
 
+          </div>
+        </div>
+
+        <!-- Right Column: Agent Suggestions -->
+        <div class="space-y-6">
           <!-- Agent Task Suggestions -->
           <div v-if="aiSuggestions.length > 0" class="rounded-xl bg-forest-800 p-6">
             <div class="mb-4 flex items-center space-x-3">
@@ -371,11 +380,10 @@
         @save="saveTask"
       />
     </div>
-  </div>
 </template>
 
 <script setup lang="ts">
-import { computed, ref } from 'vue'
+import { computed, onMounted, ref } from 'vue'
 import { useAnalyticsStore } from '../../stores/analytics'
 import { useTasksStore } from '../../stores/tasks'
 

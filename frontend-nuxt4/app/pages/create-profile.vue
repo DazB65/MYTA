@@ -186,11 +186,13 @@
                     v-for="agent in agents"
                     :key="'sidebar-' + agent.id"
                     @click="selectAgent(agent.id)"
-                    :class="[
-                      'agent-card',
-                      selectedAgent === agent.id ? 'selected' : ''
-                    ]"
                     class="bg-white/10 backdrop-blur-lg rounded-2xl p-4 text-center cursor-pointer transition-all duration-300 hover:bg-white/20 hover:scale-105 border border-white/20"
+                    :class="selectedAgent === agent.id ? 'scale-105' : ''"
+                    :style="selectedAgent === agent.id ? {
+                      backgroundColor: agent.color + '30',
+                      borderColor: agent.color,
+                      boxShadow: `0 0 30px ${agent.color}80`
+                    } : {}"
                   >
                     <div class="w-12 h-12 mx-auto mb-2 rounded-xl overflow-hidden bg-white/20 flex items-center justify-center">
                       <img :src="agent.image" :alt="agent.name" class="w-full h-full object-cover">

@@ -1,11 +1,12 @@
 <template>
   <div class="min-h-screen bg-gray-900 text-white">
     <!-- Analytics Dashboard -->
-    <div class="pt-32 px-6">
+    <div class="pt-24 px-6">
       <div class="max-w-7xl mx-auto">
         <!-- Page Header -->
-        <div class="mb-8">
-          <h1 class="text-3xl font-bold text-white mb-2">Analytics Dashboard</h1>
+        <div class="mb-4 flex items-center space-x-4">
+          <h1 class="text-2xl font-bold text-white">Analytics Dashboard</h1>
+          <span class="text-gray-400">•</span>
           <p class="text-gray-400">Track your YouTube channel performance and growth</p>
         </div>
 
