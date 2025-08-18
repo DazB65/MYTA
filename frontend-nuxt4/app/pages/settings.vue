@@ -1,17 +1,22 @@
 <template>
-  <div>
+  <div class="min-h-screen bg-forest-900 text-white">
     <!-- Settings Content -->
-    <div class="space-y-6 pt-32 px-6">
+    <div class="p-6 pt-32">
       <!-- Page Header -->
-      <div class="mb-8">
-        <h1 class="text-3xl font-bold text-white mb-2">Settings</h1>
-        <p class="text-gray-400">Manage your account and application preferences</p>
+      <div class="mb-6 flex items-center justify-between">
+        <div>
+          <h1 class="text-2xl font-bold text-white mb-2">Settings</h1>
+          <p class="text-gray-400">Manage your account and application preferences</p>
+        </div>
+        <div class="flex items-center space-x-4">
+          <!-- Future: Add settings actions here -->
+        </div>
       </div>
 
       <!-- Settings Content -->
-      <div class="space-y-8">
+      <div>
         <!-- Agent Customization Section -->
-        <div class="rounded-xl bg-forest-800 p-6">
+        <div class="mb-6 rounded-xl bg-forest-800 p-6">
           <div class="mb-6 flex items-center space-x-3">
             <div class="flex h-10 w-10 items-center justify-center rounded-lg bg-orange-500">
               <svg class="h-6 w-6 text-white" fill="currentColor" viewBox="0 0 20 20">

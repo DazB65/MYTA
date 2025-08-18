@@ -1,10 +1,10 @@
 <template>
   <header class="fixed top-0 left-0 right-0 z-50">
-    <div class="p-6">
+    <div class="p-4">
       <!-- Header Container -->
-      <div class="rounded-xl bg-forest-800 p-4">
+      <div class="rounded-xl bg-forest-800 p-3">
       <!-- Top Navigation Bar -->
-      <div class="flex items-center justify-between mb-3 h-12">
+      <div class="flex items-center justify-between mb-2 h-8">
         <!-- Left: Logo -->
         <div class="flex items-center overflow-visible -ml-8">
           <NuxtLink to="/dashboard" class="flex items-center">
@@ -128,12 +128,8 @@
                 class="btn btn-connect"
                 @click="showConnectModal = true"
               >
-                <svg class="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
-                  <path
-                    fill-rule="evenodd"
-                    d="M3 4a1 1 0 011-1h12a1 1 0 011 1v1a1 1 0 01-1 1H4a1 1 0 01-1-1V4zm0 4a1 1 0 011-1h6a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h6a1 1 0 110 2H4a1 1 0 01-1-1z"
-                    clip-rule="evenodd"
-                  />
+                <svg class="h-5 w-5" fill="currentColor" viewBox="0 0 24 24">
+                  <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/>
                 </svg>
                 <span>Connect YouTube</span>
               </button>
@@ -141,7 +137,7 @@
               <!-- Selected Agent Button -->
               <button
                 v-if="selectedAgent"
-                :class="agentButtonClasses"
+                class="btn btn-agent"
                 @click="showChatPanel = true"
                 :title="`Chat with ${selectedAgent.name}`"
               >

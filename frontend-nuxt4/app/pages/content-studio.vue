@@ -6,7 +6,7 @@
       <!-- Header -->
       <div class="mb-6 flex items-center justify-between">
         <div>
-          <h2 class="text-2xl font-bold text-white">Content Studio</h2>
+          <h1 class="text-2xl font-bold text-white mb-2">Content Studio</h1>
           <p class="text-gray-400">Manage your content workflow from idea to publication</p>
         </div>
         <div class="flex items-center space-x-4">
@@ -46,7 +46,7 @@
 
 
       <!-- Kanban Board -->
-      <div class="rounded-lg bg-forest-800 p-6">
+      <div class="rounded-xl bg-forest-800 p-6">
         <div class="grid grid-cols-4 gap-4 pb-6">
           <!-- Ideas Column -->
           <div class="flex flex-col bg-forest-800/30 rounded-lg p-4 border border-forest-600/20">
@@ -295,7 +295,7 @@
       </div>
 
       <!-- Agent Content Suggestions -->
-      <div class="mt-6 rounded-lg bg-forest-800 p-6">
+      <div class="mt-6 rounded-xl bg-forest-800 p-6">
         <div class="mb-6 flex items-center justify-between">
           <div class="flex items-center space-x-3">
             <div class="flex h-10 w-10 items-center justify-center rounded-lg overflow-hidden bg-purple-600/20">

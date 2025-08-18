@@ -242,7 +242,7 @@ const agents = ref([
     name: 'Agent 2',
     description: 'Data & Insights',
     image: '/Agent2.png',
-    color: '#45B7D1'
+    color: '#FFEAA7'
   },
   {
     id: 3,

@@ -8,7 +8,7 @@
       <!-- Header -->
       <div class="mb-6 flex items-center justify-between">
         <div>
-          <h2 class="text-2xl font-bold text-white">Video Analytics</h2>
+          <h1 class="text-2xl font-bold text-white mb-2">Video Analytics</h1>
           <p class="text-gray-400">Track performance and manage your content</p>
         </div>
         <div class="flex items-center space-x-4">
@@ -47,7 +47,7 @@
 
       <!-- Analytics Overview -->
       <div class="mb-8 grid grid-cols-4 gap-6">
-        <div class="rounded-lg bg-forest-800 p-6">
+        <div class="rounded-xl bg-forest-800 p-6">
           <div class="flex items-center justify-between">
             <div>
               <p class="text-sm text-gray-400">Total Views</p>
@@ -67,7 +67,7 @@
           </div>
         </div>
 
-        <div class="rounded-lg bg-forest-800 p-6">
+        <div class="rounded-xl bg-forest-800 p-6">
           <div class="flex items-center justify-between">
             <div>
               <p class="text-sm text-gray-400">Avg Duration</p>
@@ -86,7 +86,7 @@
           </div>
         </div>
 
-        <div class="rounded-lg bg-forest-800 p-6">
+        <div class="rounded-xl bg-forest-800 p-6">
           <div class="flex items-center justify-between">
             <div>
               <p class="text-sm text-gray-400">Engagement</p>
@@ -103,7 +103,7 @@
           </div>
         </div>
 
-        <div class="rounded-lg bg-forest-800 p-6">
+        <div class="rounded-xl bg-forest-800 p-6">
           <div class="flex items-center justify-between">
             <div>
               <p class="text-sm text-gray-400">Revenue</p>
@@ -127,7 +127,7 @@
       </div>
 
       <!-- Recent Videos Section -->
-      <div class="mb-8 rounded-lg bg-forest-800 p-6">
+      <div class="mb-8 rounded-xl bg-forest-800 p-6">
         <div class="mb-6 flex items-center justify-between">
           <h3 class="text-xl font-bold text-white">Recent Videos</h3>
           <div class="flex items-center space-x-4">
@@ -181,7 +181,7 @@
       </div>
 
       <!-- Performance Table -->
-      <div class="rounded-lg bg-forest-800 p-6">
+      <div class="rounded-xl bg-forest-800 p-6">
         <div class="mb-6 flex items-center justify-between">
           <h3 class="text-xl font-bold text-white">Video Performance</h3>
           <div class="flex items-center space-x-2">

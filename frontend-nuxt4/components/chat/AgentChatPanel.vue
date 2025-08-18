@@ -59,10 +59,10 @@
       </div>
 
       <!-- Chat Messages Area -->
-      <div 
+      <div
         ref="messagesContainer"
         class="flex-1 overflow-y-auto p-4 space-y-4"
-        style="height: calc(100vh - 200px);"
+        :style="{ height: `calc(100vh - ${savedQuestions.length > 0 ? '280px' : '200px'})` }"
       >
         <!-- Welcome Message -->
         <div v-if="messages.length === 0" class="text-center py-8">
@@ -145,17 +145,21 @@
       </div>
 
       <!-- Quick Questions -->
-      <div v-if="savedQuestions.length > 0" class="border-t border-forest-700 p-4">
+      <div v-if="savedQuestions.length > 0" class="p-4">
         <div class="mb-3">
           <h4 class="text-sm font-medium text-gray-300 mb-2">Quick Questions</h4>
           <div class="flex flex-wrap gap-2">
-            <button
+            <div
               v-for="question in savedQuestions"
               :key="question.id"
-              @click="useQuickQuestion(question.text)"
               class="group relative bg-forest-700 hover:bg-forest-600 text-white text-xs px-3 py-2 rounded-lg transition-colors border border-forest-600 hover:border-forest-500"
             >
-              <span class="pr-4">{{ question.text.length > 30 ? question.text.substring(0, 30) + '...' : question.text }}</span>
+              <button
+                @click="useQuickQuestion(question.text)"
+                class="w-full text-left pr-4"
+              >
+                {{ question.text.length > 30 ? question.text.substring(0, 30) + '...' : question.text }}
+              </button>
               <button
                 @click.stop="removeSavedQuestion(question.id)"
                 class="absolute right-1 top-1/2 transform -translate-y-1/2 opacity-0 group-hover:opacity-100 text-gray-400 hover:text-red-400 transition-all"
@@ -164,12 +168,12 @@
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
                 </svg>
               </button>
-            </button>
+            </div>
           </div>
         </div>
       </div>
 
-      <!-- Input Area -->
+      <!-- Input Area - Always visible -->
       <div class="border-t border-forest-700 p-4">
         <div class="flex items-center space-x-3">
           <input
@@ -181,16 +185,28 @@
             @keyup.enter="sendMessage"
             @input="handleTyping"
           />
+          <!-- Bookmark button - shows when there's text and it's not already saved -->
           <button
             v-if="messageInput.trim() && !savedQuestions.some(q => q.text === messageInput.trim())"
             @click="saveCurrentQuestion"
             class="p-3 rounded-lg bg-forest-600 hover:bg-forest-500 text-white transition-colors"
-            title="Save this question"
+            title="Save this question for quick access"
           >
             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z" />
             </svg>
           </button>
+          <!-- Saved indicator - shows when question is already saved -->
+          <div
+            v-else-if="messageInput.trim() && savedQuestions.some(q => q.text === messageInput.trim())"
+            class="p-3 rounded-lg bg-green-600 text-white"
+            title="This question is already saved"
+          >
+            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+              <path d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z" />
+            </svg>
+          </div>
+          <!-- Send button - always available when there's text -->
           <button
             @click="sendMessage"
             :disabled="!messageInput.trim() || isSending"
@@ -199,6 +215,7 @@
               backgroundColor: messageInput.trim() ? selectedAgentData.color : '#374151',
               ':hover': { backgroundColor: messageInput.trim() ? selectedAgentData.color + 'dd' : '#374151' }
             }"
+            title="Send message"
           >
             <svg v-if="!isSending" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />

@@ -1,7 +1,18 @@
 <template>
-  <div>
+  <div class="min-h-screen bg-forest-900 text-white">
     <!-- Dashboard Content -->
-    <div class="space-y-6 pt-32 px-6">
+    <div class="p-6 pt-32">
+      <!-- Page Header -->
+      <div class="mb-6 flex items-center justify-between">
+        <div>
+          <h1 class="text-2xl font-bold text-white mb-2">Dashboard</h1>
+          <p class="text-gray-400">Overview of your channel performance and tasks</p>
+        </div>
+        <div class="flex items-center space-x-4">
+          <div class="text-sm text-gray-400">Last 30 days</div>
+        </div>
+      </div>
+
       <!-- Channel Statistics -->
       <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
         <div class="rounded-xl bg-forest-800 p-4 text-center">
@@ -23,7 +34,7 @@
       </div>
 
       <!-- Dashboard Content Grid -->
-      <div class="grid grid-cols-1 gap-6 lg:grid-cols-2">
+      <div class="mb-6 grid grid-cols-1 gap-6 lg:grid-cols-2">
         <!-- Dynamic Task Manager Compartment -->
         <div class="rounded-xl bg-forest-800 p-6">
           <div class="mb-6 flex items-center justify-between">
@@ -389,11 +400,11 @@ const agents = [
   },
   {
     id: 2,
-    name: 'Agent 2',
+    name: 'Levi',
     image: '/Agent2.png',
-    color: '#eab308', // Yellow
-    description: 'Marketing Specialist',
-    personality: 'Strategic & Data-Driven',
+    color: '#FFEAA7', // Yellow
+    description: 'Professional & Analytical',
+    personality: 'Innovative & Artistic',
   },
   {
     id: 3,

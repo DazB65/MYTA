@@ -1,6 +1,6 @@
 <template>
   <div
-    class="rounded-xl bg-gradient-to-br from-purple-600 via-purple-700 to-purple-800 p-6 text-white"
+    class="rounded-xl bg-gradient-to-br from-yellow-500 via-yellow-600 to-yellow-700 p-6 text-white"
   >
     <!-- Header -->
     <div class="mb-6 flex items-center justify-between">
@@ -14,10 +14,10 @@
         </div>
         <div>
           <h3 class="text-lg font-semibold text-white">Your Personal Agent</h3>
-          <p class="text-sm text-purple-200">AI-powered insights • 3 new insights</p>
+          <p class="text-sm text-yellow-100">AI-powered insights • 3 new insights</p>
         </div>
       </div>
-      <button class="text-purple-200 hover:text-white">
+      <button class="text-yellow-100 hover:text-white">
         <svg class="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
           <path
             fill-rule="evenodd"
@@ -57,7 +57,7 @@
           </div>
           <div class="flex-1">
             <h5 class="mb-1 font-medium text-white">Retention improved</h5>
-            <p class="text-sm text-purple-200">Audience retention increased by 15% this week</p>
+            <p class="text-sm text-yellow-100">Audience retention increased by 15% this week</p>
           </div>
         </div>
       </div>

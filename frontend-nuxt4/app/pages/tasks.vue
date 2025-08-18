@@ -1,10 +1,11 @@
 <template>
-  <div class="min-h-screen bg-forest-900 text-white p-6 pt-32">
-    <div class="max-w-7xl mx-auto space-y-8">
+  <div class="min-h-screen bg-forest-900 text-white">
+    <div class="p-6 pt-32">
+      <div class="max-w-7xl mx-auto space-y-8">
       <!-- Page Header -->
       <div class="flex items-center justify-between">
         <div>
-          <h1 class="text-3xl font-bold mb-2">Task Management</h1>
+          <h1 class="text-2xl font-bold text-white mb-2">Task Management</h1>
           <p class="text-gray-400">
             Organize and track your content creation tasks with AI-powered insights
           </p>
@@ -222,6 +223,7 @@
       </div>
 
 
+      </div>
     </div>
   </div>
 </template>

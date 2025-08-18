@@ -7,7 +7,7 @@
       <!-- Header -->
       <div class="mb-6 flex items-center justify-between">
         <div>
-          <h2 class="text-2xl font-bold text-white">Content Pillars</h2>
+          <h1 class="text-2xl font-bold text-white mb-2">Content Pillars</h1>
           <p class="text-gray-400">Analyze and optimize your content strategy</p>
         </div>
         <div class="flex items-center space-x-4">

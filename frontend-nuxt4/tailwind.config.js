@@ -82,7 +82,7 @@ export default {
         // Agent colors
         agent: {
           1: '#f97316', // Agent 1 - Orange (primary)
-          2: '#2563eb', // Agent 2 - Blue
+          2: '#FFEAA7', // Agent 2 (Levi) - Yellow
           3: '#059669', // Agent 3 - Green
           4: '#ea580c', // Agent 4 - Dark Orange
           5: '#db2777', // Agent 5 - Pink
@@ -92,7 +92,7 @@ export default {
         // Accent colors (forest + orange theme)
         accent: {
           orange: '#f97316', // Primary accent
-          blue: '#2563eb', // Agent 2
+          yellow: '#FFEAA7', // Agent 2 (Levi)
           green: '#059669', // Agent 3
           amber: '#ea580c', // Agent 4
           red: '#ef4444',
@@ -181,7 +181,7 @@ export default {
       backgroundImage: {
         'gradient-brand': 'linear-gradient(135deg, #f97316 0%, #22c55e 100%)',
         'gradient-agent-1': 'linear-gradient(135deg, #f97316 0%, #ea580c 100%)',
-        'gradient-agent-2': 'linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%)',
+        'gradient-agent-2': 'linear-gradient(135deg, #FFEAA7 0%, #eab308 100%)',
         'gradient-agent-3': 'linear-gradient(135deg, #059669 0%, #047857 100%)',
         'gradient-agent-4': 'linear-gradient(135deg, #ea580c 0%, #c2410c 100%)',
         'gradient-agent-5': 'linear-gradient(135deg, #db2777 0%, #be185d 100%)',
