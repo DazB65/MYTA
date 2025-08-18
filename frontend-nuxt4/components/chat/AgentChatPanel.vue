@@ -64,69 +64,65 @@
         class="flex-1 overflow-y-auto p-4 space-y-4"
         :style="{ height: `calc(100vh - ${savedQuestions.length > 0 ? '280px' : '200px'})` }"
       >
-        <!-- Welcome Message -->
-        <div v-if="messages.length === 0" class="text-center py-8">
-          <div class="w-16 h-16 mx-auto mb-4 rounded-xl overflow-hidden">
+        <!-- Enhanced Welcome Message -->
+        <div v-if="messages.length === 0" class="text-center py-8 px-4">
+          <div class="w-20 h-20 mx-auto mb-4 rounded-xl overflow-hidden ring-4 ring-opacity-20"
+               :style="{ ringColor: selectedAgentData.color }">
             <img
               :src="selectedAgentData.image"
               :alt="selectedAgentData.name"
               class="w-full h-full object-cover"
             />
           </div>
-          <h3 class="text-lg font-semibold text-white mb-2">Chat with {{ selectedAgentData.name }}</h3>
-          <p class="text-gray-400 text-sm">{{ selectedAgentData.description }}</p>
-          <p class="text-gray-500 text-xs mt-2">Start a conversation to get AI-powered insights!</p>
+          <h3 class="text-xl font-bold text-white mb-2">Welcome to {{ selectedAgentData.name }}</h3>
+          <p class="text-gray-300 text-sm mb-1">{{ selectedAgentData.description }}</p>
+          <p class="text-gray-400 text-xs mb-6">{{ selectedAgentData.personality }}</p>
+
+          <!-- Channel Overview Card -->
+          <div class="bg-forest-700 rounded-lg p-4 mb-6 border border-forest-600">
+            <h4 class="text-sm font-semibold text-white mb-3 flex items-center justify-center">
+              <span class="mr-2">📊</span>
+              Your Channel at a Glance
+            </h4>
+            <div class="grid grid-cols-2 gap-4 text-xs">
+              <div class="text-center">
+                <div class="text-lg font-bold text-white">1.2K</div>
+                <div class="text-gray-400">Subscribers</div>
+              </div>
+              <div class="text-center">
+                <div class="text-lg font-bold text-white">45.6K</div>
+                <div class="text-gray-400">Total Views</div>
+              </div>
+              <div class="text-center">
+                <div class="text-lg font-bold text-white">12</div>
+                <div class="text-gray-400">Videos</div>
+              </div>
+              <div class="text-center">
+                <div class="text-lg font-bold text-white">4.2%</div>
+                <div class="text-gray-400">Avg CTR</div>
+              </div>
+            </div>
+          </div>
+
+          <p class="text-gray-400 text-sm">Ask me anything about your channel, content strategy, or growth opportunities!</p>
         </div>
 
         <!-- Messages -->
-        <div
+        <MessageBubble
           v-for="message in messages"
           :key="message.id"
-          class="flex items-start space-x-3"
-          :class="message.isFromUser ? 'flex-row-reverse space-x-reverse' : ''"
-        >
-          <!-- Avatar -->
-          <div class="flex-shrink-0">
-            <div
-              v-if="!message.isFromUser"
-              class="w-8 h-8 rounded-lg overflow-hidden"
-              :style="{ backgroundColor: selectedAgentData.color + '20' }"
-            >
-              <img
-                :src="selectedAgentData.image"
-                :alt="selectedAgentData.name"
-                class="w-full h-full object-cover"
-              />
-            </div>
-            <div
-              v-else
-              class="w-8 h-8 rounded-lg bg-orange-600 flex items-center justify-center text-white text-sm font-bold"
-            >
-              U
-            </div>
-          </div>
+          :message="message"
+          :agent-color="selectedAgentData.color"
+          :agent-image="selectedAgentData.image"
+          :agent-name="selectedAgentData.name"
+          @action-click="handleActionClick"
+        />
 
-          <!-- Message Bubble -->
-          <div class="flex-1 max-w-[280px]">
-            <div
-              class="rounded-lg p-3 text-sm"
-              :class="message.isFromUser 
-                ? 'bg-orange-600 text-white ml-auto' 
-                : 'bg-forest-700 text-white'"
-            >
-              <p>{{ message.content }}</p>
-            </div>
-            <div class="text-xs text-gray-500 mt-1" :class="message.isFromUser ? 'text-right' : ''">
-              {{ formatTime(message.timestamp) }}
-            </div>
-          </div>
-        </div>
-
-        <!-- Typing Indicator -->
+        <!-- Enhanced Typing Indicator -->
         <div v-if="isTyping" class="flex items-start space-x-3">
           <div
-            class="w-8 h-8 rounded-lg overflow-hidden"
-            :style="{ backgroundColor: selectedAgentData.color + '20' }"
+            class="w-8 h-8 rounded-lg overflow-hidden ring-2 ring-opacity-50"
+            :style="{ backgroundColor: selectedAgentData.color + '20', ringColor: selectedAgentData.color }"
           >
             <img
               :src="selectedAgentData.image"
@@ -134,20 +130,36 @@
               class="w-full h-full object-cover"
             />
           </div>
-          <div class="bg-forest-700 rounded-lg p-3">
-            <div class="flex space-x-1">
-              <div class="w-2 h-2 bg-gray-400 rounded-full animate-bounce"></div>
-              <div class="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style="animation-delay: 0.1s"></div>
-              <div class="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style="animation-delay: 0.2s"></div>
+          <div class="bg-gradient-to-r from-forest-700 to-forest-600 rounded-lg p-3 border border-forest-600">
+            <div class="flex items-center space-x-2">
+              <div class="w-5 h-5 rounded-full flex items-center justify-center text-xs"
+                   :style="{ backgroundColor: selectedAgentData.color }">
+                🤔
+              </div>
+              <span class="text-gray-200 text-sm">{{ selectedAgentData.name }} is analyzing...</span>
+              <div class="flex space-x-1">
+                <div class="w-1.5 h-1.5 rounded-full animate-pulse"
+                     :style="{ backgroundColor: selectedAgentData.color }"></div>
+                <div class="w-1.5 h-1.5 rounded-full animate-pulse"
+                     :style="{ backgroundColor: selectedAgentData.color, animationDelay: '0.2s' }"></div>
+                <div class="w-1.5 h-1.5 rounded-full animate-pulse"
+                     :style="{ backgroundColor: selectedAgentData.color, animationDelay: '0.4s' }"></div>
+              </div>
             </div>
           </div>
         </div>
       </div>
 
-      <!-- Quick Questions -->
-      <div v-if="savedQuestions.length > 0" class="p-4">
-        <div class="mb-3">
-          <h4 class="text-sm font-medium text-gray-300 mb-2">Quick Questions</h4>
+      <!-- Quick Questions & Smart Suggestions -->
+      <div v-if="savedQuestions.length > 0 || smartSuggestions.length > 0" class="p-4 space-y-4">
+        <!-- Saved Questions -->
+        <div v-if="savedQuestions.length > 0">
+          <h4 class="text-sm font-medium text-gray-300 mb-2 flex items-center">
+            <svg class="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 24 24">
+              <path d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z" />
+            </svg>
+            Your Saved Questions
+          </h4>
           <div class="flex flex-wrap gap-2">
             <div
               v-for="question in savedQuestions"
@@ -169,6 +181,26 @@
                 </svg>
               </button>
             </div>
+          </div>
+        </div>
+
+        <!-- Smart Suggestions -->
+        <div v-if="smartSuggestions.length > 0">
+          <h4 class="text-sm font-medium text-gray-300 mb-2 flex items-center">
+            <span class="mr-2">✨</span>
+            Smart Suggestions for {{ selectedAgentData.name }}
+          </h4>
+          <div class="flex flex-wrap gap-2">
+            <button
+              v-for="suggestion in smartSuggestions"
+              :key="suggestion.id"
+              @click="useQuickQuestion(suggestion.text)"
+              class="bg-gradient-to-r from-forest-700 to-forest-600 hover:from-forest-600 hover:to-forest-500 text-white text-xs px-3 py-2 rounded-lg transition-all border border-forest-500 hover:border-forest-400 flex items-center space-x-1"
+              :style="{ borderColor: selectedAgentData.color + '40' }"
+            >
+              <span>{{ suggestion.icon }}</span>
+              <span>{{ suggestion.text.length > 35 ? suggestion.text.substring(0, 35) + '...' : suggestion.text }}</span>
+            </button>
           </div>
         </div>
       </div>
@@ -311,6 +343,7 @@
 import { computed, nextTick, onMounted, ref, watch } from 'vue';
 import { useAgentSettings } from '../../composables/useAgentSettings';
 import { useChatStore } from '../../stores/chat';
+import MessageBubble from './MessageBubble.vue';
 
 // Props
 interface Props {
@@ -327,6 +360,7 @@ const emit = defineEmits<{
 // Composables
 const { selectedAgent, agentName } = useAgentSettings()
 const chatStore = useChatStore()
+const { getContextualQuestions } = useSmartQuestions()
 
 // Refs
 const messagesContainer = ref<HTMLElement>()
@@ -361,6 +395,11 @@ const headerGradient = computed(() => {
 
 const messages = computed(() => {
   return chatStore.activeSessionMessages || []
+})
+
+const smartSuggestions = computed(() => {
+  const agentId = selectedAgentData.value.id?.toString() || '1'
+  return getContextualQuestions(agentId)
 })
 
 // Available agents for selection
@@ -454,20 +493,16 @@ const sendMessage = async () => {
     setTimeout(async () => {
       isTyping.value = false
 
-      // Mock AI response - in real implementation this would come from WebSocket
-      const aiResponse = {
-        id: `ai-${Date.now()}`,
-        agentId: selectedAgentData.value.id?.toString() || '1',
-        userId: 'demo-user',
-        content: `I understand your question about "${content}". Let me help you with that...`,
-        type: 'text' as const,
-        timestamp: new Date(),
-        isFromUser: false,
-      }
+      // Generate sophisticated AI responses based on content
+      const responses = generateAIResponses(content, selectedAgentData.value)
 
-      // Add AI response to the active session
+      // Add AI responses to the active session
       if (chatStore.activeSession) {
-        chatStore.activeSession.messages.push(aiResponse)
+        for (const response of responses) {
+          chatStore.activeSession.messages.push(response)
+          await new Promise(resolve => setTimeout(resolve, 800)) // Stagger responses
+          await scrollToBottom()
+        }
         chatStore.activeSession.updatedAt = new Date()
       }
 
@@ -502,6 +537,120 @@ const handleTyping = () => {
   typingTimeout.value = setTimeout(() => {
     // Stop typing indicator after 1 second of no input
   }, 1000)
+}
+
+const handleActionClick = (action: string) => {
+  // Handle action button clicks from messages
+  console.log('Action clicked:', action)
+
+  // You can implement specific actions here:
+  // - Create tasks
+  // - Navigate to analytics
+  // - Generate content
+  // - etc.
+
+  // For now, just add it as a new message
+  messageInput.value = action
+}
+
+const generateAIResponses = (userMessage: string, agent: any) => {
+  const responses = []
+  const baseId = Date.now()
+
+  // Analyze the user message to determine response type
+  const lowerMessage = userMessage.toLowerCase()
+
+  if (lowerMessage.includes('analytics') || lowerMessage.includes('performance') || lowerMessage.includes('views')) {
+    // Analytics-focused response
+    responses.push({
+      id: `ai-${baseId}`,
+      agentId: agent.id?.toString() || '1',
+      userId: 'demo-user',
+      content: `I'll analyze your channel performance for you. Here's what I found:`,
+      type: 'text' as const,
+      timestamp: new Date(),
+      isFromUser: false,
+    })
+
+    responses.push({
+      id: `ai-${baseId + 1}`,
+      agentId: agent.id?.toString() || '1',
+      userId: 'demo-user',
+      content: `Your channel has shown strong growth in the past 30 days with a 15% increase in views and 8% growth in subscribers.`,
+      type: 'analysis' as const,
+      timestamp: new Date(Date.now() + 1000),
+      isFromUser: false,
+      metadata: {
+        analysisType: 'performance',
+        confidence: 0.92,
+        sources: ['YouTube Analytics API', 'Channel Dashboard', 'Historical Data']
+      }
+    })
+
+    responses.push({
+      id: `ai-${baseId + 2}`,
+      agentId: agent.id?.toString() || '1',
+      userId: 'demo-user',
+      content: `Based on this data, I recommend focusing on your top-performing content themes to maximize growth.`,
+      type: 'recommendation' as const,
+      timestamp: new Date(Date.now() + 2000),
+      isFromUser: false,
+      metadata: {
+        actionItems: ['Create more tech tutorials', 'Post during peak hours (7-9 PM)', 'Optimize thumbnails']
+      }
+    })
+  } else if (lowerMessage.includes('content') || lowerMessage.includes('video') || lowerMessage.includes('ideas')) {
+    // Content creation response
+    responses.push({
+      id: `ai-${baseId}`,
+      agentId: agent.id?.toString() || '1',
+      userId: 'demo-user',
+      content: `I have some great content ideas for your channel! Let me share what's trending in your niche.`,
+      type: 'text' as const,
+      timestamp: new Date(),
+      isFromUser: false,
+    })
+
+    responses.push({
+      id: `ai-${baseId + 1}`,
+      agentId: agent.id?.toString() || '1',
+      userId: 'demo-user',
+      content: `Based on trending topics and your audience interests, here are my top recommendations:`,
+      type: 'insight' as const,
+      timestamp: new Date(Date.now() + 1000),
+      isFromUser: false,
+      metadata: {
+        confidence: 0.88,
+        actionItems: ['Create "2024 Tech Predictions" video', 'Start a weekly Q&A series', 'Collaborate with similar channels']
+      }
+    })
+  } else {
+    // General response
+    responses.push({
+      id: `ai-${baseId}`,
+      agentId: agent.id?.toString() || '1',
+      userId: 'demo-user',
+      content: `I understand your question about "${userMessage}". Let me help you with that...`,
+      type: 'text' as const,
+      timestamp: new Date(),
+      isFromUser: false,
+    })
+
+    responses.push({
+      id: `ai-${baseId + 1}`,
+      agentId: agent.id?.toString() || '1',
+      userId: 'demo-user',
+      content: `Here's my analysis and recommendations for your situation:`,
+      type: 'recommendation' as const,
+      timestamp: new Date(Date.now() + 1000),
+      isFromUser: false,
+      metadata: {
+        actionItems: ['Review your channel strategy', 'Check latest analytics', 'Plan next content batch']
+      }
+    })
+  }
+
+  return responses
 }
 
 const saveSettings = () => {

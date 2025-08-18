@@ -6,10 +6,10 @@
     </label>
     
     <div class="input-container">
-      <div v-if="$slots['icon-left']" class="input-icon input-icon-left">
+      <div v-if="slots['icon-left']" class="input-icon input-icon-left">
         <slot name="icon-left" />
       </div>
-      
+
       <input
         :id="inputId"
         :class="inputClasses"
@@ -23,8 +23,8 @@
         @focus="handleFocus"
         @blur="handleBlur"
       />
-      
-      <div v-if="$slots['icon-right']" class="input-icon input-icon-right">
+
+      <div v-if="slots['icon-right']" class="input-icon input-icon-right">
         <slot name="icon-right" />
       </div>
     </div>
@@ -37,7 +37,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref } from 'vue'
+import { computed, ref, useSlots } from 'vue'
 
 interface Props {
   modelValue?: string | number
@@ -64,6 +64,7 @@ const emit = defineEmits<{
   blur: [event: FocusEvent]
 }>()
 
+const slots = useSlots()
 const isFocused = ref(false)
 const inputId = computed(() => `input-${Math.random().toString(36).substr(2, 9)}`)
 
@@ -74,8 +75,8 @@ const inputClasses = computed(() => [
     'input-lg': props.size === 'lg',
     'input-error': props.error,
     'input-disabled': props.disabled,
-    'pl-10': !!$slots['icon-left'],
-    'pr-10': !!$slots['icon-right'],
+    'pl-10': !!slots['icon-left'],
+    'pr-10': !!slots['icon-right'],
   },
 ])
 

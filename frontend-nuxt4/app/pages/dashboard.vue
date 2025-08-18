@@ -48,7 +48,7 @@
                 </svg>
               </div>
               <div>
-                <h3 class="text-lg font-semibold text-white">Today's Tasks</h3>
+                <h3 class="text-lg font-semibold text-white">Channel Tasks</h3>
                 <p class="text-sm text-gray-400">{{ taskStats.completed }} of {{ taskStats.total }} completed</p>
               </div>
             </div>
@@ -198,116 +198,63 @@
             </div>
 
             <!-- Goals Grid -->
-            <div class="space-y-6">
-              <!-- Views Goal -->
-              <div class="rounded-lg bg-gradient-to-r from-orange-500 to-orange-600 p-4 text-white">
-              <div class="mb-4 flex items-center justify-between">
-                <div class="flex items-center space-x-2">
-                  <svg class="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
-                    <path d="M10 12a2 2 0 100-4 2 2 0 000 4z"/>
-                    <path fill-rule="evenodd" d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.064 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z" clip-rule="evenodd"/>
-                  </svg>
-                  <span class="font-semibold">Views</span>
-                </div>
-                <button class="text-white/80 hover:text-white">
-                  <svg class="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
-                    <path d="M10 6a2 2 0 110-4 2 2 0 010 4zM10 12a2 2 0 110-4 2 2 0 010 4zM10 18a2 2 0 110-4 2 2 0 010 4z"/>
-                  </svg>
-                </button>
-              </div>
-              <div class="mb-4 flex items-center justify-center">
-                <div class="relative h-24 w-24">
-                  <svg class="h-24 w-24 transform -rotate-90" viewBox="0 0 100 100">
-                    <circle
-                      cx="50"
-                      cy="50"
-                      r="40"
-                      stroke="currentColor"
-                      stroke-width="8"
-                      fill="transparent"
-                      class="text-white/20"
-                    />
-                    <circle
-                      cx="50"
-                      cy="50"
-                      r="40"
-                      stroke="currentColor"
-                      stroke-width="8"
-                      fill="transparent"
-                      stroke-dasharray="251.2"
-                      stroke-dashoffset="62.8"
-                      class="text-white"
-                      stroke-linecap="round"
-                    />
-                  </svg>
-                  <div class="absolute inset-0 flex items-center justify-center">
-                    <span class="text-2xl font-bold">75%</span>
+            <div class="space-y-3">
+              <!-- Dynamic Goals from Store -->
+              <div
+                v-for="goal in goalsWithProgress"
+                :key="goal.id"
+                class="flex items-center justify-between rounded-lg bg-forest-700 p-4 hover:bg-forest-600 transition-colors"
+              >
+                <!-- Goal Info -->
+                <div class="flex items-center space-x-3">
+                  <span class="text-lg">{{ goal.icon }}</span>
+                  <div class="flex-1">
+                    <h4 class="font-medium text-white">{{ goal.title }}</h4>
+                    <p class="text-sm text-gray-400 mt-1">Track your progress towards {{ formatNumber(goal.target) }}</p>
+                    <div class="flex items-center space-x-4 mt-2">
+                      <span class="text-sm text-gray-400">{{ formatNumber(goal.current) }} / {{ formatNumber(goal.target) }}</span>
+                      <span class="text-sm font-medium text-orange-400">{{ goal.progress.percentage }}%</span>
+                    </div>
                   </div>
                 </div>
-              </div>
-              <div class="grid grid-cols-3 gap-4 text-center">
-                <div>
-                  <div class="text-lg font-bold">7.5k</div>
-                  <div class="text-xs opacity-80">Current</div>
-                </div>
-                <div>
-                  <div class="text-lg font-bold">2.5k</div>
-                  <div class="text-xs opacity-80">Remaining</div>
-                </div>
-                <div>
-                  <div class="text-lg font-bold">10k</div>
-                  <div class="text-xs opacity-80">Goal</div>
-                </div>
-              </div>
-            </div>
 
-              <!-- Subscribers Goal -->
-              <div class="rounded-lg bg-gradient-to-r from-orange-600 to-orange-700 p-4 text-white">
-              <div class="mb-4 flex items-center justify-between">
+                <!-- Goal Actions -->
                 <div class="flex items-center space-x-2">
-                  <svg class="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
-                    <path d="M9 6a3 3 0 11-6 0 3 3 0 016 0zM17 6a3 3 0 11-6 0 3 3 0 016 0zM12.93 17c.046-.327.07-.66.07-1a6.97 6.97 0 00-1.5-4.33A5 5 0 0119 16v1h-6.07zM6 11a5 5 0 015 5v1H1v-1a5 5 0 015-5z"/>
-                  </svg>
-                  <span class="font-semibold">Subscribers</span>
+                  <!-- Progress Bar -->
+                  <div class="w-20 bg-forest-600 rounded-full h-2">
+                    <div
+                      class="bg-orange-500 h-2 rounded-full transition-all duration-300"
+                      :style="{ width: goal.progress.percentage + '%' }"
+                    ></div>
+                  </div>
+                  <button class="text-gray-400 hover:text-white transition-colors">
+                    <svg class="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
+                      <path d="M10 6a2 2 0 110-4 2 2 0 010 4zM10 12a2 2 0 110-4 2 2 0 010 4zM10 18a2 2 0 110-4 2 2 0 010 4z"/>
+                    </svg>
+                  </button>
                 </div>
-                <button class="text-white/80 hover:text-white">
-                  <svg class="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
-                    <path d="M10 6a2 2 0 110-4 2 2 0 010 4zM10 12a2 2 0 110-4 2 2 0 010 4zM10 18a2 2 0 110-4 2 2 0 010 4z"/>
-                  </svg>
-                </button>
               </div>
-              <div class="grid grid-cols-3 gap-4 text-center">
-                <div>
-                  <div class="text-lg font-bold">1.2k</div>
-                  <div class="text-xs opacity-80">Current</div>
+
+              <!-- Empty State -->
+              <div v-if="goalsWithProgress.length === 0" class="text-center py-8 rounded-lg bg-forest-700">
+                <div class="text-text-muted mb-4">
+                  <svg class="h-12 w-12 mx-auto" fill="currentColor" viewBox="0 0 20 20">
+                    <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                  </svg>
                 </div>
-                <div>
-                  <div class="text-lg font-bold">800</div>
-                  <div class="text-xs opacity-80">Remaining</div>
-                </div>
-                <div>
-                  <div class="text-lg font-bold">2k</div>
-                  <div class="text-xs opacity-80">Goal</div>
-                </div>
+                <h5 class="text-lg font-medium text-text-primary mb-2">No goals set</h5>
+                <p class="text-text-muted mb-4">Create your first goal to start tracking progress</p>
               </div>
             </div>
-          </div>
 
             <!-- Quick Actions -->
-            <div class="mt-6 grid grid-cols-2 gap-4">
+            <div class="mt-6">
               <button
-                class="flex items-center justify-center space-x-2 rounded-lg bg-forest-700 p-3 text-sm text-white hover:bg-forest-600"
-                @click="openAgentModal"
-              >
-                <span>🤖</span>
-                <span>AI Assistant</span>
-              </button>
-              <button
-                class="flex items-center justify-center space-x-2 rounded-lg bg-orange-500 p-3 text-sm text-white hover:bg-orange-600"
-                @click="showCreateModal = true"
+                class="w-full flex items-center justify-center space-x-2 rounded-lg bg-orange-500 p-3 text-sm text-white hover:bg-orange-600"
+                @click="showCreateGoalModal = true"
               >
                 <span>➕</span>
-                <span>Add New Task</span>
+                <span>Add New Goal</span>
               </button>
             </div>
           </div>
@@ -330,7 +277,7 @@
                 <span v-else class="text-lg">🤖</span>
               </div>
               <div>
-                <h3 class="text-lg font-semibold text-white">{{ selectedAgentData.name }} Suggestions</h3>
+                <h3 class="text-lg font-semibold text-white">{{ selectedAgentData.name }} Task Suggestions</h3>
                 <p class="text-sm text-gray-400">Smart recommendations for your workflow</p>
               </div>
             </div>
@@ -379,11 +326,20 @@
         @close="closeModal"
         @save="saveTask"
       />
+
+      <!-- Create Goal Modal -->
+      <GoalModal
+        v-if="showCreateGoalModal || editingGoal"
+        :goal="editingGoal"
+        @close="closeGoalModal"
+        @save="saveGoal"
+      />
     </div>
 </template>
 
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue'
+import type { ChannelGoal } from '../../stores/analytics'
 import { useAnalyticsStore } from '../../stores/analytics'
 import { useTasksStore } from '../../stores/tasks'
 
@@ -497,6 +453,10 @@ const showCreateModal = ref(false)
 const editingTask = ref<Task | null>(null)
 const dashboardFilter = ref<TaskFilter>('all')
 
+// Goal-related state
+const showCreateGoalModal = ref(false)
+const editingGoal = ref<ChannelGoal | null>(null)
+
 // Computed properties
 const taskStats = computed(() => tasksStore.taskStats)
 
@@ -509,6 +469,9 @@ const channelStats = computed(() => {
     avgViewDuration: formatDuration(analyticsStore.data?.overview?.data?.avg_view_duration || 272) // 272 seconds = 4:32
   }
 })
+
+// Goals from analytics store
+const goalsWithProgress = computed(() => analyticsStore.goalsWithProgress)
 
 // Formatting functions for channel stats
 const formatNumber = (num: number) => {
@@ -603,6 +566,22 @@ const saveTask = (taskData: any) => {
   closeModal()
 }
 
+// Goal-related methods
+const closeGoalModal = () => {
+  showCreateGoalModal.value = false
+  editingGoal.value = null
+}
+
+const saveGoal = (goalData: Omit<ChannelGoal, 'id'>) => {
+  if (editingGoal.value) {
+    // Update existing goal (would need to implement updateGoal in store)
+    console.log('Update goal:', goalData)
+  } else {
+    analyticsStore.addGoal(goalData)
+  }
+  closeGoalModal()
+}
+
 const createFromSuggestion = (suggestion: any) => {
   const tomorrow = new Date()
   tomorrow.setDate(tomorrow.getDate() + 1)
@@ -627,10 +606,7 @@ const dismissSuggestion = (id: string) => {
   }
 }
 
-const openAgentModal = () => {
-  // This would open the agent modal - integrate with existing agent system
-  console.log('Opening agent modal...')
-}
+
 
 // Utility functions
 const formatCategory = (category: string) => {

@@ -210,7 +210,10 @@
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue'
 import { useAgentsStore } from '../../stores/agents'
-import type { Task, TaskCategory, TaskPriority, TaskStatus, CreateTaskRequest } from '../../types/tasks'
+import type { CreateTaskRequest, Task, TaskCategory, TaskPriority, TaskStatus } from '../../types/tasks'
+import VBadge from '../ui/VBadge.vue'
+import VButton from '../ui/VButton.vue'
+import VInput from '../ui/VInput.vue'
 
 interface Props {
   task?: Task | null
@@ -384,14 +387,31 @@ const handleSubmit = () => {
 
 <style scoped>
 .input {
-  @apply w-full px-4 py-3 bg-background-elevated border border-border rounded-lg text-text-primary placeholder-text-muted focus:outline-none focus:border-brand-primary focus:ring-2 focus:ring-brand-primary focus:ring-opacity-20 transition-colors;
+  width: 100%;
+  padding: var(--space-3) var(--space-4);
+  background-color: var(--color-bg-elevated);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  color: var(--color-text-primary);
+  font-size: 0.875rem;
+  transition: var(--transition-normal);
+}
+
+.input:focus {
+  outline: none;
+  border-color: var(--color-brand-primary);
+  box-shadow: 0 0 0 3px rgba(228, 117, 163, 0.1);
+}
+
+.input::placeholder {
+  color: var(--color-text-muted);
 }
 
 select.input {
-  @apply cursor-pointer;
+  cursor: pointer;
 }
 
 textarea.input {
-  @apply resize-none;
+  resize: none;
 }
 </style>
