@@ -43,6 +43,9 @@ class LogCategory(Enum):
     SYSTEM = "system"
     ERROR = "error"
     AUDIT = "audit"
+    CACHE = "cache"
+    WEBSOCKET = "websocket"
+    PAYMENT = "payment"
 
 
 # Context variables for request tracking

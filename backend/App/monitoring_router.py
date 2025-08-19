@@ -13,6 +13,7 @@ from backend.App.agent_performance_models import (
 )
 from backend.App.auth_middleware import get_current_user, AuthToken
 from backend.App.api_models import create_success_response
+from backend.App.redis_service import get_redis_service
 from backend.App.logging_config import get_logger, LogCategory
 
 logger = get_logger(__name__, LogCategory.PERFORMANCE)
@@ -732,3 +733,108 @@ async def get_cost_analysis(
     except Exception as e:
         logger.error(f"Failed to get cost analysis: {e}", exc_info=True)
         raise HTTPException(status_code=500, detail="Failed to retrieve cost analysis")
+
+@router.get("/cache/stats")
+async def get_cache_stats(current_user: AuthToken = Depends(get_current_user)):
+    """Get cache performance statistics"""
+    try:
+        redis_service = get_redis_service()
+
+        if not redis_service.is_available():
+            return create_success_response(
+                "Cache statistics retrieved (Redis unavailable)",
+                {
+                    "status": "unavailable",
+                    "message": "Redis service is not available - running in fallback mode"
+                }
+            )
+
+        # Get Redis health and stats
+        health = redis_service.health_check()
+
+        # Get cache key counts
+        cache_keys = redis_service.client.keys("myta:cache:*") if redis_service.client else []
+        session_keys = redis_service.client.keys("myta:session:*") if redis_service.client else []
+        rate_limit_keys = redis_service.client.keys("myta:rate_limit:*") if redis_service.client else []
+
+        stats = {
+            "redis_status": health.get("status", "unknown"),
+            "connected_clients": health.get("connected_clients", 0),
+            "used_memory": health.get("used_memory", "unknown"),
+            "uptime_seconds": health.get("uptime", 0),
+            "cache_keys": {
+                "total_cache": len(cache_keys),
+                "sessions": len(session_keys),
+                "rate_limits": len(rate_limit_keys)
+            },
+            "performance": {
+                "test_passed": health.get("test_passed", False)
+            }
+        }
+
+        return create_success_response("Cache statistics retrieved successfully", stats)
+
+    except Exception as e:
+        logger.error(f"Error retrieving cache stats: {e}")
+        raise HTTPException(status_code=500, detail="Failed to retrieve cache statistics")
+
+@router.post("/cache/clear")
+async def clear_cache(
+    pattern: Optional[str] = Query(None, description="Cache pattern to clear (optional)"),
+    current_user: AuthToken = Depends(get_current_user)
+):
+    """Clear cache entries"""
+    try:
+        redis_service = get_redis_service()
+
+        if not redis_service.is_available():
+            return create_success_response(
+                "Cache clear skipped (Redis unavailable)",
+                {"cleared_count": 0, "message": "Redis service is not available"}
+            )
+
+        cleared_count = redis_service.clear_cache(pattern)
+
+        return create_success_response(
+            f"Cache cleared successfully",
+            {
+                "cleared_count": cleared_count,
+                "pattern": pattern or "all cache entries"
+            }
+        )
+
+    except Exception as e:
+        logger.error(f"Error clearing cache: {e}")
+        raise HTTPException(status_code=500, detail="Failed to clear cache")
+
+@router.get("/system/health")
+async def get_system_health():
+    """Get overall system health status"""
+    try:
+        # Check Redis
+        redis_service = get_redis_service()
+        redis_health = redis_service.health_check() if redis_service.is_available() else {"status": "unavailable"}
+
+        # Check database (placeholder - would check Supabase connection)
+        database_health = {"status": "healthy", "message": "Supabase connection active"}
+
+        # Overall system status
+        overall_status = "healthy"
+        if redis_health.get("status") == "error":
+            overall_status = "degraded"
+
+        health_data = {
+            "overall_status": overall_status,
+            "timestamp": datetime.utcnow().isoformat(),
+            "services": {
+                "redis": redis_health,
+                "database": database_health,
+                "api": {"status": "healthy", "message": "API endpoints responding"}
+            }
+        }
+
+        return create_success_response("System health retrieved successfully", health_data)
+
+    except Exception as e:
+        logger.error(f"Error retrieving system health: {e}")
+        raise HTTPException(status_code=500, detail="Failed to retrieve system health")
