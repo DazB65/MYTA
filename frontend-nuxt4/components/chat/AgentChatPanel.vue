@@ -180,7 +180,10 @@
           :agent-color="selectedAgentData.color"
           :agent-image="selectedAgentData.image"
           :agent-name="selectedAgentData.name"
+          :show-action-buttons="true"
           @action-click="handleActionClick"
+          @save-as-task="handleSaveAsTask"
+          @save-as-goal="handleSaveAsGoal"
         />
 
         <!-- Enhanced Typing Indicator -->
@@ -353,6 +356,8 @@
 <script setup lang="ts">
 import { computed, nextTick, onMounted, ref, watch } from 'vue';
 import { useAgentSettings } from '../../composables/useAgentSettings';
+import { useSaveToGoal } from '../../composables/useSaveToGoal';
+import { useSaveToTask } from '../../composables/useSaveToTask';
 import { useSmartQuestions } from '../../composables/useSmartQuestions';
 import { useToast } from '../../composables/useToast';
 import { useChatStore } from '../../stores/chat';
@@ -374,6 +379,9 @@ const emit = defineEmits<{
 const { selectedAgent, agentName } = useAgentSettings()
 const chatStore = useChatStore()
 const { getContextualQuestions } = useSmartQuestions()
+const { saveMessageAsTask, prepareTaskData } = useSaveToTask()
+const { saveMessageAsGoal, prepareGoalData } = useSaveToGoal()
+const { success, error } = useToast()
 
 // Refs
 const messagesContainer = ref<HTMLElement>()
@@ -754,6 +762,27 @@ const loadSmartSuggestion = (suggestionText: string) => {
       inputElement.focus()
     }
   })
+}
+
+// Save to task/goal handlers
+const handleSaveAsTask = (message: ChatMessage) => {
+  try {
+    const taskId = saveMessageAsTask(message, selectedAgentData.value)
+    success('Task Created', 'Agent response has been saved as a task and added to your calendar.')
+  } catch (err) {
+    console.error('Failed to save task:', err)
+    error('Failed to Save Task', 'There was an error saving the task. Please try again.')
+  }
+}
+
+const handleSaveAsGoal = (message: ChatMessage) => {
+  try {
+    saveMessageAsGoal(message, selectedAgentData.value)
+    success('Goal Created', 'Agent response has been saved as a goal.')
+  } catch (err) {
+    console.error('Failed to save goal:', err)
+    error('Failed to Save Goal', 'There was an error saving the goal. Please try again.')
+  }
 }
 
 const removeSavedQuestion = (questionId: string) => {

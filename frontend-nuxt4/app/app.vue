@@ -6,7 +6,7 @@
     </NuxtLayout>
 
     <!-- Toast Notifications -->
-    <!-- <UiToastContainer /> -->
+    <UiToastContainer />
   </div>
 </template>
 

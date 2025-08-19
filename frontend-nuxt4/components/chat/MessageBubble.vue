@@ -175,6 +175,26 @@
         </div>
       </div>
 
+      <!-- Action Buttons for Agent Messages -->
+      <div v-if="!message.isFromUser && showActionButtons" class="mt-3 flex items-center space-x-2">
+        <button
+          @click="$emit('save-as-task', message)"
+          class="text-xs px-3 py-1.5 rounded-full bg-blue-600 hover:bg-blue-500 text-white transition-colors flex items-center space-x-1.5 shadow-sm"
+          title="Save this response as a task"
+        >
+          <span>📋</span>
+          <span>Save as Task</span>
+        </button>
+        <button
+          @click="$emit('save-as-goal', message)"
+          class="text-xs px-3 py-1.5 rounded-full bg-purple-600 hover:bg-purple-500 text-white transition-colors flex items-center space-x-1.5 shadow-sm"
+          title="Save this response as a goal"
+        >
+          <span>🎯</span>
+          <span>Save as Goal</span>
+        </button>
+      </div>
+
       <!-- Timestamp -->
       <div class="text-xs text-gray-500 mt-1" :class="message.isFromUser ? 'text-right' : ''">
         {{ formatTime(message.timestamp) }}
@@ -191,11 +211,14 @@ interface Props {
   agentColor: string
   agentImage: string
   agentName: string
+  showActionButtons?: boolean
 }
 
 defineProps<Props>()
 defineEmits<{
   'action-click': [action: string]
+  'save-as-task': [message: ChatMessage]
+  'save-as-goal': [message: ChatMessage]
 }>()
 
 const formatTime = (timestamp: Date) => {
