@@ -237,13 +237,13 @@
 
               <!-- Empty State -->
               <div v-if="goalsWithProgress.length === 0" class="text-center py-8 rounded-lg bg-forest-700">
-                <div class="text-text-muted mb-4">
+                <div class="text-gray-400 mb-4">
                   <svg class="h-12 w-12 mx-auto" fill="currentColor" viewBox="0 0 20 20">
                     <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
                   </svg>
                 </div>
-                <h5 class="text-lg font-medium text-text-primary mb-2">No goals set</h5>
-                <p class="text-text-muted mb-4">Create your first goal to start tracking progress</p>
+                <h5 class="text-lg font-medium text-white mb-2">No goals set</h5>
+                <p class="text-gray-400 mb-4">Create your first goal to start tracking progress</p>
               </div>
             </div>
 
@@ -334,6 +334,7 @@
                 <button
                   class="text-gray-400 hover:text-blue-400 transition-colors p-1"
                   @click="startEditNote(note)"
+                  :aria-label="`Edit note: ${note.content.substring(0, 50)}...`"
                   title="Edit note"
                 >
                   <svg class="h-4 w-4" fill="currentColor" viewBox="0 0 20 20">
@@ -343,6 +344,7 @@
                 <button
                   class="text-gray-400 hover:text-red-400 transition-colors p-1"
                   @click="deleteNote(note.id)"
+                  :aria-label="`Delete note: ${note.content.substring(0, 50)}...`"
                   title="Delete note"
                 >
                   <svg class="h-4 w-4" fill="currentColor" viewBox="0 0 20 20">

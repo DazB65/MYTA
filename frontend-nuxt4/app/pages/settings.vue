@@ -14,10 +14,32 @@
         </div>
       </div>
 
-      <!-- Settings Content -->
+      <!-- Settings Tabs -->
+      <div class="mb-6 rounded-xl bg-forest-800 p-6">
+        <div class="border-b border-forest-600">
+          <nav class="flex space-x-8">
+            <button
+              v-for="tab in tabs"
+              :key="tab.id"
+              @click="activeTab = tab.id"
+              :class="[
+                'flex items-center space-x-2 py-4 px-1 border-b-2 font-medium text-sm transition-colors',
+                activeTab === tab.id
+                  ? 'border-orange-500 text-orange-500'
+                  : 'border-transparent text-gray-400 hover:text-gray-300 hover:border-gray-300'
+              ]"
+            >
+              <span>{{ tab.icon }}</span>
+              <span>{{ tab.name }}</span>
+            </button>
+          </nav>
+        </div>
+      </div>
+
+      <!-- Tab Content -->
       <div>
-        <!-- Agent Customization Section -->
-        <div class="mb-6 rounded-xl bg-forest-800 p-6">
+        <!-- Agent Customization Tab -->
+        <div v-if="activeTab === 'agent'" class="mb-6 rounded-xl bg-forest-800 p-6">
           <div class="mb-6 flex items-center space-x-3">
             <div class="flex h-10 w-10 items-center justify-center rounded-lg bg-orange-500">
               <svg class="h-6 w-6 text-white" fill="currentColor" viewBox="0 0 20 20">
@@ -128,8 +150,8 @@
           </div>
         </div>
 
-        <!-- Other Settings Sections -->
-        <div class="rounded-xl bg-forest-800 p-6">
+        <!-- General Settings Tab -->
+        <div v-if="activeTab === 'general'" class="rounded-xl bg-forest-800 p-6">
           <div class="mb-6 flex items-center space-x-3">
             <div class="flex h-10 w-10 items-center justify-center rounded-lg bg-forest-700">
               <svg class="h-6 w-6 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
@@ -155,6 +177,213 @@
             </button>
           </div>
         </div>
+
+        <!-- Subscription Tab -->
+        <div v-if="activeTab === 'subscription'" class="space-y-6">
+          <!-- Current Plan -->
+          <div class="rounded-xl bg-forest-800 p-6">
+            <div class="mb-6 flex items-center justify-between">
+              <div class="flex items-center space-x-3">
+                <div class="flex h-10 w-10 items-center justify-center rounded-lg bg-orange-500">
+                  <svg class="h-6 w-6 text-white" fill="currentColor" viewBox="0 0 20 20">
+                    <path d="M4 4a2 2 0 00-2 2v1h16V6a2 2 0 00-2-2H4z"/>
+                    <path fill-rule="evenodd" d="M18 9H2v5a2 2 0 002 2h12a2 2 0 002-2V9zM4 13a1 1 0 011-1h1a1 1 0 110 2H5a1 1 0 01-1-1zm5-1a1 1 0 100 2h1a1 1 0 100-2H9z" clip-rule="evenodd"/>
+                  </svg>
+                </div>
+                <div>
+                  <h3 class="text-lg font-semibold text-white">Current Plan</h3>
+                  <p class="text-sm text-gray-400">Manage your MYTA subscription</p>
+                </div>
+              </div>
+              <div class="text-right">
+                <div class="text-2xl font-bold text-orange-500">{{ currentPlan.name }}</div>
+                <div class="text-sm text-gray-400">{{ currentPlan.billing }}</div>
+              </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <!-- Plan Details -->
+              <div class="md:col-span-2">
+                <div class="rounded-lg bg-forest-700 p-4">
+                  <h4 class="font-medium text-white mb-3">Plan Features</h4>
+                  <div class="space-y-2">
+                    <div v-for="feature in currentPlan.features" :key="feature" class="flex items-center space-x-2">
+                      <svg class="h-4 w-4 text-green-400" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                      </svg>
+                      <span class="text-sm text-gray-300">{{ feature }}</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Usage Stats -->
+              <div>
+                <div class="rounded-lg bg-forest-700 p-4">
+                  <h4 class="font-medium text-white mb-3">Usage This Month</h4>
+                  <div class="space-y-3">
+                    <div>
+                      <div class="flex justify-between text-sm mb-1">
+                        <span class="text-gray-400">AI Requests</span>
+                        <span class="text-white">{{ usage.aiRequests }}/{{ currentPlan.limits.aiRequests }}</span>
+                      </div>
+                      <div class="w-full bg-forest-600 rounded-full h-2">
+                        <div class="bg-orange-500 h-2 rounded-full" :style="{ width: (usage.aiRequests / currentPlan.limits.aiRequests * 100) + '%' }"></div>
+                      </div>
+                    </div>
+                    <div>
+                      <div class="flex justify-between text-sm mb-1">
+                        <span class="text-gray-400">Video Analysis</span>
+                        <span class="text-white">{{ usage.videoAnalysis }}/{{ currentPlan.limits.videoAnalysis }}</span>
+                      </div>
+                      <div class="w-full bg-forest-600 rounded-full h-2">
+                        <div class="bg-blue-500 h-2 rounded-full" :style="{ width: (usage.videoAnalysis / currentPlan.limits.videoAnalysis * 100) + '%' }"></div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="mt-6 flex items-center justify-between">
+              <div class="text-sm text-gray-400">
+                Next billing date: {{ formatDate(nextBillingDate) }}
+              </div>
+              <div class="flex space-x-3">
+                <button
+                  v-if="currentPlan.id !== 'free'"
+                  class="px-4 py-2 text-sm text-gray-400 hover:text-white transition-colors"
+                  @click="showCancelModal = true"
+                >
+                  Cancel Plan
+                </button>
+                <button
+                  class="px-6 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-colors"
+                  @click="showPlansModal = true"
+                >
+                  {{ currentPlan.id === 'free' ? 'Upgrade Plan' : 'Change Plan' }}
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Payment Method -->
+          <div class="rounded-xl bg-forest-800 p-6">
+            <div class="mb-6 flex items-center justify-between">
+              <div class="flex items-center space-x-3">
+                <div class="flex h-10 w-10 items-center justify-center rounded-lg bg-forest-700">
+                  <svg class="h-6 w-6 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
+                    <path d="M4 4a2 2 0 00-2 2v1h16V6a2 2 0 00-2-2H4z"/>
+                    <path fill-rule="evenodd" d="M18 9H2v5a2 2 0 002 2h12a2 2 0 002-2V9zM4 13a1 1 0 011-1h1a1 1 0 110 2H5a1 1 0 01-1-1zm5-1a1 1 0 100 2h1a1 1 0 100-2H9z" clip-rule="evenodd"/>
+                  </svg>
+                </div>
+                <div>
+                  <h3 class="text-lg font-semibold text-white">Payment Method</h3>
+                  <p class="text-sm text-gray-400">Manage your payment information</p>
+                </div>
+              </div>
+              <button
+                class="px-4 py-2 bg-forest-700 text-white rounded-lg hover:bg-forest-600 transition-colors"
+                @click="showPaymentModal = true"
+              >
+                {{ paymentMethod ? 'Update' : 'Add' }} Payment Method
+              </button>
+            </div>
+
+            <div v-if="paymentMethod" class="rounded-lg bg-forest-700 p-4">
+              <div class="flex items-center justify-between">
+                <div class="flex items-center space-x-3">
+                  <div class="w-12 h-8 bg-gradient-to-r from-blue-500 to-purple-600 rounded flex items-center justify-center">
+                    <span class="text-white text-xs font-bold">{{ paymentMethod.brand.toUpperCase() }}</span>
+                  </div>
+                  <div>
+                    <div class="text-white font-medium">•••• •••• •••• {{ paymentMethod.last4 }}</div>
+                    <div class="text-sm text-gray-400">Expires {{ paymentMethod.expiry }}</div>
+                  </div>
+                </div>
+                <button
+                  class="text-gray-400 hover:text-red-400 transition-colors"
+                  @click="removePaymentMethod"
+                >
+                  <svg class="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"/>
+                  </svg>
+                </button>
+              </div>
+            </div>
+
+            <div v-else class="text-center py-8">
+              <div class="text-gray-400 mb-4">
+                <svg class="h-12 w-12 mx-auto" fill="currentColor" viewBox="0 0 20 20">
+                  <path d="M4 4a2 2 0 00-2 2v1h16V6a2 2 0 00-2-2H4z"/>
+                  <path fill-rule="evenodd" d="M18 9H2v5a2 2 0 002 2h12a2 2 0 002-2V9zM4 13a1 1 0 011-1h1a1 1 0 110 2H5a1 1 0 01-1-1zm5-1a1 1 0 100 2h1a1 1 0 100-2H9z" clip-rule="evenodd"/>
+                </svg>
+              </div>
+              <p class="text-gray-400 mb-4">No payment method added</p>
+              <button
+                class="px-6 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-colors"
+                @click="showPaymentModal = true"
+              >
+                Add Payment Method
+              </button>
+            </div>
+          </div>
+
+          <!-- Billing History -->
+          <div class="rounded-xl bg-forest-800 p-6">
+            <div class="mb-6 flex items-center space-x-3">
+              <div class="flex h-10 w-10 items-center justify-center rounded-lg bg-forest-700">
+                <svg class="h-6 w-6 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
+                  <path fill-rule="evenodd" d="M3 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z" clip-rule="evenodd"/>
+                </svg>
+              </div>
+              <div>
+                <h3 class="text-lg font-semibold text-white">Billing History</h3>
+                <p class="text-sm text-gray-400">View and download your invoices</p>
+              </div>
+            </div>
+
+            <div class="space-y-3">
+              <div v-for="invoice in billingHistory" :key="invoice.id" class="flex items-center justify-between p-4 rounded-lg bg-forest-700 hover:bg-forest-600 transition-colors">
+                <div class="flex items-center space-x-4">
+                  <div class="w-10 h-10 rounded-lg bg-forest-600 flex items-center justify-center">
+                    <svg class="h-5 w-5 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
+                      <path fill-rule="evenodd" d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4zm2 6a1 1 0 011-1h6a1 1 0 110 2H7a1 1 0 01-1-1zm1 3a1 1 0 100 2h6a1 1 0 100-2H7z" clip-rule="evenodd"/>
+                    </svg>
+                  </div>
+                  <div>
+                    <div class="font-medium text-white">{{ invoice.description }}</div>
+                    <div class="text-sm text-gray-400">{{ formatDate(invoice.date) }}</div>
+                  </div>
+                </div>
+                <div class="flex items-center space-x-4">
+                  <div class="text-right">
+                    <div class="font-medium text-white">${{ invoice.amount }}</div>
+                    <div class="text-sm" :class="invoice.status === 'paid' ? 'text-green-400' : 'text-yellow-400'">
+                      {{ invoice.status.charAt(0).toUpperCase() + invoice.status.slice(1) }}
+                    </div>
+                  </div>
+                  <button
+                    class="p-2 text-gray-400 hover:text-white transition-colors"
+                    @click="downloadInvoice(invoice.id)"
+                  >
+                    <svg class="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
+                      <path fill-rule="evenodd" d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm3.293-7.707a1 1 0 011.414 0L9 10.586V3a1 1 0 112 0v7.586l1.293-1.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z" clip-rule="evenodd"/>
+                    </svg>
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <div v-if="billingHistory.length === 0" class="text-center py-8">
+              <div class="text-gray-400 mb-2">
+                <span class="text-3xl">📄</span>
+              </div>
+              <p class="text-gray-400">No billing history yet</p>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   </div>
@@ -177,6 +406,69 @@ const agents = allAgents
 // Toast notifications
 const { success, error } = useToast()
 
+// Tab management
+const activeTab = ref('agent')
+
+const tabs = [
+  { id: 'agent', name: 'Agent Settings', icon: '🤖' },
+  { id: 'subscription', name: 'Subscription', icon: '💳' },
+  { id: 'general', name: 'General', icon: '⚙️' }
+]
+
+// Subscription data
+const currentPlan = ref({
+  id: 'free',
+  name: 'Free Plan',
+  billing: 'No billing',
+  features: [
+    '5 AI requests per day',
+    '1 video analysis per week',
+    'Basic analytics',
+    'Community support'
+  ],
+  limits: {
+    aiRequests: 150,
+    videoAnalysis: 4
+  }
+})
+
+const usage = ref({
+  aiRequests: 47,
+  videoAnalysis: 2
+})
+
+const nextBillingDate = ref(new Date('2024-02-15'))
+
+const paymentMethod = ref(null)
+// Example payment method:
+// const paymentMethod = ref({
+//   brand: 'visa',
+//   last4: '4242',
+//   expiry: '12/25'
+// })
+
+const billingHistory = ref([
+  {
+    id: '1',
+    description: 'MYTA Pro Plan - January 2024',
+    date: new Date('2024-01-15'),
+    amount: '29.99',
+    status: 'paid'
+  },
+  {
+    id: '2',
+    description: 'MYTA Pro Plan - December 2023',
+    date: new Date('2023-12-15'),
+    amount: '29.99',
+    status: 'paid'
+  }
+])
+
+// Modal states
+const showPlansModal = ref(false)
+const showPaymentModal = ref(false)
+const showCancelModal = ref(false)
+
 // Save settings function
 const handleSaveSettings = () => {
   try {
@@ -185,5 +477,24 @@ const handleSaveSettings = () => {
   } catch (err) {
     error('Save Failed', 'Failed to save your settings. Please try again.')
   }
+}
+
+// Subscription functions
+const formatDate = (date) => {
+  return new Intl.DateTimeFormat('en-US', {
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric'
+  }).format(date)
+}
+
+const removePaymentMethod = () => {
+  paymentMethod.value = null
+  success('Payment Method Removed', 'Your payment method has been removed successfully.')
+}
+
+const downloadInvoice = (invoiceId) => {
+  // Mock download functionality
+  success('Download Started', 'Your invoice is being downloaded.')
 }
 </script>
