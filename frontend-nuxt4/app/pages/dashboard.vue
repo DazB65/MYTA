@@ -174,10 +174,10 @@
         </div>
         </div>
 
-        <!-- Channel Goals & AI Insights -->
+        <!-- Channel Goals & Notes -->
         <div class="space-y-6">
           <!-- Channel Goals -->
-          <div class="rounded-xl bg-forest-800 p-6">
+          <div class="rounded-xl bg-forest-800 p-6 h-full flex flex-col">
             <div class="mb-6 flex items-center justify-between">
               <div class="flex items-center space-x-3">
                 <div class="flex h-10 w-10 items-center justify-center rounded-lg bg-orange-500">
@@ -198,7 +198,7 @@
             </div>
 
             <!-- Goals Grid -->
-            <div class="space-y-3">
+            <div class="space-y-3 flex-1 overflow-y-auto">
               <!-- Dynamic Goals from Store -->
               <div
                 v-for="goal in goalsWithProgress"
@@ -262,58 +262,131 @@
           </div>
         </div>
 
-        <!-- Right Column: Agent Suggestions -->
-        <div class="space-y-6">
-          <!-- Agent Task Suggestions -->
-          <div v-if="aiSuggestions.length > 0" class="rounded-xl bg-forest-800 p-6">
-            <div class="mb-4 flex items-center space-x-3">
-              <div class="flex h-10 w-10 items-center justify-center rounded-lg overflow-hidden" :style="{ backgroundColor: selectedAgentData.color + '20' }">
-                <img
-                  v-if="selectedAgentData.image"
-                  :src="selectedAgentData.image"
-                  :alt="selectedAgentData.name"
-                  class="h-full w-full object-cover"
-                />
-                <span v-else class="text-lg">🤖</span>
-              </div>
-              <div>
-                <h3 class="text-lg font-semibold text-white">{{ selectedAgentData.name }} Task Suggestions</h3>
-                <p class="text-sm text-gray-400">Smart recommendations for your workflow</p>
+
+      </div>
+
+      <!-- Notes Section - Full Width -->
+      <div class="mb-6 rounded-xl bg-forest-800 p-6">
+        <div class="mb-4 flex items-center justify-between">
+          <div class="flex items-center space-x-3">
+            <div class="flex h-10 w-10 items-center justify-center rounded-lg bg-orange-500">
+              <svg class="h-6 w-6 text-white" fill="currentColor" viewBox="0 0 20 20">
+                <path d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z"/>
+                <path fill-rule="evenodd" d="M4 5a2 2 0 012-2v1a1 1 0 001 1h6a1 1 0 001-1V3a2 2 0 012 2v6a2 2 0 01-2 2H6a2 2 0 01-2-2V5zm3 4a1 1 0 000 2h.01a1 1 0 100-2H7zm3 0a1 1 0 000 2h3a1 1 0 100-2h-3zm-3 4a1 1 0 100 2h.01a1 1 0 100-2H7zm3 0a1 1 0 100 2h3a1 1 0 100-2h-3z" clip-rule="evenodd"/>
+              </svg>
+            </div>
+            <div>
+              <h3 class="text-lg font-semibold text-white">Notes</h3>
+              <p class="text-sm text-gray-400">Quick notes and reminders</p>
+            </div>
+          </div>
+          <button
+            class="rounded-lg bg-orange-500 px-3 py-1 text-sm text-white hover:bg-orange-600"
+            @click="showAddNote = true"
+          >
+            ➕ Add
+          </button>
+        </div>
+
+        <!-- Notes List -->
+        <div class="space-y-3 max-h-64 overflow-y-auto">
+          <div
+            v-for="note in userNotes"
+            :key="note.id"
+            class="rounded-lg bg-forest-700 p-3 hover:bg-forest-600 transition-colors group"
+          >
+            <!-- Edit Mode -->
+            <div v-if="editingNoteId === note.id" class="space-y-3">
+              <textarea
+                v-model="editNoteContent"
+                class="w-full bg-forest-600 border border-forest-500 rounded-lg p-3 text-white placeholder-gray-400 resize-none focus:outline-none focus:ring-2 focus:ring-orange-500"
+                rows="3"
+                @keydown.enter.ctrl="saveEditNote(note.id)"
+                @keydown.escape="cancelEditNote"
+              ></textarea>
+              <div class="flex items-center justify-between">
+                <p class="text-xs text-gray-400">Press Ctrl+Enter to save, Esc to cancel</p>
+                <div class="flex space-x-2">
+                  <button
+                    class="px-3 py-1 text-sm text-gray-400 hover:text-white transition-colors"
+                    @click="cancelEditNote"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    class="px-3 py-1 text-sm bg-orange-500 text-white rounded hover:bg-orange-600 transition-colors"
+                    @click="saveEditNote(note.id)"
+                    :disabled="!editNoteContent.trim()"
+                  >
+                    Save
+                  </button>
+                </div>
               </div>
             </div>
 
-            <div class="space-y-3">
-              <div
-                v-for="suggestion in aiSuggestions.slice(0, 2)"
-                :key="suggestion.id"
-                class="flex items-center justify-between p-3 rounded-lg bg-forest-700 hover:bg-forest-600 transition-colors"
-              >
-                <div class="flex items-center space-x-3">
-                  <div
-                    class="w-8 h-8 rounded-lg flex items-center justify-center bg-forest-600"
-                  >
-                    <span class="text-sm">{{ suggestion.icon }}</span>
-                  </div>
-                  <div>
-                    <h4 class="font-medium text-white">{{ suggestion.title }}</h4>
-                    <p class="text-sm text-gray-400">{{ suggestion.description }}</p>
-                  </div>
-                </div>
-                <div class="flex items-center space-x-2">
-                  <button
-                    class="text-gray-400 hover:text-white px-2 py-1 text-sm"
-                    @click="dismissSuggestion(suggestion.id)"
-                  >
-                    ✕
-                  </button>
-                  <button
-                    class="rounded bg-orange-500 px-3 py-1 text-sm text-white hover:bg-orange-600"
-                    @click="createFromSuggestion(suggestion)"
-                  >
-                    Create
-                  </button>
-                </div>
+            <!-- View Mode -->
+            <div v-else class="flex items-start justify-between">
+              <div class="flex-1">
+                <p class="text-sm text-white">{{ note.content }}</p>
+                <p class="text-xs text-gray-400 mt-1">{{ formatDate(note.createdAt) }}</p>
               </div>
+              <div class="flex items-center space-x-1 opacity-0 group-hover:opacity-100 transition-all">
+                <button
+                  class="text-gray-400 hover:text-blue-400 transition-colors p-1"
+                  @click="startEditNote(note)"
+                  title="Edit note"
+                >
+                  <svg class="h-4 w-4" fill="currentColor" viewBox="0 0 20 20">
+                    <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z"/>
+                  </svg>
+                </button>
+                <button
+                  class="text-gray-400 hover:text-red-400 transition-colors p-1"
+                  @click="deleteNote(note.id)"
+                  title="Delete note"
+                >
+                  <svg class="h-4 w-4" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"/>
+                  </svg>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Empty State -->
+          <div v-if="userNotes.length === 0" class="text-center py-6">
+            <div class="text-gray-400 mb-2">
+              <span class="text-3xl">📝</span>
+            </div>
+            <p class="text-sm text-gray-400">No notes yet. Add your first note!</p>
+          </div>
+        </div>
+
+        <!-- Add Note Form -->
+        <div v-if="showAddNote" class="mt-4 p-3 rounded-lg bg-forest-700">
+          <textarea
+            v-model="newNoteContent"
+            placeholder="Enter your note..."
+            class="w-full bg-forest-600 border border-forest-500 rounded-lg p-3 text-white placeholder-gray-400 resize-none focus:outline-none focus:ring-2 focus:ring-orange-500"
+            rows="3"
+            @keydown.enter.ctrl="saveNote"
+          ></textarea>
+          <div class="flex items-center justify-between mt-3">
+            <p class="text-xs text-gray-400">Press Ctrl+Enter to save</p>
+            <div class="flex space-x-2">
+              <button
+                class="px-3 py-1 text-sm text-gray-400 hover:text-white transition-colors"
+                @click="cancelAddNote"
+              >
+                Cancel
+              </button>
+              <button
+                class="px-3 py-1 text-sm bg-orange-500 text-white rounded hover:bg-orange-600 transition-colors"
+                @click="saveNote"
+                :disabled="!newNoteContent.trim()"
+              >
+                Save
+              </button>
             </div>
           </div>
         </div>
@@ -457,6 +530,24 @@ const dashboardFilter = ref<TaskFilter>('all')
 const showCreateGoalModal = ref(false)
 const editingGoal = ref<ChannelGoal | null>(null)
 
+// Notes-related state
+const showAddNote = ref(false)
+const newNoteContent = ref('')
+const editingNoteId = ref<string | null>(null)
+const editNoteContent = ref('')
+const userNotes = ref([
+  {
+    id: '1',
+    content: 'Remember to update video thumbnails for better CTR',
+    createdAt: new Date('2024-01-15'),
+  },
+  {
+    id: '2',
+    content: 'Check competitor analysis for trending topics',
+    createdAt: new Date('2024-01-14'),
+  },
+])
+
 // Computed properties
 const taskStats = computed(() => tasksStore.taskStats)
 
@@ -494,6 +585,62 @@ const formatDuration = (seconds: number) => {
   return `${minutes}:${remainingSeconds.toString().padStart(2, '0')}`
 }
 
+const formatDate = (date: Date) => {
+  return new Intl.DateTimeFormat('en-US', {
+    month: 'short',
+    day: 'numeric',
+    year: 'numeric'
+  }).format(date)
+}
+
+// Notes methods
+const saveNote = () => {
+  if (!newNoteContent.value.trim()) return
+
+  const newNote = {
+    id: Date.now().toString(),
+    content: newNoteContent.value.trim(),
+    createdAt: new Date(),
+  }
+
+  userNotes.value.unshift(newNote)
+  newNoteContent.value = ''
+  showAddNote.value = false
+}
+
+const deleteNote = (noteId: string) => {
+  const index = userNotes.value.findIndex(note => note.id === noteId)
+  if (index !== -1) {
+    userNotes.value.splice(index, 1)
+  }
+}
+
+const cancelAddNote = () => {
+  newNoteContent.value = ''
+  showAddNote.value = false
+}
+
+const startEditNote = (note: any) => {
+  editingNoteId.value = note.id
+  editNoteContent.value = note.content
+}
+
+const saveEditNote = (noteId: string) => {
+  if (!editNoteContent.value.trim()) return
+
+  const noteIndex = userNotes.value.findIndex(note => note.id === noteId)
+  if (noteIndex !== -1) {
+    userNotes.value[noteIndex].content = editNoteContent.value.trim()
+  }
+
+  cancelEditNote()
+}
+
+const cancelEditNote = () => {
+  editingNoteId.value = null
+  editNoteContent.value = ''
+}
+
 const dashboardTasks = computed(() => {
   let tasks = tasksStore.filteredTasks
 
@@ -519,29 +666,7 @@ const dashboardTasks = computed(() => {
   return tasks.slice(0, 5)
 })
 
-// AI Suggestions (mock data - would come from AI service)
-const aiSuggestions = ref([
-  {
-    id: '1',
-    title: 'Optimize video thumbnails',
-    description: 'Your CTR could improve with better thumbnails',
-    priority: 'high' as TaskPriority,
-    category: 'content' as TaskCategory,
-    icon: '🎨',
-    color: '#9333ea',
-    estimatedTime: 60,
-  },
-  {
-    id: '2',
-    title: 'Research trending keywords',
-    description: 'New keywords are trending in your niche',
-    priority: 'medium' as TaskPriority,
-    category: 'seo' as TaskCategory,
-    icon: '🔍',
-    color: '#059669',
-    estimatedTime: 45,
-  },
-])
+
 
 // Methods
 const toggleTaskCompletion = (taskId: string) => {
@@ -582,29 +707,7 @@ const saveGoal = (goalData: Omit<ChannelGoal, 'id'>) => {
   closeGoalModal()
 }
 
-const createFromSuggestion = (suggestion: any) => {
-  const tomorrow = new Date()
-  tomorrow.setDate(tomorrow.getDate() + 1)
 
-  tasksStore.addTask({
-    title: suggestion.title,
-    description: suggestion.description,
-    priority: suggestion.priority,
-    category: suggestion.category,
-    dueDate: tomorrow,
-    estimatedTime: suggestion.estimatedTime,
-    tags: ['ai-suggested'],
-  })
-
-  dismissSuggestion(suggestion.id)
-}
-
-const dismissSuggestion = (id: string) => {
-  const index = aiSuggestions.value.findIndex(s => s.id === id)
-  if (index !== -1) {
-    aiSuggestions.value.splice(index, 1)
-  }
-}
 
 
 
