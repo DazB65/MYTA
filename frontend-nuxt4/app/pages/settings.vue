@@ -733,8 +733,17 @@ const removePaymentMethod = () => {
 }
 
 const downloadInvoice = (invoiceId) => {
-  // Mock download functionality
-  success('Download Started', 'Your invoice is being downloaded.')
+  console.log('downloadInvoice called for:', invoiceId)
+
+  // Mock download functionality with reliable alert
+  alert('✅ Download Started\n\nIn a real app, this would download the invoice PDF from Stripe. Your invoice download would begin automatically.')
+
+  // Also try the toast (might work if toast container is available)
+  try {
+    success('Download Started', 'Your invoice is being downloaded.')
+  } catch (e) {
+    console.log('Toast failed, but alert worked')
+  }
 }
 
 const selectPlan = async (planId) => {
@@ -763,12 +772,30 @@ const selectPlan = async (planId) => {
 // Manage billing portal function
 const manageBilling = () => {
   console.log('manageBilling called')
-  success('Billing Portal', 'In a real app, this would redirect to Stripe Customer Portal where users can manage billing, update payment methods, download invoices, and cancel subscriptions.')
+
+  // Use both alert and toast for reliability
+  alert('✅ Billing Portal\n\nIn a real app, this would redirect to Stripe Customer Portal where users can manage billing, update payment methods, download invoices, and cancel subscriptions.')
+
+  // Also try the toast (might work if toast container is available)
+  try {
+    success('Billing Portal', 'In a real app, this would redirect to Stripe Customer Portal where users can manage billing, update payment methods, download invoices, and cancel subscriptions.')
+  } catch (e) {
+    console.log('Toast failed, but alert worked')
+  }
 }
 
 // Add payment method function
 const addPaymentMethod = () => {
   console.log('addPaymentMethod called')
-  success('Payment Method', 'In a real app, this would open a secure form to add or update payment methods via Stripe.')
+
+  // Use both alert and toast for reliability
+  alert('✅ Payment Method\n\nIn a real app, this would open a secure form to add or update payment methods via Stripe.')
+
+  // Also try the toast (might work if toast container is available)
+  try {
+    success('Payment Method', 'In a real app, this would open a secure form to add or update payment methods via Stripe.')
+  } catch (e) {
+    console.log('Toast failed, but alert worked')
+  }
 }
 </script>
