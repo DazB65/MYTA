@@ -88,19 +88,29 @@ export default defineNuxtConfig({
   // Server-side rendering optimizations
   ssr: true,
 
-  // Route rules for caching
+  // Route rules for caching and performance
   routeRules: {
     // Homepage pre-rendered at build time
     '/': { prerender: true },
 
+    // Static pages cached longer
+    '/pillars': { headers: { 'cache-control': 's-maxage=600' } }, // 10 minutes
+    '/tasks': { headers: { 'cache-control': 's-maxage=300' } }, // 5 minutes
+    '/settings': { headers: { 'cache-control': 's-maxage=300' } }, // 5 minutes
+
     // Analytics pages cached for 5 minutes
     '/analytics/**': { headers: { 'cache-control': 's-maxage=300' } },
 
-    // Dashboard cached for 1 minute
+    // Dashboard cached for 1 minute (dynamic content)
     '/dashboard': { headers: { 'cache-control': 's-maxage=60' } },
 
     // API routes not cached
     '/api/**': { headers: { 'cache-control': 'no-cache' } },
+
+    // Static assets cached for 1 year
+    '/_nuxt/**': { headers: { 'cache-control': 'max-age=31536000' } },
+    '/images/**': { headers: { 'cache-control': 'max-age=31536000' } },
+    '/icons/**': { headers: { 'cache-control': 'max-age=31536000' } },
   },
 
   // Head configuration for SEO and performance
@@ -207,7 +217,65 @@ export default defineNuxtConfig({
   },
 
   // Modules for SEO and performance
-  modules: ['@nuxtjs/tailwindcss', '@pinia/nuxt', '@vueuse/nuxt'],
+  modules: [
+    '@nuxtjs/tailwindcss',
+    '@pinia/nuxt',
+    '@vueuse/nuxt',
+    '@nuxt/image',
+    '@nuxtjs/robots',
+    '@nuxtjs/sitemap'
+  ],
+
+  // Image optimization configuration
+  image: {
+    // Enable responsive images
+    responsive: {
+      sizes: '100vw sm:50vw md:400px'
+    },
+    // Image quality settings
+    quality: 80,
+    // Enable WebP format
+    format: ['webp', 'png', 'jpg'],
+    // Presets for common use cases
+    presets: {
+      avatar: {
+        modifiers: {
+          format: 'webp',
+          width: 50,
+          height: 50,
+          quality: 80
+        }
+      },
+      banner: {
+        modifiers: {
+          format: 'webp',
+          width: 1200,
+          height: 630,
+          quality: 85
+        }
+      }
+    }
+  },
+
+  // Robots.txt configuration
+  robots: {
+    UserAgent: '*',
+    Allow: '/',
+    Sitemap: 'https://myta.app/sitemap.xml'
+  },
+
+  // Sitemap configuration
+  sitemap: {
+    hostname: 'https://myta.app',
+    gzip: true,
+    routes: [
+      '/dashboard',
+      '/analytics',
+      '/tasks',
+      '/pillars',
+      '/settings'
+    ]
+  },
 
   // Pinia configuration
   pinia: {
