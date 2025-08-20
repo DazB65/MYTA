@@ -63,18 +63,6 @@
       ]
     },
     {
-      "name": "Analytics",
-      "short_name": "Analytics",
-      "description": "Detailed YouTube analytics",
-      "url": "/analytics",
-      "icons": [
-        {
-          "src": "/favicon-32x32.png",
-          "sizes": "32x32"
-        }
-      ]
-    },
-    {
       "name": "Videos",
       "short_name": "Videos",
       "description": "Manage your video content",
