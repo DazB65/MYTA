@@ -298,11 +298,8 @@
           </div>
         </div>
 
-
-      </div>
-
-      <!-- Notes Section - Full Width -->
-      <div class="mb-6 rounded-xl bg-forest-800 p-6">
+          <!-- Notes Section -->
+          <div class="rounded-xl bg-forest-800 p-6">
         <div class="mb-4 flex items-center justify-between">
           <div class="flex items-center space-x-3">
             <div class="flex h-10 w-10 items-center justify-center rounded-lg bg-orange-500">
@@ -427,6 +424,7 @@
               </button>
             </div>
           </div>
+        </div>
         </div>
       </div>
 
