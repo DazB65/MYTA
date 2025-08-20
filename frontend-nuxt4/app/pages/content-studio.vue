@@ -31,6 +31,7 @@
           </div>
           <button
             class="flex items-center space-x-2 rounded-lg bg-orange-500 px-4 py-2 text-white transition-colors hover:bg-orange-600"
+            @click="showCreateContentModal = true"
           >
             <svg class="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
               <path
@@ -86,6 +87,13 @@
                   </button>
                 </div>
                 <p class="mb-3 text-xs text-gray-300">{{ item.description }}</p>
+                <!-- Pillar Badge -->
+                <div v-if="item.pillar" class="mb-3">
+                  <span class="inline-flex items-center space-x-1 rounded-full bg-forest-600 px-2 py-1 text-xs text-gray-300">
+                    <span>{{ item.pillar.icon }}</span>
+                    <span>{{ item.pillar.name }}</span>
+                  </span>
+                </div>
                 <div class="flex items-center justify-between">
                   <div class="flex items-center space-x-2">
                     <span
@@ -147,6 +155,13 @@
                   </button>
                 </div>
                 <p class="mb-3 text-xs text-gray-300">{{ item.description }}</p>
+                <!-- Pillar Badge -->
+                <div v-if="item.pillar" class="mb-3">
+                  <span class="inline-flex items-center space-x-1 rounded-full bg-forest-600 px-2 py-1 text-xs text-gray-300">
+                    <span>{{ item.pillar.icon }}</span>
+                    <span>{{ item.pillar.name }}</span>
+                  </span>
+                </div>
                 <div class="flex items-center justify-between">
                   <div class="flex items-center space-x-2">
                     <span
@@ -208,6 +223,13 @@
                   </button>
                 </div>
                 <p class="mb-3 text-xs text-gray-300">{{ item.description }}</p>
+                <!-- Pillar Badge -->
+                <div v-if="item.pillar" class="mb-3">
+                  <span class="inline-flex items-center space-x-1 rounded-full bg-forest-600 px-2 py-1 text-xs text-gray-300">
+                    <span>{{ item.pillar.icon }}</span>
+                    <span>{{ item.pillar.name }}</span>
+                  </span>
+                </div>
                 <div class="mb-2 flex items-center justify-between">
                   <div class="flex items-center space-x-2">
                     <span
@@ -275,6 +297,13 @@
                   </button>
                 </div>
                 <p class="mb-3 text-xs text-gray-300">{{ item.description }}</p>
+                <!-- Pillar Badge -->
+                <div v-if="item.pillar" class="mb-3">
+                  <span class="inline-flex items-center space-x-1 rounded-full bg-forest-600 px-2 py-1 text-xs text-gray-300">
+                    <span>{{ item.pillar.icon }}</span>
+                    <span>{{ item.pillar.name }}</span>
+                  </span>
+                </div>
                 <div class="flex items-center justify-between">
                   <div class="flex items-center space-x-2">
                     <span class="h-2 w-2 rounded-full bg-green-500"/>
@@ -414,10 +443,96 @@
         </div>
       </div>
     </div>
+
+    <!-- Create Content Modal -->
+    <div v-if="showCreateContentModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
+      <div class="bg-forest-800 rounded-xl p-6 w-full max-w-md mx-4">
+        <div class="flex items-center justify-between mb-4">
+          <h3 class="text-lg font-semibold text-white">Create New Content</h3>
+          <button @click="showCreateContentModal = false" class="text-gray-400 hover:text-white">
+            <svg class="h-6 w-6" fill="currentColor" viewBox="0 0 20 20">
+              <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"/>
+            </svg>
+          </button>
+        </div>
+
+        <form @submit.prevent="createContent">
+          <div class="space-y-4">
+            <!-- Title -->
+            <div>
+              <label class="block text-sm font-medium text-gray-300 mb-2">Title</label>
+              <input
+                v-model="newContent.title"
+                type="text"
+                required
+                class="w-full rounded-lg bg-forest-700 border border-forest-600 px-3 py-2 text-white focus:outline-none focus:ring-2 focus:ring-orange-500"
+                placeholder="Enter content title..."
+              />
+            </div>
+
+            <!-- Description -->
+            <div>
+              <label class="block text-sm font-medium text-gray-300 mb-2">Description</label>
+              <textarea
+                v-model="newContent.description"
+                rows="3"
+                class="w-full rounded-lg bg-forest-700 border border-forest-600 px-3 py-2 text-white focus:outline-none focus:ring-2 focus:ring-orange-500"
+                placeholder="Enter content description..."
+              ></textarea>
+            </div>
+
+            <!-- Pillar Selection -->
+            <div>
+              <label class="block text-sm font-medium text-gray-300 mb-2">Content Pillar</label>
+              <select
+                v-model="newContent.pillarId"
+                required
+                class="w-full rounded-lg bg-forest-700 border border-forest-600 px-3 py-2 text-white focus:outline-none focus:ring-2 focus:ring-orange-500"
+              >
+                <option value="">Select a pillar...</option>
+                <option v-for="pillar in availablePillars" :key="pillar.id" :value="pillar.id">
+                  {{ pillar.icon }} {{ pillar.name }}
+                </option>
+              </select>
+            </div>
+
+            <!-- Priority -->
+            <div>
+              <label class="block text-sm font-medium text-gray-300 mb-2">Priority</label>
+              <select
+                v-model="newContent.priority"
+                class="w-full rounded-lg bg-forest-700 border border-forest-600 px-3 py-2 text-white focus:outline-none focus:ring-2 focus:ring-orange-500"
+              >
+                <option value="low">Low</option>
+                <option value="medium">Medium</option>
+                <option value="high">High</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="flex items-center justify-end space-x-3 mt-6">
+            <button
+              type="button"
+              @click="showCreateContentModal = false"
+              class="px-4 py-2 text-gray-400 hover:text-white transition-colors"
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              class="px-4 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-colors"
+            >
+              Create Content
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
   </div>
 </template>
 
 <script setup>
+import { ref } from 'vue'
 import { useAgentSettings } from '../../composables/useAgentSettings'
 
 // Protect this route with authentication
@@ -428,7 +543,25 @@ definePageMeta({
 // Agent settings
 const { selectedAgent, agentName } = useAgentSettings()
 
-// Agent data is now handled by the composable
+// Modal state
+const showCreateContentModal = ref(false)
+
+// New content form data
+const newContent = ref({
+  title: '',
+  description: '',
+  pillarId: '',
+  priority: 'medium'
+})
+
+// Available pillars (mock data - in real app this would come from a store/API)
+const availablePillars = ref([
+  { id: 'pillar-1', name: 'YouTube Growth', icon: '📈' },
+  { id: 'pillar-2', name: 'Content Creation', icon: '🎬' },
+  { id: 'pillar-3', name: 'AI Tools', icon: '🤖' },
+  { id: 'pillar-4', name: 'Marketing Tips', icon: '📢' },
+  { id: 'pillar-5', name: 'Analytics', icon: '📊' }
+])
 
 // Content items data
 const contentItems = ref([
@@ -535,6 +668,46 @@ const contentItems = ref([
     createdAt: '2023-12-06',
   },
 ])
+
+// Create content function
+const createContent = () => {
+  if (!newContent.value.title.trim() || !newContent.value.pillarId) {
+    return
+  }
+
+  // Find the selected pillar
+  const selectedPillar = availablePillars.value.find(p => p.id === newContent.value.pillarId)
+
+  // Create new content item
+  const newItem = {
+    id: Date.now(), // Simple ID generation
+    title: newContent.value.title.trim(),
+    description: newContent.value.description.trim() || 'No description provided',
+    status: 'ideas', // New content starts in ideas column
+    priority: newContent.value.priority,
+    assignee: 'M',
+    createdAt: new Date().toISOString().split('T')[0],
+    pillar: selectedPillar ? {
+      id: selectedPillar.id,
+      name: selectedPillar.name,
+      icon: selectedPillar.icon
+    } : null
+  }
+
+  // Add to content items
+  contentItems.value.unshift(newItem)
+
+  // Reset form
+  newContent.value = {
+    title: '',
+    description: '',
+    pillarId: '',
+    priority: 'medium'
+  }
+
+  // Close modal
+  showCreateContentModal.value = false
+}
 
 // Helper functions
 const getColumnItems = status => {
