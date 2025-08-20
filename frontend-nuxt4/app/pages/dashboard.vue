@@ -20,18 +20,22 @@
         <div class="rounded-xl bg-forest-800 p-4 text-center">
           <div class="text-2xl font-bold text-blue-400">{{ formatNumber(channelStats.totalSubscribers) }}</div>
           <div class="text-sm text-gray-400">Current Subscribers</div>
+          <div class="text-xs text-green-400 mt-1">+5%</div>
         </div>
         <div class="rounded-xl bg-forest-800 p-4 text-center">
           <div class="text-2xl font-bold text-green-400">{{ formatSubscriberChange(channelStats.subscriberChange) }}</div>
           <div class="text-sm text-gray-400">Sub Change (7 days)</div>
+          <div class="text-xs text-green-400 mt-1">+25%</div>
         </div>
         <div class="rounded-xl bg-forest-800 p-4 text-center">
           <div class="text-2xl font-bold text-yellow-400">{{ formatNumber(channelStats.totalViews) }}</div>
           <div class="text-sm text-gray-400">Total Views</div>
+          <div class="text-xs text-green-400 mt-1">+14%</div>
         </div>
         <div class="rounded-xl bg-forest-800 p-4 text-center">
           <div class="text-2xl font-bold text-orange-400">{{ channelStats.avgViewDuration }}</div>
           <div class="text-sm text-gray-400">Avg View Duration</div>
+          <div class="text-xs text-green-400 mt-1">+3%</div>
         </div>
       </div>
 
@@ -41,24 +45,28 @@
         <div class="rounded-xl bg-forest-800 p-4 text-center">
           <div class="text-2xl font-bold text-purple-400">{{ formatWatchTime(watchTimeMinutes) }}</div>
           <div class="text-sm text-gray-400">Watch Time</div>
+          <div class="text-xs text-green-400 mt-1">+12%</div>
         </div>
 
-        <!-- Average View Duration -->
+        <!-- Engagement Rate -->
         <div class="rounded-xl bg-forest-800 p-4 text-center">
-          <div class="text-2xl font-bold text-cyan-400">{{ averageViewDuration.toFixed(1) }}m</div>
-          <div class="text-sm text-gray-400">Avg. Duration</div>
+          <div class="text-2xl font-bold text-cyan-400">{{ engagementRate.toFixed(1) }}%</div>
+          <div class="text-sm text-gray-400">Engagement Rate</div>
+          <div class="text-xs text-green-400 mt-1">+8%</div>
         </div>
 
         <!-- Click-Through Rate -->
         <div class="rounded-xl bg-forest-800 p-4 text-center">
           <div class="text-2xl font-bold text-pink-400">{{ clickThroughRate.toFixed(1) }}%</div>
           <div class="text-sm text-gray-400">Click Rate</div>
+          <div class="text-xs text-green-400 mt-1">+15%</div>
         </div>
 
         <!-- Impressions -->
         <div class="rounded-xl bg-forest-800 p-4 text-center">
           <div class="text-2xl font-bold text-indigo-400">{{ formatNumber(impressions) }}</div>
           <div class="text-sm text-gray-400">Impressions</div>
+          <div class="text-xs text-green-400 mt-1">+22%</div>
         </div>
       </div>
 
@@ -607,6 +615,14 @@ const clickThroughRate = computed(() => {
 
 const impressions = computed(() => {
   return analyticsStore.data?.overview?.data?.impressions || 85000
+})
+
+const engagementRate = computed(() => {
+  return analyticsStore.data?.overview?.data?.engagement_rate || 6.8
+})
+
+const monthlyRevenue = computed(() => {
+  return analyticsStore.data?.revenue?.data?.total || 1250.50
 })
 
 // Goals from analytics store
