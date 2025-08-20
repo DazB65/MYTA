@@ -48,6 +48,32 @@ class ChannelHealthMetrics:
     subscriber_growth_rate: float = 0.0
     view_velocity: float = 0.0
     engagement_rate: float = 0.0
+    performance_score: float = 0.0
+    optimization_opportunities: List[str] = None
+    trending_score: float = 0.0
+
+@dataclass
+class RealTimeInsights:
+    """Real-time AI-powered insights"""
+    performance_alerts: List[Dict[str, Any]] = None
+    optimization_recommendations: List[Dict[str, Any]] = None
+    trending_opportunities: List[Dict[str, Any]] = None
+    competitive_insights: List[Dict[str, Any]] = None
+    growth_predictions: Dict[str, Any] = None
+    timestamp: datetime = None
+
+@dataclass
+class VideoPerformanceInsight:
+    """Individual video performance with AI insights"""
+    video_id: str
+    title: str
+    views: int
+    ctr: float
+    retention: float
+    engagement_score: float
+    optimization_score: float
+    trending_potential: float
+    recommended_actions: List[str] = None
     upload_consistency: float = 0.0
     audience_retention: float = 0.0
     click_through_rate: float = 0.0
@@ -638,6 +664,710 @@ class YouTubeAnalyticsService:
             # Cache the result
             self._cache_data(cache_key, result)
             return result
+
+        except Exception as e:
+            logger.error(f"Error getting comprehensive analytics: {e}")
+            return {"error": str(e)}
+
+    async def get_real_time_insights(self, channel_id: str, access_token: str) -> RealTimeInsights:
+        """Get real-time AI-powered insights and recommendations"""
+
+        try:
+            # Get current metrics
+            current_metrics = await self.get_channel_analytics(channel_id, access_token, days=7)
+
+            # Get performance trends
+            performance_trends = await self._analyze_performance_trends(channel_id, access_token)
+
+            # Generate AI insights
+            insights = RealTimeInsights(
+                performance_alerts=await self._generate_performance_alerts(current_metrics, performance_trends),
+                optimization_recommendations=await self._generate_optimization_recommendations(current_metrics),
+                trending_opportunities=await self._identify_trending_opportunities(channel_id, access_token),
+                competitive_insights=await self._generate_competitive_insights(channel_id, access_token),
+                growth_predictions=await self._predict_growth_trajectory(current_metrics, performance_trends),
+                timestamp=datetime.now()
+            )
+
+            return insights
+
+        except Exception as e:
+            logger.error(f"Error generating real-time insights: {e}")
+            return RealTimeInsights(
+                performance_alerts=[],
+                optimization_recommendations=[],
+                trending_opportunities=[],
+                competitive_insights=[],
+                growth_predictions={},
+                timestamp=datetime.now()
+            )
+
+    async def get_video_performance_insights(self, video_ids: List[str], access_token: str) -> List[VideoPerformanceInsight]:
+        """Get AI-powered insights for specific videos"""
+
+        try:
+            insights = []
+
+            for video_id in video_ids:
+                try:
+                    # Get video analytics
+                    video_data = await self._get_video_analytics(video_id, access_token)
+
+                    # Calculate AI scores
+                    optimization_score = self._calculate_optimization_score(video_data)
+                    trending_potential = self._calculate_trending_potential(video_data)
+                    engagement_score = self._calculate_engagement_score(video_data)
+
+                    # Generate recommendations
+                    recommendations = self._generate_video_recommendations(video_data, optimization_score)
+
+                    insight = VideoPerformanceInsight(
+                        video_id=video_id,
+                        title=video_data.get('title', 'Unknown'),
+                        views=video_data.get('views', 0),
+                        ctr=video_data.get('ctr', 0.0),
+                        retention=video_data.get('retention', 0.0),
+                        engagement_score=engagement_score,
+                        optimization_score=optimization_score,
+                        trending_potential=trending_potential,
+                        recommended_actions=recommendations
+                    )
+
+                    insights.append(insight)
+
+                except Exception as e:
+                    logger.error(f"Error analyzing video {video_id}: {e}")
+
+            return insights
+
+        except Exception as e:
+            logger.error(f"Error getting video performance insights: {e}")
+            return []
+
+    async def get_optimization_dashboard(self, channel_id: str, access_token: str) -> Dict[str, Any]:
+        """Get comprehensive optimization dashboard data"""
+
+        try:
+            # Gather all data
+            current_metrics = await self.get_channel_analytics(channel_id, access_token, days=30)
+            real_time_insights = await self.get_real_time_insights(channel_id, access_token)
+            recent_videos = await self._get_recent_video_performance(channel_id, access_token)
+
+            # Calculate dashboard metrics
+            dashboard = {
+                "performance_overview": {
+                    "current_metrics": current_metrics,
+                    "performance_score": self._calculate_overall_performance_score(current_metrics),
+                    "growth_trend": self._determine_growth_trend(current_metrics),
+                    "health_status": self._assess_channel_health(current_metrics)
+                },
+                "real_time_insights": real_time_insights,
+                "video_performance": recent_videos,
+                "optimization_priorities": self._prioritize_optimizations(real_time_insights),
+                "action_plan": self._generate_action_plan(real_time_insights, current_metrics),
+                "benchmarks": self._get_performance_benchmarks(current_metrics),
+                "predictions": {
+                    "next_30_days": self._predict_30_day_performance(current_metrics),
+                    "growth_milestones": self._predict_growth_milestones(current_metrics)
+                },
+                "timestamp": datetime.now().isoformat()
+            }
+
+            return dashboard
+
+        except Exception as e:
+            logger.error(f"Error generating optimization dashboard: {e}")
+            return {"error": str(e), "timestamp": datetime.now().isoformat()}
+
+    # AI-powered analysis methods
+
+    async def _generate_performance_alerts(self, metrics: Dict, trends: Dict) -> List[Dict[str, Any]]:
+        """Generate performance alerts based on metrics and trends"""
+
+        alerts = []
+
+        try:
+            # CTR alerts
+            current_ctr = metrics.get('click_through_rate', 0)
+            if current_ctr < 0.03:
+                alerts.append({
+                    "type": "critical",
+                    "category": "ctr",
+                    "title": "Low Click-Through Rate",
+                    "message": f"CTR of {current_ctr:.1%} is below 3% threshold",
+                    "impact": "High impact on video discovery",
+                    "urgency": "high",
+                    "recommended_action": "Optimize thumbnails and titles immediately"
+                })
+            elif current_ctr < 0.05:
+                alerts.append({
+                    "type": "warning",
+                    "category": "ctr",
+                    "title": "CTR Below Average",
+                    "message": f"CTR of {current_ctr:.1%} could be improved",
+                    "impact": "Moderate impact on growth",
+                    "urgency": "medium",
+                    "recommended_action": "A/B test thumbnail designs"
+                })
+
+            # Retention alerts
+            current_retention = metrics.get('average_view_percentage', 0)
+            if current_retention < 0.35:
+                alerts.append({
+                    "type": "critical",
+                    "category": "retention",
+                    "title": "Low Audience Retention",
+                    "message": f"Retention of {current_retention:.1%} is critically low",
+                    "impact": "Severe impact on algorithm performance",
+                    "urgency": "high",
+                    "recommended_action": "Improve video hooks and pacing"
+                })
+
+            # Growth alerts
+            growth_rate = trends.get('subscriber_growth_rate', 0)
+            if growth_rate < 0:
+                alerts.append({
+                    "type": "critical",
+                    "category": "growth",
+                    "title": "Negative Growth",
+                    "message": "Channel is losing subscribers",
+                    "impact": "Critical impact on channel health",
+                    "urgency": "critical",
+                    "recommended_action": "Immediate content strategy review needed"
+                })
+
+            return alerts
+
+        except Exception as e:
+            logger.error(f"Error generating performance alerts: {e}")
+            return []
+
+    async def _generate_optimization_recommendations(self, metrics: Dict) -> List[Dict[str, Any]]:
+        """Generate AI-powered optimization recommendations"""
+
+        recommendations = []
+
+        try:
+            # Thumbnail optimization
+            ctr = metrics.get('click_through_rate', 0)
+            if ctr < 0.06:
+                recommendations.append({
+                    "category": "thumbnails",
+                    "priority": "high",
+                    "title": "Optimize Thumbnail Strategy",
+                    "description": "Your CTR suggests thumbnail improvements could significantly boost performance",
+                    "specific_actions": [
+                        "Use high contrast colors and bold text",
+                        "Include faces with clear emotions",
+                        "A/B test different thumbnail styles",
+                        "Analyze competitor thumbnail strategies"
+                    ],
+                    "expected_impact": "15-25% CTR improvement",
+                    "timeline": "1-2 weeks",
+                    "difficulty": "medium"
+                })
+
+            # Content optimization
+            retention = metrics.get('average_view_percentage', 0)
+            if retention < 0.50:
+                recommendations.append({
+                    "category": "content",
+                    "priority": "high",
+                    "title": "Improve Content Structure",
+                    "description": "Audience retention can be significantly improved with better content structure",
+                    "specific_actions": [
+                        "Create stronger hooks in first 15 seconds",
+                        "Add pattern interrupts every 60-90 seconds",
+                        "Improve pacing and remove dead time",
+                        "Use preview techniques to maintain interest"
+                    ],
+                    "expected_impact": "10-20% retention improvement",
+                    "timeline": "2-4 weeks",
+                    "difficulty": "medium"
+                })
+
+            # SEO optimization
+            views = metrics.get('views', 0)
+            impressions = metrics.get('impressions', 1)
+            if views / impressions < 0.05:
+                recommendations.append({
+                    "category": "seo",
+                    "priority": "medium",
+                    "title": "Enhance SEO Strategy",
+                    "description": "Improve discoverability through better SEO optimization",
+                    "specific_actions": [
+                        "Research and use trending keywords",
+                        "Optimize video descriptions with keywords",
+                        "Create strategic playlists",
+                        "Use relevant tags and categories"
+                    ],
+                    "expected_impact": "20-30% discovery improvement",
+                    "timeline": "3-6 weeks",
+                    "difficulty": "low"
+                })
+
+            return recommendations
+
+        except Exception as e:
+            logger.error(f"Error generating optimization recommendations: {e}")
+            return []
+
+    async def _identify_trending_opportunities(self, channel_id: str, access_token: str) -> List[Dict[str, Any]]:
+        """Identify trending content opportunities"""
+
+        try:
+            opportunities = []
+
+            # Mock trending analysis - in real implementation, analyze trending videos in niche
+            opportunities.append({
+                "type": "trending_topic",
+                "title": "Capitalize on Trending Topics",
+                "description": "Several topics in your niche are trending",
+                "trending_topics": ["AI tools", "productivity hacks", "2024 trends"],
+                "urgency": "high",
+                "potential_impact": "30-50% view increase",
+                "action_deadline": "next 7 days"
+            })
+
+            return opportunities
+
+        except Exception as e:
+            logger.error(f"Error identifying trending opportunities: {e}")
+            return []
+
+    async def _generate_competitive_insights(self, channel_id: str, access_token: str) -> List[Dict[str, Any]]:
+        """Generate competitive insights"""
+
+        try:
+            insights = []
+
+            # Mock competitive analysis
+            insights.append({
+                "type": "competitor_analysis",
+                "title": "Competitor Performance Gap",
+                "description": "Similar channels are outperforming in specific areas",
+                "gap_areas": ["upload_frequency", "thumbnail_quality", "seo_optimization"],
+                "recommended_actions": [
+                    "Increase upload frequency to 2x per week",
+                    "Invest in professional thumbnail design",
+                    "Improve keyword research and optimization"
+                ],
+                "potential_impact": "25-40% growth acceleration"
+            })
+
+            return insights
+
+        except Exception as e:
+            logger.error(f"Error generating competitive insights: {e}")
+            return []
+
+    async def _predict_growth_trajectory(self, metrics: Dict, trends: Dict) -> Dict[str, Any]:
+        """Predict growth trajectory based on current performance"""
+
+        try:
+            current_subs = metrics.get('subscriber_count', 1000)
+            growth_rate = trends.get('subscriber_growth_rate', 0.05)
+
+            predictions = {
+                "next_30_days": {
+                    "subscribers": int(current_subs * (1 + growth_rate)),
+                    "confidence": "medium",
+                    "factors": ["current_growth_rate", "content_consistency"]
+                },
+                "next_90_days": {
+                    "subscribers": int(current_subs * (1 + growth_rate * 3)),
+                    "confidence": "low",
+                    "factors": ["algorithm_changes", "content_strategy", "market_trends"]
+                },
+                "milestones": {
+                    "next_1k": self._calculate_milestone_timeline(current_subs, 1000, growth_rate),
+                    "next_10k": self._calculate_milestone_timeline(current_subs, 10000, growth_rate),
+                    "next_100k": self._calculate_milestone_timeline(current_subs, 100000, growth_rate)
+                }
+            }
+
+            return predictions
+
+        except Exception as e:
+            logger.error(f"Error predicting growth trajectory: {e}")
+            return {}
+
+    def _calculate_optimization_score(self, video_data: Dict) -> float:
+        """Calculate optimization score for a video"""
+
+        try:
+            score = 50  # Base score
+
+            # Title optimization
+            title = video_data.get('title', '')
+            if 30 <= len(title) <= 60:
+                score += 15
+            if any(word in title.lower() for word in ['how', 'best', 'top', 'guide', 'tutorial']):
+                score += 10
+
+            # Performance metrics
+            ctr = video_data.get('ctr', 0)
+            if ctr > 0.06:
+                score += 15
+            elif ctr > 0.04:
+                score += 10
+
+            retention = video_data.get('retention', 0)
+            if retention > 0.50:
+                score += 10
+            elif retention > 0.40:
+                score += 5
+
+            return min(score, 100)
+
+        except Exception as e:
+            logger.error(f"Error calculating optimization score: {e}")
+            return 50.0
+
+    def _calculate_trending_potential(self, video_data: Dict) -> float:
+        """Calculate trending potential for a video"""
+
+        try:
+            views = video_data.get('views', 0)
+            likes = video_data.get('likes', 0)
+            comments = video_data.get('comments', 0)
+
+            # Calculate engagement rate
+            engagement_rate = (likes + comments * 2) / max(views, 1)
+
+            # Calculate trending score
+            trending_score = min(engagement_rate * 1000, 100)
+
+            return trending_score
+
+        except Exception as e:
+            logger.error(f"Error calculating trending potential: {e}")
+            return 0.0
+
+    def _calculate_engagement_score(self, video_data: Dict) -> float:
+        """Calculate engagement score for a video"""
+
+        try:
+            views = video_data.get('views', 0)
+            likes = video_data.get('likes', 0)
+            comments = video_data.get('comments', 0)
+            shares = video_data.get('shares', 0)
+
+            if views == 0:
+                return 0.0
+
+            # Weighted engagement calculation
+            engagement = (likes + comments * 3 + shares * 5) / views
+            return min(engagement * 100, 100)
+
+        except Exception as e:
+            logger.error(f"Error calculating engagement score: {e}")
+            return 0.0
+
+    def _generate_video_recommendations(self, video_data: Dict, optimization_score: float) -> List[str]:
+        """Generate specific recommendations for a video"""
+
+        recommendations = []
+
+        try:
+            # Title recommendations
+            title = video_data.get('title', '')
+            if len(title) < 30:
+                recommendations.append("Expand title to 30-60 characters for better SEO")
+            elif len(title) > 60:
+                recommendations.append("Shorten title to under 60 characters")
+
+            # Performance recommendations
+            ctr = video_data.get('ctr', 0)
+            if ctr < 0.04:
+                recommendations.append("Create more compelling thumbnail to improve CTR")
+
+            retention = video_data.get('retention', 0)
+            if retention < 0.40:
+                recommendations.append("Improve video hook and pacing to increase retention")
+
+            # SEO recommendations
+            if optimization_score < 70:
+                recommendations.append("Optimize description with relevant keywords")
+                recommendations.append("Add video to relevant playlists")
+
+            return recommendations[:3]  # Top 3 recommendations
+
+        except Exception as e:
+            logger.error(f"Error generating video recommendations: {e}")
+            return ["General optimization recommended"]
+
+    def _calculate_overall_performance_score(self, metrics: Dict) -> float:
+        """Calculate overall channel performance score"""
+
+        try:
+            # Weighted scoring
+            ctr_score = min(metrics.get('click_through_rate', 0) / 0.06, 1.0) * 30
+            retention_score = min(metrics.get('average_view_percentage', 0) / 0.50, 1.0) * 40
+            growth_score = min(metrics.get('subscriber_growth_rate', 0) / 0.10, 1.0) * 30
+
+            total_score = (ctr_score + retention_score + growth_score)
+            return round(total_score, 1)
+
+        except Exception as e:
+            logger.error(f"Error calculating performance score: {e}")
+            return 50.0
+
+    def _determine_growth_trend(self, metrics: Dict) -> str:
+        """Determine growth trend direction"""
+
+        try:
+            growth_rate = metrics.get('subscriber_growth_rate', 0)
+
+            if growth_rate > 0.10:
+                return "rapid_growth"
+            elif growth_rate > 0.05:
+                return "steady_growth"
+            elif growth_rate > 0:
+                return "slow_growth"
+            elif growth_rate == 0:
+                return "stagnant"
+            else:
+                return "declining"
+
+        except Exception as e:
+            logger.error(f"Error determining growth trend: {e}")
+            return "unknown"
+
+    def _assess_channel_health(self, metrics: Dict) -> str:
+        """Assess overall channel health"""
+
+        try:
+            performance_score = self._calculate_overall_performance_score(metrics)
+
+            if performance_score >= 80:
+                return "excellent"
+            elif performance_score >= 60:
+                return "good"
+            elif performance_score >= 40:
+                return "fair"
+            else:
+                return "needs_improvement"
+
+        except Exception as e:
+            logger.error(f"Error assessing channel health: {e}")
+            return "unknown"
+
+    def _prioritize_optimizations(self, insights: RealTimeInsights) -> List[Dict[str, Any]]:
+        """Prioritize optimization recommendations"""
+
+        try:
+            all_items = []
+
+            # Add alerts as high priority
+            for alert in insights.performance_alerts or []:
+                all_items.append({
+                    "type": "alert",
+                    "priority": 1 if alert["urgency"] == "critical" else 2,
+                    "item": alert
+                })
+
+            # Add recommendations
+            for rec in insights.optimization_recommendations or []:
+                priority = 1 if rec["priority"] == "high" else 2 if rec["priority"] == "medium" else 3
+                all_items.append({
+                    "type": "recommendation",
+                    "priority": priority,
+                    "item": rec
+                })
+
+            # Sort by priority
+            return sorted(all_items, key=lambda x: x["priority"])[:5]
+
+        except Exception as e:
+            logger.error(f"Error prioritizing optimizations: {e}")
+            return []
+
+    def _generate_action_plan(self, insights: RealTimeInsights, metrics: Dict) -> Dict[str, Any]:
+        """Generate actionable plan based on insights"""
+
+        try:
+            action_plan = {
+                "immediate_actions": [],
+                "this_week": [],
+                "this_month": [],
+                "long_term": []
+            }
+
+            # Process alerts for immediate actions
+            for alert in insights.performance_alerts or []:
+                if alert["urgency"] in ["critical", "high"]:
+                    action_plan["immediate_actions"].append({
+                        "action": alert["recommended_action"],
+                        "reason": alert["message"],
+                        "impact": alert["impact"]
+                    })
+
+            # Process recommendations by timeline
+            for rec in insights.optimization_recommendations or []:
+                timeline = rec.get("timeline", "this_month")
+                if "week" in timeline:
+                    action_plan["this_week"].append({
+                        "action": rec["title"],
+                        "description": rec["description"],
+                        "expected_impact": rec.get("expected_impact", "Positive impact")
+                    })
+                elif "month" in timeline:
+                    action_plan["this_month"].append({
+                        "action": rec["title"],
+                        "description": rec["description"],
+                        "expected_impact": rec.get("expected_impact", "Positive impact")
+                    })
+                else:
+                    action_plan["long_term"].append({
+                        "action": rec["title"],
+                        "description": rec["description"],
+                        "expected_impact": rec.get("expected_impact", "Positive impact")
+                    })
+
+            return action_plan
+
+        except Exception as e:
+            logger.error(f"Error generating action plan: {e}")
+            return {"immediate_actions": [], "this_week": [], "this_month": [], "long_term": []}
+
+    def _get_performance_benchmarks(self, metrics: Dict) -> Dict[str, Any]:
+        """Get performance benchmarks for comparison"""
+
+        return {
+            "ctr": {
+                "your_value": metrics.get('click_through_rate', 0),
+                "poor": 0.02,
+                "average": 0.05,
+                "good": 0.08,
+                "excellent": 0.12
+            },
+            "retention": {
+                "your_value": metrics.get('average_view_percentage', 0),
+                "poor": 0.30,
+                "average": 0.45,
+                "good": 0.60,
+                "excellent": 0.75
+            },
+            "growth_rate": {
+                "your_value": metrics.get('subscriber_growth_rate', 0),
+                "poor": 0.01,
+                "average": 0.05,
+                "good": 0.10,
+                "excellent": 0.20
+            }
+        }
+
+    def _predict_30_day_performance(self, metrics: Dict) -> Dict[str, Any]:
+        """Predict 30-day performance"""
+
+        try:
+            current_views = metrics.get('views', 0)
+            current_subs = metrics.get('subscriber_count', 0)
+            growth_rate = metrics.get('subscriber_growth_rate', 0.05)
+
+            return {
+                "predicted_views": int(current_views * 1.2),  # Assume 20% growth
+                "predicted_subscribers": int(current_subs * (1 + growth_rate)),
+                "confidence": "medium",
+                "factors": ["current_trends", "seasonal_patterns", "content_strategy"]
+            }
+
+        except Exception as e:
+            logger.error(f"Error predicting 30-day performance: {e}")
+            return {}
+
+    def _predict_growth_milestones(self, metrics: Dict) -> Dict[str, Any]:
+        """Predict when growth milestones will be reached"""
+
+        try:
+            current_subs = metrics.get('subscriber_count', 0)
+            growth_rate = metrics.get('subscriber_growth_rate', 0.05)
+
+            milestones = {}
+            targets = [1000, 10000, 100000, 1000000]
+
+            for target in targets:
+                if current_subs < target:
+                    months = self._calculate_milestone_timeline(current_subs, target, growth_rate)
+                    milestones[f"{target:,}_subscribers"] = {
+                        "timeline": months,
+                        "confidence": "medium" if months < 24 else "low"
+                    }
+                    break
+
+            return milestones
+
+        except Exception as e:
+            logger.error(f"Error predicting growth milestones: {e}")
+            return {}
+
+    def _calculate_milestone_timeline(self, current: int, target: int, growth_rate: float) -> str:
+        """Calculate timeline to reach milestone"""
+
+        try:
+            if growth_rate <= 0 or current >= target:
+                return "Unable to calculate"
+
+            import math
+            months = math.log(target / current) / math.log(1 + growth_rate)
+
+            if months < 1:
+                return "Less than 1 month"
+            elif months < 12:
+                return f"{int(months)} months"
+            else:
+                years = months / 12
+                return f"{years:.1f} years"
+
+        except Exception as e:
+            logger.error(f"Error calculating milestone timeline: {e}")
+            return "Unable to calculate"
+
+    async def _get_video_analytics(self, video_id: str, access_token: str) -> Dict[str, Any]:
+        """Get analytics for a specific video"""
+
+        try:
+            # Mock implementation - in real app, use YouTube Analytics API
+            return {
+                "video_id": video_id,
+                "title": f"Video {video_id}",
+                "views": 1000,
+                "likes": 50,
+                "comments": 10,
+                "shares": 5,
+                "ctr": 0.05,
+                "retention": 0.45
+            }
+        except Exception as e:
+            logger.error(f"Error getting video analytics: {e}")
+            return {}
+
+    async def _get_recent_video_performance(self, channel_id: str, access_token: str) -> List[VideoPerformanceInsight]:
+        """Get recent video performance insights"""
+
+        try:
+            # Mock implementation
+            recent_videos = ["video_1", "video_2", "video_3"]
+            return await self.get_video_performance_insights(recent_videos, access_token)
+        except Exception as e:
+            logger.error(f"Error getting recent video performance: {e}")
+            return []
+
+    async def _analyze_performance_trends(self, channel_id: str, access_token: str) -> Dict[str, Any]:
+        """Analyze performance trends over time"""
+
+        try:
+            # Mock implementation - in real app, analyze historical data
+            return {
+                "subscriber_growth_rate": 0.05,
+                "view_growth_rate": 0.10,
+                "engagement_trend": "increasing",
+                "performance_trend": "stable"
+            }
+        except Exception as e:
+            logger.error(f"Error analyzing performance trends: {e}")
+            return {}
             
         except HttpError as e:
             logger.error(f"YouTube Analytics API error: {e}")

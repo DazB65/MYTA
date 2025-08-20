@@ -245,62 +245,178 @@ async def handle_chat_message(user_id: str, session_id: str, message_data: Dict)
         logger.error(f"Error handling chat message: {e}")
 
 async def generate_ai_response(user_id: str, session_id: str, agent_id: str, user_message: str):
-    """Generate AI response (placeholder implementation)"""
+    """Generate AI response using real AI service"""
     try:
-        # Simulate AI thinking time
-        await asyncio.sleep(1)
-        
-        # Placeholder AI response
-        agent_names = {"1": "Alex", "2": "Levi", "3": "Maya", "4": "Zara", "5": "Kai"}
-        agent_name = agent_names.get(agent_id, "Assistant")
-        
-        ai_response = f"Hi! I'm {agent_name}, and I received your message: '{user_message}'. This is a placeholder response. The actual AI integration will be implemented next."
-        
-        # Store AI response in database
+        from backend.App.ai_service import get_ai_service
+        from backend.App.agent_personalities import get_agent_personality
+
+        # Get conversation history for context
         supabase = get_supabase_service()
-        
+        history_result = supabase.select("chat_messages", "*", {
+            "session_id": session_id,
+            "user_id": user_id
+        })
+
+        # Build conversation context
+        messages = []
+        if history_result["success"]:
+            # Get last 10 messages for context
+            recent_messages = sorted(history_result["data"], key=lambda x: x["created_at"])[-10:]
+
+            for msg in recent_messages:
+                if msg["role"] in ["user", "assistant"]:
+                    messages.append({
+                        "role": msg["role"],
+                        "content": msg["content"]
+                    })
+
+        # Add current user message
+        messages.append({
+            "role": "user",
+            "content": user_message
+        })
+
+        # Get agent memory and context
+        from backend.App.agent_memory import get_agent_memory
+        agent_memory = get_agent_memory()
+        context = await agent_memory.get_conversation_context(user_id, session_id, agent_id)
+
+        # Generate AI response
+        ai_service = get_ai_service()
+
+        # Send typing indicator
+        await connection_manager.send_to_session(user_id, session_id, {
+            "type": "agent_typing",
+            "agent_id": agent_id,
+            "is_typing": True,
+            "timestamp": datetime.utcnow().isoformat()
+        })
+
+        # Generate response with context
+        ai_response_data = await ai_service.generate_response(
+            messages=messages,
+            agent_id=agent_id,
+            user_id=user_id
+        )
+
+        # Stop typing indicator
+        await connection_manager.send_to_session(user_id, session_id, {
+            "type": "agent_typing",
+            "agent_id": agent_id,
+            "is_typing": False,
+            "timestamp": datetime.utcnow().isoformat()
+        })
+
+        # Get agent info
+        agent_personality = get_agent_personality(agent_id)
+
+        # Store AI response in database
         ai_message = {
             "id": str(uuid.uuid4()),
             "user_id": user_id,
             "session_id": session_id,
             "agent_id": agent_id,
             "role": "assistant",
-            "content": ai_response,
+            "content": ai_response_data["content"],
             "message_type": "text",
-            "metadata": {"agent_name": agent_name}
+            "metadata": {
+                "agent_name": agent_personality["name"],
+                "provider": ai_response_data.get("provider", "unknown"),
+                "model": ai_response_data.get("model", "unknown"),
+                "usage": ai_response_data.get("usage", {}),
+                "is_demo": ai_response_data.get("is_demo", False)
+            }
         }
-        
+
         result = supabase.insert("chat_messages", ai_message)
-        
+
         if result["success"]:
+            # Update agent memory with interaction
+            await agent_memory.update_agent_memory(user_id, agent_id, {
+                "user_message": user_message,
+                "agent_response": ai_response_data["content"],
+                "topics": agent_memory._extract_topics_from_history([{"content": user_message}]),
+                "timestamp": datetime.utcnow().isoformat()
+            })
+
             # Send AI response to user
             await connection_manager.send_to_session(user_id, session_id, {
                 "type": "ai_response",
                 "message": result["data"][0],
                 "timestamp": datetime.utcnow().isoformat()
             })
-        
+
     except Exception as e:
         logger.error(f"Error generating AI response: {e}")
 
+        # Send error message to user
+        await connection_manager.send_to_session(user_id, session_id, {
+            "type": "ai_error",
+            "message": "Sorry, I'm having trouble responding right now. Please try again.",
+            "timestamp": datetime.utcnow().isoformat()
+        })
+
 async def handle_agent_switch(user_id: str, session_id: str, message_data: Dict):
-    """Handle agent switching"""
+    """Handle agent switching with memory transfer"""
     try:
+        from backend.App.agent_memory import get_agent_memory
+
         new_agent_id = message_data.get("agent_id")
-        
+
         if new_agent_id in ["1", "2", "3", "4", "5"]:
-            # Update session agent
+            # Get current agent
+            old_agent_id = "1"  # Default
             if user_id in connection_manager.user_sessions:
                 if session_id in connection_manager.user_sessions[user_id]:
+                    old_agent_id = connection_manager.user_sessions[user_id][session_id].get("agent_id", "1")
                     connection_manager.user_sessions[user_id][session_id]["agent_id"] = new_agent_id
-            
-            # Send confirmation
-            await connection_manager.send_to_session(user_id, session_id, {
-                "type": "agent_switched",
-                "agent_id": new_agent_id,
-                "timestamp": datetime.utcnow().isoformat()
-            })
-        
+
+            # Handle agent handoff with memory
+            agent_memory = get_agent_memory()
+            handoff_result = await agent_memory.handle_agent_switch(
+                user_id, session_id, old_agent_id, new_agent_id
+            )
+
+            if handoff_result["success"]:
+                # Send handoff message from new agent
+                from backend.App.agent_personalities import get_agent_personality
+                new_agent = get_agent_personality(new_agent_id)
+
+                # Store handoff message in database
+                supabase = get_supabase_service()
+                handoff_message = {
+                    "id": str(uuid.uuid4()),
+                    "user_id": user_id,
+                    "session_id": session_id,
+                    "agent_id": new_agent_id,
+                    "role": "assistant",
+                    "content": handoff_result["handoff_message"],
+                    "message_type": "agent_switch",
+                    "metadata": {
+                        "agent_name": new_agent["name"],
+                        "handoff_summary": handoff_result["handoff_summary"],
+                        "previous_agent": old_agent_id
+                    }
+                }
+
+                result = supabase.insert("chat_messages", handoff_message)
+
+                if result["success"]:
+                    # Send agent switch confirmation with handoff message
+                    await connection_manager.send_to_session(user_id, session_id, {
+                        "type": "agent_switched",
+                        "agent_id": new_agent_id,
+                        "handoff_message": result["data"][0],
+                        "timestamp": datetime.utcnow().isoformat()
+                    })
+            else:
+                # Send simple confirmation if handoff failed
+                await connection_manager.send_to_session(user_id, session_id, {
+                    "type": "agent_switched",
+                    "agent_id": new_agent_id,
+                    "timestamp": datetime.utcnow().isoformat()
+                })
+
     except Exception as e:
         logger.error(f"Error handling agent switch: {e}")
 

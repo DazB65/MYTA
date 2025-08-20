@@ -44,6 +44,14 @@ from .goals_router import router as goals_router
 from .notes_router import router as notes_router
 from .settings_router import router as settings_router
 from .chat_router import router as chat_router
+from .error_monitoring_router import router as error_monitoring_router
+from .channel_data_router import router as channel_data_router
+from .agent_tools_router import router as agent_tools_router
+from .dynamic_response_router import router as dynamic_response_router
+from .collaboration_router import router as collaboration_router
+from .realtime_analytics_router import router as realtime_analytics_router
+from .request_logging import log_request_middleware
+from .error_handler import create_error_response, MYTAError
 
 # Import services
 from .ai_services import update_user_context
@@ -396,6 +404,9 @@ setup_monitoring_middleware(app)
 # Add Redis session middleware (after monitoring, before CORS)
 app.add_middleware(SessionMiddleware)
 
+# Add request logging middleware (before CORS)
+app.middleware("http")(log_request_middleware)
+
 # Add CORS middleware with environment-specific configuration
 cors_config = settings.get_cors_config()
 app.add_middleware(CORSMiddleware, **cors_config)
@@ -448,6 +459,104 @@ app.include_router(settings_router)
 
 # Include chat router (handles real-time chat and WebSocket connections)
 app.include_router(chat_router)
+
+# Include error monitoring router (handles error tracking and performance monitoring)
+app.include_router(error_monitoring_router)
+
+# Include channel data router (handles user channel analysis and personalized responses)
+app.include_router(channel_data_router)
+
+# Include agent tools router (handles specialized agent tools and capabilities)
+app.include_router(agent_tools_router)
+
+# Include dynamic response router (handles context-aware adaptive responses)
+app.include_router(dynamic_response_router)
+
+# Include collaboration router (handles multi-agent collaboration and analysis)
+app.include_router(collaboration_router)
+
+# Include real-time analytics router (handles live analytics and AI insights)
+app.include_router(realtime_analytics_router)
+
+# =============================================================================
+# Global Exception Handlers
+# =============================================================================
+
+@app.exception_handler(MYTAError)
+async def myta_error_handler(request: Request, exc: MYTAError):
+    """Handle custom MYTA errors"""
+    return create_error_response(exc, request)
+
+@app.exception_handler(HTTPException)
+async def http_exception_handler(request: Request, exc: HTTPException):
+    """Handle FastAPI HTTP exceptions"""
+    from .error_handler import MYTAError, ErrorCode, ErrorCategory, ErrorSeverity
+
+    # Convert HTTPException to MYTAError for consistent handling
+    if exc.status_code == 401:
+        error = MYTAError(
+            message=str(exc.detail),
+            error_code=ErrorCode.INVALID_CREDENTIALS,
+            category=ErrorCategory.AUTHENTICATION,
+            severity=ErrorSeverity.MEDIUM
+        )
+    elif exc.status_code == 403:
+        error = MYTAError(
+            message=str(exc.detail),
+            error_code=ErrorCode.INSUFFICIENT_PERMISSIONS,
+            category=ErrorCategory.AUTHORIZATION,
+            severity=ErrorSeverity.MEDIUM
+        )
+    elif exc.status_code == 404:
+        error = MYTAError(
+            message=str(exc.detail),
+            error_code=ErrorCode.RECORD_NOT_FOUND,
+            category=ErrorCategory.VALIDATION,
+            severity=ErrorSeverity.LOW
+        )
+    elif exc.status_code == 422:
+        error = MYTAError(
+            message=str(exc.detail),
+            error_code=ErrorCode.INVALID_INPUT,
+            category=ErrorCategory.VALIDATION,
+            severity=ErrorSeverity.LOW
+        )
+    elif exc.status_code == 429:
+        error = MYTAError(
+            message="Rate limit exceeded",
+            error_code=ErrorCode.API_RATE_LIMIT_EXCEEDED,
+            category=ErrorCategory.RATE_LIMIT,
+            severity=ErrorSeverity.MEDIUM
+        )
+    else:
+        error = MYTAError(
+            message=str(exc.detail),
+            error_code=ErrorCode.INTERNAL_SERVER_ERROR,
+            category=ErrorCategory.SYSTEM,
+            severity=ErrorSeverity.HIGH
+        )
+
+    return create_error_response(error, request)
+
+@app.exception_handler(Exception)
+async def general_exception_handler(request: Request, exc: Exception):
+    """Handle all other exceptions"""
+    from .error_handler import MYTAError, ErrorCode, ErrorCategory, ErrorSeverity
+
+    # Log the full exception for debugging
+    logger.error(f"Unhandled exception: {exc}", exc_info=True)
+
+    # Create a generic error response
+    error = MYTAError(
+        message=f"Internal server error: {type(exc).__name__}",
+        error_code=ErrorCode.INTERNAL_SERVER_ERROR,
+        category=ErrorCategory.SYSTEM,
+        severity=ErrorSeverity.CRITICAL,
+        details={"exception_type": type(exc).__name__},
+        recoverable=False
+    )
+
+    return create_error_response(error, request)
 
 # =============================================================================
 # Authentication Endpoints
