@@ -300,7 +300,7 @@
               </div>
               <button
                 class="px-4 py-2 bg-forest-700 text-white rounded-lg hover:bg-forest-600 transition-colors"
-                @click="showPaymentModal = true"
+                @click="addPaymentMethod"
               >
                 {{ paymentMethod ? 'Update' : 'Add' }} Payment Method
               </button>
@@ -338,7 +338,7 @@
               <p class="text-gray-400 mb-4">No payment method added</p>
               <button
                 class="px-6 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-colors"
-                @click="showPaymentModal = true"
+                @click="addPaymentMethod"
               >
                 Add Payment Method
               </button>
@@ -760,17 +760,15 @@ const selectPlan = async (planId) => {
   }
 }
 
-// Add billing portal function
-const manageBilling = async () => {
-  try {
-    const result = await subscriptionStore.createPortalSession()
+// Manage billing portal function
+const manageBilling = () => {
+  console.log('manageBilling called')
+  success('Billing Portal', 'In a real app, this would redirect to Stripe Customer Portal where users can manage billing, update payment methods, download invoices, and cancel subscriptions.')
+}
 
-    if (result.success) {
-      success('Billing Portal', result.message)
-      // In production, user would be redirected to Stripe Customer Portal
-    }
-  } catch (err) {
-    error('Billing Portal Failed', 'Failed to access billing portal. Please try again.')
-  }
+// Add payment method function
+const addPaymentMethod = () => {
+  console.log('addPaymentMethod called')
+  success('Payment Method', 'In a real app, this would open a secure form to add or update payment methods via Stripe.')
 }
 </script>

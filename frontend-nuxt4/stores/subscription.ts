@@ -194,15 +194,21 @@ export const useSubscriptionStore = defineStore('subscription', () => {
   // Create Stripe customer portal session
   const createPortalSession = async () => {
     try {
+      console.log('createPortalSession called')
       loading.value = true
       error.value = null
+
+      console.log('stripe object:', stripe)
+      console.log('stripe.mockPortalSession:', stripe.mockPortalSession)
 
       // For demo purposes, use mock portal
       // In production, replace with real Stripe portal
       const result = await stripe.mockPortalSession()
+      console.log('mockPortalSession result:', result)
 
       return result
     } catch (err: any) {
+      console.error('Error in createPortalSession:', err)
       error.value = err.message
       console.error('Error creating portal session:', err)
       throw err
