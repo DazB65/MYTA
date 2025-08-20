@@ -38,43 +38,27 @@
       <!-- Analytics Performance -->
       <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
         <!-- Watch Time -->
-        <div class="bg-forest-800 rounded-xl p-4">
-          <div class="flex items-center justify-between mb-3">
-            <h3 class="text-sm font-medium text-gray-400">Watch Time</h3>
-            <div class="text-xl">⏱️</div>
-          </div>
-          <div class="text-2xl font-bold text-white">{{ formatWatchTime(watchTimeMinutes) }}</div>
-          <div class="text-sm text-green-400 mt-1">+12% from last month</div>
+        <div class="rounded-xl bg-forest-800 p-4 text-center">
+          <div class="text-2xl font-bold text-purple-400">{{ formatWatchTime(watchTimeMinutes) }}</div>
+          <div class="text-sm text-gray-400">Watch Time</div>
         </div>
 
         <!-- Average View Duration -->
-        <div class="bg-forest-800 rounded-xl p-4">
-          <div class="flex items-center justify-between mb-3">
-            <h3 class="text-sm font-medium text-gray-400">Avg. Duration</h3>
-            <div class="text-xl">📊</div>
-          </div>
-          <div class="text-2xl font-bold text-white">{{ averageViewDuration.toFixed(1) }}m</div>
-          <div class="text-sm text-green-400 mt-1">+8% from last month</div>
+        <div class="rounded-xl bg-forest-800 p-4 text-center">
+          <div class="text-2xl font-bold text-cyan-400">{{ averageViewDuration.toFixed(1) }}m</div>
+          <div class="text-sm text-gray-400">Avg. Duration</div>
         </div>
 
         <!-- Click-Through Rate -->
-        <div class="bg-forest-800 rounded-xl p-4">
-          <div class="flex items-center justify-between mb-3">
-            <h3 class="text-sm font-medium text-gray-400">Click Rate</h3>
-            <div class="text-xl">🎯</div>
-          </div>
-          <div class="text-2xl font-bold text-white">{{ clickThroughRate.toFixed(1) }}%</div>
-          <div class="text-sm text-green-400 mt-1">+15% from last month</div>
+        <div class="rounded-xl bg-forest-800 p-4 text-center">
+          <div class="text-2xl font-bold text-pink-400">{{ clickThroughRate.toFixed(1) }}%</div>
+          <div class="text-sm text-gray-400">Click Rate</div>
         </div>
 
         <!-- Impressions -->
-        <div class="bg-forest-800 rounded-xl p-4">
-          <div class="flex items-center justify-between mb-3">
-            <h3 class="text-sm font-medium text-gray-400">Impressions</h3>
-            <div class="text-xl">👁️</div>
-          </div>
-          <div class="text-2xl font-bold text-white">{{ formatNumber(impressions) }}</div>
-          <div class="text-sm text-green-400 mt-1">+22% from last month</div>
+        <div class="rounded-xl bg-forest-800 p-4 text-center">
+          <div class="text-2xl font-bold text-indigo-400">{{ formatNumber(impressions) }}</div>
+          <div class="text-sm text-gray-400">Impressions</div>
         </div>
       </div>
 
