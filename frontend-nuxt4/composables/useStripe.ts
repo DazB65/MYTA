@@ -1,5 +1,5 @@
 import { loadStripe, type Stripe } from '@stripe/stripe-js'
-import { ref, computed } from 'vue'
+import { ref } from 'vue'
 
 // Stripe instance
 let stripeInstance: Stripe | null = null
@@ -13,8 +13,9 @@ export const useStripe = () => {
     if (stripeInstance) return stripeInstance
 
     try {
-      // Use your Stripe publishable key here
-      const publishableKey = process.env.STRIPE_PUBLISHABLE_KEY || 'pk_test_...' // Replace with your key
+      // Use your Stripe publishable key from environment
+      const runtimeConfig = useRuntimeConfig()
+      const publishableKey = runtimeConfig.public.stripePublishableKey
       stripeInstance = await loadStripe(publishableKey)
       return stripeInstance
     } catch (err) {

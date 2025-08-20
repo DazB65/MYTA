@@ -47,6 +47,9 @@ export interface BillingHistoryItem {
 }
 
 export const useSubscriptionStore = defineStore('subscription', () => {
+  // Initialize Stripe composable
+  const stripe = useStripe()
+
   // State
   const currentSubscription = ref<UserSubscription | null>(null)
   const availablePlans = ref<SubscriptionPlan[]>([])
@@ -169,11 +172,9 @@ export const useSubscriptionStore = defineStore('subscription', () => {
       error.value = null
 
       // Use Stripe composable for checkout
-      const { mockCheckoutSession } = useStripe()
-
       // For demo purposes, use mock checkout
       // In production, replace with real Stripe integration
-      const result = await mockCheckoutSession(planId, billingCycle)
+      const result = await stripe.mockCheckoutSession(planId, billingCycle)
 
       if (result.success) {
         // Simulate successful subscription update
@@ -196,11 +197,9 @@ export const useSubscriptionStore = defineStore('subscription', () => {
       loading.value = true
       error.value = null
 
-      const { mockPortalSession } = useStripe()
-
       // For demo purposes, use mock portal
       // In production, replace with real Stripe portal
-      const result = await mockPortalSession()
+      const result = await stripe.mockPortalSession()
 
       return result
     } catch (err: any) {

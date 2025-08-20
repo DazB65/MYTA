@@ -82,6 +82,7 @@ export default defineNuxtConfig({
       wsUrl: process.env.WS_URL || 'ws://localhost:8000',
       environment: process.env.NODE_ENV || 'development',
       enablePerformanceMonitor: process.env.ENABLE_PERFORMANCE_MONITOR === 'true',
+      stripePublishableKey: process.env.NUXT_PUBLIC_STRIPE_PUBLISHABLE_KEY,
     },
   },
 
