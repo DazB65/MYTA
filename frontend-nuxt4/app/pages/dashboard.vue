@@ -11,6 +11,7 @@
         </div>
         <div class="flex items-center space-x-4">
           <div class="text-sm text-gray-400">Last 30 days</div>
+          <NotificationBell />
         </div>
       </div>
 
@@ -414,6 +415,7 @@
 
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue'
+import NotificationBell from '../../components/dashboard/NotificationBell.vue'
 import type { ChannelGoal } from '../../stores/analytics'
 import { useAnalyticsStore } from '../../stores/analytics'
 import { useTasksStore } from '../../stores/tasks'

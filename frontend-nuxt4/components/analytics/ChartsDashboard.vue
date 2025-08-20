@@ -17,8 +17,17 @@
             {{ range.label }}
           </button>
         </div>
+        <div class="header-status">
+          <div class="connection-status" :class="{ connected: realTimeConnected, disconnected: !realTimeConnected }">
+            <div class="status-indicator"></div>
+            <span>{{ realTimeConnected ? 'Live Data' : 'Offline' }}</span>
+          </div>
+          <div v-if="lastUpdated" class="last-updated">
+            Updated {{ formatLastUpdated(lastUpdated) }}
+          </div>
+        </div>
         <button class="refresh-button" :disabled="loading" @click="refreshData">
-          <svg class="refresh-icon" viewBox="0 0 20 20" fill="currentColor">
+          <svg class="refresh-icon" :class="{ spinning: loading }" viewBox="0 0 20 20" fill="currentColor">
             <path
               d="M4 2a1 1 0 011 1v2.101a7.002 7.002 0 0111.601 2.566 1 1 0 11-1.885.666A5.002 5.002 0 005.999 7H9a1 1 0 010 2H4a1 1 0 01-1-1V3a1 1 0 011-1zm.008 9.057a1 1 0 011.276.61A5.002 5.002 0 0014.001 13H11a1 1 0 110-2h5a1 1 0 011 1v5a1 1 0 11-2 0v-2.101a7.002 7.002 0 01-11.601-2.566 1 1 0 01.61-1.276z"
             />
@@ -179,8 +188,18 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted, watch } from 'vue'
+import { computed, onMounted, ref } from 'vue'
+import { useRealTimeAnalytics } from '../../composables/useRealTimeAnalytics'
 import AnalyticsChart from './AnalyticsChart.vue'
+
+// Real-time analytics integration
+const channelId = 'UC_test_channel' // In real app, get from user context
+const {
+  metrics: realTimeMetrics,
+  connected: realTimeConnected,
+  refreshData: refreshRealTimeData,
+  loading: realTimeLoading
+} = useRealTimeAnalytics(channelId)
 
 const props = defineProps({
   analyticsData: {
@@ -417,13 +436,53 @@ const handleChartTypeChange = (chart, type) => {
   chartTypes.value[chart] = type
 }
 
-const refreshData = () => {
+// Real-time data integration
+const lastUpdated = computed(() => {
+  return realTimeMetrics.value.lastUpdated
+})
+
+const refreshData = async () => {
+  await refreshRealTimeData()
   emit('refresh')
 }
+
+const formatLastUpdated = (timestamp) => {
+  const date = new Date(timestamp)
+  const now = new Date()
+  const diffMs = now - date
+  const diffMins = Math.floor(diffMs / 60000)
+
+  if (diffMins < 1) return 'just now'
+  if (diffMins < 60) return `${diffMins}m ago`
+
+  const diffHours = Math.floor(diffMs / 3600000)
+  if (diffHours < 24) return `${diffHours}h ago`
+
+  return date.toLocaleDateString()
+}
+
+// Enhanced chart data with real-time metrics
+const enhancedAnalyticsData = computed(() => {
+  if (!props.analyticsData) return null
+
+  // Merge real-time data with existing analytics data
+  return {
+    ...props.analyticsData,
+    realTimeMetrics: {
+      views: realTimeMetrics.value.views,
+      watchTime: realTimeMetrics.value.watchTime,
+      subscribers: realTimeMetrics.value.subscribers,
+      ctr: realTimeMetrics.value.ctr,
+      retention: realTimeMetrics.value.retention,
+      revenue: realTimeMetrics.value.revenue
+    }
+  }
+})
 
 // Lifecycle
 onMounted(() => {
   // Initialize with current data
+  refreshData()
 })
 </script>
 
@@ -459,6 +518,55 @@ onMounted(() => {
   display: flex;
   gap: 16px;
   align-items: center;
+}
+
+.header-status {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.connection-status {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.connection-status.connected {
+  color: #10B981;
+}
+
+.connection-status.disconnected {
+  color: #EF4444;
+}
+
+.status-indicator {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: currentColor;
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
+.last-updated {
+  font-size: 12px;
+  color: #6B7280;
+}
+
+.refresh-icon.spinning {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
 }
 
 .time-range-selector {

@@ -46,6 +46,9 @@ class LogCategory(Enum):
     CACHE = "cache"
     WEBSOCKET = "websocket"
     PAYMENT = "payment"
+    NOTIFICATIONS = "notifications"
+    ANALYTICS = "analytics"
+    SCHEDULER = "scheduler"
 
 
 # Context variables for request tracking

@@ -238,6 +238,7 @@ const showChatPanel = ref(false)
 // Navigation items
 const mainMenuItems = [
   { name: 'Dashboard', path: '/dashboard' },
+  { name: 'Analytics', path: '/analytics' },
   { name: 'Tasks', path: '/tasks' },
   { name: 'Pillars', path: '/pillars' },
   { name: 'Videos', path: '/videos' },

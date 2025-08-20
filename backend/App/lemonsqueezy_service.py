@@ -194,7 +194,7 @@ class LemonSqueezyService:
 # Global service instance
 _lemonsqueezy_service: Optional[LemonSqueezyService] = None
 
-def get_lemonsqueezy_service() -> LemonSqueezy:
+def get_lemonsqueezy_service() -> LemonSqueezyService:
     """Get or create global LemonSqueezy service instance"""
     global _lemonsqueezy_service
     if _lemonsqueezy_service is None:

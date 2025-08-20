@@ -224,20 +224,29 @@
                   <div class="space-y-3">
                     <div>
                       <div class="flex justify-between text-sm mb-1">
-                        <span class="text-gray-400">AI Requests</span>
-                        <span class="text-white">{{ usage.aiRequests }}/{{ currentPlan.limits.aiRequests }}</span>
+                        <span class="text-gray-400">AI Conversations</span>
+                        <span class="text-white">{{ usage.aiConversations }}/{{ currentPlan.limits.aiConversations }}</span>
                       </div>
                       <div class="w-full bg-forest-600 rounded-full h-2">
-                        <div class="bg-orange-500 h-2 rounded-full" :style="{ width: (usage.aiRequests / currentPlan.limits.aiRequests * 100) + '%' }"></div>
+                        <div class="bg-orange-500 h-2 rounded-full" :style="{ width: (usage.aiConversations / currentPlan.limits.aiConversations * 100) + '%' }"></div>
                       </div>
                     </div>
                     <div>
                       <div class="flex justify-between text-sm mb-1">
-                        <span class="text-gray-400">Video Analysis</span>
-                        <span class="text-white">{{ usage.videoAnalysis }}/{{ currentPlan.limits.videoAnalysis }}</span>
+                        <span class="text-gray-400">Content Pillars</span>
+                        <span class="text-white">{{ usage.contentPillars }}/{{ currentPlan.limits.contentPillars }}</span>
                       </div>
                       <div class="w-full bg-forest-600 rounded-full h-2">
-                        <div class="bg-blue-500 h-2 rounded-full" :style="{ width: (usage.videoAnalysis / currentPlan.limits.videoAnalysis * 100) + '%' }"></div>
+                        <div class="bg-blue-500 h-2 rounded-full" :style="{ width: (usage.contentPillars / currentPlan.limits.contentPillars * 100) + '%' }"></div>
+                      </div>
+                    </div>
+                    <div>
+                      <div class="flex justify-between text-sm mb-1">
+                        <span class="text-gray-400">Goals</span>
+                        <span class="text-white">{{ usage.goals }}/{{ currentPlan.limits.goals }}</span>
+                      </div>
+                      <div class="w-full bg-forest-600 rounded-full h-2">
+                        <div class="bg-green-500 h-2 rounded-full" :style="{ width: (usage.goals / currentPlan.limits.goals * 100) + '%' }"></div>
                       </div>
                     </div>
                   </div>
@@ -252,7 +261,7 @@
               </div>
               <div class="flex space-x-3">
                 <button
-                  v-if="currentPlan.id !== 'free'"
+                  v-if="currentPlan.id !== 'growth'"
                   class="px-4 py-2 text-sm text-gray-400 hover:text-white transition-colors"
                   @click="showCancelModal = true"
                 >
@@ -262,7 +271,7 @@
                   class="px-6 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-colors"
                   @click="showPlansModal = true"
                 >
-                  {{ currentPlan.id === 'free' ? 'Upgrade Plan' : 'Change Plan' }}
+                  Change Plan
                 </button>
               </div>
             </div>
@@ -386,6 +395,138 @@
         </div>
       </div>
     </div>
+
+    <!-- Plans Modal -->
+    <div v-if="showPlansModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
+      <div class="bg-forest-800 rounded-xl p-6 max-w-6xl w-full mx-4 max-h-[90vh] overflow-y-auto">
+        <div class="flex items-center justify-between mb-6">
+          <div>
+            <h2 class="text-2xl font-bold text-white">Choose Your Plan</h2>
+            <p class="text-gray-400">Select the perfect plan for your YouTube growth journey</p>
+          </div>
+          <button @click="showPlansModal = false" class="text-gray-400 hover:text-white">
+            <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+            </svg>
+          </button>
+        </div>
+
+        <!-- Billing Toggle -->
+        <div class="flex items-center justify-center mb-8">
+          <div class="bg-forest-700 rounded-lg p-1 flex">
+            <button
+              :class="[
+                'px-4 py-2 rounded-md text-sm font-medium transition-colors',
+                billingCycle === 'monthly' ? 'bg-orange-500 text-white' : 'text-gray-400 hover:text-white'
+              ]"
+              @click="billingCycle = 'monthly'"
+            >
+              Monthly
+            </button>
+            <button
+              :class="[
+                'px-4 py-2 rounded-md text-sm font-medium transition-colors',
+                billingCycle === 'yearly' ? 'bg-orange-500 text-white' : 'text-gray-400 hover:text-white'
+              ]"
+              @click="billingCycle = 'yearly'"
+            >
+              Yearly
+              <span class="ml-1 text-xs bg-green-500 text-white px-1.5 py-0.5 rounded">Save 17%</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Plans Grid -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          <div
+            v-for="plan in availablePlans"
+            :key="plan.id"
+            :class="[
+              'relative rounded-xl p-6 border-2 transition-all',
+              plan.popular
+                ? 'border-orange-500 bg-gradient-to-b from-orange-500/10 to-transparent'
+                : 'border-forest-600 bg-forest-700 hover:border-forest-500',
+              currentPlan.id === plan.id ? 'ring-2 ring-orange-500' : ''
+            ]"
+          >
+            <!-- Popular Badge -->
+            <div v-if="plan.popular" class="absolute -top-3 left-1/2 transform -translate-x-1/2">
+              <span class="bg-orange-500 text-white px-3 py-1 rounded-full text-xs font-medium">
+                Most Popular
+              </span>
+            </div>
+
+            <!-- Current Plan Badge -->
+            <div v-if="currentPlan.id === plan.id" class="absolute -top-3 right-4">
+              <span class="bg-green-500 text-white px-3 py-1 rounded-full text-xs font-medium">
+                Current Plan
+              </span>
+            </div>
+
+            <div class="text-center mb-6">
+              <h3 class="text-xl font-bold text-white mb-2">{{ plan.name }}</h3>
+              <p class="text-gray-400 text-sm mb-4">{{ plan.description }}</p>
+              <div class="mb-4">
+                <span class="text-3xl font-bold text-white">
+                  ${{ billingCycle === 'monthly' ? plan.price.monthly : plan.price.yearly }}
+                </span>
+                <span class="text-gray-400">
+                  /{{ billingCycle === 'yearly' ? 'year' : 'month' }}
+                </span>
+              </div>
+              <div v-if="billingCycle === 'yearly'" class="text-sm text-green-400">
+                Save ${{ (plan.price.monthly * 12) - plan.price.yearly }} per year
+              </div>
+            </div>
+
+            <!-- Features -->
+            <div class="space-y-3 mb-6">
+              <div
+                v-for="feature in plan.features.slice(0, 6)"
+                :key="feature"
+                class="flex items-start space-x-2"
+              >
+                <svg class="h-4 w-4 text-green-400 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                  <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                </svg>
+                <span class="text-sm text-gray-300">{{ feature }}</span>
+              </div>
+              <div v-if="plan.features.length > 6" class="text-xs text-gray-400">
+                +{{ plan.features.length - 6 }} more features
+              </div>
+            </div>
+
+            <!-- Action Button -->
+            <button
+              v-if="currentPlan.id !== plan.id"
+              class="w-full py-3 px-4 rounded-lg font-medium transition-colors"
+              :class="plan.popular
+                ? 'bg-orange-500 text-white hover:bg-orange-600'
+                : 'bg-forest-600 text-white hover:bg-forest-500'"
+              @click="selectPlan(plan.id)"
+            >
+              {{ currentPlan.id === 'growth' ? 'Upgrade' : 'Select Plan' }}
+            </button>
+            <div v-else class="w-full py-3 px-4 rounded-lg bg-green-500 text-white text-center font-medium">
+              Current Plan
+            </div>
+          </div>
+        </div>
+
+        <!-- Trial Notice -->
+        <div class="mt-8 p-4 bg-blue-500/10 border border-blue-500/20 rounded-lg">
+          <div class="flex items-center space-x-2">
+            <svg class="h-5 w-5 text-blue-400" fill="currentColor" viewBox="0 0 20 20">
+              <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"/>
+            </svg>
+            <div>
+              <p class="text-blue-400 font-medium">5-Day Free Trial</p>
+              <p class="text-blue-300 text-sm">Experience the full power of MYTA with all Pro features unlocked. No credit card required.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -417,25 +558,113 @@ const tabs = [
 
 // Subscription data
 const currentPlan = ref({
-  id: 'free',
-  name: 'Free Plan',
-  billing: 'No billing',
+  id: 'growth',
+  name: 'Growth',
+  billing: '$9/month',
   features: [
-    '5 AI requests per day',
-    '1 video analysis per week',
-    'Basic analytics',
-    'Community support'
+    '3 AI Agents (Alex + choice of 2 others)',
+    '50 AI conversations/month',
+    'Enhanced analytics with engagement metrics',
+    '10 content pillars',
+    'Advanced task management (up to 50 tasks)',
+    'Basic goal tracking (3 goals)',
+    'Weekly trending alerts',
+    'Email support (48-72h response)',
+    'Basic competitive insights (1 competitor)'
   ],
   limits: {
-    aiRequests: 150,
-    videoAnalysis: 4
+    aiConversations: 50,
+    agentsCount: 3,
+    contentPillars: 10,
+    goals: 3,
+    competitors: 1
   }
 })
 
 const usage = ref({
-  aiRequests: 47,
-  videoAnalysis: 2
+  aiConversations: 23,
+  agentsCount: 3,
+  contentPillars: 7,
+  goals: 2,
+  competitors: 1
 })
+
+// Available plans for upgrade modal
+const availablePlans = ref([
+  {
+    id: 'growth',
+    name: 'Growth',
+    description: 'Essential tools for serious creators',
+    price: { monthly: 9, yearly: 90 },
+    popular: false,
+    features: [
+      '3 AI Agents (Alex + choice of 2 others)',
+      '50 AI conversations/month',
+      'Enhanced analytics with engagement metrics',
+      '10 content pillars',
+      'Advanced task management (up to 50 tasks)',
+      'Basic goal tracking (3 goals)',
+      'Weekly trending alerts',
+      'Email support (48-72h response)',
+      'Basic competitive insights (1 competitor)'
+    ]
+  },
+  {
+    id: 'creator',
+    name: 'Creator',
+    description: 'For creators ready to scale',
+    price: { monthly: 19, yearly: 190 },
+    popular: true,
+    features: [
+      'All 5 AI Agents with full personalities',
+      '150 AI conversations/month',
+      'Real-time analytics with live data',
+      'Advanced charts & insights (retention, CTR, revenue)',
+      'Unlimited content pillars',
+      'Smart task management with AI suggestions',
+      'Advanced competitive analysis (3 competitors)',
+      'Unlimited goal tracking',
+      'Priority email support (24-48h response)',
+      'Daily trending alerts'
+    ]
+  },
+  {
+    id: 'pro',
+    name: 'Pro',
+    description: 'For established creators maximizing growth',
+    price: { monthly: 49, yearly: 490 },
+    popular: false,
+    features: [
+      'Unlimited AI conversations',
+      'Advanced competitive analysis (unlimited competitors)',
+      'AI-powered content strategy with personalized recommendations',
+      'Custom agent training on your channel data',
+      'Priority support (4-12h response)',
+      'Advanced automation & scheduled reports',
+      'Team collaboration (3 members)',
+      'Custom dashboard layouts',
+      'API access for integrations'
+    ]
+  },
+  {
+    id: 'enterprise',
+    name: 'Enterprise',
+    description: 'For agencies and top-tier creators',
+    price: { monthly: 149, yearly: 1490 },
+    popular: false,
+    features: [
+      'White-label options',
+      'Unlimited team members',
+      'Multi-channel management (up to 10 channels)',
+      'Dedicated account manager',
+      'Custom AI agent development',
+      '24/7 phone & chat support',
+      'Custom reporting & analytics'
+    ]
+  }
+])
+
+const billingCycle = ref('monthly')
 
 const nextBillingDate = ref(new Date('2024-02-15'))
 
@@ -496,5 +725,24 @@ const removePaymentMethod = () => {
 const downloadInvoice = (invoiceId) => {
   // Mock download functionality
   success('Download Started', 'Your invoice is being downloaded.')
+}
+
+const selectPlan = async (planId) => {
+  try {
+    // Find the selected plan
+    const selectedPlan = availablePlans.value.find(plan => plan.id === planId)
+    if (!selectedPlan) return
+
+    // Mock plan selection - in real app, this would call the subscription store
+    success('Plan Selected', `You've selected the ${selectedPlan.name} plan. Redirecting to checkout...`)
+
+    // Close modal
+    showPlansModal.value = false
+
+    // In real implementation, this would redirect to payment processor
+    // await subscriptionStore.createCheckoutSession(planId, billingCycle.value)
+  } catch (err) {
+    error('Plan Selection Failed', 'Failed to select plan. Please try again.')
+  }
 }
 </script>

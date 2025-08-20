@@ -50,6 +50,7 @@ from .agent_tools_router import router as agent_tools_router
 from .dynamic_response_router import router as dynamic_response_router
 from .collaboration_router import router as collaboration_router
 from .realtime_analytics_router import router as realtime_analytics_router
+from .notification_router import router as notification_router
 from .request_logging import log_request_middleware
 from .error_handler import create_error_response, MYTAError
 
@@ -477,6 +478,9 @@ app.include_router(collaboration_router)
 
 # Include real-time analytics router (handles live analytics and AI insights)
 app.include_router(realtime_analytics_router)
+
+# Include notification router (handles smart notifications and user preferences)
+app.include_router(notification_router)
 
 # =============================================================================
 # Global Exception Handlers

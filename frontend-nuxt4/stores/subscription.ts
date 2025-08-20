@@ -4,13 +4,20 @@ import { computed, ref } from 'vue'
 export interface SubscriptionPlan {
   id: string
   name: string
+  description: string
   price_monthly: number
   price_yearly: number
   features: string[]
   limits: {
-    ai_requests: number
-    video_analysis: number
+    ai_conversations: number
+    agents_count: number
+    content_pillars: number
+    goals: number
+    competitors: number
+    team_members: number
   }
+  popular?: boolean
+  trial_days?: number
 }
 
 export interface UserSubscription {

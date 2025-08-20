@@ -25,38 +25,112 @@ async def get_subscription_plans():
         # For now, return mock data that matches your frontend
         plans = [
             {
-                "id": "free",
-                "name": "Free Plan",
-                "price_monthly": 0,
-                "price_yearly": 0,
+                "id": "growth",
+                "name": "Growth",
+                "description": "Essential tools for serious creators",
+                "price_monthly": 9,
+                "price_yearly": 90,
                 "features": [
-                    "5 AI requests per day",
-                    "1 video analysis per week", 
-                    "Basic analytics",
-                    "Community support"
+                    "3 AI Agents (Alex + choice of 2 others)",
+                    "50 AI conversations/month",
+                    "Enhanced analytics with engagement metrics",
+                    "10 content pillars",
+                    "Advanced task management (up to 50 tasks)",
+                    "Basic goal tracking (3 goals)",
+                    "Weekly trending alerts",
+                    "Email support (48-72h response)",
+                    "Basic competitive insights (1 competitor)"
                 ],
                 "limits": {
-                    "ai_requests": 150,
-                    "video_analysis": 4
-                }
+                    "ai_conversations": 50,
+                    "agents_count": 3,
+                    "content_pillars": 10,
+                    "goals": 3,
+                    "competitors": 1,
+                    "team_members": 1
+                },
+                "trial_days": 5
+            },
+            {
+                "id": "creator",
+                "name": "Creator",
+                "description": "For creators ready to scale",
+                "price_monthly": 19,
+                "price_yearly": 190,
+                "features": [
+                    "All 5 AI Agents with full personalities",
+                    "150 AI conversations/month",
+                    "Real-time analytics with live data",
+                    "Advanced charts & insights (retention, CTR, revenue)",
+                    "Unlimited content pillars",
+                    "Smart task management with AI suggestions",
+                    "Advanced competitive analysis (3 competitors)",
+                    "Unlimited goal tracking",
+                    "Priority email support (24-48h response)",
+                    "Daily trending alerts"
+                ],
+                "limits": {
+                    "ai_conversations": 150,
+                    "agents_count": 5,
+                    "content_pillars": -1,
+                    "goals": -1,
+                    "competitors": 3,
+                    "team_members": 1
+                },
+                "popular": True,
+                "trial_days": 5
             },
             {
                 "id": "pro",
-                "name": "Pro Plan",
-                "price_monthly": 2999,  # $29.99
-                "price_yearly": 29999,  # $299.99
+                "name": "Pro",
+                "description": "For established creators maximizing growth",
+                "price_monthly": 49,
+                "price_yearly": 490,
                 "features": [
-                    "Unlimited AI requests",
-                    "Unlimited video analysis",
-                    "Advanced analytics",
-                    "Priority support",
-                    "Custom agents",
-                    "Export capabilities"
+                    "Unlimited AI conversations",
+                    "Advanced competitive analysis (unlimited competitors)",
+                    "AI-powered content strategy with personalized recommendations",
+                    "Custom agent training on your channel data",
+                    "Priority support (4-12h response)",
+                    "Advanced automation & scheduled reports",
+                    "Team collaboration (3 members)",
+                    "Custom dashboard layouts",
+                    "API access for integrations"
                 ],
                 "limits": {
-                    "ai_requests": -1,  # unlimited
-                    "video_analysis": -1
-                }
+                    "ai_conversations": -1,
+                    "agents_count": 5,
+                    "content_pillars": -1,
+                    "goals": -1,
+                    "competitors": -1,
+                    "team_members": 3
+                },
+                "trial_days": 5
+            },
+            {
+                "id": "enterprise",
+                "name": "Enterprise",
+                "description": "For agencies and top-tier creators",
+                "price_monthly": 149,
+                "price_yearly": 1490,
+                "features": [
+                    "White-label options",
+                    "Unlimited team members",
+                    "Multi-channel management (up to 10 channels)",
+                    "Dedicated account manager",
+                    "Custom AI agent development",
+                    "24/7 phone & chat support",
+                    "Custom reporting & analytics"
+                ],
+                "limits": {
+                    "ai_conversations": -1,
+                    "agents_count": 5,
+                    "content_pillars": -1,
+                    "goals": -1,
+                    "competitors": -1,
+                    "team_members": -1
+                },
+                "trial_days": 5
             }
         ]
         
@@ -75,8 +149,8 @@ async def get_current_subscription(current_user: Dict = Depends(get_current_user
         # TODO: Query Supabase for user's current subscription
         # For now, return mock data
         subscription = {
-            "id": "free",
-            "name": "Free Plan",
+            "id": "growth",
+            "name": "Growth",
             "status": "active",
             "current_period_start": "2024-01-01T00:00:00Z",
             "current_period_end": "2024-02-01T00:00:00Z",
@@ -98,8 +172,11 @@ async def get_usage_stats(current_user: Dict = Depends(get_current_user)):
         # TODO: Query Supabase usage_tracking table
         # For now, return mock data
         usage = {
-            "ai_requests": 47,
-            "video_analysis": 2,
+            "ai_conversations": 23,
+            "agents_count": 3,
+            "content_pillars": 7,
+            "goals": 2,
+            "competitors": 1,
             "period_start": "2024-01-01T00:00:00Z",
             "period_end": "2024-02-01T00:00:00Z"
         }

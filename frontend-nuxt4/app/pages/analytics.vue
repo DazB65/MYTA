@@ -1,5 +1,5 @@
 <template>
-  <div class="min-h-screen bg-gray-900 text-white">
+  <div class="min-h-screen bg-forest-900 text-white">
     <!-- Analytics Dashboard -->
     <div class="pt-24 px-6">
       <div class="max-w-7xl mx-auto">
@@ -39,7 +39,7 @@
         <!-- Additional Analytics Sections -->
         <div v-if="hasData" class="mt-12 space-y-8">
           <!-- Charts Dashboard -->
-          <div class="bg-gray-800 rounded-xl p-6">
+          <div class="bg-forest-800 rounded-xl p-6">
             <h2 class="text-xl font-semibold mb-6">Performance Charts</h2>
             <ChartsDashboard
               :analytics-data="analyticsData"
@@ -49,7 +49,7 @@
           </div>
 
           <!-- Channel Goals -->
-          <div class="bg-gray-800 rounded-xl p-6">
+          <div class="bg-forest-800 rounded-xl p-6">
             <ChannelGoals
               :subscriber-count="subscriberGrowth.current || 0"
               :view-count="totalViews"
