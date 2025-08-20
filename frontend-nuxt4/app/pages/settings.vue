@@ -268,6 +268,12 @@
                   Cancel Plan
                 </button>
                 <button
+                  class="px-6 py-2 bg-forest-600 text-white rounded-lg hover:bg-forest-500 transition-colors"
+                  @click="manageBilling"
+                >
+                  Manage Billing
+                </button>
+                <button
                   class="px-6 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-colors"
                   @click="showPlansModal = true"
                 >
@@ -532,6 +538,7 @@
 
 <script setup>
 import { useAgentSettings } from '../../composables/useAgentSettings'
+import { useSubscriptionStore } from '../../stores/subscription'
 
 // Protect this route with authentication
 definePageMeta({
@@ -546,6 +553,9 @@ const agents = allAgents
 
 // Toast notifications
 const { success, error } = useToast()
+
+// Subscription store
+const subscriptionStore = useSubscriptionStore()
 
 // Tab management
 const activeTab = ref('agent')
@@ -733,16 +743,34 @@ const selectPlan = async (planId) => {
     const selectedPlan = availablePlans.value.find(plan => plan.id === planId)
     if (!selectedPlan) return
 
-    // Mock plan selection - in real app, this would call the subscription store
-    success('Plan Selected', `You've selected the ${selectedPlan.name} plan. Redirecting to checkout...`)
+    // Use Stripe integration through subscription store
+    const result = await subscriptionStore.createCheckoutSession(planId, billingCycle.value)
 
-    // Close modal
-    showPlansModal.value = false
+    if (result.success) {
+      success('Checkout Initiated', result.message)
 
-    // In real implementation, this would redirect to payment processor
-    // await subscriptionStore.createCheckoutSession(planId, billingCycle.value)
+      // Close modal
+      showPlansModal.value = false
+
+      // In production, user would be redirected to Stripe Checkout
+      // For demo, we just show success message
+    }
   } catch (err) {
     error('Plan Selection Failed', 'Failed to select plan. Please try again.')
+  }
+}
+
+// Add billing portal function
+const manageBilling = async () => {
+  try {
+    const result = await subscriptionStore.createPortalSession()
+
+    if (result.success) {
+      success('Billing Portal', result.message)
+      // In production, user would be redirected to Stripe Customer Portal
+    }
+  } catch (err) {
+    error('Billing Portal Failed', 'Failed to access billing portal. Please try again.')
   }
 }
 </script>

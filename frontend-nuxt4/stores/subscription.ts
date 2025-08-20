@@ -54,6 +54,7 @@ export const useSubscriptionStore = defineStore('subscription', () => {
   const billingHistory = ref<BillingHistoryItem[]>([])
   const loading = ref(false)
   const error = ref<string | null>(null)
+  const stripeCustomerId = ref<string | null>(null)
 
   // Getters
   const isSubscribed = computed(() => 
@@ -166,25 +167,46 @@ export const useSubscriptionStore = defineStore('subscription', () => {
     try {
       loading.value = true
       error.value = null
-      
-      const { $api } = useNuxtApp()
-      const response = await $api('/api/subscription/checkout', {
-        method: 'POST',
-        body: {
-          plan_id: planId,
-          billing_cycle: billingCycle
-        }
-      })
-      
-      if (response.status === 'success') {
-        // Redirect to LemonSqueezy checkout
-        window.location.href = response.data.checkout_url
-      } else {
-        throw new Error(response.error || 'Failed to create checkout session')
+
+      // Use Stripe composable for checkout
+      const { mockCheckoutSession } = useStripe()
+
+      // For demo purposes, use mock checkout
+      // In production, replace with real Stripe integration
+      const result = await mockCheckoutSession(planId, billingCycle)
+
+      if (result.success) {
+        // Simulate successful subscription update
+        await fetchCurrentSubscription()
       }
+
+      return result
     } catch (err: any) {
       error.value = err.message
       console.error('Error creating checkout session:', err)
+      throw err
+    } finally {
+      loading.value = false
+    }
+  }
+
+  // Create Stripe customer portal session
+  const createPortalSession = async () => {
+    try {
+      loading.value = true
+      error.value = null
+
+      const { mockPortalSession } = useStripe()
+
+      // For demo purposes, use mock portal
+      // In production, replace with real Stripe portal
+      const result = await mockPortalSession()
+
+      return result
+    } catch (err: any) {
+      error.value = err.message
+      console.error('Error creating portal session:', err)
+      throw err
     } finally {
       loading.value = false
     }
@@ -264,6 +286,7 @@ export const useSubscriptionStore = defineStore('subscription', () => {
     fetchUsage,
     fetchBillingHistory,
     createCheckoutSession,
+    createPortalSession,
     cancelSubscription,
     trackUsage,
     initializeSubscription
