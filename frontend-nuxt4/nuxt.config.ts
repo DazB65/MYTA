@@ -42,7 +42,6 @@ export default defineNuxtConfig({
             ],
             performance: [
               '@root/components/performance/DeferredComponent.vue',
-              '@root/components/performance/PerformanceMonitor.vue',
             ],
           },
         },
