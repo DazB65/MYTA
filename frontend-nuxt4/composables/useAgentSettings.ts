@@ -19,7 +19,7 @@ const agentsData: AgentData[] = [
   {
     id: 1,
     name: 'Agent 1',
-    image: '/Agent1.png',
+    image: '/optimized/Agent1.jpg',
     color: '#f97316',
     description: 'AI Content Creator',
     personality: 'Professional & Analytical',
@@ -27,7 +27,7 @@ const agentsData: AgentData[] = [
   {
     id: 2,
     name: 'Levi',
-    image: '/Agent2.png',
+    image: '/optimized/Agent2.jpg',
     color: '#FFEAA7',
     description: 'Professional & Analytical',
     personality: 'Innovative & Artistic',
@@ -35,7 +35,7 @@ const agentsData: AgentData[] = [
   {
     id: 3,
     name: 'Agent 3',
-    image: '/Agent3.png',
+    image: '/optimized/Agent3.jpg',
     color: '#16a34a',
     description: 'Analytics Expert',
     personality: 'Detail-Oriented & Insightful',
@@ -43,7 +43,7 @@ const agentsData: AgentData[] = [
   {
     id: 4,
     name: 'Agent 4',
-    image: '/Agent4.png',
+    image: '/optimized/Agent4.jpg',
     color: '#ea580c',
     description: 'Creative Assistant',
     personality: 'Innovative & Artistic',
@@ -51,7 +51,7 @@ const agentsData: AgentData[] = [
   {
     id: 5,
     name: 'Agent 5',
-    image: '/Agent5.png',
+    image: '/optimized/Agent5.jpg',
     color: '#dc2626',
     description: 'Strategy Advisor',
     personality: 'Visionary & Strategic',

@@ -127,7 +127,7 @@
               <div class="mb-6 flex items-center space-x-3">
                 <div class="flex h-10 w-10 items-center justify-center rounded-lg overflow-hidden" style="background-color: #FFEAA720;">
                   <img
-                    src="/Agent2.png"
+                    src="/optimized/Agent2.jpg"
                     alt="Levi"
                     class="h-full w-full object-cover rounded-lg"
                   />
@@ -443,7 +443,7 @@ const agents = [
   {
     id: 1,
     name: 'Agent 1',
-    image: '/Agent1.png',
+    image: '/optimized/Agent1.jpg',
     color: '#ea580c', // Orange
     description: 'AI Content Creator',
     personality: 'Professional & Analytical',
@@ -451,7 +451,7 @@ const agents = [
   {
     id: 2,
     name: 'Agent 2',
-    image: '/Agent2.png',
+    image: '/optimized/Agent2.jpg',
     color: '#eab308', // Yellow
     description: 'Marketing Specialist',
     personality: 'Strategic & Data-Driven',
@@ -459,7 +459,7 @@ const agents = [
   {
     id: 3,
     name: 'Agent 3',
-    image: '/Agent3.png',
+    image: '/optimized/Agent3.jpg',
     color: '#16a34a', // Green
     description: 'Analytics Expert',
     personality: 'Detail-Oriented & Insightful',
@@ -467,7 +467,7 @@ const agents = [
   {
     id: 4,
     name: 'Agent 4',
-    image: '/Agent4.png',
+    image: '/optimized/Agent4.jpg',
     color: '#ea580c', // Orange
     description: 'Creative Assistant',
     personality: 'Innovative & Artistic',
@@ -475,7 +475,7 @@ const agents = [
   {
     id: 5,
     name: 'Agent 5',
-    image: '/Agent5.png',
+    image: '/optimized/Agent5.jpg',
     color: '#dc2626', // Red/Pink
     description: 'Strategy Advisor',
     personality: 'Visionary & Strategic',

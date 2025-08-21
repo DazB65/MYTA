@@ -386,7 +386,7 @@ const agents = [
   {
     id: 1,
     name: 'Agent 1',
-    image: '/Agent1.png',
+    image: '/optimized/Agent1.jpg',
     color: 'bg-orange-600',
     description: 'AI Content Creator',
     personality: 'Professional & Analytical',
@@ -394,7 +394,7 @@ const agents = [
   {
     id: 2,
     name: 'Agent 2',
-    image: '/Agent2.png',
+    image: '/optimized/Agent2.jpg',
     color: 'bg-yellow-600',
     description: 'Marketing Specialist',
     personality: 'Strategic & Data-Driven',
@@ -402,7 +402,7 @@ const agents = [
   {
     id: 3,
     name: 'Agent 3',
-    image: '/Agent3.png',
+    image: '/optimized/Agent3.jpg',
     color: 'bg-green-600',
     description: 'Analytics Expert',
     personality: 'Detail-Oriented & Insightful',
@@ -410,7 +410,7 @@ const agents = [
   {
     id: 4,
     name: 'Agent 4',
-    image: '/Agent4.png',
+    image: '/optimized/Agent4.jpg',
     color: 'bg-orange-600',
     description: 'Creative Assistant',
     personality: 'Innovative & Artistic',
@@ -418,7 +418,7 @@ const agents = [
   {
     id: 5,
     name: 'Agent 5',
-    image: '/Agent5.png',
+    image: '/optimized/Agent5.jpg',
     color: 'bg-pink-600',
     description: 'Strategy Advisor',
     personality: 'Visionary & Strategic',

@@ -28,7 +28,7 @@ export const useAgentsStore = defineStore('agents', () => {
       ],
       description:
         'AI Content Creator - Professional & Analytical specialist for content optimization',
-      avatar: '/Agent1.png',
+      avatar: '/optimized/Agent1.jpg',
       color: '#ea580c', // Orange
       personality: 'Professional & Analytical',
       specialization: 'Content Creation & Analysis',
@@ -45,7 +45,7 @@ export const useAgentsStore = defineStore('agents', () => {
         'sentiment_analysis',
       ],
       description: 'Marketing Specialist - Strategic & Data-Driven expert for audience insights',
-      avatar: '/Agent2.png',
+      avatar: '/optimized/Agent2.jpg',
       color: '#eab308', // Yellow
       personality: 'Strategic & Data-Driven',
       specialization: 'Marketing & Audience Analysis',
@@ -63,7 +63,7 @@ export const useAgentsStore = defineStore('agents', () => {
       ],
       description:
         'Analytics Expert - Detail-Oriented & Insightful specialist for SEO optimization',
-      avatar: '/Agent3.png',
+      avatar: '/optimized/Agent3.jpg',
       color: '#059669', // Green
       personality: 'Detail-Oriented & Insightful',
       specialization: 'SEO & Discoverability',
@@ -75,7 +75,7 @@ export const useAgentsStore = defineStore('agents', () => {
       status: 'online',
       capabilities: ['competitor_tracking', 'market_trends', 'benchmarking', 'creative_analysis'],
       description: 'Creative Assistant - Innovative & Artistic specialist for competitive analysis',
-      avatar: '/Agent4.png',
+      avatar: '/optimized/Agent4.jpg',
       color: '#ea580c', // Orange
       personality: 'Innovative & Artistic',
       specialization: 'Creative Strategy & Competition',
@@ -92,7 +92,7 @@ export const useAgentsStore = defineStore('agents', () => {
         'growth_strategy',
       ],
       description: 'Strategy Advisor - Visionary & Strategic specialist for monetization',
-      avatar: '/Agent5.png',
+      avatar: '/optimized/Agent5.jpg',
       color: '#db2777', // Pink
       personality: 'Visionary & Strategic',
       specialization: 'Monetization & Growth',

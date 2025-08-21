@@ -467,7 +467,7 @@ const agents = [
   {
     id: 1,
     name: 'Agent 1',
-    image: '/Agent1.png',
+    image: '/optimized/Agent1.jpg',
     color: '#ea580c', // Orange
     description: 'AI Content Creator',
     personality: 'Professional & Analytical',
@@ -475,7 +475,7 @@ const agents = [
   {
     id: 2,
     name: 'Levi',
-    image: '/Agent2.png',
+    image: '/optimized/Agent2.jpg',
     color: '#FFEAA7', // Yellow
     description: 'Professional & Analytical',
     personality: 'Innovative & Artistic',
@@ -483,7 +483,7 @@ const agents = [
   {
     id: 3,
     name: 'Agent 3',
-    image: '/Agent3.png',
+    image: '/optimized/Agent3.jpg',
     color: '#16a34a', // Green
     description: 'Analytics Expert',
     personality: 'Detail-Oriented & Insightful',
@@ -491,7 +491,7 @@ const agents = [
   {
     id: 4,
     name: 'Agent 4',
-    image: '/Agent4.png',
+    image: '/optimized/Agent4.jpg',
     color: '#ea580c', // Orange
     description: 'Creative Assistant',
     personality: 'Innovative & Artistic',
@@ -499,7 +499,7 @@ const agents = [
   {
     id: 5,
     name: 'Agent 5',
-    image: '/Agent5.png',
+    image: '/optimized/Agent5.jpg',
     color: '#dc2626', // Red/Pink
     description: 'Strategy Advisor',
     personality: 'Visionary & Strategic',

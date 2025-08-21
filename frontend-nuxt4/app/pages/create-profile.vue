@@ -236,35 +236,35 @@ const agents = ref([
     id: 1,
     name: 'Agent 1',
     description: 'Content Creation',
-    image: '/Agent1.png',
+    image: '/optimized/Agent1.jpg',
     color: '#4ECDC4'
   },
   {
     id: 2,
     name: 'Agent 2',
     description: 'Data & Insights',
-    image: '/Agent2.png',
+    image: '/optimized/Agent2.jpg',
     color: '#FFEAA7'
   },
   {
     id: 3,
     name: 'Agent 3',
     description: 'Channel Growth',
-    image: '/Agent3.png',
+    image: '/optimized/Agent3.jpg',
     color: '#96CEB4'
   },
   {
     id: 4,
     name: 'Agent 4',
     description: 'Community Building',
-    image: '/Agent4.png',
+    image: '/optimized/Agent4.jpg',
     color: '#FFEAA7'
   },
   {
     id: 5,
     name: 'Agent 5',
     description: 'Optimization',
-    image: '/Agent5.png',
+    image: '/optimized/Agent5.jpg',
     color: '#DDA0DD'
   }
 ])

@@ -129,9 +129,13 @@
 </template>
 
 <script setup>
-import ChartsDashboard from '@root/components/analytics/ChartsDashboard.vue'
 import { useAnalytics } from '@root/composables/useAnalytics'
 import { onMounted, onUnmounted, ref } from 'vue'
+
+// Lazy load the heavy ChartsDashboard component
+const ChartsDashboard = defineAsyncComponent(() =>
+  import('@root/components/analytics/ChartsDashboard.vue')
+)
 
 // Meta for SEO
 useHead({
