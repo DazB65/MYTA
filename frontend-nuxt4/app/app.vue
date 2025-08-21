@@ -13,18 +13,24 @@
 <script setup>
 // Global app configuration
 useHead({
-  title: 'Vidalytics - Your AI Agent for Content and Growth',
+  title: 'MYTA - Your AI Agent for Content and Growth',
   meta: [
-    { name: 'description', content: 'Vidalytics helps YouTube creators grow their channels with AI-powered insights, content planning, and analytics.' },
+    { name: 'description', content: 'MYTA helps YouTube creators grow their channels with AI-powered insights, content planning, and analytics.' },
     { name: 'keywords', content: 'YouTube analytics, content creation, AI assistant, channel growth, video optimization' },
-    { property: 'og:title', content: 'Vidalytics - Your AI Agent for Content and Growth' },
+    { property: 'og:title', content: 'MYTA - Your AI Agent for Content and Growth' },
     { property: 'og:description', content: 'Grow your YouTube channel with AI-powered insights and content planning.' },
     { property: 'og:type', content: 'website' },
     { property: 'og:image', content: '/og-image.png' },
     { name: 'twitter:card', content: 'summary_large_image' },
-    { name: 'twitter:title', content: 'Vidalytics - Your AI Agent for Content and Growth' },
+    { name: 'twitter:title', content: 'MYTA - Your AI Agent for Content and Growth' },
     { name: 'twitter:description', content: 'Grow your YouTube channel with AI-powered insights and content planning.' },
     { name: 'twitter:image', content: '/og-image.png' }
+  ],
+  link: [
+    { rel: 'icon', type: 'image/x-icon', href: '/favicon.ico' },
+    { rel: 'icon', type: 'image/png', sizes: '32x32', href: '/favicon-32x32.png' },
+    { rel: 'icon', type: 'image/png', sizes: '16x16', href: '/favicon-16x16.png' },
+    { rel: 'apple-touch-icon', sizes: '180x180', href: '/favicon-32x32.png' }
   ],
   htmlAttrs: {
     lang: 'en'

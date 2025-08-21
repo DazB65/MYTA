@@ -3,8 +3,8 @@
     <!-- Action Buttons -->
     <div class="mb-6 flex items-center justify-between">
       <!-- Connect YouTube Button -->
-      <button
-        class="flex items-center space-x-2 rounded-lg bg-red-600 px-4 py-2 text-white transition-colors hover:bg-red-700"
+      <LoadingButton
+        button-class="flex items-center space-x-2 rounded-lg bg-red-600 px-4 py-2 text-white transition-colors hover:bg-red-700"
         @click="showConnectModal = true"
       >
         <svg class="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
@@ -15,7 +15,7 @@
           />
         </svg>
         <span>Connect YouTube</span>
-      </button>
+      </LoadingButton>
 
       <!-- Agent Button -->
       <button
@@ -77,6 +77,7 @@
 <script setup>
 import { ref } from 'vue'
 import YouTubeConnectModal from '../modals/YouTubeConnectModal.vue'
+import LoadingButton from '../ui/LoadingButton.vue'
 import AgentModal from './AgentModal.vue'
 
 // Component state

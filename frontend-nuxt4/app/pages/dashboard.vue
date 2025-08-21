@@ -117,9 +117,12 @@
                 High Priority
               </button>
             </div>
-            <button class="rounded-lg bg-orange-500 px-4 py-2 text-sm text-white hover:bg-orange-600" @click="showCreateModal = true">
+            <LoadingButton
+              button-class="rounded-lg bg-orange-500 px-4 py-2 text-sm text-white hover:bg-orange-600"
+              @click="showCreateModal = true"
+            >
               ➕ Add Task
-            </button>
+            </LoadingButton>
           </div>
 
           <!-- Dynamic Task List -->
@@ -285,13 +288,13 @@
 
             <!-- Quick Actions -->
             <div class="mt-6">
-              <button
-                class="w-full flex items-center justify-center space-x-2 rounded-lg bg-orange-500 p-3 text-sm text-white hover:bg-orange-600"
+              <LoadingButton
+                button-class="w-full flex items-center justify-center space-x-2 rounded-lg bg-orange-500 p-3 text-sm text-white hover:bg-orange-600"
                 @click="showCreateGoalModal = true"
               >
                 <span>➕</span>
                 <span>Add New Goal</span>
-              </button>
+              </LoadingButton>
             </div>
           </div>
 
@@ -449,6 +452,7 @@
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue'
 import NotificationBell from '../../components/dashboard/NotificationBell.vue'
+import LoadingButton from '../../components/ui/LoadingButton.vue'
 import type { ChannelGoal } from '../../stores/analytics'
 import { useAnalyticsStore } from '../../stores/analytics'
 import { useTasksStore } from '../../stores/tasks'
