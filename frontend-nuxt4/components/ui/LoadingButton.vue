@@ -70,17 +70,27 @@ const isLoading = ref(false)
 
 const handleClick = async (event) => {
   if (props.loading || isLoading.value) return
-  
-  // Show loading state
-  isLoading.value = true
-  
-  // Emit click event
-  emit('click', event)
-  
-  // Auto-hide loading after duration (for demo purposes)
-  setTimeout(() => {
+
+  try {
+    // Show loading state
+    isLoading.value = true
+
+    // Emit click event
+    emit('click', event)
+
+    // Auto-hide loading after duration (for demo purposes)
+    setTimeout(() => {
+      isLoading.value = false
+    }, props.loadingDuration)
+  } catch (error) {
+    // Ensure loading state is cleared on error
     isLoading.value = false
-  }, props.loadingDuration)
+    if (process.env.NODE_ENV === 'development') {
+      console.error('LoadingButton error:', error)
+    }
+    // Re-throw error for parent component to handle
+    throw error
+  }
 }
 
 // Computed loading state

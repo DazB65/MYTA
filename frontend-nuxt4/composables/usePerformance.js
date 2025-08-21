@@ -500,7 +500,10 @@ export const usePerformance = () => {
       const loadTime = Math.round(endTime - startTime)
       metrics.componentLoadTime = loadTime
 
-      console.log(`${componentName} loaded in ${loadTime}ms`)
+      // Performance tracking: ${componentName} loaded in ${loadTime}ms
+      if (process.env.NODE_ENV === 'development') {
+        console.log(`${componentName} loaded in ${loadTime}ms`)
+      }
     }
   }
 

@@ -7,6 +7,9 @@
 
     <!-- Toast Notifications -->
     <ToastContainer />
+
+    <!-- Global Modals -->
+    <AppModals />
   </div>
 </template>
 

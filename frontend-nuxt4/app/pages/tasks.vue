@@ -99,21 +99,63 @@
                     </button>
                   </div>
 
-                  <!-- Tasks for this day -->
+                  <!-- Tasks, Content, and Goals for this day -->
                   <div class="space-y-1">
                     <div
-                      v-for="task in getTasksForDate(day.date)"
-                      :key="task.id"
+                      v-for="item in getTasksForDate(day.date)"
+                      :key="`${item.type || 'task'}-${item.id}`"
                       :class="[
-                        'text-xs p-1 rounded truncate cursor-pointer',
-                        getPriorityColor(task.priority),
-                        task.completed ? 'opacity-50 line-through' : ''
+                        'text-xs p-1 rounded truncate cursor-pointer transition-colors',
+                        item.type === 'content' ? getContentColor() :
+                        item.type === 'goal' ? getGoalColor() :
+                        getTaskColor(),
+                        item.completed ? 'opacity-50 line-through' : ''
                       ]"
-                      @click.stop="editTask(task)"
-                      :title="task.title"
+                      @click.stop.prevent="item.type === 'content' ? openContentModal(item) : item.type === 'goal' ? openGoalModal(item) : editTask(item)"
+                      :title="item.type === 'content' ? `${item.title} (${getStageLabel(item.status)})` :
+                               item.type === 'goal' ? `Goal: ${item.title} (${Math.round((item.current / item.target) * 100)}%)` :
+                               item.title"
                     >
-                      {{ task.title }}
+                      <div class="flex items-center space-x-1">
+                        <span v-if="item.type === 'content'" class="text-xs opacity-75">
+                          {{ item.pillar?.icon || '📄' }}
+                        </span>
+                        <span v-else-if="item.type === 'goal'" class="text-xs opacity-75">
+                          {{ item.icon || '🎯' }}
+                        </span>
+                        <span v-else class="text-xs opacity-75">📋</span>
+                        <span class="truncate">{{ item.title }}</span>
+                      </div>
+                      <div v-if="item.type === 'content'" class="text-xs opacity-60 mt-0.5">
+                        {{ getStageLabel(item.status) }}
+                      </div>
+                      <div v-else-if="item.type === 'goal'" class="text-xs opacity-60 mt-0.5">
+                        {{ Math.round((item.current / item.target) * 100) }}% Complete
+                      </div>
                     </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Calendar Legend -->
+              <div class="mt-4 pt-4 border-t border-forest-700">
+                <div class="flex items-center justify-between text-xs">
+                  <div class="flex items-center space-x-6">
+                    <div class="flex items-center space-x-2">
+                      <div class="w-3 h-3 rounded bg-blue-500/20 border border-blue-500/40"></div>
+                      <span class="text-gray-400">📄 Content</span>
+                    </div>
+                    <div class="flex items-center space-x-2">
+                      <div class="w-3 h-3 rounded bg-orange-500/20 border border-orange-500/40"></div>
+                      <span class="text-gray-400">📋 Tasks</span>
+                    </div>
+                    <div class="flex items-center space-x-2">
+                      <div class="w-3 h-3 rounded bg-green-500/20 border border-green-500/40"></div>
+                      <span class="text-gray-400">🎯 Goals</span>
+                    </div>
+                  </div>
+                  <div class="text-gray-500">
+                    Unified Calendar View
                   </div>
                 </div>
               </div>
@@ -180,32 +222,63 @@
 
             <div class="space-y-3">
               <div
-                v-for="task in getTasksForDate(selectedDate)"
-                :key="task.id"
-                class="flex items-center justify-between rounded-lg bg-forest-700 p-4"
+                v-for="item in getTasksForDate(selectedDate)"
+                :key="`${item.type || 'task'}-${item.id}`"
+                :class="[
+                  'flex items-center justify-between rounded-lg p-4',
+                  item.type === 'content' ? 'bg-forest-700/50 border border-forest-600/30' :
+                  item.type === 'goal' ? 'bg-forest-700/30 border border-forest-600/20' :
+                  'bg-forest-700'
+                ]"
               >
                 <div class="flex items-center space-x-3">
+                  <!-- Different indicators for each type -->
+                  <div v-if="item.type === 'content'" :class="['w-4 h-4 rounded border-2 flex items-center justify-center', getContentColor()]">
+                    <span v-if="item.stageCompletions && item.stageCompletions[item.status]" class="text-xs">✓</span>
+                  </div>
+                  <div v-else-if="item.type === 'goal'" :class="['w-4 h-4 rounded-full border-2 flex items-center justify-center', getGoalColor()]">
+                    <span class="text-xs">🎯</span>
+                  </div>
                   <input
-                    :checked="task.completed"
-                    @change="toggleTaskCompletion(task.id)"
+                    v-else
+                    :checked="item.completed"
+                    @change="toggleTaskCompletion(item.id)"
                     type="checkbox"
                     class="h-4 w-4 rounded border-gray-300 text-orange-500 focus:ring-orange-500"
                   />
-                  <div>
-                    <h4 :class="['font-medium', task.completed ? 'line-through text-gray-500' : 'text-white']">
-                      {{ task.title }}
-                    </h4>
-                    <p class="text-sm text-gray-400">{{ task.description }}</p>
+
+                  <div class="flex-1">
+                    <div class="flex items-center space-x-2">
+                      <span v-if="item.type === 'content'" class="text-sm">{{ item.pillar?.icon || '📄' }}</span>
+                      <span v-else-if="item.type === 'goal'" class="text-sm">{{ item.icon || '🎯' }}</span>
+                      <span v-else class="text-sm">📋</span>
+                      <h4 :class="['font-medium', item.completed ? 'line-through text-gray-500' : 'text-white']">
+                        {{ item.title }}
+                      </h4>
+                    </div>
+                    <p class="text-sm text-gray-400">{{ item.description || (item.type === 'goal' ? `Target: ${item.target}` : '') }}</p>
                     <div class="flex items-center space-x-2 mt-1">
-                      <span :class="['text-xs px-2 py-1 rounded', getPriorityColor(task.priority)]">
-                        {{ formatPriority(task.priority) }}
+                      <span v-if="item.type === 'content'" :class="['text-xs px-2 py-1 rounded', getContentColor()]">
+                        {{ getStageLabel(item.status) }}
                       </span>
-                      <span class="text-xs text-gray-400">{{ formatCategory(task.category) }}</span>
+                      <span v-else-if="item.type === 'goal'" :class="['text-xs px-2 py-1 rounded', getGoalColor()]">
+                        {{ Math.round((item.current / item.target) * 100) }}% Complete
+                      </span>
+                      <span v-else :class="['text-xs px-2 py-1 rounded', getTaskColor()]">
+                        {{ formatPriority(item.priority) }}
+                      </span>
+                      <span v-if="item.type === 'task'" class="text-xs text-gray-400">{{ formatCategory(item.category) }}</span>
+                      <span v-if="item.type === 'content'" class="text-xs text-gray-400">
+                        Due: {{ getCurrentStageDueDate(item) }}
+                      </span>
+                      <span v-if="item.type === 'goal'" class="text-xs text-gray-400">
+                        Deadline: {{ new Date(item.deadline).toLocaleDateString() }}
+                      </span>
                     </div>
                   </div>
                 </div>
                 <button
-                  @click="editTask(task)"
+                  @click="item.type === 'content' ? openContentModal(item) : item.type === 'goal' ? openGoalModal(item) : editTask(item)"
                   class="text-gray-400 hover:text-white transition-colors p-2"
                 >
                   <svg class="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
@@ -390,6 +463,8 @@
 
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue'
+import { useModals } from '../../composables/useModals.js'
+import { useAnalyticsStore } from '../../stores/analytics'
 import { useTasksStore } from '../../stores/tasks'
 
 // Protect this route with authentication
@@ -426,6 +501,11 @@ useHead({
 })
 
 const tasksStore = useTasksStore()
+const analyticsStore = useAnalyticsStore()
+
+// Use modal composable
+const { openTask, openGoal, openContent } = useModals()
+console.log('🔥 Tasks page - using modal composable')
 
 // Local state
 const currentView = ref<'dashboard' | 'manager'>('dashboard')
@@ -629,7 +709,7 @@ const productivityScore = computed(() => {
 
 // Methods
 const editTask = (task: Task) => {
-  editingTask.value = task
+  openTask(task)
 }
 
 const createTaskWithCategory = (category?: TaskCategory) => {
@@ -820,15 +900,228 @@ const addTaskToSelectedDate = () => {
   }
 }
 
+// Content items data (imported from Content Studio)
+const contentItems = ref([
+  // Ideas
+  {
+    id: 1,
+    title: 'YouTube Shorts Strategy Guide',
+    description: 'Create a comprehensive guide on YouTube Shorts best practices',
+    status: 'ideas',
+    priority: 'high',
+    assignee: 'M',
+    createdAt: '2023-12-15',
+    dueDate: '2024-01-15',
+    stageDueDates: {
+      ideas: '2025-08-25',
+      planning: '2025-08-28',
+      'in-progress': '2025-09-02',
+      published: '2025-09-05'
+    },
+    stageCompletions: {
+      ideas: false,
+      planning: false,
+      'in-progress': false,
+      published: false
+    },
+    pillar: { id: 1, name: 'Marketing', icon: '📈' },
+    type: 'content'
+  },
+  {
+    id: 2,
+    title: 'AI Content Creation Tools Review',
+    description: 'Review and compare top AI tools for content creators',
+    status: 'ideas',
+    priority: 'medium',
+    assignee: 'M',
+    createdAt: '2023-12-14',
+    dueDate: '2024-01-20',
+    stageDueDates: {
+      ideas: '2025-08-26',
+      planning: '2025-08-29',
+      'in-progress': '2025-09-03',
+      published: '2025-09-06'
+    },
+    stageCompletions: {
+      ideas: false,
+      planning: false,
+      'in-progress': false,
+      published: false
+    },
+    pillar: { id: 2, name: 'Technology', icon: '💻' },
+    type: 'content'
+  },
+  // Planning
+  {
+    id: 4,
+    title: 'Content Calendar Template',
+    description: 'Design a comprehensive content calendar template',
+    status: 'planning',
+    priority: 'high',
+    assignee: 'M',
+    createdAt: '2023-12-12',
+    dueDate: '2024-01-10',
+    stageDueDates: {
+      ideas: '2025-08-20',
+      planning: '2025-08-23',
+      'in-progress': '2025-08-27',
+      published: '2025-08-30'
+    },
+    stageCompletions: {
+      ideas: true,
+      planning: false,
+      'in-progress': false,
+      published: false
+    },
+    pillar: { id: 3, name: 'Content Strategy', icon: '📝' },
+    type: 'content'
+  },
+  // In Progress
+  {
+    id: 6,
+    title: 'Video Editing Masterclass',
+    description: 'Complete tutorial series on advanced video editing',
+    status: 'in-progress',
+    priority: 'high',
+    assignee: 'M',
+    progress: 75,
+    createdAt: '2023-12-10',
+    dueDate: '2024-01-05',
+    stageDueDates: {
+      ideas: '2025-08-15',
+      planning: '2025-08-20',
+      'in-progress': '2025-08-24',
+      published: '2025-08-28'
+    },
+    stageCompletions: {
+      ideas: true,
+      planning: true,
+      'in-progress': false,
+      published: false
+    },
+    pillar: { id: 2, name: 'Technology', icon: '💻' },
+    type: 'content'
+  },
+  // Published
+  {
+    id: 8,
+    title: 'TikTok Algorithm Secrets',
+    description: 'Deep dive into how TikTok algorithm works in 2024',
+    status: 'published',
+    priority: 'high',
+    assignee: 'M',
+    publishDate: 'Dec 8, 2023',
+    createdAt: '2023-12-08',
+    dueDate: '2023-12-08',
+    stageDueDates: {
+      ideas: '2025-08-10',
+      planning: '2025-08-15',
+      'in-progress': '2025-08-20',
+      published: '2025-08-22'
+    },
+    stageCompletions: {
+      ideas: true,
+      planning: true,
+      'in-progress': true,
+      published: true
+    },
+    pillar: { id: 1, name: 'Marketing', icon: '📈' },
+    type: 'content'
+  }
+])
+
+// Function to get the current stage due date for content items
+const getCurrentStageDueDate = (item: any) => {
+  if (!item.stageDueDates || !item.status) return item.dueDate
+
+  // Find the current stage that should be worked on
+  const stageOrder = ['ideas', 'planning', 'in-progress', 'published']
+  const currentStageIndex = stageOrder.indexOf(item.status)
+
+  // If current stage is completed, move to next stage
+  if (item.stageCompletions && item.stageCompletions[item.status]) {
+    const nextStageIndex = currentStageIndex + 1
+    if (nextStageIndex < stageOrder.length) {
+      const nextStage = stageOrder[nextStageIndex]
+      return item.stageDueDates[nextStage] || item.dueDate
+    }
+  }
+
+  // Return current stage due date
+  return item.stageDueDates[item.status] || item.dueDate
+}
+
 const getTasksForDate = (date: Date) => {
-  return tasksStore.tasks.filter(task => {
+  // Get regular tasks
+  const tasks = tasksStore.tasks.filter(task => {
     const taskDate = new Date(task.dueDate)
     return (
       taskDate.getDate() === date.getDate() &&
       taskDate.getMonth() === date.getMonth() &&
       taskDate.getFullYear() === date.getFullYear()
     )
+  }).map(task => ({ ...task, type: 'task' }))
+
+  // Get content items for this date based on their current stage due date
+  const contentForDate = contentItems.value.filter(item => {
+    const itemDate = new Date(getCurrentStageDueDate(item))
+    return (
+      itemDate.getDate() === date.getDate() &&
+      itemDate.getMonth() === date.getMonth() &&
+      itemDate.getFullYear() === date.getFullYear()
+    )
   })
+
+  // Get goals for this date based on their deadline
+  const goalsForDate = analyticsStore.goals.filter(goal => {
+    const goalDate = new Date(goal.deadline)
+    return (
+      goalDate.getDate() === date.getDate() &&
+      goalDate.getMonth() === date.getMonth() &&
+      goalDate.getFullYear() === date.getFullYear()
+    )
+  }).map(goal => ({ ...goal, type: 'goal' }))
+
+  // Combine tasks, content items, and goals
+  return [...tasks, ...contentForDate, ...goalsForDate]
+}
+
+// Content-specific helper functions
+const getContentColor = () => {
+  return 'bg-blue-500/20 border border-blue-500/40 text-blue-300'
+}
+
+const getStageLabel = (status: string) => {
+  switch (status) {
+    case 'ideas':
+      return 'Ideas'
+    case 'planning':
+      return 'Planning'
+    case 'in-progress':
+      return 'In Progress'
+    case 'published':
+      return 'Published'
+    default:
+      return status
+  }
+}
+
+const openContentModal = (item: any) => {
+  openContent(item)
+}
+
+// Goal-specific helper functions
+const getGoalColor = () => {
+  return 'bg-green-500/20 border border-green-500/40 text-green-300'
+}
+
+// Task-specific helper functions
+const getTaskColor = () => {
+  return 'bg-orange-500/20 border border-orange-500/40 text-orange-300'
+}
+
+const openGoalModal = (goal: any) => {
+  openGoal(goal)
 }
 
 const formatDate = (date: Date) => {

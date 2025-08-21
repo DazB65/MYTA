@@ -242,7 +242,8 @@
               <div
                 v-for="goal in goalsWithProgress"
                 :key="goal.id"
-                class="flex items-center justify-between rounded-lg bg-forest-700 p-4 hover:bg-forest-600 transition-colors"
+                class="flex items-center justify-between rounded-lg bg-forest-700 p-4 hover:bg-forest-600 transition-colors cursor-pointer"
+                @click="openGoalModal(goal)"
               >
                 <!-- Goal Info -->
                 <div class="flex items-center space-x-3">
@@ -453,6 +454,7 @@
 import { computed, onMounted, ref } from 'vue'
 import NotificationBell from '../../components/dashboard/NotificationBell.vue'
 import LoadingButton from '../../components/ui/LoadingButton.vue'
+import { useModals } from '../../composables/useModals.js'
 import type { ChannelGoal } from '../../stores/analytics'
 import { useAnalyticsStore } from '../../stores/analytics'
 import { useTasksStore } from '../../stores/tasks'
@@ -461,6 +463,9 @@ import { useTasksStore } from '../../stores/tasks'
 definePageMeta({
   middleware: 'auth'
 })
+
+// Use modal composable
+const { openGoal } = useModals()
 
 // Agent settings state
 const selectedAgent = ref(1)
@@ -629,6 +634,11 @@ const monthlyRevenue = computed(() => {
 
 // Goals from analytics store
 const goalsWithProgress = computed(() => analyticsStore.goalsWithProgress)
+
+// Modal functions
+const openGoalModal = (goal: any) => {
+  openGoal(goal)
+}
 
 // Formatting functions for channel stats
 const formatNumber = (num: number) => {

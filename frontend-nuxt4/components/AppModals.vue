@@ -10,93 +10,60 @@
       
 
       
-      <!-- Settings Modal -->
-      <SettingsModal
-        v-if="modals.settings"
-        @close="closeModal('settings')"
+      <!-- Task Modal -->
+      <TaskModal
+        v-if="modals.task"
+        :task="taskData"
+        @close="() => modals.task = false"
+        @save="handleTaskSave"
       />
-      
-      <!-- Confirmation Modal -->
-      <ConfirmationModal
-        v-if="modals.confirmation"
-        :title="confirmationData.title"
-        :message="confirmationData.message"
-        :confirm-text="confirmationData.confirmText"
-        :cancel-text="confirmationData.cancelText"
-        :type="confirmationData.type"
-        @confirm="handleConfirmation(true)"
-        @cancel="handleConfirmation(false)"
+
+      <!-- Goal Modal -->
+      <GoalModal
+        v-if="modals.goal"
+        :goal="goalData"
+        @close="() => modals.goal = false"
+        @save="handleGoalSave"
+      />
+
+      <!-- Content Modal -->
+      <ContentModal
+        v-if="modals.content"
+        :content="contentData"
+        @close="() => modals.content = false"
+        @save="handleContentSave"
       />
     </Teleport>
   </div>
 </template>
 
 <script setup>
-import { onMounted, onUnmounted, provide, reactive } from 'vue'
+import { onMounted, onUnmounted } from 'vue'
+import { useModals } from '../composables/useModals.js'
+import GoalModal from './goals/GoalModal.vue'
+import ContentModal from './modals/ContentModal.vue'
+import TaskModal from './tasks/TaskModal.vue'
 
-// Modal state
-const modals = reactive({
-  youtubeConnect: false,
-  settings: false,
-  confirmation: false
-})
+// Debug logging
+console.log('🔥 AppModals component is loading...')
 
-// Confirmation modal data
-const confirmationData = reactive({
-  title: '',
-  message: '',
-  confirmText: 'Confirm',
-  cancelText: 'Cancel',
-  type: 'info',
-  resolve: null
-})
+// Use the modal composable
+const {
+  modals,
+  taskData,
+  goalData,
+  contentData,
+  handleTaskSave,
+  handleGoalSave,
+  handleContentSave,
+  closeAll: closeAllModals
+} = useModals()
 
-// Modal management functions
-const openModal = (modalName: string) => {
-  modals[modalName] = true
-}
 
-const closeModal = (modalName: string) => {
-  modals[modalName] = false
-}
-
-const closeAllModals = () => {
-  Object.keys(modals).forEach(key => {
-    modals[key] = false
-  })
-}
-
-// Confirmation modal helper
-const showConfirmation = (options: {
-  title: string
-  message: string
-  confirmText?: string
-  cancelText?: string
-  type?: 'info' | 'warning' | 'error' | 'success'
-}): Promise<boolean> => {
-  return new Promise((resolve) => {
-    Object.assign(confirmationData, {
-      title: options.title,
-      message: options.message,
-      confirmText: options.confirmText || 'Confirm',
-      cancelText: options.cancelText || 'Cancel',
-      type: options.type || 'info',
-      resolve
-    })
-    modals.confirmation = true
-  })
-}
-
-const handleConfirmation = (confirmed: boolean) => {
-  if (confirmationData.resolve) {
-    confirmationData.resolve(confirmed)
-  }
-  closeModal('confirmation')
-}
 
 // Keyboard shortcuts
 onMounted(() => {
-  const handleKeydown = (event: KeyboardEvent) => {
+  const handleKeydown = (event) => {
     // Close modals on Escape
     if (event.key === 'Escape') {
       closeAllModals()
@@ -110,11 +77,5 @@ onMounted(() => {
   })
 })
 
-// Provide modal functions globally
-provide('modals', {
-  open: openModal,
-  close: closeModal,
-  closeAll: closeAllModals,
-  confirm: showConfirmation
-})
+console.log('🔥 AppModals using composable - modals state:', modals)
 </script>

@@ -135,18 +135,44 @@ export const useAnalyticsStore = defineStore('analytics', () => {
 
   // Goal management actions
   const updateGoalProgress = (goalId: string, current: number) => {
-    const goal = goals.value.find(g => g.id === goalId)
-    if (goal) {
+    try {
+      if (typeof current !== 'number' || current < 0) {
+        throw new Error('Invalid current value')
+      }
+
+      const goal = goals.value.find(g => g.id === goalId)
+      if (!goal) {
+        throw new Error(`Goal with id ${goalId} not found`)
+      }
+
       goal.current = current
+    } catch (err) {
+      error.value = `Failed to update goal progress: ${err instanceof Error ? err.message : 'Unknown error'}`
+      if (process.env.NODE_ENV === 'development') {
+        console.error('Error updating goal progress:', err)
+      }
+      throw err
     }
   }
 
   const addGoal = (goalData: Omit<ChannelGoal, 'id'>) => {
-    const newGoal: ChannelGoal = {
-      ...goalData,
-      id: Date.now().toString(),
+    try {
+      if (!goalData.title || !goalData.target || !goalData.type) {
+        throw new Error('Missing required goal data')
+      }
+
+      const newGoal: ChannelGoal = {
+        ...goalData,
+        id: Date.now().toString(),
+      }
+      goals.value.push(newGoal)
+    } catch (err) {
+      error.value = `Failed to add goal: ${err instanceof Error ? err.message : 'Unknown error'}`
+      if (process.env.NODE_ENV === 'development') {
+        console.error('Error adding goal:', err)
+      }
+      throw err
     }
-    goals.value.push(newGoal)
   }
 
   const removeGoal = (goalId: string) => {

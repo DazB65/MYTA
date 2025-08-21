@@ -733,7 +733,9 @@ const removePaymentMethod = () => {
 }
 
 const downloadInvoice = (invoiceId) => {
-  console.log('downloadInvoice called for:', invoiceId)
+  if (process.env.NODE_ENV === 'development') {
+    console.log('downloadInvoice called for:', invoiceId)
+  }
 
   // Mock download functionality with reliable alert
   alert('✅ Download Started\n\nIn a real app, this would download the invoice PDF from Stripe. Your invoice download would begin automatically.')
@@ -742,7 +744,9 @@ const downloadInvoice = (invoiceId) => {
   try {
     success('Download Started', 'Your invoice is being downloaded.')
   } catch (e) {
-    console.log('Toast failed, but alert worked')
+    if (process.env.NODE_ENV === 'development') {
+      console.log('Toast failed, but alert worked')
+    }
   }
 }
 
@@ -771,7 +775,9 @@ const selectPlan = async (planId) => {
 
 // Manage billing portal function
 const manageBilling = () => {
-  console.log('manageBilling called')
+  if (process.env.NODE_ENV === 'development') {
+    console.log('manageBilling called')
+  }
 
   // Use both alert and toast for reliability
   alert('✅ Billing Portal\n\nIn a real app, this would redirect to Stripe Customer Portal where users can manage billing, update payment methods, download invoices, and cancel subscriptions.')
@@ -780,13 +786,17 @@ const manageBilling = () => {
   try {
     success('Billing Portal', 'In a real app, this would redirect to Stripe Customer Portal where users can manage billing, update payment methods, download invoices, and cancel subscriptions.')
   } catch (e) {
-    console.log('Toast failed, but alert worked')
+    if (process.env.NODE_ENV === 'development') {
+      console.log('Toast failed, but alert worked')
+    }
   }
 }
 
 // Add payment method function
 const addPaymentMethod = () => {
-  console.log('addPaymentMethod called')
+  if (process.env.NODE_ENV === 'development') {
+    console.log('addPaymentMethod called')
+  }
 
   // Use both alert and toast for reliability
   alert('✅ Payment Method\n\nIn a real app, this would open a secure form to add or update payment methods via Stripe.')
@@ -795,7 +805,9 @@ const addPaymentMethod = () => {
   try {
     success('Payment Method', 'In a real app, this would open a secure form to add or update payment methods via Stripe.')
   } catch (e) {
-    console.log('Toast failed, but alert worked')
+    if (process.env.NODE_ENV === 'development') {
+      console.log('Toast failed, but alert worked')
+    }
   }
 }
 </script>

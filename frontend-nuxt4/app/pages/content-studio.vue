@@ -70,21 +70,51 @@
                 </svg>
               </button>
             </div>
-            <div class="flex-1 space-y-3">
+            <div
+              class="flex-1 space-y-3 min-h-[200px]"
+              @dragover="onDragOver"
+              @drop="onDrop($event, 'ideas')"
+            >
               <div
                 v-for="item in getColumnItems('ideas')"
                 :key="item.id"
-                class="cursor-pointer rounded-lg bg-forest-700 p-4 transition-colors hover:bg-forest-600 w-full"
+                class="cursor-pointer rounded-lg bg-forest-700 p-4 transition-colors hover:bg-forest-600 w-full relative"
+                draggable="true"
+                @dragstart="onDragStart($event, item)"
+                @click="openEditModal(item)"
               >
                 <div class="mb-2 flex items-start justify-between">
                   <h4 class="text-sm font-medium text-white">{{ item.title }}</h4>
-                  <button class="text-gray-400 hover:text-white">
-                    <svg class="h-4 w-4" fill="currentColor" viewBox="0 0 20 20">
-                      <path
-                        d="M10 6a2 2 0 110-4 2 2 0 010 4zM10 12a2 2 0 110-4 2 2 0 010 4zM10 18a2 2 0 110-4 2 2 0 010 4z"
-                      />
-                    </svg>
-                  </button>
+                  <div class="relative">
+                    <button
+                      @click="toggleDropdown(item.id)"
+                      class="text-gray-400 hover:text-white"
+                    >
+                      <svg class="h-4 w-4" fill="currentColor" viewBox="0 0 20 20">
+                        <path
+                          d="M10 6a2 2 0 110-4 2 2 0 010 4zM10 12a2 2 0 110-4 2 2 0 010 4zM10 18a2 2 0 110-4 2 2 0 010 4z"
+                        />
+                      </svg>
+                    </button>
+                    <!-- Dropdown Menu -->
+                    <div
+                      v-if="showDropdownMenu === item.id"
+                      class="absolute right-0 top-6 z-50 w-32 rounded-md bg-forest-600 shadow-lg border border-forest-500"
+                    >
+                      <button
+                        @click.stop="openEditModal(item)"
+                        class="block w-full px-3 py-2 text-left text-sm text-gray-300 hover:bg-forest-500 hover:text-white rounded-t-md transition-colors duration-150"
+                      >
+                        Edit
+                      </button>
+                      <button
+                        @click.stop="openDeleteModal(item)"
+                        class="block w-full px-3 py-2 text-left text-sm text-red-400 hover:bg-forest-500 hover:text-red-300 rounded-b-md transition-colors duration-150"
+                      >
+                        Delete
+                      </button>
+                    </div>
+                  </div>
                 </div>
                 <p class="mb-3 text-xs text-gray-300">{{ item.description }}</p>
                 <!-- Pillar Badge -->
@@ -93,6 +123,21 @@
                     <span>{{ item.pillar.icon }}</span>
                     <span>{{ item.pillar.name }}</span>
                   </span>
+                </div>
+                <!-- Stage Due Date / Completion Status -->
+                <div v-if="item.stageDueDates && item.stageDueDates[item.status]" class="mb-3">
+                  <div v-if="item.stageCompletions && item.stageCompletions[item.status]" class="flex items-center space-x-1 text-xs text-green-400">
+                    <svg class="h-3 w-3" fill="currentColor" viewBox="0 0 20 20">
+                      <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
+                    </svg>
+                    <span>Completed</span>
+                  </div>
+                  <div v-else class="flex items-center space-x-1 text-xs text-gray-400">
+                    <svg class="h-3 w-3" fill="currentColor" viewBox="0 0 20 20">
+                      <path fill-rule="evenodd" d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z" clip-rule="evenodd" />
+                    </svg>
+                    <span>Due: {{ item.stageDueDates[item.status] }}</span>
+                  </div>
                 </div>
                 <div class="flex items-center justify-between">
                   <div class="flex items-center space-x-2">
@@ -138,22 +183,52 @@
                 </svg>
               </button>
             </div>
-            <div class="flex-1 space-y-3">
+            <div
+              class="flex-1 space-y-3 min-h-[200px]"
+              @dragover="onDragOver"
+              @drop="onDrop($event, 'planning')"
+            >
               <div
                 v-for="item in getColumnItems('planning')"
                 :key="item.id"
-                class="cursor-pointer rounded-lg bg-forest-700 p-4 transition-colors hover:bg-forest-600 w-full"
+                class="cursor-pointer rounded-lg bg-forest-700 p-4 transition-colors hover:bg-forest-600 w-full relative"
+                draggable="true"
+                @dragstart="onDragStart($event, item)"
+                @click="openEditModal(item)"
               >
                 <div class="mb-2 flex items-start justify-between">
                   <h4 class="text-sm font-medium text-white">{{ item.title }}</h4>
-                  <button class="text-gray-400 hover:text-white">
-                    <svg class="h-4 w-4" fill="currentColor" viewBox="0 0 20 20">
+                  <div class="relative">
+                    <button
+                      @click="toggleDropdown(item.id)"
+                      class="text-gray-400 hover:text-white"
+                    >
+                      <svg class="h-4 w-4" fill="currentColor" viewBox="0 0 20 20">
                       <path
                         d="M10 6a2 2 0 110-4 2 2 0 010 4zM10 12a2 2 0 110-4 2 2 0 010 4zM10 18a2 2 0 110-4 2 2 0 010 4z"
                       />
                     </svg>
                   </button>
+                  <!-- Dropdown Menu -->
+                  <div
+                    v-if="showDropdownMenu === item.id"
+                    class="absolute right-0 top-6 z-50 w-32 rounded-md bg-forest-600 shadow-lg border border-forest-500"
+                  >
+                    <button
+                      @click.stop="openEditModal(item)"
+                      class="block w-full px-3 py-2 text-left text-sm text-gray-300 hover:bg-forest-500 hover:text-white rounded-t-md transition-colors duration-150"
+                    >
+                      Edit
+                    </button>
+                    <button
+                      @click.stop="openDeleteModal(item)"
+                      class="block w-full px-3 py-2 text-left text-sm text-red-400 hover:bg-forest-500 hover:text-red-300 rounded-b-md transition-colors duration-150"
+                    >
+                      Delete
+                    </button>
+                  </div>
                 </div>
+              </div>
                 <p class="mb-3 text-xs text-gray-300">{{ item.description }}</p>
                 <!-- Pillar Badge -->
                 <div v-if="item.pillar" class="mb-3">
@@ -161,6 +236,21 @@
                     <span>{{ item.pillar.icon }}</span>
                     <span>{{ item.pillar.name }}</span>
                   </span>
+                </div>
+                <!-- Stage Due Date / Completion Status -->
+                <div v-if="item.stageDueDates && item.stageDueDates[item.status]" class="mb-3">
+                  <div v-if="item.stageCompletions && item.stageCompletions[item.status]" class="flex items-center space-x-1 text-xs text-green-400">
+                    <svg class="h-3 w-3" fill="currentColor" viewBox="0 0 20 20">
+                      <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
+                    </svg>
+                    <span>Completed</span>
+                  </div>
+                  <div v-else class="flex items-center space-x-1 text-xs text-gray-400">
+                    <svg class="h-3 w-3" fill="currentColor" viewBox="0 0 20 20">
+                      <path fill-rule="evenodd" d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z" clip-rule="evenodd" />
+                    </svg>
+                    <span>Due: {{ item.stageDueDates[item.status] }}</span>
+                  </div>
                 </div>
                 <div class="flex items-center justify-between">
                   <div class="flex items-center space-x-2">
@@ -206,21 +296,51 @@
                 </svg>
               </button>
             </div>
-            <div class="flex-1 space-y-3">
+            <div
+              class="flex-1 space-y-3 min-h-[200px]"
+              @dragover="onDragOver"
+              @drop="onDrop($event, 'in-progress')"
+            >
               <div
                 v-for="item in getColumnItems('in-progress')"
                 :key="item.id"
-                class="cursor-pointer rounded-lg bg-forest-700 p-4 transition-colors hover:bg-forest-600 w-full"
+                class="cursor-pointer rounded-lg bg-forest-700 p-4 transition-colors hover:bg-forest-600 w-full relative"
+                draggable="true"
+                @dragstart="onDragStart($event, item)"
+                @click="openEditModal(item)"
               >
                 <div class="mb-2 flex items-start justify-between">
                   <h4 class="text-sm font-medium text-white">{{ item.title }}</h4>
-                  <button class="text-gray-400 hover:text-white">
-                    <svg class="h-4 w-4" fill="currentColor" viewBox="0 0 20 20">
-                      <path
-                        d="M10 6a2 2 0 110-4 2 2 0 010 4zM10 12a2 2 0 110-4 2 2 0 010 4zM10 18a2 2 0 110-4 2 2 0 010 4z"
-                      />
-                    </svg>
-                  </button>
+                  <div class="relative">
+                    <button
+                      @click="toggleDropdown(item.id)"
+                      class="text-gray-400 hover:text-white"
+                    >
+                      <svg class="h-4 w-4" fill="currentColor" viewBox="0 0 20 20">
+                        <path
+                          d="M10 6a2 2 0 110-4 2 2 0 010 4zM10 12a2 2 0 110-4 2 2 0 010 4zM10 18a2 2 0 110-4 2 2 0 010 4z"
+                        />
+                      </svg>
+                    </button>
+                    <!-- Dropdown Menu -->
+                    <div
+                      v-if="showDropdownMenu === item.id"
+                      class="absolute right-0 top-6 z-50 w-32 rounded-md bg-forest-600 shadow-lg border border-forest-500"
+                    >
+                      <button
+                        @click.stop="openEditModal(item)"
+                        class="block w-full px-3 py-2 text-left text-sm text-gray-300 hover:bg-forest-500 hover:text-white rounded-t-md transition-colors duration-150"
+                      >
+                        Edit
+                      </button>
+                      <button
+                        @click.stop="openDeleteModal(item)"
+                        class="block w-full px-3 py-2 text-left text-sm text-red-400 hover:bg-forest-500 hover:text-red-300 rounded-b-md transition-colors duration-150"
+                      >
+                        Delete
+                      </button>
+                    </div>
+                  </div>
                 </div>
                 <p class="mb-3 text-xs text-gray-300">{{ item.description }}</p>
                 <!-- Pillar Badge -->
@@ -229,6 +349,21 @@
                     <span>{{ item.pillar.icon }}</span>
                     <span>{{ item.pillar.name }}</span>
                   </span>
+                </div>
+                <!-- Stage Due Date / Completion Status -->
+                <div v-if="item.stageDueDates && item.stageDueDates[item.status]" class="mb-3">
+                  <div v-if="item.stageCompletions && item.stageCompletions[item.status]" class="flex items-center space-x-1 text-xs text-green-400">
+                    <svg class="h-3 w-3" fill="currentColor" viewBox="0 0 20 20">
+                      <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
+                    </svg>
+                    <span>Completed</span>
+                  </div>
+                  <div v-else class="flex items-center space-x-1 text-xs text-gray-400">
+                    <svg class="h-3 w-3" fill="currentColor" viewBox="0 0 20 20">
+                      <path fill-rule="evenodd" d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z" clip-rule="evenodd" />
+                    </svg>
+                    <span>Due: {{ item.stageDueDates[item.status] }}</span>
+                  </div>
                 </div>
                 <div class="mb-2 flex items-center justify-between">
                   <div class="flex items-center space-x-2">
@@ -280,21 +415,51 @@
                 </svg>
               </button>
             </div>
-            <div class="flex-1 space-y-3">
+            <div
+              class="flex-1 space-y-3 min-h-[200px]"
+              @dragover="onDragOver"
+              @drop="onDrop($event, 'published')"
+            >
               <div
                 v-for="item in getColumnItems('published')"
                 :key="item.id"
-                class="cursor-pointer rounded-lg bg-forest-700 p-4 transition-colors hover:bg-forest-600 w-full"
+                class="cursor-pointer rounded-lg bg-forest-700 p-4 transition-colors hover:bg-forest-600 w-full relative"
+                draggable="true"
+                @dragstart="onDragStart($event, item)"
+                @click="openEditModal(item)"
               >
                 <div class="mb-2 flex items-start justify-between">
                   <h4 class="text-sm font-medium text-white">{{ item.title }}</h4>
-                  <button class="text-gray-400 hover:text-white">
-                    <svg class="h-4 w-4" fill="currentColor" viewBox="0 0 20 20">
-                      <path
-                        d="M10 6a2 2 0 110-4 2 2 0 010 4zM10 12a2 2 0 110-4 2 2 0 010 4zM10 18a2 2 0 110-4 2 2 0 010 4z"
-                      />
-                    </svg>
-                  </button>
+                  <div class="relative">
+                    <button
+                      @click="toggleDropdown(item.id)"
+                      class="text-gray-400 hover:text-white"
+                    >
+                      <svg class="h-4 w-4" fill="currentColor" viewBox="0 0 20 20">
+                        <path
+                          d="M10 6a2 2 0 110-4 2 2 0 010 4zM10 12a2 2 0 110-4 2 2 0 010 4zM10 18a2 2 0 110-4 2 2 0 010 4z"
+                        />
+                      </svg>
+                    </button>
+                    <!-- Dropdown Menu -->
+                    <div
+                      v-if="showDropdownMenu === item.id"
+                      class="absolute right-0 top-6 z-50 w-32 rounded-md bg-forest-600 shadow-lg border border-forest-500"
+                    >
+                      <button
+                        @click.stop="openEditModal(item)"
+                        class="block w-full px-3 py-2 text-left text-sm text-gray-300 hover:bg-forest-500 hover:text-white rounded-t-md transition-colors duration-150"
+                      >
+                        Edit
+                      </button>
+                      <button
+                        @click.stop="openDeleteModal(item)"
+                        class="block w-full px-3 py-2 text-left text-sm text-red-400 hover:bg-forest-500 hover:text-red-300 rounded-b-md transition-colors duration-150"
+                      >
+                        Delete
+                      </button>
+                    </div>
+                  </div>
                 </div>
                 <p class="mb-3 text-xs text-gray-300">{{ item.description }}</p>
                 <!-- Pillar Badge -->
@@ -303,6 +468,21 @@
                     <span>{{ item.pillar.icon }}</span>
                     <span>{{ item.pillar.name }}</span>
                   </span>
+                </div>
+                <!-- Stage Due Date / Completion Status -->
+                <div v-if="item.stageDueDates && item.stageDueDates[item.status]" class="mb-3">
+                  <div v-if="item.stageCompletions && item.stageCompletions[item.status]" class="flex items-center space-x-1 text-xs text-green-400">
+                    <svg class="h-3 w-3" fill="currentColor" viewBox="0 0 20 20">
+                      <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
+                    </svg>
+                    <span>Completed</span>
+                  </div>
+                  <div v-else class="flex items-center space-x-1 text-xs text-gray-400">
+                    <svg class="h-3 w-3" fill="currentColor" viewBox="0 0 20 20">
+                      <path fill-rule="evenodd" d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z" clip-rule="evenodd" />
+                    </svg>
+                    <span>Due: {{ item.stageDueDates[item.status] }}</span>
+                  </div>
                 </div>
                 <div class="flex items-center justify-between">
                   <div class="flex items-center space-x-2">
@@ -323,6 +503,8 @@
 
         </div>
       </div>
+
+
 
       <!-- Agent Content Suggestions -->
       <div class="mt-6 rounded-xl bg-forest-800 p-6">
@@ -508,6 +690,57 @@
                 <option value="high">High</option>
               </select>
             </div>
+
+            <!-- Overall Due Date -->
+            <div>
+              <label class="block text-sm font-medium text-gray-300 mb-2">Overall Due Date</label>
+              <input
+                v-model="newContent.dueDate"
+                type="date"
+                class="w-full rounded-lg bg-forest-700 border border-forest-600 px-3 py-2 text-white focus:outline-none focus:ring-2 focus:ring-orange-500"
+                :min="new Date().toISOString().split('T')[0]"
+              />
+              <p class="text-xs text-gray-400 mt-1">When the entire content should be completed</p>
+            </div>
+
+            <!-- Stage -->
+            <div>
+              <label class="block text-sm font-medium text-gray-300 mb-2">Stage</label>
+              <select
+                v-model="newContent.status"
+                class="w-full rounded-lg bg-forest-700 border border-forest-600 px-3 py-2 text-white focus:outline-none focus:ring-2 focus:ring-orange-500"
+              >
+                <option v-for="stage in workflowStages" :key="stage.value" :value="stage.value">
+                  {{ stage.label }}
+                </option>
+              </select>
+              <p class="text-xs text-gray-400 mt-1">Choose the workflow stage for this content</p>
+            </div>
+
+            <!-- Stage Due Dates -->
+            <div>
+              <label class="block text-sm font-medium text-gray-300 mb-3">Stage Due Dates & Completion</label>
+              <div class="space-y-3">
+                <div v-for="stage in workflowStages" :key="stage.value" class="flex items-center space-x-3">
+                  <div class="w-24 text-sm text-gray-400">{{ stage.label }}:</div>
+                  <input
+                    v-model="newContent.stageDueDates[stage.value]"
+                    type="date"
+                    class="flex-1 rounded-lg bg-forest-700 border border-forest-600 px-3 py-2 text-white focus:outline-none focus:ring-2 focus:ring-orange-500"
+                    :min="new Date().toISOString().split('T')[0]"
+                  />
+                  <label class="flex items-center space-x-2 text-sm text-gray-300">
+                    <input
+                      v-model="newContent.stageCompletions[stage.value]"
+                      type="checkbox"
+                      class="rounded bg-forest-700 border-forest-600 text-green-500 focus:ring-green-500 focus:ring-2"
+                    />
+                    <span>Done</span>
+                  </label>
+                </div>
+              </div>
+              <p class="text-xs text-gray-400 mt-2">Set deadlines and mark stages as completed</p>
+            </div>
           </div>
 
           <div class="flex items-center justify-end space-x-3 mt-6">
@@ -528,12 +761,187 @@
         </form>
       </div>
     </div>
+
+    <!-- Edit Content Modal -->
+    <div v-if="showEditContentModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
+      <div class="bg-forest-800 rounded-xl p-6 w-full max-w-md mx-4">
+        <div class="flex items-center justify-between mb-4">
+          <h3 class="text-lg font-semibold text-white">Edit Content</h3>
+          <button @click="showEditContentModal = false" class="text-gray-400 hover:text-white">
+            <svg class="h-6 w-6" fill="currentColor" viewBox="0 0 20 20">
+              <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd" />
+            </svg>
+          </button>
+        </div>
+
+        <form @submit.prevent="updateContent">
+          <div class="space-y-4">
+            <!-- Title -->
+            <div>
+              <label class="block text-sm font-medium text-gray-300 mb-2">Title</label>
+              <input
+                v-model="editContent.title"
+                type="text"
+                required
+                class="w-full rounded-lg bg-forest-700 border border-forest-600 px-3 py-2 text-white focus:outline-none focus:ring-2 focus:ring-orange-500"
+                placeholder="Enter content title..."
+              />
+            </div>
+
+            <!-- Description -->
+            <div>
+              <label class="block text-sm font-medium text-gray-300 mb-2">Description</label>
+              <textarea
+                v-model="editContent.description"
+                rows="3"
+                class="w-full rounded-lg bg-forest-700 border border-forest-600 px-3 py-2 text-white focus:outline-none focus:ring-2 focus:ring-orange-500"
+                placeholder="Enter content description..."
+              ></textarea>
+            </div>
+
+            <!-- Pillar Selection -->
+            <div>
+              <label class="block text-sm font-medium text-gray-300 mb-2">Content Pillar</label>
+              <select
+                v-model="editContent.pillarId"
+                class="w-full rounded-lg bg-forest-700 border border-forest-600 px-3 py-2 text-white focus:outline-none focus:ring-2 focus:ring-orange-500"
+              >
+                <option value="">Select a pillar...</option>
+                <option v-for="pillar in availablePillars" :key="pillar.id" :value="pillar.id">
+                  {{ pillar.icon }} {{ pillar.name }}
+                </option>
+              </select>
+            </div>
+
+            <!-- Priority -->
+            <div>
+              <label class="block text-sm font-medium text-gray-300 mb-2">Priority</label>
+              <select
+                v-model="editContent.priority"
+                class="w-full rounded-lg bg-forest-700 border border-forest-600 px-3 py-2 text-white focus:outline-none focus:ring-2 focus:ring-orange-500"
+              >
+                <option value="low">Low</option>
+                <option value="medium">Medium</option>
+                <option value="high">High</option>
+              </select>
+            </div>
+
+            <!-- Overall Due Date -->
+            <div>
+              <label class="block text-sm font-medium text-gray-300 mb-2">Overall Due Date</label>
+              <input
+                v-model="editContent.dueDate"
+                type="date"
+                class="w-full rounded-lg bg-forest-700 border border-forest-600 px-3 py-2 text-white focus:outline-none focus:ring-2 focus:ring-orange-500"
+                :min="new Date().toISOString().split('T')[0]"
+              />
+              <p class="text-xs text-gray-400 mt-1">When the entire content should be completed</p>
+            </div>
+
+            <!-- Stage -->
+            <div>
+              <label class="block text-sm font-medium text-gray-300 mb-2">Stage</label>
+              <select
+                v-model="editContent.status"
+                class="w-full rounded-lg bg-forest-700 border border-forest-600 px-3 py-2 text-white focus:outline-none focus:ring-2 focus:ring-orange-500"
+              >
+                <option v-for="stage in workflowStages" :key="stage.value" :value="stage.value">
+                  {{ stage.label }}
+                </option>
+              </select>
+              <p class="text-xs text-gray-400 mt-1">Move content between workflow stages</p>
+            </div>
+
+            <!-- Stage Due Dates -->
+            <div>
+              <label class="block text-sm font-medium text-gray-300 mb-3">Stage Due Dates & Completion</label>
+              <div class="space-y-3">
+                <div v-for="stage in workflowStages" :key="stage.value" class="flex items-center space-x-3">
+                  <div class="w-24 text-sm text-gray-400">{{ stage.label }}:</div>
+                  <input
+                    v-model="editContent.stageDueDates[stage.value]"
+                    type="date"
+                    class="flex-1 rounded-lg bg-forest-700 border border-forest-600 px-3 py-2 text-white focus:outline-none focus:ring-2 focus:ring-orange-500"
+                    :min="new Date().toISOString().split('T')[0]"
+                  />
+                  <label class="flex items-center space-x-2 text-sm text-gray-300">
+                    <input
+                      v-model="editContent.stageCompletions[stage.value]"
+                      type="checkbox"
+                      class="rounded bg-forest-700 border-forest-600 text-green-500 focus:ring-green-500 focus:ring-2"
+                    />
+                    <span>Done</span>
+                  </label>
+                </div>
+              </div>
+              <p class="text-xs text-gray-400 mt-2">Set deadlines and mark stages as completed</p>
+            </div>
+          </div>
+
+          <div class="flex items-center justify-end space-x-3 mt-6">
+            <button
+              type="button"
+              @click="showEditContentModal = false"
+              class="px-4 py-2 text-gray-400 hover:text-white transition-colors"
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              class="px-4 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-colors"
+            >
+              Update Content
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- Delete Confirmation Modal -->
+    <div v-if="showDeleteConfirmModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
+      <div class="bg-forest-800 rounded-xl p-6 w-full max-w-md mx-4">
+        <div class="flex items-center justify-between mb-4">
+          <h3 class="text-lg font-semibold text-white">Delete Content</h3>
+          <button @click="showDeleteConfirmModal = false" class="text-gray-400 hover:text-white">
+            <svg class="h-6 w-6" fill="currentColor" viewBox="0 0 20 20">
+              <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd" />
+            </svg>
+          </button>
+        </div>
+
+        <div class="mb-6">
+          <p class="text-gray-300">
+            Are you sure you want to delete "<span class="font-semibold text-white">{{ selectedContentItem?.title }}</span>"?
+          </p>
+          <p class="text-sm text-gray-400 mt-2">This action cannot be undone.</p>
+        </div>
+
+        <div class="flex items-center justify-end space-x-3">
+          <button
+            @click="showDeleteConfirmModal = false"
+            class="px-4 py-2 text-gray-400 hover:text-white transition-colors"
+          >
+            Cancel
+          </button>
+          <button
+            @click="deleteContent"
+            class="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors"
+          >
+            Delete
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Click outside to close dropdown -->
+    <div v-if="showDropdownMenu" @click="closeDropdown" class="fixed inset-0 z-0"></div>
   </div>
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { nextTick, ref } from 'vue'
 import { useAgentSettings } from '../../composables/useAgentSettings'
+import { useModals } from '../../composables/useModals.js'
 
 // Protect this route with authentication
 definePageMeta({
@@ -543,15 +951,88 @@ definePageMeta({
 // Agent settings
 const { selectedAgent, agentName } = useAgentSettings()
 
-// Modal state
+// Use modal composable
+const { openContent } = useModals()
+
+// Modal states
 const showCreateContentModal = ref(false)
+const showEditContentModal = ref(false)
+const showDeleteConfirmModal = ref(false)
+const selectedContentItem = ref(null)
+const showDropdownMenu = ref(null)
 
 // New content form data
 const newContent = ref({
   title: '',
   description: '',
   pillarId: '',
-  priority: 'medium'
+  priority: 'medium',
+  dueDate: '', // Overall completion date
+  status: 'ideas',
+  stageDueDates: {
+    ideas: '',
+    planning: '',
+    'in-progress': '',
+    published: ''
+  },
+  stageCompletions: {
+    ideas: false,
+    planning: false,
+    'in-progress': false,
+    published: false
+  }
+})
+
+// Edit content form data
+const editContent = ref({
+  title: '',
+  description: '',
+  pillarId: '',
+  priority: 'medium',
+  dueDate: '', // Overall completion date
+  status: 'ideas',
+  stageDueDates: {
+    ideas: '',
+    planning: '',
+    'in-progress': '',
+    published: ''
+  },
+  stageCompletions: {
+    ideas: false,
+    planning: false,
+    'in-progress': false,
+    published: false
+  }
+})
+
+// Available workflow stages
+const workflowStages = ref([
+  { value: 'ideas', label: 'Ideas', description: 'Initial content concepts' },
+  { value: 'planning', label: 'Planning', description: 'Content being planned and structured' },
+  { value: 'in-progress', label: 'In Progress', description: 'Content currently being created' },
+  { value: 'published', label: 'Published', description: 'Content that has been published' }
+])
+
+// Auto-complete previous stages when status changes
+const autoCompletePreviousStages = (currentStatus, stageCompletions) => {
+  const stageOrder = ['ideas', 'planning', 'in-progress', 'published']
+  const currentIndex = stageOrder.indexOf(currentStatus)
+
+  // Mark all previous stages as completed
+  for (let i = 0; i < currentIndex; i++) {
+    stageCompletions[stageOrder[i]] = true
+  }
+
+  return stageCompletions
+}
+
+// Watch for status changes to auto-complete previous stages
+watch(() => newContent.value.status, (newStatus) => {
+  newContent.value.stageCompletions = autoCompletePreviousStages(newStatus, { ...newContent.value.stageCompletions })
+})
+
+watch(() => editContent.value.status, (newStatus) => {
+  editContent.value.stageCompletions = autoCompletePreviousStages(newStatus, { ...editContent.value.stageCompletions })
 })
 
 // Available pillars (mock data - in real app this would come from a store/API)
@@ -574,6 +1055,20 @@ const contentItems = ref([
     priority: 'high',
     assignee: 'M',
     createdAt: '2023-12-15',
+    dueDate: '2024-01-15',
+    stageDueDates: {
+      ideas: '2024-01-05',
+      planning: '2024-01-08',
+      'in-progress': '2024-01-12',
+      published: '2024-01-15'
+    },
+    stageCompletions: {
+      ideas: false,
+      planning: false,
+      'in-progress': false,
+      published: false
+    },
+    pillar: { id: 1, name: 'Marketing', icon: '📈' }
   },
   {
     id: 2,
@@ -583,6 +1078,14 @@ const contentItems = ref([
     priority: 'medium',
     assignee: 'M',
     createdAt: '2023-12-14',
+    dueDate: '2024-01-20',
+    stageDueDates: {
+      ideas: '2024-01-08',
+      planning: '2024-01-12',
+      'in-progress': '2024-01-17',
+      published: '2024-01-20'
+    },
+    pillar: { id: 2, name: 'Technology', icon: '💻' }
   },
   {
     id: 3,
@@ -592,6 +1095,14 @@ const contentItems = ref([
     priority: 'low',
     assignee: 'M',
     createdAt: '2023-12-13',
+    dueDate: '2024-02-01',
+    stageDueDates: {
+      ideas: '2024-01-15',
+      planning: '2024-01-20',
+      'in-progress': '2024-01-28',
+      published: '2024-02-01'
+    },
+    pillar: { id: 1, name: 'Marketing', icon: '📈' }
   },
 
   // Planning
@@ -603,6 +1114,20 @@ const contentItems = ref([
     priority: 'high',
     assignee: 'M',
     createdAt: '2023-12-12',
+    dueDate: '2024-01-10',
+    stageDueDates: {
+      ideas: '2023-12-20',
+      planning: '2024-01-03',
+      'in-progress': '2024-01-08',
+      published: '2024-01-10'
+    },
+    stageCompletions: {
+      ideas: true,
+      planning: false,
+      'in-progress': false,
+      published: false
+    },
+    pillar: { id: 3, name: 'Content Strategy', icon: '📝' }
   },
   {
     id: 5,
@@ -612,6 +1137,14 @@ const contentItems = ref([
     priority: 'medium',
     assignee: 'M',
     createdAt: '2023-12-11',
+    dueDate: '2024-01-25',
+    stageDueDates: {
+      ideas: '2023-12-25',
+      planning: '2024-01-10',
+      'in-progress': '2024-01-20',
+      published: '2024-01-25'
+    },
+    pillar: { id: 4, name: 'Branding', icon: '🎨' }
   },
 
   // In Progress
@@ -624,6 +1157,20 @@ const contentItems = ref([
     assignee: 'M',
     progress: 75,
     createdAt: '2023-12-10',
+    dueDate: '2024-01-05',
+    stageDueDates: {
+      ideas: '2023-12-15',
+      planning: '2023-12-20',
+      'in-progress': '2024-01-03',
+      published: '2024-01-05'
+    },
+    stageCompletions: {
+      ideas: true,
+      planning: true,
+      'in-progress': false,
+      published: false
+    },
+    pillar: { id: 2, name: 'Technology', icon: '💻' }
   },
   {
     id: 7,
@@ -634,6 +1181,14 @@ const contentItems = ref([
     assignee: 'M',
     progress: 45,
     createdAt: '2023-12-09',
+    dueDate: '2024-01-18',
+    stageDueDates: {
+      ideas: '2023-12-20',
+      planning: '2023-12-28',
+      'in-progress': '2024-01-15',
+      published: '2024-01-18'
+    },
+    pillar: { id: 1, name: 'Marketing', icon: '📈' }
   },
 
   // Published
@@ -646,6 +1201,20 @@ const contentItems = ref([
     assignee: 'M',
     publishDate: 'Dec 8, 2023',
     createdAt: '2023-12-08',
+    dueDate: '2023-12-08',
+    stageDueDates: {
+      ideas: '2023-11-20',
+      planning: '2023-11-28',
+      'in-progress': '2023-12-05',
+      published: '2023-12-08'
+    },
+    stageCompletions: {
+      ideas: true,
+      planning: true,
+      'in-progress': true,
+      published: true
+    },
+    pillar: { id: 1, name: 'Marketing', icon: '📈' }
   },
   {
     id: 9,
@@ -656,6 +1225,14 @@ const contentItems = ref([
     assignee: 'M',
     publishDate: 'Dec 7, 2023',
     createdAt: '2023-12-07',
+    dueDate: '2023-12-07',
+    stageDueDates: {
+      ideas: '2023-11-15',
+      planning: '2023-11-25',
+      'in-progress': '2023-12-03',
+      published: '2023-12-07'
+    },
+    pillar: { id: 5, name: 'Business', icon: '💼' }
   },
   {
     id: 10,
@@ -666,47 +1243,229 @@ const contentItems = ref([
     assignee: 'M',
     publishDate: 'Dec 6, 2023',
     createdAt: '2023-12-06',
+    dueDate: '2023-12-06',
+    stageDueDates: {
+      ideas: '2023-11-10',
+      planning: '2023-11-20',
+      'in-progress': '2023-12-01',
+      published: '2023-12-06'
+    },
+    pillar: { id: 5, name: 'Analytics', icon: '📊' }
   },
 ])
 
 // Create content function
 const createContent = () => {
-  if (!newContent.value.title.trim() || !newContent.value.pillarId) {
-    return
+  try {
+    // Validate required fields
+    if (!newContent.value.title.trim()) {
+      alert('Please enter a title')
+      return
+    }
+
+    if (!newContent.value.pillarId) {
+      alert('Please select a content pillar')
+      return
+    }
+
+    // Find the selected pillar
+    const selectedPillar = availablePillars.value.find(p => p.id === newContent.value.pillarId)
+
+    // Create new content item
+    const newItem = {
+      id: Date.now(), // Simple ID generation
+      title: newContent.value.title.trim(),
+      description: newContent.value.description.trim() || 'No description provided',
+      status: newContent.value.status, // Use selected status
+      priority: newContent.value.priority,
+      assignee: 'M',
+      dueDate: newContent.value.dueDate || null,
+      stageDueDates: { ...newContent.value.stageDueDates },
+      stageCompletions: { ...newContent.value.stageCompletions },
+      createdAt: new Date().toISOString().split('T')[0],
+      pillar: selectedPillar ? {
+        id: selectedPillar.id,
+        name: selectedPillar.name,
+        icon: selectedPillar.icon
+      } : null
+    }
+
+    // Add to content items
+    contentItems.value.unshift(newItem)
+
+    // Reset form
+    newContent.value.title = ''
+    newContent.value.description = ''
+    newContent.value.pillarId = ''
+    newContent.value.priority = 'medium'
+    newContent.value.dueDate = ''
+    newContent.value.status = 'ideas'
+    newContent.value.stageDueDates = {
+      ideas: '',
+      planning: '',
+      'in-progress': '',
+      published: ''
+    }
+    newContent.value.stageCompletions = {
+      ideas: false,
+      planning: false,
+      'in-progress': false,
+      published: false
+    }
+
+    // Close modal
+    showCreateContentModal.value = false
+
+    // Show success feedback with due date info
+    const dueDateText = newItem.dueDate ? ` (Due: ${new Date(newItem.dueDate).toLocaleDateString()})` : ''
+    alert(`Created new content: "${newItem.title}"${dueDateText}`)
+  } catch (error) {
+    console.error('Error creating content:', error)
+    alert('Error creating content. Please try again.')
+  }
+}
+
+// Edit content function
+const openEditModal = (item) => {
+  // Close dropdown if open
+  if (showDropdownMenu.value !== null) {
+    showDropdownMenu.value = null
   }
 
-  // Find the selected pillar
-  const selectedPillar = availablePillars.value.find(p => p.id === newContent.value.pillarId)
+  // Use modal composable
+  openContent(item)
+}
 
-  // Create new content item
-  const newItem = {
-    id: Date.now(), // Simple ID generation
-    title: newContent.value.title.trim(),
-    description: newContent.value.description.trim() || 'No description provided',
-    status: 'ideas', // New content starts in ideas column
-    priority: newContent.value.priority,
-    assignee: 'M',
-    createdAt: new Date().toISOString().split('T')[0],
-    pillar: selectedPillar ? {
-      id: selectedPillar.id,
-      name: selectedPillar.name,
-      icon: selectedPillar.icon
-    } : null
+const updateContent = () => {
+  try {
+    if (!editContent.value.title.trim()) {
+      alert('Please enter a title')
+      return
+    }
+
+    const selectedPillar = availablePillars.value.find(p => p.id === editContent.value.pillarId)
+
+    // Update the content item
+    const itemIndex = contentItems.value.findIndex(item => item.id === selectedContentItem.value.id)
+    if (itemIndex !== -1) {
+      contentItems.value[itemIndex] = {
+        ...contentItems.value[itemIndex],
+        title: editContent.value.title.trim(),
+        description: editContent.value.description.trim() || 'No description provided',
+        priority: editContent.value.priority,
+        dueDate: editContent.value.dueDate || null,
+        status: editContent.value.status,
+        stageDueDates: { ...editContent.value.stageDueDates },
+        stageCompletions: { ...editContent.value.stageCompletions },
+        pillar: selectedPillar ? {
+          id: selectedPillar.id,
+          name: selectedPillar.name,
+          icon: selectedPillar.icon
+        } : null
+      }
+    }
+
+    // Close modal and reset
+    showEditContentModal.value = false
+    selectedContentItem.value = null
+
+    const dueDateText = editContent.value.dueDate ? ` (Due: ${new Date(editContent.value.dueDate).toLocaleDateString()})` : ''
+    alert(`Updated content: "${editContent.value.title}"${dueDateText}`)
+  } catch (error) {
+    console.error('Error updating content:', error)
+    alert('Error updating content. Please try again.')
   }
+}
 
-  // Add to content items
-  contentItems.value.unshift(newItem)
+// Delete content function
+const openDeleteModal = (item) => {
+  try {
+    console.log('🔥 openDeleteModal called with item:', item)
 
-  // Reset form
-  newContent.value = {
-    title: '',
-    description: '',
-    pillarId: '',
-    priority: 'medium'
+    // Close dropdown first
+    if (showDropdownMenu.value !== null) {
+      showDropdownMenu.value = null
+    }
+
+    // Set selected item and show modal
+    selectedContentItem.value = item
+    showDeleteConfirmModal.value = true
+
+    console.log('🔥 Delete modal state:', showDeleteConfirmModal.value)
+    console.log('🔥 Delete modal should be open now')
+  } catch (error) {
+    console.error('🔥 Error in openDeleteModal:', error)
+    console.error('🔥 Error stack:', error.stack)
+    alert('Error opening delete modal: ' + error.message)
   }
+}
 
-  // Close modal
-  showCreateContentModal.value = false
+const deleteContent = () => {
+  try {
+    const itemIndex = contentItems.value.findIndex(item => item.id === selectedContentItem.value.id)
+    if (itemIndex !== -1) {
+      const deletedTitle = contentItems.value[itemIndex].title
+      contentItems.value.splice(itemIndex, 1)
+      alert(`Deleted content: "${deletedTitle}"`)
+    }
+
+    showDeleteConfirmModal.value = false
+    selectedContentItem.value = null
+  } catch (error) {
+    console.error('Error deleting content:', error)
+    alert('Error deleting content. Please try again.')
+  }
+}
+
+// Drag and drop functions
+const onDragStart = (event, item) => {
+  event.dataTransfer.setData('text/plain', JSON.stringify({
+    id: item.id,
+    fromStatus: item.status
+  }))
+  event.dataTransfer.effectAllowed = 'move'
+}
+
+const onDragOver = (event) => {
+  event.preventDefault()
+  event.dataTransfer.dropEffect = 'move'
+}
+
+const onDrop = (event, toStatus) => {
+  event.preventDefault()
+
+  try {
+    const data = JSON.parse(event.dataTransfer.getData('text/plain'))
+    const itemIndex = contentItems.value.findIndex(item => item.id === data.id)
+
+    if (itemIndex !== -1 && data.fromStatus !== toStatus) {
+      contentItems.value[itemIndex].status = toStatus
+      console.log(`Moved content from ${data.fromStatus} to ${toStatus}`)
+    }
+  } catch (error) {
+    console.error('Error moving content:', error)
+  }
+}
+
+// Dropdown menu functions
+const toggleDropdown = async (itemId) => {
+  try {
+    console.log('toggleDropdown called with itemId:', itemId)
+    await nextTick()
+    showDropdownMenu.value = showDropdownMenu.value === itemId ? null : itemId
+    console.log('Dropdown toggled, current value:', showDropdownMenu.value)
+  } catch (error) {
+    console.error('Error in toggleDropdown:', error)
+  }
+}
+
+const closeDropdown = async () => {
+  try {
+    await nextTick()
+    showDropdownMenu.value = null
+  } catch (error) {
+    console.error('Error in closeDropdown:', error)
+  }
 }
 
 // Helper functions

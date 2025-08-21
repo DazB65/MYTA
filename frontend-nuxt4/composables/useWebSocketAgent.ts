@@ -1,7 +1,7 @@
-import { ref, onMounted, onUnmounted, watch } from 'vue'
-import type { WebSocketMessage, WSMessageType, ChatMessage, AgentStatus } from '../types/agents'
+import { onMounted, onUnmounted, ref, watch } from 'vue'
 import { useAgentsStore } from '../stores/agents'
 import { useChatStore } from '../stores/chat'
+import type { AgentStatus, ChatMessage, WebSocketMessage, WSMessageType } from '../types/agents'
 
 export const useWebSocketAgent = () => {
   const agentsStore = useAgentsStore()
@@ -21,7 +21,9 @@ export const useWebSocketAgent = () => {
       ws.value = new WebSocket(wsUrl)
 
       ws.value.onopen = () => {
-        console.log('WebSocket connected to agent system')
+        if (process.env.NODE_ENV === 'development') {
+          console.log('WebSocket connected to agent system')
+        }
         isConnected.value = true
         reconnectAttempts.value = 0
         reconnectDelay.value = 1000
@@ -47,7 +49,9 @@ export const useWebSocketAgent = () => {
       }
 
       ws.value.onclose = () => {
-        console.log('WebSocket disconnected from agent system')
+        if (process.env.NODE_ENV === 'development') {
+          console.log('WebSocket disconnected from agent system')
+        }
         isConnected.value = false
         agentsStore.updateConnectionStatus(false)
         chatStore.updateConnectionStatus(false)
@@ -124,7 +128,9 @@ export const useWebSocketAgent = () => {
         break
       
       default:
-        console.log('Unknown message type:', message.type)
+        if (process.env.NODE_ENV === 'development') {
+          console.log('Unknown message type:', message.type)
+        }
     }
   }
 
@@ -151,7 +157,9 @@ export const useWebSocketAgent = () => {
   }
 
   const handleAnalysisComplete = (payload: any) => {
-    console.log('Analysis complete:', payload)
+    if (process.env.NODE_ENV === 'development') {
+      console.log('Analysis complete:', payload)
+    }
     // Handle analysis completion
   }
 

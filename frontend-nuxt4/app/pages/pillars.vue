@@ -15,6 +15,7 @@
           <div class="text-sm text-gray-400">Last 30 days</div>
           <button
             class="flex items-center space-x-2 rounded-lg bg-orange-500 px-4 py-2 text-white transition-colors hover:bg-orange-600"
+            @click="addPillar"
           >
             <svg class="h-4 w-4" fill="currentColor" viewBox="0 0 20 20">
               <path
@@ -125,8 +126,16 @@
           <div class="flex items-center justify-between">
             <div class="text-sm text-gray-400">Top performing content pillar</div>
             <div class="flex space-x-2">
-              <button class="px-3 py-1 text-sm text-gray-300 hover:text-white">View Details</button>
-              <button class="rounded bg-orange-500 px-3 py-1 text-sm text-white hover:bg-orange-600">
+              <button
+                class="px-3 py-1 text-sm text-gray-300 hover:text-white"
+                @click="viewPillarDetails(pillars[0])"
+              >
+                View Details
+              </button>
+              <button
+                class="rounded bg-orange-500 px-3 py-1 text-sm text-white hover:bg-orange-600"
+                @click="createContent(pillars[0])"
+              >
                 Create Content
               </button>
             </div>
@@ -230,9 +239,15 @@
           <div class="flex items-center justify-between">
             <div class="text-sm text-gray-400">Consistent growth in audience retention</div>
             <div class="flex space-x-2">
-              <button class="px-3 py-1 text-sm text-gray-300 hover:text-white">View Details</button>
+              <button
+                class="px-3 py-1 text-sm text-gray-300 hover:text-white"
+                @click="viewPillarDetails(pillars[1])"
+              >
+                View Details
+              </button>
               <button
                 class="rounded bg-orange-500 px-3 py-1 text-sm text-white hover:bg-orange-600"
+                @click="createContent(pillars[1])"
               >
                 Create Content
               </button>
@@ -480,7 +495,10 @@
             >
               Dismiss
             </button>
-            <button class="rounded bg-orange-500 px-3 py-1 text-sm text-white hover:bg-orange-600">
+            <button
+              class="rounded bg-orange-500 px-3 py-1 text-sm text-white hover:bg-orange-600"
+              @click="createPillarFromSuggestion({ title: 'Metaverse Coverage', description: 'Content about metaverse gaming and virtual worlds' })"
+            >
               Create Pillar
             </button>
           </div>
@@ -492,9 +510,258 @@
       </div>
     </div>
   </div>
+
+  <!-- Add Pillar Modal -->
+  <div v-if="showAddPillarModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
+    <div class="w-full max-w-md rounded-lg bg-forest-800 p-6">
+      <div class="mb-4 flex items-center justify-between">
+        <h3 class="text-lg font-semibold text-white">Add New Pillar</h3>
+        <button @click="showAddPillarModal = false" class="text-gray-400 hover:text-white">
+          <svg class="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
+            <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd" />
+          </svg>
+        </button>
+      </div>
+
+      <form @submit.prevent="savePillar({ name: newPillarName, description: newPillarDescription })">
+        <div class="mb-4">
+          <label class="block text-sm font-medium text-gray-300 mb-2">Pillar Name</label>
+          <input
+            v-model="newPillarName"
+            type="text"
+            class="w-full rounded-lg bg-forest-700 border border-gray-600 px-3 py-2 text-white placeholder-gray-400 focus:border-orange-500 focus:outline-none"
+            placeholder="Enter pillar name..."
+            required
+          />
+        </div>
+
+        <div class="mb-6">
+          <label class="block text-sm font-medium text-gray-300 mb-2">Description</label>
+          <textarea
+            v-model="newPillarDescription"
+            class="w-full rounded-lg bg-forest-700 border border-gray-600 px-3 py-2 text-white placeholder-gray-400 focus:border-orange-500 focus:outline-none"
+            placeholder="Enter pillar description..."
+            rows="3"
+            required
+          ></textarea>
+        </div>
+
+        <div class="flex space-x-3">
+          <button
+            type="button"
+            @click="showAddPillarModal = false"
+            class="flex-1 rounded-lg border border-gray-600 px-4 py-2 text-gray-300 hover:text-white"
+          >
+            Cancel
+          </button>
+          <button
+            type="submit"
+            class="flex-1 rounded-lg bg-orange-500 px-4 py-2 text-white hover:bg-orange-600"
+          >
+            Create Pillar
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Pillar Details Modal -->
+  <div v-if="showPillarDetailsModal && selectedPillar" class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
+    <div class="w-full max-w-2xl rounded-lg bg-forest-800 p-6">
+      <div class="mb-4 flex items-center justify-between">
+        <h3 class="text-lg font-semibold text-white">{{ selectedPillar.name }} Details</h3>
+        <button @click="showPillarDetailsModal = false" class="text-gray-400 hover:text-white">
+          <svg class="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
+            <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd" />
+          </svg>
+        </button>
+      </div>
+
+      <div class="space-y-4">
+        <div>
+          <h4 class="text-sm font-medium text-gray-300 mb-2">Description</h4>
+          <p class="text-white">{{ selectedPillar.description }}</p>
+        </div>
+
+        <div class="grid grid-cols-2 gap-4">
+          <div>
+            <h4 class="text-sm font-medium text-gray-300 mb-2">Videos</h4>
+            <p class="text-white">{{ selectedPillar.videos }}</p>
+          </div>
+          <div>
+            <h4 class="text-sm font-medium text-gray-300 mb-2">Created</h4>
+            <p class="text-white">{{ selectedPillar.created }}</p>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-3 gap-4">
+          <div>
+            <h4 class="text-sm font-medium text-gray-300 mb-2">Revenue</h4>
+            <p class="text-white">{{ selectedPillar.revenue }}</p>
+            <p class="text-sm text-green-400">{{ selectedPillar.revenueChange }}</p>
+          </div>
+          <div>
+            <h4 class="text-sm font-medium text-gray-300 mb-2">Watch Time</h4>
+            <p class="text-white">{{ selectedPillar.watchTime }}</p>
+            <p class="text-sm text-green-400">{{ selectedPillar.watchTimeChange }}</p>
+          </div>
+          <div>
+            <h4 class="text-sm font-medium text-gray-300 mb-2">Subscribers</h4>
+            <p class="text-white">{{ selectedPillar.subscribers }}</p>
+            <p class="text-sm text-green-400">{{ selectedPillar.subscribersChange }}</p>
+          </div>
+        </div>
+
+        <div class="flex space-x-3 pt-4">
+          <button
+            @click="showPillarDetailsModal = false"
+            class="flex-1 rounded-lg border border-gray-600 px-4 py-2 text-gray-300 hover:text-white"
+          >
+            Close
+          </button>
+          <button
+            @click="createContent(selectedPillar); showPillarDetailsModal = false"
+            class="flex-1 rounded-lg bg-orange-500 px-4 py-2 text-white hover:bg-orange-600"
+          >
+            Create Content
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Create Content Modal -->
+  <div v-if="showCreateContentModal && selectedPillar" class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
+    <div class="w-full max-w-md rounded-xl bg-forest-800 p-6 mx-4">
+      <div class="mb-4 flex items-center justify-between">
+        <h3 class="text-lg font-semibold text-white">Create Content for {{ selectedPillar.name }}</h3>
+        <button @click="showCreateContentModal = false" class="text-gray-400 hover:text-white">
+          <svg class="h-6 w-6" fill="currentColor" viewBox="0 0 20 20">
+            <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"/>
+          </svg>
+        </button>
+      </div>
+
+      <form @submit.prevent="saveContent">
+        <div class="space-y-4">
+          <!-- Title -->
+          <div>
+            <label class="block text-sm font-medium text-gray-300 mb-2">Title</label>
+            <input
+              v-model="newContent.title"
+              type="text"
+              required
+              class="w-full rounded-lg bg-forest-700 border border-forest-600 px-3 py-2 text-white focus:outline-none focus:ring-2 focus:ring-orange-500"
+              placeholder="Enter content title..."
+            />
+          </div>
+
+          <!-- Description -->
+          <div>
+            <label class="block text-sm font-medium text-gray-300 mb-2">Description</label>
+            <textarea
+              v-model="newContent.description"
+              rows="3"
+              class="w-full rounded-lg bg-forest-700 border border-forest-600 px-3 py-2 text-white focus:outline-none focus:ring-2 focus:ring-orange-500"
+              placeholder="Enter content description..."
+            ></textarea>
+          </div>
+
+          <!-- Pillar (Pre-filled and disabled) -->
+          <div>
+            <label class="block text-sm font-medium text-gray-300 mb-2">Content Pillar</label>
+            <div class="w-full rounded-lg bg-forest-700 border border-forest-600 px-3 py-2 text-gray-400">
+              🎮 {{ selectedPillar.name }}
+            </div>
+          </div>
+
+          <!-- Priority -->
+          <div>
+            <label class="block text-sm font-medium text-gray-300 mb-2">Priority</label>
+            <select
+              v-model="newContent.priority"
+              class="w-full rounded-lg bg-forest-700 border border-forest-600 px-3 py-2 text-white focus:outline-none focus:ring-2 focus:ring-orange-500"
+            >
+              <option value="low">Low</option>
+              <option value="medium">Medium</option>
+              <option value="high">High</option>
+            </select>
+          </div>
+
+          <!-- Overall Due Date -->
+          <div>
+            <label class="block text-sm font-medium text-gray-300 mb-2">Overall Due Date</label>
+            <input
+              v-model="newContent.dueDate"
+              type="date"
+              class="w-full rounded-lg bg-forest-700 border border-forest-600 px-3 py-2 text-white focus:outline-none focus:ring-2 focus:ring-orange-500"
+              :min="new Date().toISOString().split('T')[0]"
+            />
+            <p class="text-xs text-gray-400 mt-1">When the entire content should be completed</p>
+          </div>
+
+          <!-- Stage -->
+          <div>
+            <label class="block text-sm font-medium text-gray-300 mb-2">Stage</label>
+            <select
+              v-model="newContent.status"
+              class="w-full rounded-lg bg-forest-700 border border-forest-600 px-3 py-2 text-white focus:outline-none focus:ring-2 focus:ring-orange-500"
+            >
+              <option v-for="stage in workflowStages" :key="stage.value" :value="stage.value">
+                {{ stage.label }}
+              </option>
+            </select>
+            <p class="text-xs text-gray-400 mt-1">Choose the workflow stage for this content</p>
+          </div>
+
+          <!-- Stage Due Dates -->
+          <div>
+            <label class="block text-sm font-medium text-gray-300 mb-3">Stage Due Dates & Completion</label>
+            <div class="space-y-3">
+              <div v-for="stage in workflowStages" :key="stage.value" class="flex items-center space-x-3">
+                <div class="w-24 text-sm text-gray-400">{{ stage.label }}:</div>
+                <input
+                  v-model="newContent.stageDueDates[stage.value]"
+                  type="date"
+                  class="flex-1 rounded-lg bg-forest-700 border border-forest-600 px-3 py-2 text-white focus:outline-none focus:ring-2 focus:ring-orange-500"
+                  :min="new Date().toISOString().split('T')[0]"
+                />
+                <label class="flex items-center space-x-2 text-sm text-gray-300">
+                  <input
+                    v-model="newContent.stageCompletions[stage.value]"
+                    type="checkbox"
+                    class="rounded bg-forest-700 border-forest-600 text-green-500 focus:ring-green-500 focus:ring-2"
+                  />
+                  <span>Done</span>
+                </label>
+              </div>
+            </div>
+            <p class="text-xs text-gray-400 mt-2">Set deadlines and mark stages as completed</p>
+          </div>
+        </div>
+
+        <div class="flex items-center justify-end space-x-3 mt-6">
+          <button
+            type="button"
+            @click="showCreateContentModal = false"
+            class="px-4 py-2 text-gray-400 hover:text-white transition-colors"
+          >
+            Cancel
+          </button>
+          <button
+            type="submit"
+            class="px-4 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-colors"
+          >
+            Create Content
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
 </template>
 
 <script setup>
+import { ref } from 'vue';
 import { useAgentSettings } from '../../composables/useAgentSettings';
 
 // Protect this route with authentication
@@ -505,8 +772,218 @@ definePageMeta({
 // Agent settings
 const { selectedAgent, agentName } = useAgentSettings()
 
-// Agent data is now handled by the composable
+// Modal states
+const showAddPillarModal = ref(false)
+const showPillarDetailsModal = ref(false)
+const showCreateContentModal = ref(false)
+const selectedPillar = ref(null)
+
+// Form data
+const newPillarName = ref('')
+const newPillarDescription = ref('')
+
+// Content creation form data
+const newContent = ref({
+  title: '',
+  description: '',
+  pillarId: '',
+  priority: 'medium',
+  dueDate: '', // Overall completion date
+  status: 'ideas',
+  stageDueDates: {
+    ideas: '',
+    planning: '',
+    'in-progress': '',
+    published: ''
+  },
+  stageCompletions: {
+    ideas: false,
+    planning: false,
+    'in-progress': false,
+    published: false
+  }
+})
+
+// Available workflow stages
+const workflowStages = ref([
+  { value: 'ideas', label: 'Ideas', description: 'Initial content concepts' },
+  { value: 'planning', label: 'Planning', description: 'Content being planned and structured' },
+  { value: 'in-progress', label: 'In Progress', description: 'Content currently being created' },
+  { value: 'published', label: 'Published', description: 'Content that has been published' }
+])
+
+// Available priorities for content creation
+const availablePriorities = ref([
+  { value: 'low', label: 'Low' },
+  { value: 'medium', label: 'Medium' },
+  { value: 'high', label: 'High' }
+])
+
+// Pillar data
+const pillars = ref([
+  {
+    id: 1,
+    name: 'Game Development',
+    description: 'Tutorials and insights on game development',
+    videos: 3,
+    created: '4 months ago',
+    revenue: '248.3K',
+    revenueChange: '+12.5%',
+    watchTime: '14.2K hrs',
+    watchTimeChange: '+8.2%',
+    subscribers: '93,842',
+    subscribersChange: '+15.3%',
+    status: 'Top performing content pillar',
+    icon: 'game',
+    color: 'orange'
+  },
+  {
+    id: 2,
+    name: 'Game Reviews',
+    description: 'In-depth reviews of latest games',
+    videos: 8,
+    created: '3 months ago',
+    revenue: '186.7K',
+    revenueChange: '+9.3%',
+    watchTime: '11.8K hrs',
+    watchTimeChange: '+6.1%',
+    subscribers: '72,156',
+    subscribersChange: '+11.2%',
+    status: 'Growing content pillar',
+    icon: 'star',
+    color: 'orange'
+  }
+])
+
+// Functions
+const addPillar = () => {
+  showAddPillarModal.value = true
+}
+
+const viewPillarDetails = (pillar) => {
+  selectedPillar.value = pillar
+  showPillarDetailsModal.value = true
+}
+
+const createContent = (pillar) => {
+  selectedPillar.value = pillar
+  // Pre-fill the pillar in the content form
+  newContent.value.pillarId = pillar.id
+  showCreateContentModal.value = true
+}
+
+const saveContent = () => {
+  try {
+    // Validate required fields
+    if (!newContent.value.title.trim()) {
+      alert('Please enter a title')
+      return
+    }
+
+    // Create new content item
+    const newItem = {
+      id: Date.now(),
+      title: newContent.value.title.trim(),
+      description: newContent.value.description.trim() || 'No description provided',
+      pillar: selectedPillar.value.name,
+      priority: newContent.value.priority,
+      status: newContent.value.status,
+      assignee: 'M',
+      dueDate: newContent.value.dueDate || null,
+      stageDueDates: { ...newContent.value.stageDueDates },
+      stageCompletions: { ...newContent.value.stageCompletions },
+      createdAt: new Date().toISOString().split('T')[0]
+    }
+
+    // In a real app, this would be saved to a store/API and synced with calendar/kanban
+    console.log('Created new content:', newItem)
+
+    // Reset form
+    newContent.value.title = ''
+    newContent.value.description = ''
+    newContent.value.pillarId = ''
+    newContent.value.priority = 'medium'
+    newContent.value.dueDate = ''
+    newContent.value.status = 'ideas'
+    newContent.value.stageDueDates = {
+      ideas: '',
+      planning: '',
+      'in-progress': '',
+      published: ''
+    }
+    newContent.value.stageCompletions = {
+      ideas: false,
+      planning: false,
+      'in-progress': false,
+      published: false
+    }
+
+    // Close modal
+    showCreateContentModal.value = false
+
+    // Show success feedback with due date info
+    const dueDateText = newItem.dueDate ? ` (Due: ${new Date(newItem.dueDate).toLocaleDateString()})` : ''
+    alert(`Created new content: "${newItem.title}" for ${selectedPillar.value.name} pillar${dueDateText}`)
+  } catch (error) {
+    console.error('Error saving content:', error)
+    alert('Error saving content. Please try again.')
+  }
+}
+
+const createPillarFromSuggestion = (suggestion) => {
+  // Add the suggested pillar to the pillars array
+  const newPillar = {
+    id: pillars.value.length + 1,
+    name: suggestion.title,
+    description: suggestion.description,
+    videos: 0,
+    created: 'Just created',
+    revenue: '0',
+    revenueChange: '+0%',
+    watchTime: '0 hrs',
+    watchTimeChange: '+0%',
+    subscribers: '0',
+    subscribersChange: '+0%',
+    status: 'New content pillar',
+    icon: 'plus',
+    color: 'orange'
+  }
+
+  pillars.value.push(newPillar)
+
+  // Show success feedback
+  alert(`Created new pillar: ${suggestion.title}`)
+}
+
+const savePillar = (pillarData) => {
+  const newPillar = {
+    id: pillars.value.length + 1,
+    name: pillarData.name,
+    description: pillarData.description,
+    videos: 0,
+    created: 'Just created',
+    revenue: '0',
+    revenueChange: '+0%',
+    watchTime: '0 hrs',
+    watchTimeChange: '+0%',
+    subscribers: '0',
+    subscribersChange: '+0%',
+    status: 'New content pillar',
+    icon: 'plus',
+    color: pillarData.color || 'orange'
+  }
+
+  pillars.value.push(newPillar)
+  showAddPillarModal.value = false
+
+  // Clear form
+  newPillarName.value = ''
+  newPillarDescription.value = ''
+
+  // Show success feedback
+  alert(`Created new pillar: ${pillarData.name}`)
+}
 
 // Content Pillars Analytics Dashboard
-// Static data display matching the design from the image
+// Now with full functionality for adding, viewing, and managing pillars
 </script>
