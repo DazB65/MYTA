@@ -115,7 +115,7 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted, onUnmounted } from 'vue'
+import { computed, onMounted, onUnmounted, ref } from 'vue'
 
 // State
 const showNotifications = ref(false)
@@ -142,20 +142,9 @@ const closeNotifications = () => {
 const fetchNotifications = async () => {
   loading.value = true
   try {
-    // Call our new notification API
-    const response = await $fetch('/api/notifications/', {
-      query: { limit: 10 },
-      headers: {
-        'Authorization': `Bearer ${useAuthStore().token}`
-      }
-    })
-    
-    if (response.success) {
-      notifications.value = response.data.notifications
-    }
-  } catch (error) {
-    console.error('Error fetching notifications:', error)
-    // Fallback to mock data for demo
+    // Use mock data for demo (no backend API calls)
+    await new Promise(resolve => setTimeout(resolve, 500)) // Simulate API delay
+
     notifications.value = [
       {
         id: 1,
@@ -185,6 +174,8 @@ const fetchNotifications = async () => {
         is_read: true
       }
     ]
+  } catch (error) {
+    console.error('Error fetching notifications:', error)
   } finally {
     loading.value = false
   }
@@ -196,43 +187,28 @@ const refreshNotifications = () => {
 
 const markAsRead = async (notificationId) => {
   try {
-    await $fetch(`/api/notifications/${notificationId}/read`, {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${useAuthStore().token}`
-      }
-    })
-    
-    // Update local state
+    // Simulate API call delay
+    await new Promise(resolve => setTimeout(resolve, 200))
+
+    // Update local state (mock behavior)
     const notification = notifications.value.find(n => n.id === notificationId)
     if (notification) {
       notification.is_read = true
     }
   } catch (error) {
     console.error('Error marking notification as read:', error)
-    // Fallback: update local state anyway
-    const notification = notifications.value.find(n => n.id === notificationId)
-    if (notification) {
-      notification.is_read = true
-    }
   }
 }
 
 const markAllAsRead = async () => {
   try {
-    await $fetch('/api/notifications/mark-all-read', {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${useAuthStore().token}`
-      }
-    })
-    
-    // Update local state
+    // Simulate API call delay
+    await new Promise(resolve => setTimeout(resolve, 300))
+
+    // Update local state (mock behavior)
     notifications.value.forEach(n => n.is_read = true)
   } catch (error) {
     console.error('Error marking all notifications as read:', error)
-    // Fallback: update local state anyway
-    notifications.value.forEach(n => n.is_read = true)
   }
 }
 
@@ -277,8 +253,27 @@ const handleClickOutside = (event) => {
 
 onMounted(() => {
   document.addEventListener('click', handleClickOutside)
-  // Fetch initial notifications
-  fetchNotifications()
+  // Load initial mock notifications without API call
+  notifications.value = [
+    {
+      id: 1,
+      type: 'performance_alert',
+      priority: 'high',
+      title: 'Low Click-Through Rate',
+      message: 'Your CTR has dropped to 2.8%, below the 4% benchmark.',
+      created_at: new Date().toISOString(),
+      is_read: false
+    },
+    {
+      id: 2,
+      type: 'optimization_opportunity',
+      priority: 'medium',
+      title: 'Thumbnail Optimization',
+      message: 'AI suggests improving thumbnail contrast for better CTR.',
+      created_at: new Date(Date.now() - 3600000).toISOString(),
+      is_read: false
+    }
+  ]
 })
 
 onUnmounted(() => {

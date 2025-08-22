@@ -1,12 +1,12 @@
 User-agent: *
 Allow: /
 
-# Disallow admin and API routes
-Disallow: /api/
+# Only disallow admin routes in development
 Disallow: /admin/
-Disallow: /_nuxt/
 
-# Allow important pages
+# Allow all other routes including assets and API for development
+Allow: /api/
+Allow: /_nuxt/
 Allow: /dashboard
 Allow: /videos
 Allow: /tasks

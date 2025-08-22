@@ -467,74 +467,16 @@ definePageMeta({
 // Use modal composable
 const { openGoal } = useModals()
 
-// Agent settings state
-const selectedAgent = ref(1)
-const agentName = ref('Professional Assistant')
-
-// Available agents (same as in settings and modal)
-const agents = [
-  {
-    id: 1,
-    name: 'Agent 1',
-    image: '/optimized/Agent1.jpg',
-    color: '#ea580c', // Orange
-    description: 'AI Content Creator',
-    personality: 'Professional & Analytical',
-  },
-  {
-    id: 2,
-    name: 'Levi',
-    image: '/optimized/Agent2.jpg',
-    color: '#FFEAA7', // Yellow
-    description: 'Professional & Analytical',
-    personality: 'Innovative & Artistic',
-  },
-  {
-    id: 3,
-    name: 'Agent 3',
-    image: '/optimized/Agent3.jpg',
-    color: '#16a34a', // Green
-    description: 'Analytics Expert',
-    personality: 'Detail-Oriented & Insightful',
-  },
-  {
-    id: 4,
-    name: 'Agent 4',
-    image: '/optimized/Agent4.jpg',
-    color: '#ea580c', // Orange
-    description: 'Creative Assistant',
-    personality: 'Innovative & Artistic',
-  },
-  {
-    id: 5,
-    name: 'Agent 5',
-    image: '/optimized/Agent5.jpg',
-    color: '#dc2626', // Red/Pink
-    description: 'Strategy Advisor',
-    personality: 'Visionary & Strategic',
-  },
-]
+// Agent settings
+const { selectedAgent, agentName, allAgents } = useAgentSettings()
 
 // Computed property for selected agent data
 const selectedAgentData = computed(() => {
-  const agent = agents.find(agent => agent.id === selectedAgent.value) || agents[0]
   return {
-    ...agent,
-    name: agentName.value || agent.name
+    ...selectedAgent.value,
+    name: agentName.value || selectedAgent.value.name
   }
 })
-
-// Load agent settings from localStorage
-const loadAgentSettings = () => {
-  if (typeof window !== 'undefined') {
-    const savedSettings = localStorage.getItem('agentSettings')
-    if (savedSettings) {
-      const settings = JSON.parse(savedSettings)
-      selectedAgent.value = settings.selectedAgent || 1
-      agentName.value = settings.name || 'Professional Assistant'
-    }
-  }
-}
 
 // Type imports
 type Task = {

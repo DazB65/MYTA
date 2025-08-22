@@ -27,7 +27,7 @@ const { $loading } = useNuxtApp()
 
 // SEO and meta configuration
 useHead({
-  titleTemplate: '%s - Vidalytics',
+  titleTemplate: '%s - MYTA',
   meta: [
     { name: 'viewport', content: 'width=device-width, initial-scale=1' },
     { name: 'theme-color', content: '#EC4899' },

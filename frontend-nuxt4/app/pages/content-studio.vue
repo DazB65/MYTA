@@ -31,7 +31,7 @@
           </div>
           <button
             class="flex items-center space-x-2 rounded-lg bg-orange-500 px-4 py-2 text-white transition-colors hover:bg-orange-600"
-            @click="showCreateContentModal = true"
+            @click="openCreateModal"
           >
             <svg class="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
               <path
@@ -626,276 +626,11 @@
       </div>
     </div>
 
-    <!-- Create Content Modal -->
-    <div v-if="showCreateContentModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
-      <div class="bg-forest-800 rounded-xl p-6 w-full max-w-md mx-4">
-        <div class="flex items-center justify-between mb-4">
-          <h3 class="text-lg font-semibold text-white">Create New Content</h3>
-          <button @click="showCreateContentModal = false" class="text-gray-400 hover:text-white">
-            <svg class="h-6 w-6" fill="currentColor" viewBox="0 0 20 20">
-              <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"/>
-            </svg>
-          </button>
-        </div>
 
-        <form @submit.prevent="createContent">
-          <div class="space-y-4">
-            <!-- Title -->
-            <div>
-              <label class="block text-sm font-medium text-gray-300 mb-2">Title</label>
-              <input
-                v-model="newContent.title"
-                type="text"
-                required
-                class="w-full rounded-lg bg-forest-700 border border-forest-600 px-3 py-2 text-white focus:outline-none focus:ring-2 focus:ring-orange-500"
-                placeholder="Enter content title..."
-              />
-            </div>
 
-            <!-- Description -->
-            <div>
-              <label class="block text-sm font-medium text-gray-300 mb-2">Description</label>
-              <textarea
-                v-model="newContent.description"
-                rows="3"
-                class="w-full rounded-lg bg-forest-700 border border-forest-600 px-3 py-2 text-white focus:outline-none focus:ring-2 focus:ring-orange-500"
-                placeholder="Enter content description..."
-              ></textarea>
-            </div>
 
-            <!-- Pillar Selection -->
-            <div>
-              <label class="block text-sm font-medium text-gray-300 mb-2">Content Pillar</label>
-              <select
-                v-model="newContent.pillarId"
-                required
-                class="w-full rounded-lg bg-forest-700 border border-forest-600 px-3 py-2 text-white focus:outline-none focus:ring-2 focus:ring-orange-500"
-              >
-                <option value="">Select a pillar...</option>
-                <option v-for="pillar in availablePillars" :key="pillar.id" :value="pillar.id">
-                  {{ pillar.icon }} {{ pillar.name }}
-                </option>
-              </select>
-            </div>
 
-            <!-- Priority -->
-            <div>
-              <label class="block text-sm font-medium text-gray-300 mb-2">Priority</label>
-              <select
-                v-model="newContent.priority"
-                class="w-full rounded-lg bg-forest-700 border border-forest-600 px-3 py-2 text-white focus:outline-none focus:ring-2 focus:ring-orange-500"
-              >
-                <option value="low">Low</option>
-                <option value="medium">Medium</option>
-                <option value="high">High</option>
-              </select>
-            </div>
 
-            <!-- Overall Due Date -->
-            <div>
-              <label class="block text-sm font-medium text-gray-300 mb-2">Overall Due Date</label>
-              <input
-                v-model="newContent.dueDate"
-                type="date"
-                class="w-full rounded-lg bg-forest-700 border border-forest-600 px-3 py-2 text-white focus:outline-none focus:ring-2 focus:ring-orange-500"
-                :min="new Date().toISOString().split('T')[0]"
-              />
-              <p class="text-xs text-gray-400 mt-1">When the entire content should be completed</p>
-            </div>
-
-            <!-- Stage -->
-            <div>
-              <label class="block text-sm font-medium text-gray-300 mb-2">Stage</label>
-              <select
-                v-model="newContent.status"
-                class="w-full rounded-lg bg-forest-700 border border-forest-600 px-3 py-2 text-white focus:outline-none focus:ring-2 focus:ring-orange-500"
-              >
-                <option v-for="stage in workflowStages" :key="stage.value" :value="stage.value">
-                  {{ stage.label }}
-                </option>
-              </select>
-              <p class="text-xs text-gray-400 mt-1">Choose the workflow stage for this content</p>
-            </div>
-
-            <!-- Stage Due Dates -->
-            <div>
-              <label class="block text-sm font-medium text-gray-300 mb-3">Stage Due Dates & Completion</label>
-              <div class="space-y-3">
-                <div v-for="stage in workflowStages" :key="stage.value" class="flex items-center space-x-3">
-                  <div class="w-24 text-sm text-gray-400">{{ stage.label }}:</div>
-                  <input
-                    v-model="newContent.stageDueDates[stage.value]"
-                    type="date"
-                    class="flex-1 rounded-lg bg-forest-700 border border-forest-600 px-3 py-2 text-white focus:outline-none focus:ring-2 focus:ring-orange-500"
-                    :min="new Date().toISOString().split('T')[0]"
-                  />
-                  <label class="flex items-center space-x-2 text-sm text-gray-300">
-                    <input
-                      v-model="newContent.stageCompletions[stage.value]"
-                      type="checkbox"
-                      class="rounded bg-forest-700 border-forest-600 text-green-500 focus:ring-green-500 focus:ring-2"
-                    />
-                    <span>Done</span>
-                  </label>
-                </div>
-              </div>
-              <p class="text-xs text-gray-400 mt-2">Set deadlines and mark stages as completed</p>
-            </div>
-          </div>
-
-          <div class="flex items-center justify-end space-x-3 mt-6">
-            <button
-              type="button"
-              @click="showCreateContentModal = false"
-              class="px-4 py-2 text-gray-400 hover:text-white transition-colors"
-            >
-              Cancel
-            </button>
-            <button
-              type="submit"
-              class="px-4 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-colors"
-            >
-              Create Content
-            </button>
-          </div>
-        </form>
-      </div>
-    </div>
-
-    <!-- Edit Content Modal -->
-    <div v-if="showEditContentModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
-      <div class="bg-forest-800 rounded-xl p-6 w-full max-w-md mx-4">
-        <div class="flex items-center justify-between mb-4">
-          <h3 class="text-lg font-semibold text-white">Edit Content</h3>
-          <button @click="showEditContentModal = false" class="text-gray-400 hover:text-white">
-            <svg class="h-6 w-6" fill="currentColor" viewBox="0 0 20 20">
-              <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd" />
-            </svg>
-          </button>
-        </div>
-
-        <form @submit.prevent="updateContent">
-          <div class="space-y-4">
-            <!-- Title -->
-            <div>
-              <label class="block text-sm font-medium text-gray-300 mb-2">Title</label>
-              <input
-                v-model="editContent.title"
-                type="text"
-                required
-                class="w-full rounded-lg bg-forest-700 border border-forest-600 px-3 py-2 text-white focus:outline-none focus:ring-2 focus:ring-orange-500"
-                placeholder="Enter content title..."
-              />
-            </div>
-
-            <!-- Description -->
-            <div>
-              <label class="block text-sm font-medium text-gray-300 mb-2">Description</label>
-              <textarea
-                v-model="editContent.description"
-                rows="3"
-                class="w-full rounded-lg bg-forest-700 border border-forest-600 px-3 py-2 text-white focus:outline-none focus:ring-2 focus:ring-orange-500"
-                placeholder="Enter content description..."
-              ></textarea>
-            </div>
-
-            <!-- Pillar Selection -->
-            <div>
-              <label class="block text-sm font-medium text-gray-300 mb-2">Content Pillar</label>
-              <select
-                v-model="editContent.pillarId"
-                class="w-full rounded-lg bg-forest-700 border border-forest-600 px-3 py-2 text-white focus:outline-none focus:ring-2 focus:ring-orange-500"
-              >
-                <option value="">Select a pillar...</option>
-                <option v-for="pillar in availablePillars" :key="pillar.id" :value="pillar.id">
-                  {{ pillar.icon }} {{ pillar.name }}
-                </option>
-              </select>
-            </div>
-
-            <!-- Priority -->
-            <div>
-              <label class="block text-sm font-medium text-gray-300 mb-2">Priority</label>
-              <select
-                v-model="editContent.priority"
-                class="w-full rounded-lg bg-forest-700 border border-forest-600 px-3 py-2 text-white focus:outline-none focus:ring-2 focus:ring-orange-500"
-              >
-                <option value="low">Low</option>
-                <option value="medium">Medium</option>
-                <option value="high">High</option>
-              </select>
-            </div>
-
-            <!-- Overall Due Date -->
-            <div>
-              <label class="block text-sm font-medium text-gray-300 mb-2">Overall Due Date</label>
-              <input
-                v-model="editContent.dueDate"
-                type="date"
-                class="w-full rounded-lg bg-forest-700 border border-forest-600 px-3 py-2 text-white focus:outline-none focus:ring-2 focus:ring-orange-500"
-                :min="new Date().toISOString().split('T')[0]"
-              />
-              <p class="text-xs text-gray-400 mt-1">When the entire content should be completed</p>
-            </div>
-
-            <!-- Stage -->
-            <div>
-              <label class="block text-sm font-medium text-gray-300 mb-2">Stage</label>
-              <select
-                v-model="editContent.status"
-                class="w-full rounded-lg bg-forest-700 border border-forest-600 px-3 py-2 text-white focus:outline-none focus:ring-2 focus:ring-orange-500"
-              >
-                <option v-for="stage in workflowStages" :key="stage.value" :value="stage.value">
-                  {{ stage.label }}
-                </option>
-              </select>
-              <p class="text-xs text-gray-400 mt-1">Move content between workflow stages</p>
-            </div>
-
-            <!-- Stage Due Dates -->
-            <div>
-              <label class="block text-sm font-medium text-gray-300 mb-3">Stage Due Dates & Completion</label>
-              <div class="space-y-3">
-                <div v-for="stage in workflowStages" :key="stage.value" class="flex items-center space-x-3">
-                  <div class="w-24 text-sm text-gray-400">{{ stage.label }}:</div>
-                  <input
-                    v-model="editContent.stageDueDates[stage.value]"
-                    type="date"
-                    class="flex-1 rounded-lg bg-forest-700 border border-forest-600 px-3 py-2 text-white focus:outline-none focus:ring-2 focus:ring-orange-500"
-                    :min="new Date().toISOString().split('T')[0]"
-                  />
-                  <label class="flex items-center space-x-2 text-sm text-gray-300">
-                    <input
-                      v-model="editContent.stageCompletions[stage.value]"
-                      type="checkbox"
-                      class="rounded bg-forest-700 border-forest-600 text-green-500 focus:ring-green-500 focus:ring-2"
-                    />
-                    <span>Done</span>
-                  </label>
-                </div>
-              </div>
-              <p class="text-xs text-gray-400 mt-2">Set deadlines and mark stages as completed</p>
-            </div>
-          </div>
-
-          <div class="flex items-center justify-end space-x-3 mt-6">
-            <button
-              type="button"
-              @click="showEditContentModal = false"
-              class="px-4 py-2 text-gray-400 hover:text-white transition-colors"
-            >
-              Cancel
-            </button>
-            <button
-              type="submit"
-              class="px-4 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-colors"
-            >
-              Update Content
-            </button>
-          </div>
-        </form>
-      </div>
-    </div>
 
     <!-- Delete Confirmation Modal -->
     <div v-if="showDeleteConfirmModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
@@ -954,9 +689,19 @@ const { selectedAgent, agentName } = useAgentSettings()
 // Use modal composable
 const { openContent } = useModals()
 
-// Modal states
-const showCreateContentModal = ref(false)
-const showEditContentModal = ref(false)
+// Open create modal using unified system
+const openCreateModal = () => {
+  console.log('🔥 Opening create content modal')
+  openContent(null) // null means create new content
+}
+
+// Open edit modal using unified system
+const openEditModal = (content) => {
+  console.log('🔥 Opening edit content modal with data:', content)
+  openContent(content)
+}
+
+// Modal states (using unified modal system now)
 const showDeleteConfirmModal = ref(false)
 const selectedContentItem = ref(null)
 const showDropdownMenu = ref(null)
@@ -1325,16 +1070,7 @@ const createContent = () => {
   }
 }
 
-// Edit content function
-const openEditModal = (item) => {
-  // Close dropdown if open
-  if (showDropdownMenu.value !== null) {
-    showDropdownMenu.value = null
-  }
 
-  // Use modal composable
-  openContent(item)
-}
 
 const updateContent = () => {
   try {
