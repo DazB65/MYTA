@@ -5,13 +5,20 @@ const modals = reactive({
   youtubeConnect: false,
   task: false,
   goal: false,
-  content: false
+  content: false,
+  teamInvite: false,
+  teamEdit: false,
+  teamMemberEdit: false,
+  teamMemberRemove: false
 })
 
 // Modal data objects
 const taskData = ref(null)
 const goalData = ref(null)
 const contentData = ref(null)
+const teamInviteData = ref(null)
+const teamEditData = ref(null)
+const teamMemberData = ref(null)
 
 // Modal management functions
 const openModal = (modalName) => {
@@ -50,6 +57,30 @@ const openContentModal = (content = null) => {
   modals.content = true
 }
 
+const openTeamInviteModal = (teamData = null) => {
+  console.log('🔥 Opening team invite modal with data:', teamData)
+  teamInviteData.value = teamData
+  modals.teamInvite = true
+}
+
+const openTeamEditModal = (team = null) => {
+  console.log('🔥 Opening team edit modal with data:', team)
+  teamEditData.value = team
+  modals.teamEdit = true
+}
+
+const openTeamMemberEditModal = (member = null) => {
+  console.log('🔥 Opening team member edit modal with data:', member)
+  teamMemberData.value = member
+  modals.teamMemberEdit = true
+}
+
+const openTeamMemberRemoveModal = (member = null) => {
+  console.log('🔥 Opening team member remove modal with data:', member)
+  teamMemberData.value = member
+  modals.teamMemberRemove = true
+}
+
 // Modal save handlers
 const handleTaskSave = (data) => {
   console.log('🔥 Task saved:', data)
@@ -66,6 +97,26 @@ const handleContentSave = (data) => {
   closeModal('content')
 }
 
+const handleTeamInviteSave = (data) => {
+  console.log('🔥 Team invitation sent:', data)
+  closeModal('teamInvite')
+}
+
+const handleTeamEditSave = (data) => {
+  console.log('🔥 Team updated:', data)
+  closeModal('teamEdit')
+}
+
+const handleTeamMemberEditSave = (data) => {
+  console.log('🔥 Team member updated:', data)
+  closeModal('teamMemberEdit')
+}
+
+const handleTeamMemberRemove = (data) => {
+  console.log('🔥 Team member removed:', data)
+  closeModal('teamMemberRemove')
+}
+
 // Composable function
 export const useModals = () => {
   return {
@@ -74,7 +125,10 @@ export const useModals = () => {
     taskData,
     goalData,
     contentData,
-    
+    teamInviteData,
+    teamEditData,
+    teamMemberData,
+
     // Functions
     open: openModal,
     close: closeModal,
@@ -82,10 +136,18 @@ export const useModals = () => {
     openTask: openTaskModal,
     openGoal: openGoalModal,
     openContent: openContentModal,
-    
+    openTeamInvite: openTeamInviteModal,
+    openTeamEdit: openTeamEditModal,
+    openTeamMemberEdit: openTeamMemberEditModal,
+    openTeamMemberRemove: openTeamMemberRemoveModal,
+
     // Save handlers
     handleTaskSave,
     handleGoalSave,
-    handleContentSave
+    handleContentSave,
+    handleTeamInviteSave,
+    handleTeamEditSave,
+    handleTeamMemberEditSave,
+    handleTeamMemberRemove
   }
 }

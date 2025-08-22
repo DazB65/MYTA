@@ -16,7 +16,7 @@ from backend.App.smart_notification_engine import (
     NotificationRule
 )
 from backend.App.auth_middleware import get_current_user
-from backend.App.response_utils import create_success_response, create_error_response
+from backend.App.api_models import create_success_response, create_error_response
 from backend.logging_config import get_logger, LogCategory
 
 logger = get_logger(__name__, LogCategory.API)

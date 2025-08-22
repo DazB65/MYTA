@@ -1,0 +1,48 @@
+MYTA - Team Invitation
+
+You're Invited to Join a Team!
+
+Hi there!
+
+{{ invited_by_name }} ({{ invited_by_email }}) has invited you to join their team on MYTA, the AI-powered content creation platform.
+
+INVITATION DETAILS:
+- Team: {{ team_name }}
+- Your Role: {{ role }}
+- Invited By: {{ invited_by_name }}
+
+As a {{ role }}, you'll be able to:
+{% if role == "Editor" %}
+• Create and edit content, tasks, and pillars
+• View team analytics and insights
+• Collaborate with AI agents
+• Access all content creation tools
+{% else %}
+• View team analytics and insights
+• Access read-only content and reports
+• Monitor team progress and performance
+{% endif %}
+
+⏰ IMPORTANT: This invitation expires on {{ expires_at }}
+
+TO ACCEPT THIS INVITATION:
+Copy and paste this link into your browser:
+{{ accept_url }}
+
+TO DECLINE THIS INVITATION:
+Copy and paste this link into your browser:
+{{ decline_url }}
+
+If you don't have a MYTA account yet, you'll be prompted to create one when you accept the invitation.
+
+Questions about this invitation? Reply to this email or contact our support team.
+
+Welcome to the future of content creation!
+
+The MYTA Team
+
+---
+© {{ current_year }} MYTA. All rights reserved.
+
+If you're having trouble with the links above, you can also visit:
+{{ accept_url }}

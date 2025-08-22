@@ -7,9 +7,9 @@ from fastapi import APIRouter, Depends, Request, HTTPException, BackgroundTasks
 from typing import Dict, List, Optional, Any
 import asyncio
 
-from backend.App.youtube_analytics_service import get_analytics_service
+from backend.App.youtube_analytics_service import get_youtube_analytics_service
 from backend.App.auth_middleware import get_current_user
-from backend.App.response_utils import create_success_response, create_error_response
+from backend.App.api_models import create_success_response, create_error_response
 from backend.logging_config import get_logger, LogCategory
 
 logger = get_logger(__name__, LogCategory.API)
@@ -28,7 +28,7 @@ async def get_realtime_dashboard(
         # Get user's access token (in real implementation)
         access_token = "mock_token"  # Would get from user's stored credentials
         
-        async with get_analytics_service() as analytics:
+        async with get_youtube_analytics_service() as analytics:
             # Get comprehensive dashboard data
             dashboard_data = await analytics.get_optimization_dashboard(channel_id, access_token)
             
@@ -70,7 +70,7 @@ async def get_realtime_insights(
     try:
         access_token = "mock_token"
         
-        async with get_analytics_service() as analytics:
+        async with get_youtube_analytics_service() as analytics:
             insights = await analytics.get_real_time_insights(channel_id, access_token)
             
             result = {
@@ -110,7 +110,7 @@ async def get_video_performance_insights(
     try:
         access_token = "mock_token"
         
-        async with get_analytics_service() as analytics:
+        async with get_youtube_analytics_service() as analytics:
             insights = await analytics.get_video_performance_insights([video_id], access_token)
             
             if not insights:
@@ -191,7 +191,7 @@ async def get_trending_analysis(
 ):
     """Get trending content analysis for niche"""
     try:
-        async with get_analytics_service() as analytics:
+        async with get_youtube_analytics_service() as analytics:
             trending_data = await analytics.get_trending_analysis(niche, region)
             
             result = {
@@ -222,7 +222,7 @@ async def get_competitor_analysis(
         access_token = "mock_token"
         competitor_list = [ch.strip() for ch in competitor_channels.split(",")]
         
-        async with get_analytics_service() as analytics:
+        async with get_youtube_analytics_service() as analytics:
             analysis = await analytics.get_competitor_analysis(competitor_list, access_token)
             
             result = {
@@ -252,7 +252,7 @@ async def get_optimization_recommendations(
     try:
         access_token = "mock_token"
         
-        async with get_analytics_service() as analytics:
+        async with get_youtube_analytics_service() as analytics:
             recommendations = await analytics.get_optimization_recommendations(channel_id, access_token)
             
             # Filter by priority if specified

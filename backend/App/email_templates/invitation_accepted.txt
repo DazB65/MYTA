@@ -1,0 +1,25 @@
+MYTA - New Team Member Joined!
+
+Great news!
+
+{{ new_member_name }} has joined your team!
+
+MEMBER DETAILS:
+- Name: {{ new_member_name }}
+- Email: {{ new_member_email }}
+- Team: {{ team_name }}
+
+Your team is growing! {{ new_member_name }} can now access your team's workspace and start collaborating on content creation.
+
+You can manage your team members, adjust roles, and view team activity in your team settings.
+
+QUICK ACTIONS:
+• View Dashboard: {{ dashboard_url }}
+• Manage Team: {{ team_settings_url }}
+
+Happy collaborating!
+
+The MYTA Team
+
+---
+© {{ current_year }} MYTA. All rights reserved.

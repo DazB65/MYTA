@@ -11,7 +11,7 @@ import json
 from backend.App.error_handler import error_tracker, ErrorSeverity, ErrorCategory
 from backend.App.request_logging import request_logger
 from backend.App.auth_middleware import get_current_user
-from backend.App.response_utils import create_success_response, create_error_response
+from backend.App.api_models import create_success_response, create_error_response
 from backend.logging_config import get_logger, LogCategory
 
 logger = get_logger(__name__, LogCategory.API)

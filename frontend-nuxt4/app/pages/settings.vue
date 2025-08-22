@@ -178,6 +178,200 @@
           </div>
         </div>
 
+        <!-- Team Management Tab -->
+        <div v-if="activeTab === 'team'" class="space-y-6">
+          <!-- Team Overview -->
+          <div class="rounded-xl bg-forest-800 p-6">
+            <div class="mb-6 flex items-center justify-between">
+              <div class="flex items-center space-x-3">
+                <div class="flex h-10 w-10 items-center justify-center rounded-lg bg-blue-500">
+                  <svg class="h-6 w-6 text-white" fill="currentColor" viewBox="0 0 20 20">
+                    <path d="M13 6a3 3 0 11-6 0 3 3 0 016 0zM18 8a2 2 0 11-4 0 2 2 0 014 0zM14 15a4 4 0 00-8 0v3h8v-3z"/>
+                  </svg>
+                </div>
+                <div>
+                  <h3 class="text-lg font-semibold text-white">Team Management</h3>
+                  <p class="text-sm text-gray-400">Manage your team members and collaboration settings</p>
+                </div>
+              </div>
+              <div class="flex space-x-3">
+                <button
+                  @click="openTeamEdit"
+                  class="bg-orange-600 text-white px-4 py-2 rounded-lg hover:bg-orange-700 transition-colors flex items-center space-x-2"
+                >
+                  <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                    <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z"/>
+                  </svg>
+                  <span>Edit Team</span>
+                </button>
+                <button
+                  @click="openTeamInvite"
+                  class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors flex items-center space-x-2"
+                >
+                  <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                    <path d="M8 9a3 3 0 100-6 3 3 0 000 6zM8 11a6 6 0 016 6H2a6 6 0 016-6zM16 7a1 1 0 10-2 0v1h-1a1 1 0 100 2h1v1a1 1 0 102 0v-1h1a1 1 0 100-2h-1V7z"/>
+                  </svg>
+                  <span>Invite Member</span>
+                </button>
+              </div>
+            </div>
+
+            <!-- Team Info -->
+            <div v-if="currentTeam" class="mb-6 rounded-lg bg-forest-700 p-4">
+              <div class="flex items-center justify-between mb-4">
+                <div>
+                  <h4 class="font-medium text-white">{{ currentTeam.name }}</h4>
+                  <p class="text-sm text-gray-400">{{ currentTeam.member_count }} of {{ currentTeam.max_seats }} seats used</p>
+                </div>
+                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                  Team Plan
+                </span>
+              </div>
+
+              <div class="w-full bg-forest-600 rounded-full h-2 mb-4">
+                <div
+                  class="bg-blue-500 h-2 rounded-full transition-all duration-300"
+                  :style="{ width: `${(currentTeam.member_count / currentTeam.max_seats) * 100}%` }"
+                ></div>
+              </div>
+            </div>
+
+            <!-- No Team State -->
+            <div v-else-if="!teamLoading" class="mb-6 rounded-lg bg-forest-700 p-4 text-center">
+              <div class="py-8">
+                <svg class="mx-auto h-12 w-12 text-gray-400 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/>
+                </svg>
+                <h4 class="font-medium text-white mb-2">No Team Yet</h4>
+                <p class="text-sm text-gray-400 mb-4">Create a team to collaborate with others</p>
+                <button
+                  @click="handleCreateTeam"
+                  class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors"
+                >
+                  Create Team
+                </button>
+              </div>
+            </div>
+
+            <!-- Loading State -->
+            <div v-else class="mb-6 rounded-lg bg-forest-700 p-4">
+              <div class="animate-pulse">
+                <div class="flex items-center justify-between mb-4">
+                  <div>
+                    <div class="h-4 bg-forest-600 rounded w-32 mb-2"></div>
+                    <div class="h-3 bg-forest-600 rounded w-24"></div>
+                  </div>
+                  <div class="h-6 bg-forest-600 rounded w-20"></div>
+                </div>
+                <div class="w-full bg-forest-600 rounded-full h-2"></div>
+              </div>
+            </div>
+
+            <!-- Team Members -->
+            <div v-if="currentTeam && currentTeam.members" class="mb-6">
+              <div class="flex items-center justify-between mb-4">
+                <h4 class="font-medium text-white">Team Members</h4>
+                <span class="text-sm text-gray-400">{{ currentTeam.members.length }} members</span>
+              </div>
+              <div class="space-y-3">
+                <div
+                  v-for="member in currentTeam.members"
+                  :key="member.id"
+                  class="flex items-center justify-between p-3 rounded-lg bg-forest-700 hover:bg-forest-600 transition-colors"
+                >
+                  <div class="flex items-center space-x-3">
+                    <div
+                      class="w-8 h-8 rounded-full flex items-center justify-center text-white text-sm font-medium"
+                      :style="{ backgroundColor: getMemberColor(member) }"
+                    >
+                      {{ getMemberInitials(member) }}
+                    </div>
+                    <div>
+                      <p class="text-white font-medium">
+                        {{ member.user_name }}
+                        <span v-if="isCurrentUser(member)" class="text-gray-400">(You)</span>
+                      </p>
+                      <p class="text-xs text-gray-400">{{ member.user_email }}</p>
+                      <p v-if="member.joined_at" class="text-xs text-gray-500">
+                        Joined {{ formatMemberSince(member.joined_at) }}
+                      </p>
+                    </div>
+                  </div>
+                  <div class="flex items-center space-x-2">
+                    <span
+                      class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium"
+                      :class="getRoleBadgeClasses(member.role)"
+                    >
+                      {{ getRoleDisplayName(member.role) }}
+                    </span>
+                    <button
+                      v-if="canRemoveMember(member)"
+                      @click="openMemberRemoveModal(member)"
+                      class="text-red-400 hover:text-red-300 text-sm transition-colors"
+                    >
+                      Remove
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Pending Invitations -->
+              <div v-if="currentTeam.pending_invitations && currentTeam.pending_invitations.length > 0" class="mt-6">
+                <h5 class="font-medium text-white mb-3">Pending Invitations</h5>
+                <div class="space-y-2">
+                  <div
+                    v-for="invitation in currentTeam.pending_invitations"
+                    :key="invitation.id"
+                    class="flex items-center justify-between p-3 rounded-lg bg-forest-700/50 border border-forest-600"
+                  >
+                    <div class="flex items-center space-x-3">
+                      <div class="w-8 h-8 bg-gray-500 rounded-full flex items-center justify-center">
+                        <svg class="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 20 20">
+                          <path d="M2.003 5.884L10 9.882l7.997-3.998A2 2 0 0016 4H4a2 2 0 00-1.997 1.884z"/>
+                          <path d="M18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 002-2V8.118z"/>
+                        </svg>
+                      </div>
+                      <div>
+                        <p class="text-white font-medium">{{ invitation.email }}</p>
+                        <p class="text-xs text-gray-400">
+                          Invited {{ formatDate(invitation.created_at) }} • Expires {{ formatDate(invitation.expires_at) }}
+                        </p>
+                      </div>
+                    </div>
+                    <span
+                      class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800"
+                    >
+                      {{ getRoleDisplayName(invitation.role) }} • Pending
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Demo Links (Keep for testing) -->
+            <div class="mt-6 p-4 bg-blue-900/20 border border-blue-500/30 rounded-lg">
+              <h4 class="font-medium text-blue-300 mb-2">🚀 Demo the Invitation System</h4>
+              <p class="text-sm text-blue-200 mb-3">Test the team invitation workflow:</p>
+              <div class="space-y-2">
+                <a
+                  href="/invite/accept?token=demo_token_123"
+                  target="_blank"
+                  class="block text-blue-300 hover:text-blue-200 text-sm underline"
+                >
+                  → View Accept Invitation Page
+                </a>
+                <a
+                  href="/invite/decline?token=demo_token_123"
+                  target="_blank"
+                  class="block text-blue-300 hover:text-blue-200 text-sm underline"
+                >
+                  → View Decline Invitation Page
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+
         <!-- Subscription Tab -->
         <div v-if="activeTab === 'subscription'" class="space-y-6">
           <!-- Current Plan -->
@@ -537,7 +731,11 @@
 </template>
 
 <script setup>
+import { useRoute } from 'vue-router'
 import { useAgentSettings } from '../../composables/useAgentSettings'
+import { useModals } from '../../composables/useModals'
+import { useTeamManagement } from '../../composables/useTeamManagement'
+import { useAuthStore } from '../../stores/auth'
 import { useSubscriptionStore } from '../../stores/subscription'
 
 // Protect this route with authentication
@@ -557,11 +755,34 @@ const { success, error } = useToast()
 // Subscription store
 const subscriptionStore = useSubscriptionStore()
 
+// Team management
+const {
+  currentTeam,
+  loading: teamLoading,
+  error: teamError,
+  fetchMyTeam,
+  createTeam,
+  getRoleDisplayName,
+  formatMemberSince
+} = useTeamManagement()
+
+// Modal management
+const {
+  openTeamInvite,
+  openTeamEdit,
+  openTeamMemberRemove
+} = useModals()
+
+// Auth store
+const authStore = useAuthStore()
+
 // Tab management
-const activeTab = ref('agent')
+const route = useRoute()
+const activeTab = ref(route.query.tab || 'agent')
 
 const tabs = [
   { id: 'agent', name: 'Agent Settings', icon: '🤖' },
+  { id: 'team', name: 'Team Management', icon: '👥' },
   { id: 'subscription', name: 'Subscription', icon: '💳' },
   { id: 'general', name: 'General', icon: '⚙️' }
 ]
@@ -708,6 +929,75 @@ const showPlansModal = ref(false)
 const showPaymentModal = ref(false)
 const showCancelModal = ref(false)
 
+// Team management functions
+const showInviteDemo = () => {
+  success('Demo Invitation Sent! 📧', 'In a real app, this would send an email invitation. Check the demo links below to see the invitation pages.')
+}
+
+// Helper functions for team members
+const getMemberInitials = (member) => {
+  if (!member?.user_name) return '??'
+  return member.user_name
+    .split(' ')
+    .map(name => name.charAt(0))
+    .join('')
+    .toUpperCase()
+    .slice(0, 2)
+}
+
+const getMemberColor = (member) => {
+  const colors = ['#3B82F6', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6']
+  const index = member?.user_name?.charCodeAt(0) % colors.length || 0
+  return colors[index]
+}
+
+const getRoleBadgeClasses = (role) => {
+  switch (role) {
+    case 'owner':
+      return 'bg-orange-100 text-orange-800'
+    case 'editor':
+      return 'bg-blue-100 text-blue-800'
+    case 'viewer':
+      return 'bg-gray-100 text-gray-800'
+    default:
+      return 'bg-gray-100 text-gray-800'
+  }
+}
+
+const isCurrentUser = (member) => {
+  return authStore.user?.id === member.user_id
+}
+
+const canRemoveMember = (member) => {
+  // Can't remove yourself or if you're not the owner
+  return !isCurrentUser(member) && authStore.user?.id === currentTeam.value?.owner_id
+}
+
+// Modal functions
+const openMemberRemoveModal = (member) => {
+  openTeamMemberRemove(member)
+}
+
+const handleCreateTeam = async () => {
+  try {
+    await createTeam('My Content Team', 3)
+    success('Team Created! 🎉', 'Your team has been created successfully')
+  } catch (err) {
+    error('Creation Failed', err.message || 'Failed to create team')
+  }
+}
+
+// Initialize team data when component mounts
+onMounted(async () => {
+  if (authStore.isLoggedIn) {
+    try {
+      await fetchMyTeam()
+    } catch (err) {
+      console.warn('Failed to fetch team data:', err)
+    }
+  }
+})
+
 // Save settings function
 const handleSaveSettings = () => {
   try {
@@ -718,13 +1008,18 @@ const handleSaveSettings = () => {
   }
 }
 
-// Subscription functions
+// Utility functions
 const formatDate = (date) => {
+  if (!date) return 'Unknown'
+
+  // Handle both string and Date objects
+  const dateObj = typeof date === 'string' ? new Date(date) : date
+
   return new Intl.DateTimeFormat('en-US', {
     year: 'numeric',
     month: 'long',
     day: 'numeric'
-  }).format(date)
+  }).format(dateObj)
 }
 
 const removePaymentMethod = () => {

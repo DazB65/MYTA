@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Team Invitation - MYTA</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f8fafc;
+        }
+        .container {
+            background: white;
+            border-radius: 12px;
+            padding: 40px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .logo {
+            font-size: 32px;
+            font-weight: bold;
+            color: #6366f1;
+            margin-bottom: 10px;
+        }
+        .title {
+            font-size: 24px;
+            font-weight: 600;
+            color: #1f2937;
+            margin-bottom: 20px;
+        }
+        .content {
+            margin-bottom: 30px;
+        }
+        .invitation-details {
+            background: #f8fafc;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+            border-left: 4px solid #6366f1;
+        }
+        .detail-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+        }
+        .detail-label {
+            font-weight: 600;
+            color: #4b5563;
+        }
+        .detail-value {
+            color: #1f2937;
+        }
+        .role-badge {
+            display: inline-block;
+            background: #6366f1;
+            color: white;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 500;
+        }
+        .buttons {
+            text-align: center;
+            margin: 30px 0;
+        }
+        .btn {
+            display: inline-block;
+            padding: 12px 24px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 600;
+            margin: 0 10px;
+            transition: all 0.2s;
+        }
+        .btn-accept {
+            background: #10b981;
+            color: white;
+        }
+        .btn-accept:hover {
+            background: #059669;
+        }
+        .btn-decline {
+            background: #ef4444;
+            color: white;
+        }
+        .btn-decline:hover {
+            background: #dc2626;
+        }
+        .footer {
+            text-align: center;
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 1px solid #e5e7eb;
+            color: #6b7280;
+            font-size: 14px;
+        }
+        .expiry-notice {
+            background: #fef3c7;
+            border: 1px solid #f59e0b;
+            border-radius: 6px;
+            padding: 12px;
+            margin: 20px 0;
+            color: #92400e;
+            font-size: 14px;
+        }
+        @media (max-width: 600px) {
+            body {
+                padding: 10px;
+            }
+            .container {
+                padding: 20px;
+            }
+            .btn {
+                display: block;
+                margin: 10px 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="logo">MYTA</div>
+            <h1 class="title">You're Invited to Join a Team!</h1>
+        </div>
+        
+        <div class="content">
+            <p>Hi there!</p>
+            
+            <p><strong>{{ invited_by_name }}</strong> ({{ invited_by_email }}) has invited you to join their team on MYTA, the AI-powered content creation platform.</p>
+            
+            <div class="invitation-details">
+                <div class="detail-row">
+                    <span class="detail-label">Team:</span>
+                    <span class="detail-value"><strong>{{ team_name }}</strong></span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">Your Role:</span>
+                    <span class="detail-value"><span class="role-badge">{{ role }}</span></span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">Invited By:</span>
+                    <span class="detail-value">{{ invited_by_name }}</span>
+                </div>
+            </div>
+            
+            <p>As a <strong>{{ role }}</strong>, you'll be able to:</p>
+            <ul>
+                {% if role == "Editor" %}
+                <li>Create and edit content, tasks, and pillars</li>
+                <li>View team analytics and insights</li>
+                <li>Collaborate with AI agents</li>
+                <li>Access all content creation tools</li>
+                {% else %}
+                <li>View team analytics and insights</li>
+                <li>Access read-only content and reports</li>
+                <li>Monitor team progress and performance</li>
+                {% endif %}
+            </ul>
+            
+            <div class="expiry-notice">
+                ⏰ <strong>This invitation expires on {{ expires_at }}</strong>
+            </div>
+        </div>
+        
+        <div class="buttons">
+            <a href="{{ accept_url }}" class="btn btn-accept">Accept Invitation</a>
+            <a href="{{ decline_url }}" class="btn btn-decline">Decline</a>
+        </div>
+        
+        <div class="content">
+            <p>If you don't have a MYTA account yet, you'll be prompted to create one when you accept the invitation.</p>
+            
+            <p>Questions about this invitation? Reply to this email or contact our support team.</p>
+            
+            <p>Welcome to the future of content creation!</p>
+            <p><strong>The MYTA Team</strong></p>
+        </div>
+        
+        <div class="footer">
+            <p>© {{ current_year }} MYTA. All rights reserved.</p>
+            <p>If you're having trouble with the buttons above, copy and paste this link into your browser:</p>
+            <p style="word-break: break-all; color: #6366f1;">{{ accept_url }}</p>
+        </div>
+    </div>
+</body>
+</html>
