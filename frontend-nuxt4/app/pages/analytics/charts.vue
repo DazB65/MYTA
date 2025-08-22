@@ -139,7 +139,7 @@ const ChartsDashboard = defineAsyncComponent(() =>
 
 // Meta for SEO
 useHead({
-  title: 'Analytics Charts - Vidalytics',
+  title: 'Analytics Charts',
   meta: [
     {
       name: 'description',

@@ -497,7 +497,7 @@ type TaskFilter = 'all' | 'pending' | 'completed' | 'in_progress' | 'high_priori
 
 // Set page title
 useHead({
-  title: 'Task Management - Vidalytics'
+  title: 'Task Management'
 })
 
 const tasksStore = useTasksStore()

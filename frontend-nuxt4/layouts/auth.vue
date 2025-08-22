@@ -12,7 +12,7 @@
           <div class="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-pink-500">
             <span class="text-2xl">✨</span>
           </div>
-          <h1 class="text-3xl font-bold text-white">Vidalytics</h1>
+          <h1 class="text-3xl font-bold text-white">MYTA</h1>
           <p class="text-gray-400">Your AI Agent for Content and Growth</p>
         </div>
         
@@ -23,7 +23,7 @@
         
         <!-- Footer -->
         <div class="mt-8 text-center text-sm text-gray-400">
-          <p>&copy; 2025 Vidalytics. All rights reserved.</p>
+          <p>&copy; 2025 MYTA. All rights reserved.</p>
         </div>
       </div>
     </div>
@@ -38,7 +38,7 @@
 <script setup>
 // Auth layout specific configuration
 useHead({
-  titleTemplate: '%s - Vidalytics Auth',
+  titleTemplate: '%s - MYTA Auth',
   meta: [
     { name: 'robots', content: 'noindex, nofollow' }
   ]
