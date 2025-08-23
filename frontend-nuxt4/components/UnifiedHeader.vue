@@ -170,36 +170,14 @@
           </div>
         </div>
 
-        <!-- YouTube Banner Preview -->
-        <div
-          class="relative flex h-24 items-center justify-between overflow-hidden rounded-xl bg-gradient-to-r from-forest-600 via-orange-500 to-orange-600 px-6"
-        >
-          <!-- Left side content -->
-          <div class="flex items-center space-x-4">
-            <div class="text-white">
-              <div class="text-xl font-bold">iPhone 15 Pro</div>
-              <div class="text-sm opacity-90">Hello, Apple Intelligence</div>
-            </div>
-          </div>
-
-          <!-- Right side - PRO text with glow effect -->
-          <div class="text-right">
-            <div
-              class="text-4xl font-bold tracking-wider text-white"
-              style="text-shadow: 0 0 20px rgba(255, 255, 255, 0.5)"
-            >
-              PRO
-            </div>
-          </div>
-
-          <!-- Decorative glow effects -->
-          <div
-            class="absolute right-0 top-0 -mr-16 -mt-16 h-32 w-32 rounded-full bg-white bg-opacity-10 blur-xl"
-          />
-          <div
-            class="absolute bottom-0 left-0 -mb-12 -ml-12 h-24 w-24 rounded-full bg-white bg-opacity-10 blur-lg"
-          />
-        </div>
+        <!-- YouTube Banner Compartment -->
+        <YouTubeBannerCompartment
+          :banner-url="userBanner.url"
+          :channel-name="userBanner.channelName"
+          :channel-description="userBanner.description"
+          :channel-avatar="userBanner.avatar"
+          @upload="handleBannerUpload"
+        />
       </div>
     </div>
 
@@ -220,6 +198,7 @@ import { computed, onMounted, onUnmounted, ref } from 'vue'
 import { useAgentSettings } from '../composables/useAgentSettings'
 import { useAuthStore } from '../stores/auth'
 import AgentChatPanel from './chat/AgentChatPanel.vue'
+import YouTubeBannerCompartment from './dashboard/YouTubeBannerCompartment.vue'
 import YouTubeConnectModal from './modals/YouTubeConnectModal.vue'
 
 // Auth store
@@ -231,7 +210,7 @@ const { selectedAgent, agentName } = useAgentSettings()
 // Mobile menu state
 const showMobileMenu = ref(false)
 
-// iPhone compartment state
+// Modal states
 const showConnectModal = ref(false)
 const showChatPanel = ref(false)
 
@@ -259,6 +238,50 @@ const userInitials = computed(() => {
   }
   return 'MA'
 })
+
+// YouTube Banner data
+const userBanner = ref({
+  url: '', // User's banner image URL
+  channelName: userName.value || 'Your Channel',
+  description: 'Customize your YouTube banner',
+  avatar: '' // Channel avatar URL
+})
+
+// Load banner from localStorage on mount
+onMounted(() => {
+  if (typeof window !== 'undefined') {
+    const savedBanner = localStorage.getItem('userYouTubeBanner')
+    if (savedBanner) {
+      try {
+        const bannerData = JSON.parse(savedBanner)
+        userBanner.value = { ...userBanner.value, ...bannerData }
+      } catch (error) {
+        console.error('Failed to load banner data:', error)
+      }
+    }
+  }
+})
+
+// Handle banner upload
+const handleBannerUpload = (uploadData) => {
+  // Update the banner URL with the preview
+  userBanner.value.url = uploadData.previewUrl
+
+  // Save to localStorage (in a real app, you'd upload to a server)
+  if (typeof window !== 'undefined') {
+    const bannerData = {
+      url: uploadData.previewUrl,
+      channelName: userBanner.value.channelName,
+      description: userBanner.value.description,
+      avatar: userBanner.value.avatar,
+      uploadedAt: new Date().toISOString()
+    }
+    localStorage.setItem('userYouTubeBanner', JSON.stringify(bannerData))
+  }
+
+  // You could also emit an event or call an API here
+  console.log('Banner uploaded:', uploadData)
+}
 
 // Time-based greeting
 const timeOfDay = computed(() => {
