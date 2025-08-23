@@ -307,26 +307,86 @@
 
           <!-- Agent Selection -->
           <div class="mb-6">
-            <label class="block text-sm font-medium text-gray-300 mb-3">Choose Your Agent</label>
-            <div class="grid grid-cols-2 gap-3">
+            <label class="block text-sm font-medium text-gray-300 mb-3">Choose Your Personal Avatar</label>
+            <p class="text-xs text-gray-400 mb-4">Select your preferred visual representation</p>
+            <div class="grid grid-cols-2 gap-4">
               <div
                 v-for="agent in availableAgents"
                 :key="agent.id"
-                :class="[
-                  'relative cursor-pointer rounded-lg border-2 p-3 transition-all hover:shadow-md',
-                  tempSelectedAgent === agent.id
-                    ? 'border-orange-500 bg-orange-900/30'
-                    : 'border-forest-500 hover:border-forest-400',
-                ]"
+                class="group relative cursor-pointer rounded-xl border-2 p-4 transition-all duration-300 hover:scale-105 hover:shadow-lg"
+                :class="tempSelectedAgent === agent.id
+                  ? 'border-opacity-100 shadow-lg transform scale-105'
+                  : 'border-forest-500 hover:border-forest-400 border-opacity-50'"
+                :style="tempSelectedAgent === agent.id ? {
+                  borderColor: agent.color,
+                  backgroundColor: agent.color + '15',
+                  boxShadow: `0 8px 25px ${agent.color}30`
+                } : {}"
                 @click="tempSelectedAgent = agent.id"
               >
                 <div class="text-center">
-                  <div class="mx-auto mb-2 h-12 w-12 overflow-hidden rounded-lg">
-                    <img :src="agent.image" :alt="agent.name" class="h-full w-full object-cover" />
+                  <!-- Agent Avatar with Glow Effect -->
+                  <div
+                    class="mx-auto mb-3 h-14 w-14 overflow-hidden rounded-full bg-forest-700 ring-2 ring-opacity-0 transition-all duration-300 group-hover:ring-opacity-50"
+                    :class="tempSelectedAgent === agent.id ? 'ring-opacity-100' : ''"
+                    :style="tempSelectedAgent === agent.id ? {
+                      ringColor: agent.color,
+                      boxShadow: `0 0 15px ${agent.color}40`
+                    } : {}"
+                  >
+                    <img
+                      :src="agent.image"
+                      :alt="agent.name"
+                      class="h-full w-full object-cover transition-transform duration-300 group-hover:scale-110"
+                    />
                   </div>
-                  <div class="text-xs font-medium text-gray-300">{{ agent.name }}</div>
-                  <div class="text-xs text-gray-400 mt-1">{{ agent.personality }}</div>
+
+                  <!-- Agent Name -->
+                  <div class="text-sm font-semibold text-gray-200 mb-1">{{ agent.name }}</div>
+
+                  <!-- Agent Description -->
+                  <div class="text-xs text-gray-400 leading-relaxed mb-2">{{ agent.description }}</div>
+
+                  <!-- Personality Badge -->
+                  <div
+                    class="inline-block px-2 py-1 rounded-full text-xs font-medium transition-all duration-300"
+                    :style="tempSelectedAgent === agent.id ? {
+                      backgroundColor: agent.color + '25',
+                      color: agent.color
+                    } : {
+                      backgroundColor: '#374151',
+                      color: '#9ca3af'
+                    }"
+                  >
+                    {{ agent.personality }}
+                  </div>
                 </div>
+
+                <!-- Enhanced Selected Indicator -->
+                <div
+                  v-if="tempSelectedAgent === agent.id"
+                  class="absolute -right-2 -top-2 flex h-6 w-6 items-center justify-center rounded-full shadow-lg animate-pulse"
+                  :style="{
+                    backgroundColor: agent.color,
+                    boxShadow: `0 0 12px ${agent.color}60`
+                  }"
+                >
+                  <svg class="h-3 w-3 text-white" fill="currentColor" viewBox="0 0 20 20">
+                    <path
+                      fill-rule="evenodd"
+                      d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                      clip-rule="evenodd"
+                    />
+                  </svg>
+                </div>
+
+                <!-- Hover Glow Effect -->
+                <div
+                  class="absolute inset-0 rounded-xl opacity-0 transition-opacity duration-300 group-hover:opacity-100 pointer-events-none"
+                  :style="{
+                    background: `linear-gradient(135deg, ${agent.color}10 0%, transparent 50%, ${agent.color}10 100%)`
+                  }"
+                ></div>
               </div>
             </div>
           </div>

@@ -75,35 +75,67 @@
               <p class="mb-3 text-xs text-gray-400">
                 Select your preferred visual representation. This is purely cosmetic and doesn't affect functionality.
               </p>
-              <div class="grid grid-cols-5 gap-3">
+              <div class="grid grid-cols-5 gap-4">
                 <div
                   v-for="agent in agents"
                   :key="agent.id"
-                  class="relative cursor-pointer rounded-lg border-2 p-4 transition-all hover:shadow-md"
-                  :class="selectedAgentId === agent.id ? '' : 'border-forest-600 hover:border-forest-500'"
+                  class="group relative cursor-pointer rounded-xl border-2 p-5 transition-all duration-300 hover:scale-105 hover:shadow-lg"
+                  :class="selectedAgentId === agent.id
+                    ? 'border-opacity-100 shadow-lg transform scale-105'
+                    : 'border-forest-600 hover:border-forest-500 border-opacity-50'"
                   :style="selectedAgentId === agent.id ? {
                     borderColor: agent.color,
-                    backgroundColor: agent.color + '20'
+                    backgroundColor: agent.color + '15',
+                    boxShadow: `0 8px 25px ${agent.color}30`
                   } : {}"
                   @click="setSelectedAgent(agent.id)"
                 >
                   <div class="text-center">
-                    <div class="mx-auto mb-2 h-16 w-16 overflow-hidden rounded-full bg-forest-700">
+                    <!-- Agent Avatar with Glow Effect -->
+                    <div
+                      class="mx-auto mb-3 h-18 w-18 overflow-hidden rounded-full bg-forest-700 ring-2 ring-opacity-0 transition-all duration-300 group-hover:ring-opacity-50"
+                      :class="selectedAgentId === agent.id ? 'ring-opacity-100' : ''"
+                      :style="selectedAgentId === agent.id ? {
+                        ringColor: agent.color,
+                        boxShadow: `0 0 20px ${agent.color}40`
+                      } : {}"
+                    >
                       <img
                         :src="agent.image"
                         :alt="agent.name"
-                        class="h-full w-full object-cover"
+                        class="h-full w-full object-cover transition-transform duration-300 group-hover:scale-110"
                       />
                     </div>
-                    <div class="text-xs font-medium text-white">{{ agent.name }}</div>
-                    <div class="mt-1 text-xs text-gray-400">{{ agent.personality }}</div>
+
+                    <!-- Agent Name -->
+                    <div class="text-sm font-semibold text-white mb-1">{{ agent.name }}</div>
+
+                    <!-- Agent Description -->
+                    <div class="text-xs text-gray-400 leading-relaxed">{{ agent.description }}</div>
+
+                    <!-- Personality Badge -->
+                    <div
+                      class="mt-2 inline-block px-2 py-1 rounded-full text-xs font-medium transition-all duration-300"
+                      :style="selectedAgentId === agent.id ? {
+                        backgroundColor: agent.color + '25',
+                        color: agent.color
+                      } : {
+                        backgroundColor: '#374151',
+                        color: '#9ca3af'
+                      }"
+                    >
+                      {{ agent.personality }}
+                    </div>
                   </div>
 
-                  <!-- Selected indicator -->
+                  <!-- Enhanced Selected Indicator -->
                   <div
                     v-if="selectedAgentId === agent.id"
-                    class="absolute -right-2 -top-2 flex h-6 w-6 items-center justify-center rounded-full"
-                    :style="{ backgroundColor: agent.color }"
+                    class="absolute -right-2 -top-2 flex h-7 w-7 items-center justify-center rounded-full shadow-lg animate-pulse"
+                    :style="{
+                      backgroundColor: agent.color,
+                      boxShadow: `0 0 15px ${agent.color}60`
+                    }"
                   >
                     <svg class="h-4 w-4 text-white" fill="currentColor" viewBox="0 0 20 20">
                       <path
@@ -113,10 +145,18 @@
                       />
                     </svg>
                   </div>
+
+                  <!-- Hover Glow Effect -->
+                  <div
+                    class="absolute inset-0 rounded-xl opacity-0 transition-opacity duration-300 group-hover:opacity-100 pointer-events-none"
+                    :style="{
+                      background: `linear-gradient(135deg, ${agent.color}10 0%, transparent 50%, ${agent.color}10 100%)`
+                    }"
+                  ></div>
                 </div>
               </div>
-              <p class="mt-2 text-xs text-gray-400">
-                Select from 5 different AI agent personalities
+              <p class="mt-3 text-xs text-gray-500 text-center">
+                Choose your favorite avatar - this only changes how you appear in the interface
               </p>
             </div>
           </div>
