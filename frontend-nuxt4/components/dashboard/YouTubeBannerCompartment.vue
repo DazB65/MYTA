@@ -129,14 +129,14 @@ const {
 
 // Computed display values (use YouTube data if available, otherwise fallbacks)
 const displayChannelName = computed(() => {
-  return channelName.value || props.fallbackChannelName
+  return channelName.value || 'Your YouTube Channel'
 })
 
 const displayDescription = computed(() => {
   if (isConnected.value) {
     return channelDescription.value || 'YouTube channel connected'
   }
-  return props.fallbackDescription
+  return 'Your YT Banner goes here'
 })
 
 const displayBanner = computed(() => {
