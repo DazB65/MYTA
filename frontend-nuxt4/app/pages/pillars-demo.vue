@@ -13,7 +13,7 @@
           <div class="text-sm text-gray-400">{{ totalVideos }} total videos</div>
           <button
             class="flex items-center space-x-2 rounded-lg bg-orange-500 px-4 py-2 text-white transition-colors hover:bg-orange-600"
-            @click="showAddModal = true"
+            @click="handleAddPillar"
           >
             <svg class="h-4 w-4" fill="currentColor" viewBox="0 0 20 20">
               <path
@@ -87,10 +87,7 @@ import { computed, ref } from 'vue'
 import PillarCard from '../../components/pillars/PillarCard.vue'
 import { usePillars } from '../../composables/usePillars'
 
-// Protect this route with authentication
-definePageMeta({
-  middleware: 'auth'
-})
+// Demo page - no auth required for testing
 
 // Use pillars composable
 const { pillars, totalVideos, totalViews, activePillars } = usePillars()
@@ -102,6 +99,13 @@ const showAddModal = ref(false)
 const totalIdeas = computed(() => {
   return pillars.value.reduce((total, pillar) => total + pillar.contentIdeas.length, 0)
 })
+
+// Methods
+const handleAddPillar = () => {
+  console.log('🎯 Add Pillar button clicked!')
+  showAddModal.value = true
+  console.log('🎯 Modal should be visible:', showAddModal.value)
+}
 
 // Helper function
 const formatViews = (views) => {

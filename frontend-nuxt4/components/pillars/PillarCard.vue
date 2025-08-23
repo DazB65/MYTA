@@ -11,6 +11,7 @@
             <path v-if="pillar.icon === 'GameIcon'" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
             <path v-else-if="pillar.icon === 'ReviewIcon'" d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
             <path v-else-if="pillar.icon === 'TechIcon'" fill-rule="evenodd" d="M12.316 3.051a1 1 0 01.633 1.265l-4 12a1 1 0 11-1.898-.632l4-12a1 1 0 011.265-.633zM5.707 6.293a1 1 0 010 1.414L3.414 10l2.293 2.293a1 1 0 11-1.414 1.414l-3-3a1 1 0 010-1.414l3-3a1 1 0 011.414 0zm8.586 0a1 1 0 011.414 0l3 3a1 1 0 010 1.414l-3 3a1 1 0 11-1.414-1.414L16.586 10l-2.293-2.293a1 1 0 010-1.414z" clip-rule="evenodd"/>
+            <path v-else-if="pillar.icon === 'ProductivityIcon'" fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clip-rule="evenodd"/>
             <path v-else d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
           </svg>
         </div>
@@ -77,7 +78,13 @@
       <!-- Best Performing Video -->
       <div class="flex items-center space-x-3 p-3 rounded-lg bg-forest-700">
         <div class="w-16 h-12 bg-gray-600 rounded overflow-hidden flex-shrink-0">
-          <img :src="pillar.bestVideo.thumbnail" :alt="pillar.bestVideo.title" class="w-full h-full object-cover" />
+          <img
+            :src="pillar.bestVideo.thumbnail"
+            :alt="pillar.bestVideo.title"
+            class="w-full h-full object-cover"
+            @error="handleImageError"
+            loading="lazy"
+          />
         </div>
         <div class="flex-1 min-w-0">
           <p class="text-sm font-medium text-white truncate">{{ pillar.bestVideo.title }}</p>
@@ -104,7 +111,13 @@
           class="group cursor-pointer"
         >
           <div class="w-full h-16 bg-gray-600 rounded overflow-hidden mb-2">
-            <img :src="video.thumbnail" :alt="video.title" class="w-full h-full object-cover group-hover:scale-105 transition-transform" />
+            <img
+              :src="video.thumbnail"
+              :alt="video.title"
+              class="w-full h-full object-cover group-hover:scale-105 transition-transform"
+              @error="handleImageError"
+              loading="lazy"
+            />
           </div>
           <p class="text-xs text-gray-400 truncate group-hover:text-white transition-colors">{{ video.title }}</p>
         </div>
@@ -123,7 +136,13 @@
             class="flex items-center space-x-3 p-3 rounded-lg bg-forest-700 hover:bg-forest-600 transition-colors cursor-pointer"
           >
             <div class="w-20 h-14 bg-gray-600 rounded overflow-hidden flex-shrink-0">
-              <img :src="video.thumbnail" :alt="video.title" class="w-full h-full object-cover" />
+              <img
+                :src="video.thumbnail"
+                :alt="video.title"
+                class="w-full h-full object-cover"
+                @error="handleImageError"
+                loading="lazy"
+              />
             </div>
             <div class="flex-1 min-w-0">
               <p class="text-sm font-medium text-white truncate">{{ video.title }}</p>
@@ -232,6 +251,27 @@ const formatViews = (views) => {
   }
   return views.toString()
 }
+
+const handleImageError = (event) => {
+  // Fallback to a solid color background when image fails to load
+  event.target.style.display = 'none'
+  event.target.parentElement.style.background = 'linear-gradient(135deg, #374151, #4B5563)'
+  event.target.parentElement.style.display = 'flex'
+  event.target.parentElement.style.alignItems = 'center'
+  event.target.parentElement.style.justifyContent = 'center'
+
+  // Add a play icon as fallback
+  if (!event.target.parentElement.querySelector('.fallback-icon')) {
+    const icon = document.createElement('div')
+    icon.className = 'fallback-icon text-gray-400'
+    icon.innerHTML = `
+      <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
+        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clip-rule="evenodd" />
+      </svg>
+    `
+    event.target.parentElement.appendChild(icon)
+  }
+}
 </script>
 
 <style scoped>
@@ -239,5 +279,20 @@ const formatViews = (views) => {
 .transition-all {
   transition-property: all;
   transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Image loading states */
+img {
+  background: linear-gradient(135deg, #374151, #4B5563);
+  min-height: 100%;
+  min-width: 100%;
+}
+
+/* Fallback for failed images */
+.bg-gray-600 {
+  background: linear-gradient(135deg, #374151, #4B5563) !important;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 </style>
