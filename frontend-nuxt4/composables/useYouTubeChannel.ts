@@ -150,31 +150,42 @@ export const useYouTubeChannel = () => {
   // Connect to YouTube (redirect to OAuth)
   const connectYouTube = async () => {
     try {
+      console.log('🔗 connectYouTube: Starting OAuth flow...')
       state.value.isLoading = true
       state.value.error = null
+
+      const requestBody = {
+        user_id: 'default_user', // In production, get from auth context
+        return_url: window.location.origin + '/dashboard'
+      }
+      console.log('🔗 connectYouTube: Request body:', requestBody)
 
       // Use the existing OAuth endpoint
       const response = await fetch('/auth/initiate', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          'X-Requested-With': 'XMLHttpRequest', // Add CSRF header
         },
-        body: JSON.stringify({
-          user_id: 'default_user', // In production, get from auth context
-          return_url: window.location.origin + '/dashboard'
-        })
+        body: JSON.stringify(requestBody)
       })
+
+      console.log('🔗 connectYouTube: Response status:', response.status)
+      console.log('🔗 connectYouTube: Response headers:', Object.fromEntries(response.headers.entries()))
 
       if (response.ok) {
         const data = await response.json()
+        console.log('🔗 connectYouTube: Response data:', data)
         // Redirect to YouTube OAuth
+        console.log('🔗 connectYouTube: Redirecting to:', data.authorization_url)
         window.location.href = data.authorization_url
       } else {
         const errorData = await response.json()
+        console.error('🔗 connectYouTube: Error response:', errorData)
         state.value.error = errorData.detail || 'Failed to initiate YouTube connection'
       }
     } catch (error) {
-      console.error('Error connecting to YouTube:', error)
+      console.error('❌ connectYouTube: Exception:', error)
       state.value.error = 'Failed to connect to YouTube'
     } finally {
       state.value.isLoading = false

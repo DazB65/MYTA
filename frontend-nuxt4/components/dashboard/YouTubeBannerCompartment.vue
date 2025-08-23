@@ -160,10 +160,13 @@ const formatSubscriberCount = (count) => {
 
 // Handle connect button click
 const handleConnect = async () => {
+  console.log('🔗 Connect button clicked!')
   try {
+    console.log('🔗 Calling connectYouTube...')
     await connectYouTube()
+    console.log('🔗 connectYouTube completed')
   } catch (error) {
-    console.error('Failed to connect YouTube:', error)
+    console.error('❌ Failed to connect YouTube:', error)
   }
 }
 
