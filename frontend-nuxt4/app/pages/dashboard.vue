@@ -790,5 +790,33 @@ const truncateText = (text: string, maxLength: number) => {
 // Load settings on component mount
 onMounted(() => {
   loadAgentSettings()
+
+  // Handle OAuth callback if present
+  handleOAuthCallback()
 })
+
+// Handle OAuth callback from YouTube
+const handleOAuthCallback = () => {
+  if (typeof window !== 'undefined') {
+    const urlParams = new URLSearchParams(window.location.search)
+    const oauthSuccess = urlParams.get('oauth_success')
+    const oauthError = urlParams.get('oauth_error')
+
+    if (oauthSuccess === 'true') {
+      console.log('YouTube OAuth connection successful!')
+      // Clean up URL
+      window.history.replaceState({}, document.title, window.location.pathname)
+
+      // Optionally show a success notification
+      // You could add a toast notification here
+    } else if (oauthError) {
+      console.error('YouTube OAuth error:', oauthError)
+      // Clean up URL
+      window.history.replaceState({}, document.title, window.location.pathname)
+
+      // Optionally show an error notification
+      // You could add a toast notification here
+    }
+  }
+}
 </script>

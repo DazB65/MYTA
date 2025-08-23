@@ -1,4 +1,4 @@
-import { ref, computed } from 'vue'
+import { computed, ref } from 'vue'
 
 interface ChannelData {
   id: string
@@ -45,8 +45,8 @@ export const useYouTubeChannel = () => {
       state.value.isLoading = true
       state.value.error = null
 
-      // Check if user has connected YouTube account
-      const response = await fetch('/api/youtube/connection-status', {
+      // Check OAuth status using existing YouTube endpoint
+      const response = await fetch('/api/youtube/oauth-status/default_user', {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
@@ -55,10 +55,11 @@ export const useYouTubeChannel = () => {
 
       if (response.ok) {
         const data = await response.json()
-        state.value.isConnected = data.connected
-        
-        if (data.connected && data.channelData) {
-          state.value.channelData = data.channelData
+        state.value.isConnected = data.status === 'success' && data.data?.authenticated
+
+        // If connected, try to fetch channel data
+        if (state.value.isConnected) {
+          await fetchChannelData()
         }
       } else {
         state.value.isConnected = false
@@ -83,30 +84,57 @@ export const useYouTubeChannel = () => {
       state.value.isLoading = true
       state.value.error = null
 
-      const response = await fetch('/api/youtube/channel-data', {
-        method: 'GET',
+      // Use the existing analytics endpoint to get channel data
+      const response = await fetch('/api/youtube/analytics', {
+        method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
+        body: JSON.stringify({
+          channel_id: '', // Empty to auto-detect
+          user_id: 'default_user',
+          include_videos: false,
+          video_count: 1
+        })
       })
 
       if (response.ok) {
         const data = await response.json()
-        state.value.channelData = data.channelData
-        state.value.isConnected = true
-        
-        // Cache the data locally
-        if (typeof window !== 'undefined') {
-          localStorage.setItem('youtubeChannelData', JSON.stringify({
-            channelData: data.channelData,
-            cachedAt: new Date().toISOString()
-          }))
+        if (data.status === 'success' && data.data?.channel_data?.basic_info) {
+          const basicInfo = data.data.channel_data.basic_info
+
+          // Transform to our expected format
+          const channelData = {
+            id: basicInfo.channel_id,
+            title: basicInfo.title,
+            description: '', // Not available in basic_info
+            thumbnails: {
+              high: { url: '' } // Not available in basic_info
+            },
+            bannerExternalUrl: '', // Not available in basic_info
+            subscriberCount: basicInfo.subscriber_count,
+            videoCount: basicInfo.video_count,
+            viewCount: basicInfo.view_count
+          }
+
+          state.value.channelData = channelData
+          state.value.isConnected = true
+
+          // Cache the data locally
+          if (typeof window !== 'undefined') {
+            localStorage.setItem('youtubeChannelData', JSON.stringify({
+              channelData: channelData,
+              cachedAt: new Date().toISOString()
+            }))
+          }
+
+          return channelData
+        } else {
+          throw new Error('Invalid response format')
         }
-        
-        return data.channelData
       } else {
         const errorData = await response.json()
-        state.value.error = errorData.message || 'Failed to fetch channel data'
+        state.value.error = errorData.detail || 'Failed to fetch channel data'
         state.value.isConnected = false
         return null
       }
@@ -125,24 +153,25 @@ export const useYouTubeChannel = () => {
       state.value.isLoading = true
       state.value.error = null
 
-      // Get OAuth authorization URL
-      const response = await fetch('/api/youtube/auth-url', {
+      // Use the existing OAuth endpoint
+      const response = await fetch('/auth/initiate', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          userId: 'default_user' // In production, get from auth context
+          user_id: 'default_user', // In production, get from auth context
+          return_url: window.location.origin + '/dashboard'
         })
       })
 
       if (response.ok) {
         const data = await response.json()
         // Redirect to YouTube OAuth
-        window.location.href = data.authUrl
+        window.location.href = data.authorization_url
       } else {
         const errorData = await response.json()
-        state.value.error = errorData.message || 'Failed to initiate YouTube connection'
+        state.value.error = errorData.detail || 'Failed to initiate YouTube connection'
       }
     } catch (error) {
       console.error('Error connecting to YouTube:', error)
@@ -158,7 +187,7 @@ export const useYouTubeChannel = () => {
       state.value.isLoading = true
       state.value.error = null
 
-      const response = await fetch('/api/youtube/disconnect', {
+      const response = await fetch('/auth/revoke/default_user', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -168,14 +197,14 @@ export const useYouTubeChannel = () => {
       if (response.ok) {
         state.value.channelData = null
         state.value.isConnected = false
-        
+
         // Clear cached data
         if (typeof window !== 'undefined') {
           localStorage.removeItem('youtubeChannelData')
         }
       } else {
         const errorData = await response.json()
-        state.value.error = errorData.message || 'Failed to disconnect YouTube'
+        state.value.error = errorData.detail || 'Failed to disconnect YouTube'
       }
     } catch (error) {
       console.error('Error disconnecting YouTube:', error)
