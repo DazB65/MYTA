@@ -138,7 +138,7 @@
           <div
             class="flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-full bg-green-600"
           >
-            <span class="text-xs font-bold text-white">AI</span>
+            <span class="text-xs font-bold text-white">AG</span>
           </div>
           <div class="flex-1 rounded-lg bg-white bg-opacity-10 p-3">
             <p class="text-sm text-white">How can I help with your content creation today?</p>
@@ -153,14 +153,14 @@
           <div
             class="flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-full bg-blue-500"
           >
-            <span class="text-xs font-bold text-white">AI</span>
+            <span class="text-xs font-bold text-white">AG</span>
           </div>
           <div class="flex-1 rounded-lg bg-white bg-opacity-10 p-3">
             <p class="mb-2 text-sm text-white">
               Based on your niche, these pillar topics are trending:
             </p>
             <ul class="space-y-1 text-sm text-purple-200">
-              <li>• AI Content Creation Tools (+24%)</li>
+              <li>• Agent Content Creation Tools (+24%)</li>
             </ul>
           </div>
         </div>
@@ -170,7 +170,7 @@
       <div class="flex items-center space-x-2">
         <input
           type="text"
-          placeholder="Ask your AI agent anything..."
+          placeholder="Ask your agent anything..."
           class="flex-1 rounded-lg border border-white border-opacity-20 bg-white bg-opacity-10 px-4 py-2 text-white placeholder-green-200 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-opacity-50"
         />
         <button class="rounded-lg bg-orange-500 bg-opacity-80 p-2 transition-all hover:bg-opacity-100">

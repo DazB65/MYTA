@@ -135,45 +135,39 @@
         <div class="content">
             <p>Hi there!</p>
             
-            <p><strong>{{ invited_by_name }}</strong> ({{ invited_by_email }}) has invited you to join their team on MYTA, the Agent-powered content creation platform.</p>
+            <p><strong>Darren Berich</strong> (darren.berich@me.com) has invited you to join their team on MYTA, the Agent-powered content creation platform.</p>
             
             <div class="invitation-details">
                 <div class="detail-row">
                     <span class="detail-label">Team:</span>
-                    <span class="detail-value"><strong>{{ team_name }}</strong></span>
+                    <span class="detail-value"><strong>My Content Team</strong></span>
                 </div>
                 <div class="detail-row">
                     <span class="detail-label">Your Role:</span>
-                    <span class="detail-value"><span class="role-badge">{{ role }}</span></span>
+                    <span class="detail-value"><span class="role-badge">Editor</span></span>
                 </div>
                 <div class="detail-row">
                     <span class="detail-label">Invited By:</span>
-                    <span class="detail-value">{{ invited_by_name }}</span>
+                    <span class="detail-value">Darren Berich</span>
                 </div>
             </div>
             
-            <p>As a <strong>{{ role }}</strong>, you'll be able to:</p>
+            <p>As an <strong>Editor</strong>, you'll be able to:</p>
             <ul>
-                {% if role == "Editor" %}
                 <li>Create and edit content, tasks, and pillars</li>
                 <li>View team analytics and insights</li>
                 <li>Collaborate with agents</li>
                 <li>Access all content creation tools</li>
-                {% else %}
-                <li>View team analytics and insights</li>
-                <li>Access read-only content and reports</li>
-                <li>Monitor team progress and performance</li>
-                {% endif %}
             </ul>
             
             <div class="expiry-notice">
-                ⏰ <strong>This invitation expires on {{ expires_at }}</strong>
+                ⏰ <strong>This invitation expires on January 29, 2025</strong>
             </div>
         </div>
         
         <div class="buttons">
-            <a href="{{ accept_url }}" class="btn btn-accept">Accept Invitation</a>
-            <a href="{{ decline_url }}" class="btn btn-decline">Decline</a>
+            <a href="#" class="btn btn-accept">Accept Invitation</a>
+            <a href="#" class="btn btn-decline">Decline</a>
         </div>
         
         <div class="content">
@@ -186,9 +180,9 @@
         </div>
         
         <div class="footer">
-            <p>© {{ current_year }} MYTA. All rights reserved.</p>
+            <p>© 2025 MYTA. All rights reserved.</p>
             <p>If you're having trouble with the buttons above, copy and paste this link into your browser:</p>
-            <p style="word-break: break-all; color: #6366f1;">{{ accept_url }}</p>
+            <p style="word-break: break-all; color: #6366f1;">https://localhost:3000/invite/accept?token=abc123xyz</p>
         </div>
     </div>
 </body>

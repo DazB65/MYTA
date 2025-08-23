@@ -471,7 +471,7 @@ const generateTitle = async () => {
 
   isGenerating.value = true
   try {
-    // Simulate AI generation (replace with actual AI service call)
+    // Simulate Agent generation (replace with actual Agent service call)
     await new Promise(resolve => setTimeout(resolve, 1500))
 
     const pillar = availablePillars.value.find(p => p.id === form.value.pillarId)
@@ -482,7 +482,7 @@ const generateTitle = async () => {
     if ((agent.name === 'Levi' || agentName.value === 'Levi' || agent.id === 2) && pillar?.name === 'Marketing') {
       generatedTitle = '5 Marketing Strategies That Actually Work in 2024'
     } else if (pillar?.name === 'Technology') {
-      generatedTitle = 'The Ultimate Guide to AI Tools for Content Creators'
+      generatedTitle = 'The Ultimate Guide to Agent Tools for Content Creators'
     } else {
       generatedTitle = 'How to Create Engaging Content That Converts'
     }

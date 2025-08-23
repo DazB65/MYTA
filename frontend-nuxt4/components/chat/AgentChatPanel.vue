@@ -430,7 +430,7 @@ const availableAgents = [
     name: 'Agent 1',
     image: '/optimized/Agent1.jpg',
     color: '#ea580c',
-    description: 'AI Content Creator',
+    description: 'Agent Content Creator',
     personality: 'Professional & Analytical',
   },
   {
@@ -510,14 +510,14 @@ const sendMessage = async () => {
     // Show typing indicator
     isTyping.value = true
 
-    // Simulate AI response (replace with actual API call)
+    // Simulate Agent response (replace with actual API call)
     setTimeout(async () => {
       isTyping.value = false
 
-      // Generate sophisticated AI responses based on content
+      // Generate sophisticated Agent responses based on content
       const responses = generateAIResponses(content, selectedAgentData.value)
 
-      // Add AI responses to the active session
+      // Add Agent responses to the active session
       if (chatStore.activeSession) {
         for (const response of responses) {
           chatStore.activeSession.messages.push(response)

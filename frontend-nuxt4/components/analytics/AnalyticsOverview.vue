@@ -537,9 +537,9 @@ const refreshAIInsights = async () => {
         {
           id: 1,
           title: 'Trending Content Opportunity',
-          description: 'AI tools and productivity content is trending in your niche',
+          description: 'Agent tools and productivity content is trending in your niche',
           urgency: 'high',
-          trending_topics: ['AI tools', 'productivity hacks', '2024 trends']
+          trending_topics: ['Agent tools', 'productivity hacks', '2024 trends']
         }
       ]
     }
@@ -560,7 +560,7 @@ const getAgentColor = (agentId) => {
   return colors[agentId] || '#6B7280'
 }
 
-// Load AI insights on component mount
+// Load Agent insights on component mount
 onMounted(() => {
   refreshAIInsights()
 })

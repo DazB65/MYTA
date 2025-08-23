@@ -4,7 +4,7 @@ You're Invited to Join a Team!
 
 Hi there!
 
-{{ invited_by_name }} ({{ invited_by_email }}) has invited you to join their team on MYTA, the AI-powered content creation platform.
+{{ invited_by_name }} ({{ invited_by_email }}) has invited you to join their team on MYTA, the Agent-powered content creation platform.
 
 INVITATION DETAILS:
 - Team: {{ team_name }}
@@ -15,7 +15,7 @@ As a {{ role }}, you'll be able to:
 {% if role == "Editor" %}
 • Create and edit content, tasks, and pillars
 • View team analytics and insights
-• Collaborate with AI agents
+• Collaborate with agents
 • Access all content creation tools
 {% else %}
 • View team analytics and insights

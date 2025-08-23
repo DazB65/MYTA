@@ -388,7 +388,7 @@ const agents = [
     name: 'Agent 1',
     image: '/optimized/Agent1.jpg',
     color: 'bg-orange-600',
-    description: 'AI Content Creator',
+    description: 'Agent Content Creator',
     personality: 'Professional & Analytical',
   },
   {
