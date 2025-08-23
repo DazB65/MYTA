@@ -1,7 +1,7 @@
 <template>
-  <div 
+  <div
     class="rounded-xl bg-forest-800 p-6 cursor-pointer transition-all duration-300 hover:bg-forest-700 hover:scale-[1.02]"
-    @click="toggleExpanded"
+    @click="openPillarModal"
   >
     <!-- Header -->
     <div class="mb-4 flex items-center justify-between">
@@ -20,19 +20,10 @@
           <p class="text-sm text-gray-400">{{ pillar.videoCount }} Videos • {{ pillar.lastUpload }}</p>
         </div>
       </div>
-      <div class="flex items-center space-x-2">
-        <!-- Expand/Collapse Icon -->
-        <button class="text-gray-400 hover:text-white transition-transform duration-300" :class="{ 'rotate-180': isExpanded }">
-          <svg class="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
-            <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
-          </svg>
-        </button>
-        <!-- Menu Button -->
-        <button class="text-gray-400 hover:text-white" @click.stop="showMenu = !showMenu">
-          <svg class="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
-            <path d="M10 6a2 2 0 110-4 2 2 0 010 4zM10 12a2 2 0 110-4 2 2 0 010 4zM10 18a2 2 0 110-4 2 2 0 010 4z" />
-          </svg>
-        </button>
+      <div class="text-gray-400">
+        <svg class="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
+          <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd" />
+        </svg>
       </div>
     </div>
 
@@ -204,7 +195,8 @@
 </template>
 
 <script setup>
-import { computed, ref } from 'vue'
+import { computed } from 'vue'
+import { useModals } from '../../composables/useModals'
 
 // Props
 const props = defineProps({
@@ -214,9 +206,8 @@ const props = defineProps({
   }
 })
 
-// State
-const isExpanded = ref(false)
-const showMenu = ref(false)
+// Composables
+const { openPillar } = useModals()
 
 // Computed properties
 const pillarStats = computed(() => {
@@ -239,8 +230,9 @@ const pillarStats = computed(() => {
 })
 
 // Methods
-const toggleExpanded = () => {
-  isExpanded.value = !isExpanded.value
+const openPillarModal = () => {
+  console.log('🔥 Opening pillar modal for:', props.pillar.name)
+  openPillar(props.pillar)
 }
 
 const formatViews = (views) => {

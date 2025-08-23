@@ -34,6 +34,15 @@
         @save="handleContentSave"
       />
 
+      <!-- Pillar Modal -->
+      <PillarModal
+        v-if="modals.pillar"
+        :pillar="pillarData"
+        @close="() => modals.pillar = false"
+        @edit="handlePillarEdit"
+        @delete="handlePillarDelete"
+      />
+
       <!-- Team Invite Modal -->
       <TeamInviteModal
         v-if="modals.teamInvite"
@@ -66,6 +75,7 @@ import { onMounted, onUnmounted } from 'vue'
 import { useModals } from '../composables/useModals.js'
 import GoalModal from './goals/GoalModal.vue'
 import ContentModal from './modals/ContentModal.vue'
+import PillarModal from './pillars/PillarModal.vue'
 import TaskModal from './tasks/TaskModal.vue'
 import TeamEditModal from './team/TeamEditModal.vue'
 import TeamInviteModal from './team/TeamInviteModal.vue'
@@ -80,6 +90,7 @@ const {
   taskData,
   goalData,
   contentData,
+  pillarData,
   teamInviteData,
   teamEditData,
   teamMemberData,
@@ -91,6 +102,18 @@ const {
   handleTeamMemberRemove,
   closeAll: closeAllModals
 } = useModals()
+
+// Pillar modal handlers
+const handlePillarEdit = (pillar) => {
+  console.log('🔥 Pillar edit requested:', pillar)
+  // TODO: Implement edit functionality
+  alert('Edit functionality coming soon!')
+}
+
+const handlePillarDelete = (pillar) => {
+  console.log('🔥 Pillar delete completed:', pillar)
+  modals.pillar = false
+}
 
 
 

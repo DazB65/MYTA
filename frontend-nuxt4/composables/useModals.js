@@ -6,6 +6,7 @@ const modals = reactive({
   task: false,
   goal: false,
   content: false,
+  pillar: false,
   teamInvite: false,
   teamEdit: false,
   teamMemberEdit: false,
@@ -16,6 +17,7 @@ const modals = reactive({
 const taskData = ref(null)
 const goalData = ref(null)
 const contentData = ref(null)
+const pillarData = ref(null)
 const teamInviteData = ref(null)
 const teamEditData = ref(null)
 const teamMemberData = ref(null)
@@ -55,6 +57,12 @@ const openContentModal = (content = null) => {
   console.log('🔥 Opening content modal with data:', content)
   contentData.value = content
   modals.content = true
+}
+
+const openPillarModal = (pillar = null) => {
+  console.log('🔥 Opening pillar modal with data:', pillar)
+  pillarData.value = pillar
+  modals.pillar = true
 }
 
 const openTeamInviteModal = (teamData = null) => {
@@ -125,6 +133,7 @@ export const useModals = () => {
     taskData,
     goalData,
     contentData,
+    pillarData,
     teamInviteData,
     teamEditData,
     teamMemberData,
@@ -136,6 +145,7 @@ export const useModals = () => {
     openTask: openTaskModal,
     openGoal: openGoalModal,
     openContent: openContentModal,
+    openPillar: openPillarModal,
     openTeamInvite: openTeamInviteModal,
     openTeamEdit: openTeamEditModal,
     openTeamMemberEdit: openTeamMemberEditModal,
