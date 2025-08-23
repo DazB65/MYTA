@@ -99,6 +99,70 @@
           </div>
         </div>
 
+        <!-- Performance Trend & Status -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div class="bg-forest-700 rounded-lg p-4">
+            <div class="flex items-center justify-between">
+              <span class="text-sm text-gray-400">Trend</span>
+              <span class="text-lg">{{ getPillarTrend() }}</span>
+            </div>
+            <div class="text-lg font-semibold text-white mt-1">{{ getPillarTrendText() }}</div>
+          </div>
+          <div class="bg-forest-700 rounded-lg p-4">
+            <div class="flex items-center justify-between">
+              <span class="text-sm text-gray-400">Status</span>
+              <span class="px-2 py-1 rounded-full text-xs font-medium" :class="getPillarStatusColor()">
+                {{ getPillarStatus() }}
+              </span>
+            </div>
+            <div class="text-sm text-gray-300 mt-1">{{ getPillarStatusText() }}</div>
+          </div>
+          <div class="bg-forest-700 rounded-lg p-4">
+            <div class="flex items-center justify-between">
+              <span class="text-sm text-gray-400">Next Upload</span>
+              <svg class="h-4 w-4 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z" clip-rule="evenodd" />
+              </svg>
+            </div>
+            <div class="text-lg font-semibold text-white mt-1">{{ getNextUploadDate() }}</div>
+          </div>
+        </div>
+
+        <!-- Next Video Planner -->
+        <div class="bg-forest-700 rounded-lg p-4">
+          <div class="flex items-center justify-between mb-4">
+            <h4 class="text-lg font-medium text-white">🎬 Next Video Planner</h4>
+            <button class="text-sm text-blue-400 hover:text-blue-300">Save Draft</button>
+          </div>
+          <div class="space-y-3">
+            <div>
+              <label class="block text-sm text-gray-400 mb-1">Video Title</label>
+              <input
+                type="text"
+                placeholder="Enter your next video title..."
+                class="w-full bg-forest-800 border border-forest-600 rounded-lg px-3 py-2 text-white placeholder-gray-500 focus:border-blue-500 focus:outline-none"
+              />
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+              <div>
+                <label class="block text-sm text-gray-400 mb-1">Target Keywords</label>
+                <input
+                  type="text"
+                  placeholder="keyword1, keyword2, keyword3"
+                  class="w-full bg-forest-800 border border-forest-600 rounded-lg px-3 py-2 text-white placeholder-gray-500 focus:border-blue-500 focus:outline-none"
+                />
+              </div>
+              <div>
+                <label class="block text-sm text-gray-400 mb-1">Planned Publish Date</label>
+                <input
+                  type="date"
+                  class="w-full bg-forest-800 border border-forest-600 rounded-lg px-3 py-2 text-white focus:border-blue-500 focus:outline-none"
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+
         <!-- Recent Videos -->
         <div v-if="pillar.recentVideos && pillar.recentVideos.length > 0" class="bg-forest-700 rounded-lg p-4">
           <div class="flex items-center justify-between mb-3">
@@ -150,6 +214,50 @@
                 </span>
               </div>
               <p class="text-sm text-gray-400 mt-1">{{ idea.description }}</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- SEO Keywords Tracker -->
+        <div class="bg-forest-700 rounded-lg p-4">
+          <div class="flex items-center justify-between mb-4">
+            <h4 class="text-lg font-medium text-white">🔍 SEO Keywords</h4>
+            <button class="text-sm text-green-400 hover:text-green-300">+ Add Keyword</button>
+          </div>
+          <div class="space-y-2">
+            <div v-for="keyword in getSEOKeywords()" :key="keyword.id" class="flex items-center justify-between p-2 bg-forest-800 rounded-lg">
+              <div class="flex items-center space-x-3">
+                <span class="text-white">{{ keyword.term }}</span>
+                <span class="px-2 py-1 rounded-full text-xs" :class="keyword.rankingClass">
+                  #{{ keyword.ranking }}
+                </span>
+              </div>
+              <div class="flex items-center space-x-2">
+                <span class="text-xs text-gray-400">{{ keyword.searches }}/mo</span>
+                <button class="text-gray-400 hover:text-red-400">
+                  <svg class="h-4 w-4" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd" />
+                  </svg>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Publishing Schedule -->
+        <div class="bg-forest-700 rounded-lg p-4">
+          <h4 class="text-lg font-medium text-white mb-4">📅 Publishing Schedule</h4>
+          <div class="space-y-3">
+            <div class="flex items-center justify-between">
+              <span class="text-sm text-gray-400">Publishing Rhythm</span>
+              <span class="text-sm text-white">{{ getPublishingRhythm() }}</span>
+            </div>
+            <div class="grid grid-cols-3 gap-3">
+              <div v-for="date in getRecentPublishDates()" :key="date.id" class="text-center p-2 bg-forest-800 rounded-lg">
+                <div class="text-xs text-gray-400">{{ date.label }}</div>
+                <div class="text-sm font-medium text-white">{{ date.date }}</div>
+                <div class="text-xs" :class="date.statusClass">{{ date.status }}</div>
+              </div>
             </div>
           </div>
         </div>
@@ -297,5 +405,58 @@ const confirmDelete = () => {
     console.error('Error deleting pillar:', error)
     alert('Error deleting pillar. Please try again.')
   }
+}
+
+// Quick wins methods
+const getPillarTrend = () => {
+  const trends = ['📈', '📉', '➡️']
+  return trends[Math.floor(Math.random() * trends.length)]
+}
+
+const getPillarTrendText = () => {
+  const texts = ['Growing', 'Declining', 'Stable']
+  return texts[Math.floor(Math.random() * texts.length)]
+}
+
+const getPillarStatus = () => {
+  const statuses = ['Hot', 'Growing', 'Stable', 'Needs Attention']
+  return statuses[Math.floor(Math.random() * statuses.length)]
+}
+
+const getPillarStatusColor = () => {
+  const colors = ['bg-red-500/20 text-red-400', 'bg-green-500/20 text-green-400', 'bg-blue-500/20 text-blue-400', 'bg-yellow-500/20 text-yellow-400']
+  return colors[Math.floor(Math.random() * colors.length)]
+}
+
+const getPillarStatusText = () => {
+  const texts = ['High engagement', 'Steady growth', 'Consistent performance', 'Room for improvement']
+  return texts[Math.floor(Math.random() * texts.length)]
+}
+
+const getNextUploadDate = () => {
+  const today = new Date()
+  const nextWeek = new Date(today.getTime() + 7 * 24 * 60 * 60 * 1000)
+  return nextWeek.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
+}
+
+const getSEOKeywords = () => {
+  return [
+    { id: 1, term: 'gaming review', ranking: 3, searches: '12K', rankingClass: 'bg-green-500/20 text-green-400' },
+    { id: 2, term: 'best games 2024', ranking: 15, searches: '8.5K', rankingClass: 'bg-yellow-500/20 text-yellow-400' },
+    { id: 3, term: 'indie games', ranking: 7, searches: '5.2K', rankingClass: 'bg-green-500/20 text-green-400' },
+    { id: 4, term: 'game analysis', ranking: 25, searches: '3.1K', rankingClass: 'bg-red-500/20 text-red-400' }
+  ]
+}
+
+const getPublishingRhythm = () => {
+  return 'Every 3-4 days'
+}
+
+const getRecentPublishDates = () => {
+  return [
+    { id: 1, label: 'Last Upload', date: 'Dec 18', status: 'On time', statusClass: 'text-green-400' },
+    { id: 2, label: 'Previous', date: 'Dec 14', status: 'On time', statusClass: 'text-green-400' },
+    { id: 3, label: 'Before', date: 'Dec 10', status: 'Late', statusClass: 'text-red-400' }
+  ]
 }
 </script>
