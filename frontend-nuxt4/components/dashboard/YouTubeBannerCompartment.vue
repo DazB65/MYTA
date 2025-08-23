@@ -47,42 +47,10 @@
         </div>
       </div>
 
-      <!-- Right side: Connect/Refresh Button -->
+      <!-- Right side: Hidden for now -->
       <div class="text-right">
-        <!-- Loading state -->
-        <div v-if="isLoading" class="flex items-center space-x-2 text-white">
-          <svg class="h-5 w-5 animate-spin" fill="none" viewBox="0 0 24 24">
-            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-          </svg>
-          <span class="text-sm">Loading...</span>
-        </div>
-
-        <!-- Connect button if not connected -->
-        <button
-          v-else-if="!isConnected"
-          @click="handleConnect"
-          class="flex items-center space-x-2 rounded-lg bg-red-600 bg-opacity-90 px-4 py-2 text-white backdrop-blur-sm transition-all hover:bg-opacity-100 hover:scale-105"
-          title="Connect YouTube Account"
-        >
-          <svg class="h-5 w-5" fill="currentColor" viewBox="0 0 24 24">
-            <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/>
-          </svg>
-          <span class="text-sm font-medium">Connect</span>
-        </button>
-
-        <!-- Refresh button if connected -->
-        <button
-          v-else
-          @click="handleRefresh"
-          class="flex items-center space-x-2 rounded-lg bg-white bg-opacity-20 px-4 py-2 text-white backdrop-blur-sm transition-all hover:bg-opacity-30 hover:scale-105"
-          title="Refresh Channel Data"
-        >
-          <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
-          </svg>
-          <span class="text-sm font-medium">Refresh</span>
-        </button>
+        <!-- Temporarily hidden until OAuth is working -->
+        <!-- Will show Connect/Refresh buttons when OAuth flow is fixed -->
       </div>
     </div>
 
