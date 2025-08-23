@@ -376,7 +376,7 @@ const emit = defineEmits<{
 }>()
 
 // Composables
-const { selectedAgent, agentName } = useAgentSettings()
+const { selectedAgent, agentName, allAgents, setSelectedAgent, setAgentName } = useAgentSettings()
 const chatStore = useChatStore()
 const { getContextualQuestions } = useSmartQuestions()
 const { saveMessageAsTask, prepareTaskData } = useSaveToTask()
@@ -423,49 +423,8 @@ const smartSuggestions = computed(() => {
   return getContextualQuestions(agentId)
 })
 
-// Available agents for selection
-const availableAgents = [
-  {
-    id: 1,
-    name: 'Agent 1',
-    image: '/optimized/Agent1.jpg',
-    color: '#ea580c',
-    description: 'Agent Content Creator',
-    personality: 'Professional & Analytical',
-  },
-  {
-    id: 2,
-    name: 'Agent 2',
-    image: '/optimized/Agent2.jpg',
-    color: '#eab308',
-    description: 'Marketing Specialist',
-    personality: 'Strategic & Data-Driven',
-  },
-  {
-    id: 3,
-    name: 'Agent 3',
-    image: '/optimized/Agent3.jpg',
-    color: '#16a34a',
-    description: 'Analytics Expert',
-    personality: 'Detail-Oriented & Insightful',
-  },
-  {
-    id: 4,
-    name: 'Agent 4',
-    image: '/optimized/Agent4.jpg',
-    color: '#ea580c',
-    description: 'Creative Assistant',
-    personality: 'Innovative & Artistic',
-  },
-  {
-    id: 5,
-    name: 'Agent 5',
-    image: '/optimized/Agent5.jpg',
-    color: '#dc2626',
-    description: 'Strategy Advisor',
-    personality: 'Visionary & Strategic',
-  },
-]
+// Use agents from the main composable for consistency
+const availableAgents = computed(() => allAgents.value)
 
 // Create or get existing chat session for the selected agent
 const ensureChatSession = () => {
@@ -675,34 +634,14 @@ const generateAIResponses = (userMessage: string, agent: any) => {
 }
 
 const saveSettings = () => {
-  // Update global agent settings
+  // Update agent name if changed
   if (tempAgentName.value.trim()) {
-    agentName.value = tempAgentName.value.trim()
+    setAgentName(tempAgentName.value.trim())
   }
 
+  // Update selected agent if changed
   if (tempSelectedAgent.value !== selectedAgent.value?.id) {
-    const newAgent = availableAgents.find(a => a.id === tempSelectedAgent.value)
-    if (newAgent) {
-      // Save to localStorage (this should ideally use the useAgentSettings composable)
-      const settings = {
-        name: tempAgentName.value.trim() || newAgent.name,
-        selectedAgent: tempSelectedAgent.value
-      }
-      localStorage.setItem('agentSettings', JSON.stringify(settings))
-
-      // Trigger a page reload to update all components with new agent
-      window.location.reload()
-    }
-  } else if (tempAgentName.value.trim()) {
-    // Just update the name
-    const settings = {
-      name: tempAgentName.value.trim(),
-      selectedAgent: selectedAgent.value?.id || 1
-    }
-    localStorage.setItem('agentSettings', JSON.stringify(settings))
-
-    // Update the reactive value
-    agentName.value = tempAgentName.value.trim()
+    setSelectedAgent(tempSelectedAgent.value)
   }
 
   showSettings.value = false

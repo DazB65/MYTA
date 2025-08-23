@@ -71,7 +71,10 @@
 
             <!-- Agent Selection -->
             <div>
-              <label class="mb-2 block text-sm font-medium text-white">Choose Your Agent</label>
+              <label class="mb-2 block text-sm font-medium text-white">Choose Your Personal Avatar</label>
+              <p class="mb-3 text-xs text-gray-400">
+                Select your preferred visual representation. This is purely cosmetic and doesn't affect functionality.
+              </p>
               <div class="grid grid-cols-5 gap-3">
                 <div
                   v-for="agent in agents"
