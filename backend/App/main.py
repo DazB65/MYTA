@@ -52,6 +52,7 @@ from .collaboration_router import router as collaboration_router
 from .realtime_analytics_router import router as realtime_analytics_router
 from .notification_router import router as notification_router
 from .team_router import router as team_router
+from .youtube_channel_endpoints import router as youtube_channel_router
 from .request_logging import log_request_middleware
 from .error_handler import create_error_response, MYTAError
 
@@ -485,6 +486,9 @@ app.include_router(notification_router)
 
 # Include team router (handles team collaboration and member management)
 app.include_router(team_router)
+
+# Include YouTube channel router (handles channel data fetching and OAuth)
+app.include_router(youtube_channel_router)
 
 # =============================================================================
 # Global Exception Handlers

@@ -172,11 +172,9 @@
 
         <!-- YouTube Banner Compartment -->
         <YouTubeBannerCompartment
-          :banner-url="userBanner.url"
-          :channel-name="userBanner.channelName"
-          :channel-description="userBanner.description"
-          :channel-avatar="userBanner.avatar"
-          @upload="handleBannerUpload"
+          :fallback-banner-url="userBanner.url"
+          :fallback-channel-name="userBanner.channelName"
+          :fallback-description="userBanner.description"
         />
       </div>
     </div>
