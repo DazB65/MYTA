@@ -86,11 +86,11 @@
             <label class="block text-sm font-medium text-text-secondary mb-2">
               Due Date *
             </label>
-            <VInput
+            <input
               v-model="form.dueDate"
               type="date"
+              class="input w-full"
               required
-              :error="errors.dueDate"
             />
           </div>
 
@@ -107,22 +107,7 @@
           </div>
         </div>
 
-        <!-- Agent Assignment -->
-        <div v-if="availableAgents.length > 0">
-          <label class="block text-sm font-medium text-text-secondary mb-2">
-            Assign to Agent
-          </label>
-          <select v-model="form.agentId" class="input w-full">
-            <option value="">No agent assigned</option>
-            <option
-              v-for="agent in availableAgents"
-              :key="agent.id"
-              :value="agent.id"
-            >
-              {{ agent.name }} - {{ agent.specialization }}
-            </option>
-          </select>
-        </div>
+
 
         <!-- Tags -->
         <div>
@@ -209,7 +194,6 @@
 
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue'
-import { useAgentsStore } from '../../stores/agents'
 import type { CreateTaskRequest, Task, TaskCategory, TaskPriority, TaskStatus } from '../../types/tasks'
 import VBadge from '../ui/VBadge.vue'
 import VButton from '../ui/VButton.vue'
@@ -225,8 +209,6 @@ const emit = defineEmits<{
   save: [taskData: CreateTaskRequest]
 }>()
 
-const agentsStore = useAgentsStore()
-
 // Form state
 const form = ref({
   title: '',
@@ -235,7 +217,6 @@ const form = ref({
   category: '' as TaskCategory | '',
   dueDate: '',
   estimatedTime: '',
-  agentId: '',
   tags: [] as string[],
   status: 'pending' as TaskStatus,
 })
@@ -245,9 +226,6 @@ const errors = ref({
   title: '',
   dueDate: '',
 })
-
-// Available agents
-const availableAgents = computed(() => agentsStore.allAgents)
 
 // Task templates
 const taskTemplates = [
@@ -303,32 +281,74 @@ const taskTemplates = [
 
 // Form validation
 const isFormValid = computed(() => {
-  return form.value.title.trim() && 
-         form.value.priority && 
-         form.value.category && 
-         form.value.dueDate
+  const valid = form.value.title.trim() &&
+                form.value.priority &&
+                form.value.category &&
+                form.value.dueDate
+
+  console.log('🔍 TaskModal: isFormValid check:', {
+    title: !!form.value.title.trim(),
+    priority: !!form.value.priority,
+    category: !!form.value.category,
+    dueDate: !!form.value.dueDate,
+    overall: valid
+  })
+
+  return valid
 })
+
+// Helper to format date for input
+const formatDateForInput = (date: Date | string) => {
+  const d = new Date(date)
+  return d.toISOString().split('T')[0]
+}
 
 // Initialize form with task data if editing
 watch(() => props.task, (task) => {
+  console.log('🔄 TaskModal: Initializing form with task:', task)
+
   if (task) {
+    const formattedDate = formatDateForInput(task.dueDate)
+    console.log('📅 TaskModal: Formatting existing date:', task.dueDate, '→', formattedDate)
+    console.log('🔍 TaskModal: Task data received:', {
+      id: task.id,
+      title: task.title,
+      estimatedTime: task.estimatedTime,
+      estimatedTimeType: typeof task.estimatedTime,
+      tags: task.tags,
+      isInsightTask: task.tags?.includes('levi-insight')
+    })
+
     form.value = {
       title: task.title,
       description: task.description,
       priority: task.priority,
       category: task.category,
-      dueDate: new Date(task.dueDate).toISOString().split('T')[0],
-      estimatedTime: task.estimatedTime?.toString() || '',
-      agentId: task.agentId || '',
+      dueDate: formattedDate,
+      estimatedTime: typeof task.estimatedTime === 'number' ? task.estimatedTime.toString() : (task.estimatedTime || ''),
       tags: [...task.tags],
       status: task.status,
     }
   } else {
-    // Set default due date to tomorrow
+    // Reset form for new task
     const tomorrow = new Date()
     tomorrow.setDate(tomorrow.getDate() + 1)
-    form.value.dueDate = tomorrow.toISOString().split('T')[0]
+    const tomorrowFormatted = formatDateForInput(tomorrow)
+    console.log('📅 TaskModal: Setting default date to tomorrow:', tomorrowFormatted)
+
+    form.value = {
+      title: '',
+      description: '',
+      priority: '' as TaskPriority | '',
+      category: '' as TaskCategory | '',
+      dueDate: tomorrowFormatted,
+      estimatedTime: '',
+      tags: [] as string[],
+      status: 'pending' as TaskStatus,
+    }
   }
+
+  console.log('✅ TaskModal: Form initialized with dueDate:', form.value.dueDate)
 }, { immediate: true })
 
 // Methods
@@ -354,23 +374,37 @@ const applyTemplate = (template: any) => {
 }
 
 const validateForm = () => {
+  console.log('🔍 TaskModal: Validating form with data:', form.value)
+
   errors.value = { title: '', dueDate: '' }
-  
+
   if (!form.value.title.trim()) {
     errors.value.title = 'Title is required'
+    console.log('❌ TaskModal: Title validation failed')
   }
-  
+
   if (!form.value.dueDate) {
     errors.value.dueDate = 'Due date is required'
+    console.log('❌ TaskModal: Due date validation failed')
   }
-  
-  return !errors.value.title && !errors.value.dueDate
+
+  const isValid = !errors.value.title && !errors.value.dueDate
+  console.log('✅ TaskModal: Form validation result:', isValid, 'Errors:', errors.value)
+
+  return isValid
 }
 
 const handleSubmit = () => {
-  if (!validateForm()) return
-  
-  const taskData: CreateTaskRequest = {
+  console.log('🚀 TaskModal: handleSubmit called!')
+
+  if (!validateForm()) {
+    console.log('❌ TaskModal: Form validation failed, not submitting')
+    return
+  }
+
+  console.log('💾 TaskModal: Form validation passed, submitting form with dueDate:', form.value.dueDate)
+
+  const taskData: any = {
     title: form.value.title.trim(),
     description: form.value.description.trim(),
     priority: form.value.priority as TaskPriority,
@@ -378,9 +412,15 @@ const handleSubmit = () => {
     dueDate: new Date(form.value.dueDate),
     tags: form.value.tags,
     estimatedTime: form.value.estimatedTime ? parseInt(form.value.estimatedTime) : undefined,
-    agentId: form.value.agentId || undefined,
   }
-  
+
+  // Include status when editing
+  if (props.task) {
+    taskData.status = form.value.status
+    console.log('✏️ TaskModal: Updating task with status:', taskData.status)
+  }
+
+  console.log('📤 TaskModal: Final taskData:', taskData)
   emit('save', taskData)
 }
 </script>

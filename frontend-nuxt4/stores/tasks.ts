@@ -1,13 +1,13 @@
 import { defineStore } from 'pinia'
 import { computed, ref } from 'vue'
 import type {
-  CreateTaskRequest,
-  Task,
-  TaskCategory,
-  TaskFilter,
-  TaskPriority,
-  TaskStats,
-  UpdateTaskRequest,
+    CreateTaskRequest,
+    Task,
+    TaskCategory,
+    TaskFilter,
+    TaskPriority,
+    TaskStats,
+    UpdateTaskRequest,
 } from '../types/tasks'
 
 export const useTasksStore = defineStore('tasks', () => {
@@ -364,10 +364,16 @@ export const useTasksStore = defineStore('tasks', () => {
   }
 
   const updateTask = (taskData: UpdateTaskRequest) => {
+    console.log('🏪 Tasks Store: updateTask called with:', taskData)
+
     const taskIndex = tasks.value.findIndex(t => t.id === taskData.id)
+    console.log('🔍 Tasks Store: Found task at index:', taskIndex)
+
     if (taskIndex !== -1) {
       const currentTask = tasks.value[taskIndex]
       if (!currentTask) return
+
+      console.log('📋 Tasks Store: Current task before update:', { ...currentTask })
 
       // Update only the fields that are provided
       if (taskData.title !== undefined) currentTask.title = taskData.title
@@ -375,12 +381,19 @@ export const useTasksStore = defineStore('tasks', () => {
       if (taskData.status !== undefined) currentTask.status = taskData.status
       if (taskData.priority !== undefined) currentTask.priority = taskData.priority
       if (taskData.category !== undefined) currentTask.category = taskData.category
-      if (taskData.dueDate !== undefined) currentTask.dueDate = taskData.dueDate
+      if (taskData.dueDate !== undefined) {
+        console.log('📅 Tasks Store: Updating dueDate from', currentTask.dueDate, 'to', taskData.dueDate)
+        currentTask.dueDate = taskData.dueDate
+      }
       if (taskData.tags !== undefined) currentTask.tags = taskData.tags
       if (taskData.estimatedTime !== undefined) currentTask.estimatedTime = taskData.estimatedTime
       if (taskData.actualTime !== undefined) currentTask.actualTime = taskData.actualTime
 
       currentTask.updatedAt = new Date()
+
+      console.log('✅ Tasks Store: Task updated to:', { ...currentTask })
+    } else {
+      console.error('❌ Tasks Store: Task not found with ID:', taskData.id)
     }
   }
 

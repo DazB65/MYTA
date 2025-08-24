@@ -241,9 +241,11 @@
                         <div class="flex space-x-2">
                           <button
                             @click.stop="addInsightAsTask(insight)"
-                            class="rounded bg-yellow-500 px-3 py-1 text-xs text-black transition-colors hover:bg-yellow-400"
+                            :disabled="insight.isAdding"
+                            class="rounded bg-yellow-500 px-3 py-1 text-xs text-black transition-colors hover:bg-yellow-400 disabled:opacity-50 disabled:cursor-not-allowed"
                           >
-                            Add as Task
+                            <span v-if="insight.isAdding">Adding...</span>
+                            <span v-else>Add as Task</span>
                           </button>
                           <button
                             @click.stop="dismissInsight(insight)"
@@ -740,7 +742,16 @@ const productivityScore = computed(() => {
 
 // Methods
 const editTask = (task: Task) => {
-  openTask(task)
+  console.log('✏️ Tasks Page: editTask called with:', {
+    id: task.id,
+    title: task.title,
+    tags: task.tags,
+    isInsightTask: task.tags?.includes('levi-insight'),
+    estimatedTime: task.estimatedTime,
+    estimatedTimeType: typeof task.estimatedTime
+  })
+  // Use local modal instead of global modal
+  editingTask.value = task
 }
 
 const createTaskWithCategory = (category?: TaskCategory) => {
@@ -754,9 +765,15 @@ const closeModal = () => {
 }
 
 const saveTask = (taskData: any) => {
+  console.log('🔄 Tasks Page: saveTask called with:', taskData)
+  console.log('📝 Tasks Page: editingTask.value:', editingTask.value)
+
   if (editingTask.value) {
-    tasksStore.updateTask({ id: editingTask.value.id, ...taskData })
+    const updateData = { id: editingTask.value.id, ...taskData }
+    console.log('📤 Tasks Page: Calling updateTask with:', updateData)
+    tasksStore.updateTask(updateData)
   } else {
+    console.log('➕ Tasks Page: Calling addTask with:', taskData)
     tasksStore.addTask(taskData)
   }
   closeModal()
@@ -1238,6 +1255,9 @@ const markAllInsightsAsRead = () => {
 }
 
 const addInsightAsTask = (insight: any) => {
+  // Set loading state
+  insight.isAdding = true
+
   const tomorrow = new Date()
   tomorrow.setDate(tomorrow.getDate() + 1)
 
@@ -1248,15 +1268,17 @@ const addInsightAsTask = (insight: any) => {
     priority: insight.priority,
     category: insight.category || 'content',
     dueDate: selectedDate.value || tomorrow,
-    estimatedTime: insight.estimatedTime || '30 min',
+    estimatedTime: typeof insight.estimatedTime === 'number' ? insight.estimatedTime : 30, // Convert to minutes
     tags: ['levi-insight'],
   }
 
   tasksStore.addTask(taskData)
 
-  // Mark as read and dismiss
-  insight.is_read = true
-  dismissInsight(insight)
+  // Small delay for better UX, then remove insight
+  setTimeout(() => {
+    dismissInsight(insight)
+    console.log(`✅ Added "${insight.title}" as task and removed from insights`)
+  }, 300)
 }
 
 const dismissInsight = (insight: any) => {
@@ -1264,6 +1286,9 @@ const dismissInsight = (insight: any) => {
   const index = suggestionNotifications.value.findIndex(n => n.id === insight.id)
   if (index > -1) {
     suggestionNotifications.value.splice(index, 1)
+    console.log(`🗑️ Removed insight "${insight.title}" from list (index: ${index})`)
+  } else {
+    console.warn(`⚠️ Could not find insight "${insight.title}" to remove`)
   }
 }
 
