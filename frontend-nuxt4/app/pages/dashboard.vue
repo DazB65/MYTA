@@ -3,70 +3,82 @@
     <!-- Dashboard Content -->
     <div class="p-6 pt-24">
       <!-- Page Header -->
-      <div class="mb-4 flex items-center justify-between">
+      <div class="mb-4">
         <div class="flex items-center space-x-4">
           <h1 class="text-2xl font-bold text-white">Dashboard</h1>
           <span class="text-gray-400">•</span>
           <p class="text-gray-400">Overview of your channel performance and tasks</p>
         </div>
-        <div class="flex items-center space-x-4">
-          <div class="text-sm text-gray-400">Last 30 days</div>
-          <NotificationBell />
-        </div>
       </div>
 
       <!-- Channel Statistics -->
       <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
-        <div class="rounded-xl bg-forest-800 p-4 text-center">
-          <div class="text-2xl font-bold text-blue-400">{{ formatNumber(channelStats.totalSubscribers) }}</div>
-          <div class="text-sm text-gray-400">Current Subscribers</div>
-          <div class="text-xs text-green-400 mt-1">+5%</div>
+        <div class="rounded-xl bg-forest-800 p-3 flex items-center justify-between">
+          <div>
+            <div class="text-xl font-bold text-blue-400">{{ formatNumber(channelStats.totalSubscribers) }}</div>
+            <div class="text-sm text-gray-400">Current Subscribers</div>
+          </div>
+          <div class="text-xs text-green-400 font-medium">+5%</div>
         </div>
-        <div class="rounded-xl bg-forest-800 p-4 text-center">
-          <div class="text-2xl font-bold text-green-400">{{ formatSubscriberChange(channelStats.subscriberChange) }}</div>
-          <div class="text-sm text-gray-400">Sub Change (7 days)</div>
-          <div class="text-xs text-green-400 mt-1">+25%</div>
+        <div class="rounded-xl bg-forest-800 p-3 flex items-center justify-between">
+          <div>
+            <div class="text-xl font-bold text-green-400">{{ formatSubscriberChange(channelStats.subscriberChange) }}</div>
+            <div class="text-sm text-gray-400">Sub Change (7 days)</div>
+          </div>
+          <div class="text-xs text-green-400 font-medium">+25%</div>
         </div>
-        <div class="rounded-xl bg-forest-800 p-4 text-center">
-          <div class="text-2xl font-bold text-yellow-400">{{ formatNumber(channelStats.totalViews) }}</div>
-          <div class="text-sm text-gray-400">Total Views</div>
-          <div class="text-xs text-green-400 mt-1">+14%</div>
+        <div class="rounded-xl bg-forest-800 p-3 flex items-center justify-between">
+          <div>
+            <div class="text-xl font-bold text-yellow-400">{{ formatNumber(channelStats.totalViews) }}</div>
+            <div class="text-sm text-gray-400">Total Views</div>
+          </div>
+          <div class="text-xs text-green-400 font-medium">+14%</div>
         </div>
-        <div class="rounded-xl bg-forest-800 p-4 text-center">
-          <div class="text-2xl font-bold text-orange-400">{{ channelStats.avgViewDuration }}</div>
-          <div class="text-sm text-gray-400">Avg View Duration</div>
-          <div class="text-xs text-green-400 mt-1">+3%</div>
+        <div class="rounded-xl bg-forest-800 p-3 flex items-center justify-between">
+          <div>
+            <div class="text-xl font-bold text-orange-400">{{ channelStats.avgViewDuration }}</div>
+            <div class="text-sm text-gray-400">Avg View Duration</div>
+          </div>
+          <div class="text-xs text-green-400 font-medium">+3%</div>
         </div>
       </div>
 
       <!-- Analytics Performance -->
       <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
         <!-- Watch Time -->
-        <div class="rounded-xl bg-forest-800 p-4 text-center">
-          <div class="text-2xl font-bold text-purple-400">{{ formatWatchTime(watchTimeMinutes) }}</div>
-          <div class="text-sm text-gray-400">Watch Time</div>
-          <div class="text-xs text-green-400 mt-1">+12%</div>
+        <div class="rounded-xl bg-forest-800 p-3 flex items-center justify-between">
+          <div>
+            <div class="text-xl font-bold text-purple-400">{{ formatWatchTime(watchTimeMinutes) }}</div>
+            <div class="text-sm text-gray-400">Watch Time</div>
+          </div>
+          <div class="text-xs text-green-400 font-medium">+12%</div>
         </div>
 
         <!-- Engagement Rate -->
-        <div class="rounded-xl bg-forest-800 p-4 text-center">
-          <div class="text-2xl font-bold text-cyan-400">{{ engagementRate.toFixed(1) }}%</div>
-          <div class="text-sm text-gray-400">Engagement Rate</div>
-          <div class="text-xs text-green-400 mt-1">+8%</div>
+        <div class="rounded-xl bg-forest-800 p-3 flex items-center justify-between">
+          <div>
+            <div class="text-xl font-bold text-cyan-400">{{ engagementRate.toFixed(1) }}%</div>
+            <div class="text-sm text-gray-400">Engagement Rate</div>
+          </div>
+          <div class="text-xs text-green-400 font-medium">+8%</div>
         </div>
 
         <!-- Click-Through Rate -->
-        <div class="rounded-xl bg-forest-800 p-4 text-center">
-          <div class="text-2xl font-bold text-pink-400">{{ clickThroughRate.toFixed(1) }}%</div>
-          <div class="text-sm text-gray-400">Click Rate</div>
-          <div class="text-xs text-green-400 mt-1">+15%</div>
+        <div class="rounded-xl bg-forest-800 p-3 flex items-center justify-between">
+          <div>
+            <div class="text-xl font-bold text-pink-400">{{ clickThroughRate.toFixed(1) }}%</div>
+            <div class="text-sm text-gray-400">Click Rate</div>
+          </div>
+          <div class="text-xs text-green-400 font-medium">+15%</div>
         </div>
 
         <!-- Impressions -->
-        <div class="rounded-xl bg-forest-800 p-4 text-center">
-          <div class="text-2xl font-bold text-indigo-400">{{ formatNumber(impressions) }}</div>
-          <div class="text-sm text-gray-400">Impressions</div>
-          <div class="text-xs text-green-400 mt-1">+22%</div>
+        <div class="rounded-xl bg-forest-800 p-3 flex items-center justify-between">
+          <div>
+            <div class="text-xl font-bold text-indigo-400">{{ formatNumber(impressions) }}</div>
+            <div class="text-sm text-gray-400">Impressions</div>
+          </div>
+          <div class="text-xs text-green-400 font-medium">+22%</div>
         </div>
       </div>
 
@@ -78,13 +90,13 @@
           <div class="rounded-xl bg-forest-800 p-6">
           <div class="mb-6 flex items-center justify-between">
             <div class="flex items-center space-x-3">
-              <div class="flex h-10 w-10 items-center justify-center rounded-lg bg-orange-500">
+              <div class="flex h-10 w-10 items-center justify-center rounded-lg bg-blue-500">
                 <svg class="h-6 w-6 text-white" fill="currentColor" viewBox="0 0 20 20">
-                  <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                  <path fill-rule="evenodd" d="M3 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z" clip-rule="evenodd"/>
                 </svg>
               </div>
               <div>
-                <h3 class="text-lg font-semibold text-white">Channel Tasks</h3>
+                <h3 class="text-lg font-semibold text-blue-400">Channel Tasks</h3>
                 <p class="text-sm text-gray-400">{{ taskStats.completed }} of {{ taskStats.total }} completed</p>
               </div>
             </div>
@@ -219,21 +231,22 @@
           <div class="rounded-xl bg-forest-800 p-6 h-full flex flex-col">
             <div class="mb-6 flex items-center justify-between">
               <div class="flex items-center space-x-3">
-                <div class="flex h-10 w-10 items-center justify-center rounded-lg bg-orange-500">
+                <div class="flex h-10 w-10 items-center justify-center rounded-lg bg-purple-500">
                   <svg class="h-6 w-6 text-white" fill="currentColor" viewBox="0 0 20 20">
-                    <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-8.293l-3-3a1 1 0 00-1.414 1.414L10.586 9.5 9.293 10.793a1 1 0 101.414 1.414l2-2a1 1 0 000-1.414z" clip-rule="evenodd"/>
                   </svg>
                 </div>
                 <div>
-                  <h3 class="text-lg font-semibold text-white">Channel Goals</h3>
+                  <h3 class="text-lg font-semibold text-purple-400">Channel Goals</h3>
                   <p class="text-sm text-gray-400">Track your progress</p>
                 </div>
               </div>
-              <button class="text-gray-400 hover:text-white transition-colors">
-                <svg class="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
-                  <path d="M10 6a2 2 0 110-4 2 2 0 010 4zM10 12a2 2 0 110-4 2 2 0 010 4zM10 18a2 2 0 110-4 2 2 0 010 4z"/>
-                </svg>
-              </button>
+              <LoadingButton
+                button-class="rounded-lg bg-orange-500 px-4 py-2 text-sm text-white hover:bg-orange-600"
+                @click="showCreateGoalModal = true"
+              >
+                ➕ Add Goal
+              </LoadingButton>
             </div>
 
             <!-- Goals Grid -->
@@ -287,16 +300,7 @@
               </div>
             </div>
 
-            <!-- Quick Actions -->
-            <div class="mt-6">
-              <LoadingButton
-                button-class="w-full flex items-center justify-center space-x-2 rounded-lg bg-orange-500 p-3 text-sm text-white hover:bg-orange-600"
-                @click="showCreateGoalModal = true"
-              >
-                <span>➕</span>
-                <span>Add New Goal</span>
-              </LoadingButton>
-            </div>
+
           </div>
 
           </div>
@@ -452,7 +456,6 @@
 
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue'
-import NotificationBell from '../../components/dashboard/NotificationBell.vue'
 import LoadingButton from '../../components/ui/LoadingButton.vue'
 import { useModals } from '../../composables/useModals.js'
 import type { ChannelGoal } from '../../stores/analytics'

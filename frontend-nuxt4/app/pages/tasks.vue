@@ -1,14 +1,13 @@
 <template>
   <div class="min-h-screen bg-forest-900 text-white">
-    <div class="p-4 pt-32">
+    <div class="p-6 pt-24">
       <div class="space-y-8">
       <!-- Page Header -->
       <div class="flex items-center justify-between">
-        <div>
-          <h1 class="text-2xl font-bold text-white mb-2">Task Management</h1>
-          <p class="text-gray-400">
-            Organize and track your content creation tasks with AI-powered insights
-          </p>
+        <div class="flex items-center space-x-4">
+          <h1 class="text-2xl font-bold text-white">Task Management</h1>
+          <span class="text-gray-400">•</span>
+          <p class="text-gray-400">Organize and track your content creation tasks with Agent-powered insights</p>
         </div>
 
         <div class="flex items-center space-x-3">
@@ -164,43 +163,112 @@
 
           <!-- Right Column: Levi Suggestions (1/3 width) -->
           <div class="space-y-6">
-            <!-- AI Task Suggestions -->
+            <!-- Levi Insights (Combined Suggestions & Notifications) -->
             <div class="rounded-xl bg-forest-800 p-6">
-              <div class="mb-6 flex items-center space-x-3">
-                <div class="flex h-10 w-10 items-center justify-center rounded-lg overflow-hidden" style="background-color: #FFEAA720;">
-                  <img
-                    src="/optimized/Agent2.jpg"
-                    alt="Levi"
-                    class="h-full w-full object-cover rounded-lg"
-                  />
-                </div>
-                <div>
-                  <h3 class="text-lg font-semibold text-white">Levi Suggestions</h3>
-                  <p class="text-sm text-gray-400">Smart task recommendations</p>
-                </div>
-              </div>
-
-              <div class="space-y-3">
-                <div
-                  v-for="suggestion in aiSuggestions"
-                  :key="suggestion.id"
-                  class="flex items-center justify-between p-3 rounded-lg bg-forest-700 hover:bg-forest-600 transition-colors"
-                >
-                  <div class="flex items-center space-x-3">
-                    <div class="w-8 h-8 rounded-lg flex items-center justify-center bg-forest-600">
-                      <span class="text-sm">{{ suggestion.icon }}</span>
-                    </div>
-                    <div>
-                      <h4 class="font-medium text-white">{{ suggestion.title }}</h4>
-                      <p class="text-sm text-gray-400">{{ suggestion.description }}</p>
-                    </div>
+              <div class="mb-6 flex items-center justify-between">
+                <div class="flex items-center space-x-3">
+                  <div class="flex h-10 w-10 items-center justify-center rounded-lg overflow-hidden" style="background-color: #FFEAA720;">
+                    <img
+                      src="/optimized/Agent2.jpg"
+                      alt="Levi"
+                      class="h-full w-full object-cover rounded-lg"
+                    />
                   </div>
-                  <button class="rounded bg-orange-500 px-3 py-1 text-sm text-white hover:bg-orange-600" @click="addSuggestionAsTask(suggestion)">
-                    Add
+                  <div>
+                    <h3 class="text-lg font-semibold text-white">Levi Insights</h3>
+                    <p class="text-sm text-gray-400">Smart recommendations & updates</p>
+                  </div>
+                </div>
+
+                <!-- Unread Count Badge -->
+                <div v-if="unreadInsightsCount > 0" class="flex items-center space-x-2">
+                  <span class="px-2 py-1 bg-yellow-500/20 text-yellow-400 text-xs rounded-full font-medium">
+                    {{ unreadInsightsCount }} new
+                  </span>
+                  <button
+                    @click="markAllInsightsAsRead"
+                    class="text-xs text-yellow-400 hover:text-yellow-300 underline"
+                  >
+                    Mark all read
                   </button>
                 </div>
               </div>
+
+              <!-- Combined Insights List -->
+              <div v-if="combinedInsights.length > 0" class="space-y-4">
+                <div
+                  v-for="insight in combinedInsights"
+                  :key="`${insight.type}-${insight.id}`"
+                  class="rounded-lg p-4 transition-colors"
+                  :class="insight.is_read ? 'bg-forest-700 hover:bg-forest-600' : 'bg-yellow-500/10 border border-yellow-500/20 hover:bg-yellow-500/15'"
+                  @click="markInsightAsRead(insight)"
+                >
+                  <div class="flex items-start space-x-3">
+                    <!-- Icon -->
+                    <div class="w-8 h-8 rounded-lg flex items-center justify-center bg-yellow-500/20 flex-shrink-0">
+                      <span class="text-sm">{{ insight.icon }}</span>
+                    </div>
+
+                    <!-- Content -->
+                    <div class="flex-1">
+                      <div class="flex items-start justify-between mb-2">
+                        <h4 class="font-medium text-white">{{ insight.title }}</h4>
+                        <div class="flex items-center space-x-2 ml-2">
+                          <span
+                            class="px-2 py-1 rounded-full text-xs font-medium"
+                            :class="{
+                              'bg-red-500/20 text-red-400': insight.priority === 'high',
+                              'bg-yellow-500/20 text-yellow-400': insight.priority === 'medium',
+                              'bg-green-500/20 text-green-400': insight.priority === 'low'
+                            }"
+                          >
+                            {{ insight.priority }}
+                          </span>
+                          <span v-if="insight.created_at" class="text-xs text-gray-500">{{ formatNotificationTime(insight.created_at) }}</span>
+                          <div v-if="!insight.is_read" class="w-2 h-2 bg-yellow-500 rounded-full"></div>
+                        </div>
+                      </div>
+
+                      <p class="text-sm text-gray-400 mb-3">{{ insight.description || insight.message }}</p>
+
+                      <!-- Action Buttons for All Insights -->
+                      <div class="flex items-center justify-between">
+                        <div class="flex items-center space-x-4 text-xs text-gray-400">
+                          <span v-if="insight.category">{{ insight.category }}</span>
+                          <span v-if="insight.estimatedTime">{{ insight.estimatedTime }}</span>
+                          <span v-if="insight.type === 'notification'">{{ insight.type }}</span>
+                        </div>
+                        <div class="flex space-x-2">
+                          <button
+                            @click.stop="addInsightAsTask(insight)"
+                            class="rounded bg-yellow-500 px-3 py-1 text-xs text-black transition-colors hover:bg-yellow-400"
+                          >
+                            Add as Task
+                          </button>
+                          <button
+                            @click.stop="dismissInsight(insight)"
+                            class="rounded bg-gray-600 px-3 py-1 text-xs text-white transition-colors hover:bg-gray-500"
+                          >
+                            Dismiss
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Empty State -->
+              <div v-else class="text-center py-8">
+                <svg class="h-12 w-12 text-gray-400 mx-auto mb-3" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M12 22c1.1 0 2-.9 2-2h-4c0 1.1.89 2 2 2zm6-6v-5c0-3.07-1.64-5.64-4.5-6.32V4c0-.83-.67-1.5-1.5-1.5s-1.5.67-1.5 1.5v.68C7.63 5.36 6 7.92 6 11v5l-2 2v1h16v-1l-2-2z"/>
+                </svg>
+                <p class="text-sm text-gray-400 mb-1">No insights yet</p>
+                <span class="text-xs text-gray-500">You're all caught up!</span>
+              </div>
             </div>
+
+
           </div>
         </div>
 
@@ -514,6 +582,62 @@ const editingTask = ref<Task | null>(null)
 const activeFilter = ref<TaskFilter>('all')
 const searchQuery = ref('')
 
+// Agent notifications state
+const suggestionNotifications = ref([
+  {
+    id: 1,
+    type: 'agent_recommendation',
+    priority: 'high',
+    title: 'Create AI Gaming Tools Video',
+    message: 'AI Gaming Tools is trending in your niche - perfect timing for a comprehensive review!',
+    description: 'Research and create a video about the latest AI tools for gaming. Include tool reviews, comparisons, and practical demonstrations.',
+    category: 'content',
+    estimatedTime: '2-3 hours',
+    icon: '🔥',
+    created_at: new Date().toISOString(),
+    is_read: false
+  },
+  {
+    id: 2,
+    type: 'optimization_opportunity',
+    priority: 'medium',
+    title: 'Optimize Recent Thumbnails',
+    message: 'Your last 3 videos have lower CTR than usual. Thumbnail refresh could boost performance.',
+    description: 'Redesign thumbnails for recent videos focusing on bright colors, clear text, and emotional expressions.',
+    category: 'optimization',
+    estimatedTime: '1 hour',
+    icon: '🎨',
+    created_at: new Date(Date.now() - 3600000).toISOString(),
+    is_read: false
+  },
+  {
+    id: 3,
+    type: 'performance_alert',
+    priority: 'medium',
+    title: 'Plan Consistency Schedule',
+    message: 'You haven\'t uploaded in 5 days. Maintaining regular uploads boosts algorithm performance.',
+    description: 'Create and schedule your next 3 videos to maintain audience engagement. Focus on your best-performing content pillars.',
+    category: 'planning',
+    estimatedTime: '45 min',
+    icon: '📅',
+    created_at: new Date(Date.now() - 7200000).toISOString(),
+    is_read: true
+  },
+  {
+    id: 4,
+    type: 'seo_opportunity',
+    priority: 'low',
+    title: 'Update Video SEO',
+    message: 'New trending keywords detected in your niche. Update descriptions to boost discoverability.',
+    description: 'Research current trending keywords and update descriptions for your top 5 performing videos to improve search rankings.',
+    category: 'seo',
+    estimatedTime: '30 min',
+    icon: '🔍',
+    created_at: new Date(Date.now() - 10800000).toISOString(),
+    is_read: false
+  }
+])
+
 // Agent settings
 const { selectedAgent, agentName, allAgents } = useAgentSettings()
 
@@ -585,39 +709,7 @@ const filteredTasks = computed(() => {
   return tasks
 })
 
-// AI Suggestions (mock data - would come from AI service)
-const aiSuggestions = ref([
-  {
-    id: '1',
-    title: 'Optimize video thumbnails',
-    description: 'Your click-through rate could improve with better thumbnails',
-    priority: 'high' as TaskPriority,
-    category: 'content' as TaskCategory,
-    icon: '🎨',
-    color: '#9333ea',
-    estimatedTime: 60,
-  },
-  {
-    id: '2',
-    title: 'Research trending keywords',
-    description: 'New keywords are trending in your niche',
-    priority: 'medium' as TaskPriority,
-    category: 'seo' as TaskCategory,
-    icon: '🔍',
-    color: '#059669',
-    estimatedTime: 45,
-  },
-  {
-    id: '3',
-    title: 'Engage with community comments',
-    description: 'You have 23 unresponded comments from this week',
-    priority: 'low' as TaskPriority,
-    category: 'community' as TaskCategory,
-    icon: '💬',
-    color: '#7c3aed',
-    estimatedTime: 30,
-  },
-])
+// AI Suggestions - removed, now using only suggestionNotifications for unified insights
 
 // Analytics computed properties
 const averageTaskTime = computed(() => {
@@ -1097,6 +1189,98 @@ const addSuggestionAsTask = (suggestion: any) => {
   })
 
   dismissSuggestion(suggestion.id)
+}
+
+// Combined insights functionality
+const combinedInsights = computed(() => {
+  // Use only suggestionNotifications as unified insights
+  const insights = suggestionNotifications.value.map(notification => ({
+    ...notification,
+    type: 'insight',
+    icon: notification.icon || '🔔'
+  }))
+
+  return insights.sort((a, b) => {
+    // Sort by read status first (unread first)
+    if (a.is_read !== b.is_read) {
+      return a.is_read ? 1 : -1
+    }
+
+    // Then by priority
+    const priorityOrder = { high: 0, medium: 1, low: 2 }
+    const aPriority = priorityOrder[a.priority] ?? 3
+    const bPriority = priorityOrder[b.priority] ?? 3
+
+    if (aPriority !== bPriority) {
+      return aPriority - bPriority
+    }
+
+    // Finally by date (newest first)
+    const aDate = new Date(a.created_at || 0)
+    const bDate = new Date(b.created_at || 0)
+    return bDate.getTime() - aDate.getTime()
+  })
+})
+
+const unreadInsightsCount = computed(() => {
+  return combinedInsights.value.filter(insight => !insight.is_read).length
+})
+
+const markInsightAsRead = (insight: any) => {
+  if (insight.type === 'notification') {
+    insight.is_read = true
+  }
+  // Suggestions don't need to be marked as read
+}
+
+const markAllInsightsAsRead = () => {
+  suggestionNotifications.value.forEach(n => n.is_read = true)
+}
+
+const addInsightAsTask = (insight: any) => {
+  const tomorrow = new Date()
+  tomorrow.setDate(tomorrow.getDate() + 1)
+
+  // Create task from insight
+  const taskData = {
+    title: insight.title,
+    description: insight.description || insight.message,
+    priority: insight.priority,
+    category: insight.category || 'content',
+    dueDate: selectedDate.value || tomorrow,
+    estimatedTime: insight.estimatedTime || '30 min',
+    tags: ['levi-insight'],
+  }
+
+  tasksStore.addTask(taskData)
+
+  // Mark as read and dismiss
+  insight.is_read = true
+  dismissInsight(insight)
+}
+
+const dismissInsight = (insight: any) => {
+  // Remove insight from suggestionNotifications
+  const index = suggestionNotifications.value.findIndex(n => n.id === insight.id)
+  if (index > -1) {
+    suggestionNotifications.value.splice(index, 1)
+  }
+}
+
+const formatNotificationTime = (dateString: string) => {
+  const date = new Date(dateString)
+  const now = new Date()
+  const diffTime = now.getTime() - date.getTime()
+  const diffHours = Math.floor(diffTime / (1000 * 60 * 60))
+  const diffMinutes = Math.floor(diffTime / (1000 * 60))
+
+  if (diffMinutes < 60) {
+    return `${diffMinutes}m ago`
+  } else if (diffHours < 24) {
+    return `${diffHours}h ago`
+  } else {
+    return date.toLocaleDateString()
+  }
 }
 </script>
 
