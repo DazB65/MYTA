@@ -87,7 +87,7 @@
                   <h4 class="text-sm font-medium text-white">{{ item.title }}</h4>
                   <div class="relative">
                     <button
-                      @click="toggleDropdown(item.id)"
+                      @click.stop="toggleDropdown(item.id)"
                       class="text-gray-400 hover:text-white"
                     >
                       <svg class="h-4 w-4" fill="currentColor" viewBox="0 0 20 20">
@@ -200,7 +200,7 @@
                   <h4 class="text-sm font-medium text-white">{{ item.title }}</h4>
                   <div class="relative">
                     <button
-                      @click="toggleDropdown(item.id)"
+                      @click.stop="toggleDropdown(item.id)"
                       class="text-gray-400 hover:text-white"
                     >
                       <svg class="h-4 w-4" fill="currentColor" viewBox="0 0 20 20">
@@ -313,7 +313,7 @@
                   <h4 class="text-sm font-medium text-white">{{ item.title }}</h4>
                   <div class="relative">
                     <button
-                      @click="toggleDropdown(item.id)"
+                      @click.stop="toggleDropdown(item.id)"
                       class="text-gray-400 hover:text-white"
                     >
                       <svg class="h-4 w-4" fill="currentColor" viewBox="0 0 20 20">
@@ -432,7 +432,7 @@
                   <h4 class="text-sm font-medium text-white">{{ item.title }}</h4>
                   <div class="relative">
                     <button
-                      @click="toggleDropdown(item.id)"
+                      @click.stop="toggleDropdown(item.id)"
                       class="text-gray-400 hover:text-white"
                     >
                       <svg class="h-4 w-4" fill="currentColor" viewBox="0 0 20 20">
@@ -537,66 +537,93 @@
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           <!-- Trending Topics -->
           <div class="rounded-lg bg-forest-700/50 p-4 border border-forest-600/20">
-            <div class="mb-3 flex items-center space-x-2">
-              <div class="h-2 w-2 rounded-full bg-red-500"></div>
-              <h4 class="text-sm font-semibold text-white">Trending Now</h4>
+            <div class="mb-3 flex items-center justify-between">
+              <div class="flex items-center space-x-2">
+                <div class="h-2 w-2 rounded-full bg-red-500"></div>
+                <h4 class="text-sm font-semibold text-white">Trending Now</h4>
+              </div>
+              <span class="text-xs text-gray-400">Click to save as task</span>
             </div>
             <div class="space-y-2">
-              <div class="cursor-pointer rounded-md bg-forest-700 p-3 hover:bg-forest-600 transition-colors">
-                <p class="text-sm text-white font-medium">Agent Tools for Content Creation</p>
-                <p class="text-xs text-gray-400 mt-1">High engagement potential</p>
-              </div>
-              <div class="cursor-pointer rounded-md bg-forest-700 p-3 hover:bg-forest-600 transition-colors">
-                <p class="text-sm text-white font-medium">2024 Social Media Predictions</p>
-                <p class="text-xs text-gray-400 mt-1">Seasonal relevance</p>
-              </div>
-              <div class="cursor-pointer rounded-md bg-forest-700 p-3 hover:bg-forest-600 transition-colors">
-                <p class="text-sm text-white font-medium">Short-form Video Strategies</p>
-                <p class="text-xs text-gray-400 mt-1">Platform trending</p>
+              <div
+                v-for="trending in contentSuggestions.trendingTopics"
+                :key="trending.id"
+                @click="handleSuggestionClick(trending)"
+                class="cursor-pointer rounded-md bg-forest-700 p-3 hover:bg-forest-600 transition-colors group"
+              >
+                <div class="flex items-center justify-between">
+                  <div>
+                    <p class="text-sm text-white font-medium">{{ trending.title }}</p>
+                    <p class="text-xs text-gray-400 mt-1">{{ trending.description }}</p>
+                  </div>
+                  <div class="opacity-0 group-hover:opacity-100 transition-opacity">
+                    <svg class="h-4 w-4 text-red-400" fill="currentColor" viewBox="0 0 20 20">
+                      <path fill-rule="evenodd" d="M12.395 2.553a1 1 0 00-1.45-.385c-.345.23-.614.558-.822.88-.214.33-.403.713-.57 1.116-.334.804-.614 1.768-.84 2.734a31.365 31.365 0 00-.613 3.58 2.64 2.64 0 01-.945-1.067c-.328-.68-.398-1.534-.398-2.654A1 1 0 005.05 6.05 6.981 6.981 0 003 11a7 7 0 1011.95-4.95c-.592-.591-.98-.985-1.348-1.467-.363-.476-.724-1.063-1.207-2.03zM12.12 15.12A3 3 0 017 13s.879.5 2.5.5c0-1 .5-4 1.25-4.5.5 1 .786 1.293 1.371 1.879A2.99 2.99 0 0113 13a2.99 2.99 0 01-.879 2.121z" clip-rule="evenodd"/>
+                    </svg>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
 
           <!-- Content Ideas -->
           <div class="rounded-lg bg-forest-700/50 p-4 border border-forest-600/20">
-            <div class="mb-3 flex items-center space-x-2">
-              <div class="h-2 w-2 rounded-full bg-blue-500"></div>
-              <h4 class="text-sm font-semibold text-white">Content Ideas</h4>
+            <div class="mb-3 flex items-center justify-between">
+              <div class="flex items-center space-x-2">
+                <div class="h-2 w-2 rounded-full bg-blue-500"></div>
+                <h4 class="text-sm font-semibold text-white">Content Ideas</h4>
+              </div>
+              <span class="text-xs text-gray-400">Click to save as content</span>
             </div>
             <div class="space-y-2">
-              <div class="cursor-pointer rounded-md bg-forest-700 p-3 hover:bg-forest-600 transition-colors">
-                <p class="text-sm text-white font-medium">Behind-the-Scenes Content</p>
-                <p class="text-xs text-gray-400 mt-1">Builds audience connection</p>
-              </div>
-              <div class="cursor-pointer rounded-md bg-forest-700 p-3 hover:bg-forest-600 transition-colors">
-                <p class="text-sm text-white font-medium">Tutorial Series: Beginner to Pro</p>
-                <p class="text-xs text-gray-400 mt-1">Educational content</p>
-              </div>
-              <div class="cursor-pointer rounded-md bg-forest-700 p-3 hover:bg-forest-600 transition-colors">
-                <p class="text-sm text-white font-medium">Community Q&A Sessions</p>
-                <p class="text-xs text-gray-400 mt-1">Interactive engagement</p>
+              <div
+                v-for="suggestion in contentSuggestions.contentIdeas"
+                :key="suggestion.id"
+                @click="handleSuggestionClick(suggestion)"
+                class="cursor-pointer rounded-md bg-forest-700 p-3 hover:bg-forest-600 transition-colors group"
+              >
+                <div class="flex items-center justify-between">
+                  <div>
+                    <p class="text-sm text-white font-medium">{{ suggestion.title }}</p>
+                    <p class="text-xs text-gray-400 mt-1">{{ suggestion.description }}</p>
+                  </div>
+                  <div class="opacity-0 group-hover:opacity-100 transition-opacity">
+                    <svg class="h-4 w-4 text-blue-400" fill="currentColor" viewBox="0 0 20 20">
+                      <path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clip-rule="evenodd"/>
+                    </svg>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
 
           <!-- Optimization Tips -->
           <div class="rounded-lg bg-forest-700/50 p-4 border border-forest-600/20">
-            <div class="mb-3 flex items-center space-x-2">
-              <div class="h-2 w-2 rounded-full bg-green-500"></div>
-              <h4 class="text-sm font-semibold text-white">Optimization Tips</h4>
+            <div class="mb-3 flex items-center justify-between">
+              <div class="flex items-center space-x-2">
+                <div class="h-2 w-2 rounded-full bg-green-500"></div>
+                <h4 class="text-sm font-semibold text-white">Optimization Tips</h4>
+              </div>
+              <span class="text-xs text-gray-400">Click to save as task</span>
             </div>
             <div class="space-y-2">
-              <div class="cursor-pointer rounded-md bg-forest-700 p-3 hover:bg-forest-600 transition-colors">
-                <p class="text-sm text-white font-medium">Post at 2-4 PM for max reach</p>
-                <p class="text-xs text-gray-400 mt-1">Timing optimization</p>
-              </div>
-              <div class="cursor-pointer rounded-md bg-forest-700 p-3 hover:bg-forest-600 transition-colors">
-                <p class="text-sm text-white font-medium">Use 3-5 hashtags per post</p>
-                <p class="text-xs text-gray-400 mt-1">Hashtag strategy</p>
-              </div>
-              <div class="cursor-pointer rounded-md bg-forest-700 p-3 hover:bg-forest-600 transition-colors">
-                <p class="text-sm text-white font-medium">Add captions to videos</p>
-                <p class="text-xs text-gray-400 mt-1">Accessibility boost</p>
+              <div
+                v-for="suggestion in contentSuggestions.optimizationTips"
+                :key="suggestion.id"
+                @click="handleSuggestionClick(suggestion)"
+                class="cursor-pointer rounded-md bg-forest-700 p-3 hover:bg-forest-600 transition-colors group"
+              >
+                <div class="flex items-center justify-between">
+                  <div>
+                    <p class="text-sm text-white font-medium">{{ suggestion.title }}</p>
+                    <p class="text-xs text-gray-400 mt-1">{{ suggestion.description }}</p>
+                  </div>
+                  <div class="opacity-0 group-hover:opacity-100 transition-opacity">
+                    <svg class="h-4 w-4 text-green-400" fill="currentColor" viewBox="0 0 20 20">
+                      <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                    </svg>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
@@ -675,6 +702,7 @@
 
 <script setup>
 import { nextTick, ref } from 'vue'
+
 import { useAgentSettings } from '../../composables/useAgentSettings'
 import { useModals } from '../../composables/useModals.js'
 
@@ -687,21 +715,31 @@ definePageMeta({
 const { selectedAgent, agentName } = useAgentSettings()
 
 // Use modal composable
-const { openContent } = useModals()
+const { openContent, openTask } = useModals()
 
-// Open create modal using unified system
+// Open create modal using global system
 const openCreateModal = () => {
   console.log('🔥 Opening create content modal')
   openContent(null) // null means create new content
 }
 
-// Open edit modal using unified system
+// Open edit modal using global system
 const openEditModal = (content) => {
   console.log('🔥 Opening edit content modal with data:', content)
-  openContent(content)
+  console.log('🔥 openContent function:', openContent)
+
+  try {
+    openContent(content)
+    console.log('🔥 openContent called successfully')
+  } catch (error) {
+    console.error('🔥 Error calling openContent:', error)
+  }
+
+  // Close dropdown if open
+  showDropdownMenu.value = null
 }
 
-// Modal states (using unified modal system now)
+// Modal states
 const showDeleteConfirmModal = ref(false)
 const selectedContentItem = ref(null)
 const showDropdownMenu = ref(null)
@@ -999,6 +1037,124 @@ const contentItems = ref([
   },
 ])
 
+// Content Suggestions Data
+const contentSuggestions = ref({
+  trendingTopics: [
+    {
+      id: 'ai-tools',
+      title: 'AI Tools for Content Creation',
+      description: 'High engagement potential',
+      type: 'task',
+      taskData: {
+        title: 'Research AI Tools for Content Creation',
+        description: 'Research and create content about trending AI tools for content creation. High engagement potential topic.',
+        priority: 'high',
+        dueDate: new Date(Date.now() + 2 * 24 * 60 * 60 * 1000).toISOString().split('T')[0] // 2 days from now
+      }
+    },
+    {
+      id: 'social-predictions',
+      title: '2024 Social Media Predictions',
+      description: 'Seasonal relevance',
+      type: 'task',
+      taskData: {
+        title: 'Create 2024 Social Media Predictions Content',
+        description: 'Research and develop content around 2024 social media predictions. Seasonal relevance makes this timely.',
+        priority: 'high',
+        dueDate: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000).toISOString().split('T')[0] // 3 days from now
+      }
+    },
+    {
+      id: 'short-form-video',
+      title: 'Short-form Video Strategies',
+      description: 'Platform trending',
+      type: 'task',
+      taskData: {
+        title: 'Develop Short-form Video Strategy',
+        description: 'Create a comprehensive strategy for short-form video content. Currently trending across platforms.',
+        priority: 'medium',
+        dueDate: new Date(Date.now() + 5 * 24 * 60 * 60 * 1000).toISOString().split('T')[0] // 5 days from now
+      }
+    }
+  ],
+  contentIdeas: [
+    {
+      id: 'behind-scenes',
+      title: 'Behind-the-Scenes Content',
+      description: 'Builds audience connection',
+      type: 'content',
+      contentData: {
+        title: 'Behind-the-Scenes: My Content Creation Process',
+        description: 'Take your audience behind the scenes of your content creation process. Show your workspace, tools, and creative workflow.',
+        status: 'ideas',
+        priority: 'medium'
+      }
+    },
+    {
+      id: 'tutorial-series',
+      title: 'Tutorial Series: Beginner to Pro',
+      description: 'Educational content',
+      type: 'content',
+      contentData: {
+        title: 'Complete Tutorial Series: From Beginner to Pro',
+        description: 'Create a comprehensive tutorial series that takes viewers from beginner level to advanced skills in your niche.',
+        status: 'ideas',
+        priority: 'high'
+      }
+    },
+    {
+      id: 'community-qa',
+      title: 'Community Q&A Sessions',
+      description: 'Interactive engagement',
+      type: 'content',
+      contentData: {
+        title: 'Weekly Community Q&A Sessions',
+        description: 'Host regular Q&A sessions to answer audience questions and build stronger community engagement.',
+        status: 'ideas',
+        priority: 'medium'
+      }
+    }
+  ],
+  optimizationTips: [
+    {
+      id: 'posting-time',
+      title: 'Post at 2-4 PM for max reach',
+      description: 'Timing optimization',
+      type: 'task',
+      taskData: {
+        title: 'Optimize posting schedule for maximum reach',
+        description: 'Research and implement optimal posting times (2-4 PM) for your content to maximize audience reach and engagement.',
+        priority: 'medium',
+        dueDate: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000).toISOString().split('T')[0] // 3 days from now
+      }
+    },
+    {
+      id: 'hashtag-strategy',
+      title: 'Use 3-5 hashtags per post',
+      description: 'Hashtag strategy',
+      type: 'task',
+      taskData: {
+        title: 'Develop hashtag strategy (3-5 per post)',
+        description: 'Research and create a hashtag strategy using 3-5 relevant hashtags per post to improve discoverability.',
+        priority: 'medium',
+        dueDate: new Date(Date.now() + 5 * 24 * 60 * 60 * 1000).toISOString().split('T')[0] // 5 days from now
+      }
+    },
+    {
+      id: 'video-captions',
+      title: 'Add captions to videos',
+      description: 'Accessibility boost',
+      type: 'task',
+      taskData: {
+        title: 'Add captions to all video content',
+        description: 'Implement captions for all video content to improve accessibility and engagement.',
+        priority: 'high',
+        dueDate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0] // 1 week from now
+      }
+    }
+  ]
+})
+
 // Create content function
 const createContent = () => {
   try {
@@ -1134,6 +1290,75 @@ const openDeleteModal = (item) => {
     console.error('🔥 Error stack:', error.stack)
     alert('Error opening delete modal: ' + error.message)
   }
+}
+
+// Content Suggestions Functions
+const handleSuggestionClick = (suggestion) => {
+  console.log('🔥 Suggestion clicked:', suggestion)
+
+  if (suggestion.type === 'content') {
+    saveAsContent(suggestion)
+  } else if (suggestion.type === 'task') {
+    saveAsTask(suggestion)
+  }
+}
+
+const saveAsContent = (suggestion) => {
+  console.log('🔥 Saving suggestion as content:', suggestion)
+
+  if (suggestion.contentData) {
+    openContent(suggestion.contentData)
+  } else {
+    // Create basic content from suggestion
+    const contentData = {
+      title: suggestion.title,
+      description: suggestion.description,
+      status: 'ideas',
+      priority: 'medium'
+    }
+    openContent(contentData)
+  }
+}
+
+const saveAsTask = (suggestion) => {
+  console.log('🔥 Saving suggestion as task:', suggestion)
+
+  let taskData
+
+  if (suggestion.taskData) {
+    // Use suggestion's task data and create proper task structure
+    taskData = {
+      id: `task-${Date.now()}`, // Generate unique ID
+      title: suggestion.taskData.title,
+      description: suggestion.taskData.description,
+      status: 'pending',
+      priority: suggestion.taskData.priority || 'medium',
+      category: 'content', // Default category for content suggestions
+      dueDate: new Date(suggestion.taskData.dueDate),
+      createdAt: new Date(),
+      updatedAt: new Date(),
+      tags: ['ai-suggested', 'content-strategy'],
+      estimatedTime: 60 // Default 1 hour
+    }
+  } else {
+    // Create basic task from suggestion
+    taskData = {
+      id: `task-${Date.now()}`,
+      title: suggestion.title,
+      description: suggestion.description,
+      status: 'pending',
+      priority: 'medium',
+      category: 'content',
+      dueDate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // 1 week from now
+      createdAt: new Date(),
+      updatedAt: new Date(),
+      tags: ['ai-suggested'],
+      estimatedTime: 60
+    }
+  }
+
+  console.log('🔥 Opening task modal with structured data:', taskData)
+  openTask(taskData)
 }
 
 const deleteContent = () => {

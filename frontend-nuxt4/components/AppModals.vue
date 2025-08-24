@@ -71,7 +71,7 @@
 </template>
 
 <script setup>
-import { onMounted, onUnmounted } from 'vue'
+import { onMounted, onUnmounted, watch } from 'vue'
 import { useModals } from '../composables/useModals.js'
 import GoalModal from './goals/GoalModal.vue'
 import ContentModal from './modals/ContentModal.vue'
@@ -134,4 +134,13 @@ onMounted(() => {
 })
 
 console.log('🔥 AppModals using composable - modals state:', modals)
+
+// Debug contentData changes
+watch(() => contentData.value, (newData) => {
+  console.log('🔥 AppModals - contentData changed:', newData)
+}, { immediate: true })
+
+watch(() => modals.content, (isOpen) => {
+  console.log('🔥 AppModals - content modal state:', isOpen, 'contentData:', contentData.value)
+})
 </script>

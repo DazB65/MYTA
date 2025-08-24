@@ -26,6 +26,7 @@
       <div class="flex-1 flex overflow-hidden">
         <!-- Left Column: Content Form -->
         <div class="flex-1 overflow-y-auto">
+
           <form @submit.prevent="handleSubmit" class="p-6 space-y-6">
             <!-- Title -->
             <div>
@@ -199,6 +200,7 @@
 
         <!-- Right Column: AI Assistant -->
         <div class="w-96 border-l border-forest-700 bg-forest-900/50 overflow-y-auto">
+
           <div class="p-6 space-y-6">
             <!-- Agent Header -->
             <div class="flex items-center space-x-3 pb-4 border-b border-forest-700">
@@ -271,24 +273,43 @@
             <div class="space-y-4">
               <h5 class="text-sm font-medium text-gray-300 uppercase tracking-wide">Smart Suggestions</h5>
 
+
+
               <div class="space-y-3">
                 <div
-                  v-for="suggestion in aiSuggestions"
-                  :key="suggestion.id"
-                  class="p-3 bg-forest-700/50 rounded-lg border border-forest-600/30"
+                  v-for="(suggestion, index) in aiSuggestions"
+                  :key="`suggestion-${index}`"
+                  class="p-3 bg-forest-700/50 rounded-lg border border-forest-600/30 hover:bg-forest-700/70 transition-colors cursor-pointer"
+                  @click="selectSuggestion(suggestion)"
                 >
                   <div class="flex items-start space-x-3">
                     <span class="text-lg">{{ suggestion.icon }}</span>
                     <div class="flex-1">
                       <div class="text-sm font-medium text-white mb-1">{{ suggestion.title }}</div>
-                      <div class="text-xs text-gray-400">{{ suggestion.description }}</div>
-                      <button
-                        v-if="suggestion.action"
-                        @click="applySuggestion(suggestion)"
-                        class="mt-2 text-xs text-orange-400 hover:text-orange-300 transition-colors"
-                      >
-                        Apply suggestion →
-                      </button>
+                      <div class="text-xs text-gray-400 mb-2">{{ suggestion.description }}</div>
+
+                      <!-- Action Buttons -->
+                      <div class="flex items-center space-x-2">
+                        <button
+                          v-if="suggestion.action"
+                          @click.stop="applySuggestion(suggestion)"
+                          class="text-xs px-2 py-1 bg-orange-500/20 text-orange-400 hover:text-orange-300 hover:bg-orange-500/30 rounded transition-colors"
+                        >
+                          Apply to Form
+                        </button>
+                        <button
+                          @click.stop="saveAsContent(suggestion)"
+                          class="text-xs px-2 py-1 bg-blue-500/20 text-blue-400 hover:text-blue-300 hover:bg-blue-500/30 rounded transition-colors"
+                        >
+                          Save as Content
+                        </button>
+                        <button
+                          @click.stop="saveAsTask(suggestion)"
+                          class="text-xs px-2 py-1 bg-green-500/20 text-green-400 hover:text-green-300 hover:bg-green-500/30 rounded transition-colors"
+                        >
+                          Save as Task
+                        </button>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -324,8 +345,9 @@
 </template>
 
 <script setup>
-import { computed, ref } from 'vue'
+import { computed, onMounted, ref, watch } from 'vue'
 import { useAgentSettings } from '../../composables/useAgentSettings.js'
+import { useModals } from '../../composables/useModals.js'
 
 const props = defineProps({
   content: {
@@ -338,6 +360,9 @@ const emit = defineEmits(['close', 'save'])
 
 // Agent settings
 const { selectedAgent, agentName, allAgents } = useAgentSettings()
+
+// Modal functions for creating new content/tasks
+const { openContent, openTask } = useModals()
 
 // Available pillars (mock data)
 const availablePillars = ref([
@@ -363,16 +388,41 @@ const aiSuggestions = computed(() => {
       {
         id: 'trending-topic',
         icon: '🔥',
-        title: 'Trending Topic Detected',
-        description: 'AI Gaming Tools is trending in your niche',
-        action: 'apply-trending'
+        title: 'AI Gaming Tools: Complete Guide',
+        description: 'Create a comprehensive guide on trending AI gaming tools and their applications',
+        action: 'apply-trending',
+        contentData: {
+          title: 'AI Gaming Tools: The Complete 2024 Guide',
+          description: 'A comprehensive guide covering the latest AI gaming tools, their features, and how to use them effectively for content creation.',
+          status: 'ideas',
+          priority: 'high'
+        }
+      },
+      {
+        id: 'gaming-tutorial',
+        icon: '🎮',
+        title: 'Gaming Tutorial Series',
+        description: 'Step-by-step tutorials for popular gaming tools',
+        action: null,
+        contentData: {
+          title: 'Gaming Tool Tutorials: From Beginner to Pro',
+          description: 'Create a series of tutorials showing how to master popular gaming tools and techniques.',
+          status: 'ideas',
+          priority: 'medium'
+        }
       },
       {
         id: 'optimal-timing',
         icon: '⏰',
-        title: 'Optimal Publishing Time',
-        description: 'Best time to publish: Tuesday 2-4 PM',
-        action: 'set-timing'
+        title: 'Schedule Content Publishing',
+        description: 'Set up optimal publishing schedule for gaming content',
+        action: 'set-timing',
+        taskData: {
+          title: 'Research optimal publishing times for gaming content',
+          description: 'Analyze audience engagement patterns to determine best posting schedule',
+          priority: 'medium',
+          dueDate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0] // 1 week from now
+        }
       }
     )
   }
@@ -381,21 +431,91 @@ const aiSuggestions = computed(() => {
     suggestions.push({
       id: 'marketing-hook',
       icon: '🎯',
-      title: 'Marketing Hook Suggestion',
-      description: 'Start with a problem your audience faces',
-      action: 'apply-hook'
+      title: 'Marketing Hook Strategy',
+      description: 'Create content that addresses audience pain points',
+      action: 'apply-hook',
+      contentData: {
+        title: 'Solving Your Biggest Marketing Challenge',
+        description: 'Are you struggling with low engagement? This comprehensive guide will help you create content that resonates with your audience.',
+        status: 'ideas',
+        priority: 'high'
+      }
     })
   }
 
   if (form.value.status === 'ideas') {
-    suggestions.push({
-      id: 'research-tip',
-      icon: '🔍',
-      title: 'Research Tip',
-      description: 'Check competitor content for gaps',
-      action: null
-    })
+    suggestions.push(
+      {
+        id: 'research-tip',
+        icon: '🔍',
+        title: 'Competitor Research Guide',
+        description: 'Analyze competitor content to find content gaps and opportunities',
+        action: null,
+        contentData: {
+          title: 'Complete Competitor Analysis Framework',
+          description: 'A step-by-step guide to researching competitors and identifying content opportunities in your niche.',
+          status: 'ideas',
+          priority: 'medium'
+        }
+      },
+      {
+        id: 'content-calendar',
+        icon: '📅',
+        title: 'Content Calendar Planning',
+        description: 'Plan your content strategy for the next month',
+        action: null,
+        taskData: {
+          title: 'Create content calendar for next month',
+          description: 'Plan and schedule content topics, publishing dates, and promotional strategy',
+          priority: 'high',
+          dueDate: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000).toISOString().split('T')[0] // 3 days from now
+        }
+      }
+    )
   }
+
+  // Add some general suggestions that always appear
+  suggestions.push(
+    {
+      id: 'seo-optimization',
+      icon: '🔍',
+      title: 'SEO Content Optimization',
+      description: 'Create SEO-friendly content that ranks well in search results',
+      action: null,
+      contentData: {
+        title: 'SEO Content Strategy Guide',
+        description: 'Learn how to create content that ranks well in search engines and drives organic traffic.',
+        status: 'ideas',
+        priority: 'high'
+      }
+    },
+    {
+      id: 'engagement-boost',
+      icon: '💬',
+      title: 'Audience Engagement Strategy',
+      description: 'Increase audience interaction and community building',
+      action: null,
+      taskData: {
+        title: 'Develop audience engagement strategy',
+        description: 'Create a plan to increase comments, shares, and community interaction',
+        priority: 'medium',
+        dueDate: new Date(Date.now() + 5 * 24 * 60 * 60 * 1000).toISOString().split('T')[0] // 5 days from now
+      }
+    },
+    {
+      id: 'content-repurpose',
+      icon: '♻️',
+      title: 'Content Repurposing Ideas',
+      description: 'Turn one piece of content into multiple formats',
+      action: null,
+      contentData: {
+        title: 'Content Repurposing Masterclass',
+        description: 'Learn how to maximize your content by repurposing it across different platforms and formats.',
+        status: 'ideas',
+        priority: 'medium'
+      }
+    }
+  )
 
   return suggestions
 })
@@ -464,6 +584,46 @@ const form = ref({
     published: false
   }
 })
+
+// Initialize form with content data when editing
+const initializeForm = () => {
+  if (props.content) {
+    console.log('🔥 Initializing form with content:', props.content)
+    form.value = {
+      title: props.content.title || '',
+      description: props.content.description || '',
+      status: props.content.status || 'ideas',
+      priority: props.content.priority || 'medium',
+      pillarId: props.content.pillar?.id || '',
+      stageDueDates: props.content.stageDueDates || {
+        ideas: '',
+        planning: '',
+        'in-progress': '',
+        published: ''
+      },
+      stageCompletions: props.content.stageCompletions || {
+        ideas: false,
+        planning: false,
+        'in-progress': false,
+        published: false
+      }
+    }
+  } else {
+    console.log('🔥 Creating new content - using default form values')
+  }
+}
+
+// Initialize form when component mounts
+onMounted(() => {
+  initializeForm()
+})
+
+// Watch for changes to content prop (in case it changes after mount)
+watch(() => props.content, () => {
+  initializeForm()
+}, { immediate: true })
+
+
 
 // AI Generation Functions
 const generateTitle = async () => {
@@ -540,17 +700,90 @@ const suggestTopics = async () => {
 const applySuggestion = (suggestion) => {
   switch (suggestion.action) {
     case 'apply-trending':
-      form.value.title = 'AI Gaming Tools: The Complete 2024 Guide'
+      if (suggestion.contentData) {
+        form.value.title = suggestion.contentData.title
+        form.value.description = suggestion.contentData.description
+        form.value.priority = suggestion.contentData.priority
+      }
       break
     case 'set-timing':
       // This would set optimal publishing time in a future enhancement
       alert('Optimal timing applied! This would set the best publishing schedule.')
       break
     case 'apply-hook':
-      if (!form.value.description.includes('Are you struggling with')) {
-        form.value.description = 'Are you struggling with ' + form.value.description
+      if (suggestion.contentData) {
+        form.value.title = suggestion.contentData.title
+        form.value.description = suggestion.contentData.description
       }
       break
+  }
+}
+
+// New functions for saving suggestions as content or tasks
+const selectSuggestion = (suggestion) => {
+  console.log('🔥 Selected suggestion:', suggestion)
+  // This could show a preview or more details about the suggestion
+}
+
+const saveAsContent = (suggestion) => {
+  console.log('🔥 Saving suggestion as content:', suggestion)
+
+  try {
+    if (suggestion.contentData) {
+      // Close current modal first
+      emit('close')
+
+      // Open new content modal with suggestion data
+      setTimeout(() => {
+        openContent(suggestion.contentData)
+      }, 100)
+    } else {
+      // Create basic content from suggestion
+      const contentData = {
+        title: suggestion.title,
+        description: suggestion.description,
+        status: 'ideas',
+        priority: 'medium'
+      }
+
+      emit('close')
+      setTimeout(() => {
+        openContent(contentData)
+      }, 100)
+    }
+  } catch (error) {
+    console.error('🔥 Error in saveAsContent:', error)
+  }
+}
+
+const saveAsTask = (suggestion) => {
+  console.log('🔥 Saving suggestion as task:', suggestion)
+
+  try {
+    if (suggestion.taskData) {
+      // Close current modal first
+      emit('close')
+
+      // Open task modal with suggestion data
+      setTimeout(() => {
+        openTask(suggestion.taskData)
+      }, 100)
+    } else {
+      // Create basic task from suggestion
+      const taskData = {
+        title: suggestion.title,
+        description: suggestion.description,
+        priority: 'medium',
+        dueDate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0] // 1 week from now
+      }
+
+      emit('close')
+      setTimeout(() => {
+        openTask(taskData)
+      }, 100)
+    }
+  } catch (error) {
+    console.error('🔥 Error in saveAsTask:', error)
   }
 }
 
