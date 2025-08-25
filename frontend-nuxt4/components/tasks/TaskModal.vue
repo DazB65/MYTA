@@ -46,6 +46,19 @@
           />
         </div>
 
+        <!-- Notes -->
+        <div>
+          <label class="block text-sm font-medium text-text-secondary mb-2">
+            Notes
+          </label>
+          <textarea
+            v-model="form.notes"
+            placeholder="Add personal notes for this task..."
+            rows="4"
+            class="input w-full resize-none"
+          />
+        </div>
+
         <!-- Priority and Category -->
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
@@ -219,6 +232,7 @@ const form = ref({
   estimatedTime: '',
   tags: [] as string[],
   status: 'pending' as TaskStatus,
+  notes: '',
 })
 
 const newTag = ref('')
@@ -328,6 +342,7 @@ watch(() => props.task, (task) => {
       estimatedTime: typeof task.estimatedTime === 'number' ? task.estimatedTime.toString() : (task.estimatedTime || ''),
       tags: [...task.tags],
       status: task.status,
+      notes: task.notes || '',
     }
   } else {
     // Reset form for new task
@@ -345,6 +360,7 @@ watch(() => props.task, (task) => {
       estimatedTime: '',
       tags: [] as string[],
       status: 'pending' as TaskStatus,
+      notes: '',
     }
   }
 
@@ -412,6 +428,7 @@ const handleSubmit = () => {
     dueDate: new Date(form.value.dueDate),
     tags: form.value.tags,
     estimatedTime: form.value.estimatedTime ? parseInt(form.value.estimatedTime) : undefined,
+    notes: form.value.notes.trim(),
   }
 
   // Include status when editing

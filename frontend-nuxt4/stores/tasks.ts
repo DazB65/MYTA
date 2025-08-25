@@ -388,6 +388,7 @@ export const useTasksStore = defineStore('tasks', () => {
       if (taskData.tags !== undefined) currentTask.tags = taskData.tags
       if (taskData.estimatedTime !== undefined) currentTask.estimatedTime = taskData.estimatedTime
       if (taskData.actualTime !== undefined) currentTask.actualTime = taskData.actualTime
+      if (taskData.notes !== undefined) currentTask.notes = taskData.notes
 
       currentTask.updatedAt = new Date()
 

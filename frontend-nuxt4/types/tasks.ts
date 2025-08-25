@@ -14,6 +14,7 @@ export interface Task {
   tags: string[]
   estimatedTime?: number // in minutes
   actualTime?: number // in minutes
+  notes?: string // personal notes for the task
 }
 
 export type TaskStatus = 'pending' | 'in_progress' | 'completed' | 'cancelled' | 'on_hold'
@@ -58,6 +59,7 @@ export interface CreateTaskRequest {
   tags?: string[]
   estimatedTime?: number
   agentId?: string
+  notes?: string
 }
 
 export interface UpdateTaskRequest {
@@ -71,4 +73,5 @@ export interface UpdateTaskRequest {
   tags?: string[]
   estimatedTime?: number
   actualTime?: number
+  notes?: string
 }
