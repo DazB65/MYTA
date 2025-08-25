@@ -14,13 +14,13 @@ export interface AgentData {
   personality: string
 }
 
-// Available agents data - matching backend agent_personalities.py
+// Available agents data - matching actual UI colors from Agent Settings modal
 const agentsData: AgentData[] = [
   {
     id: 1,
     name: 'Alex',
     image: '/optimized/Agent1.jpg',
-    color: '#3b82f6', // Blue
+    color: '#f97316', // Orange
     description: 'Analytics & Strategy Specialist',
     personality: 'Data-driven and analytical',
   },
@@ -28,7 +28,7 @@ const agentsData: AgentData[] = [
     id: 2,
     name: 'Levi',
     image: '/optimized/Agent2.jpg',
-    color: '#eab308', // Yellow (user preference)
+    color: '#3b82f6', // Blue
     description: 'Content Creation Specialist',
     personality: 'Creative and innovative',
   },
@@ -36,7 +36,7 @@ const agentsData: AgentData[] = [
     id: 3,
     name: 'Maya',
     image: '/optimized/Agent3.jpg',
-    color: '#16a34a', // Green
+    color: '#a855f7', // Purple
     description: 'Audience Engagement Specialist',
     personality: 'Community-focused and empathetic',
   },
@@ -44,7 +44,7 @@ const agentsData: AgentData[] = [
     id: 4,
     name: 'Zara',
     image: '/optimized/Agent4.jpg',
-    color: '#a855f7', // Purple
+    color: '#eab308', // Yellow
     description: 'Growth & Optimization Specialist',
     personality: 'Results-driven and strategic',
   },
@@ -52,7 +52,7 @@ const agentsData: AgentData[] = [
     id: 5,
     name: 'Kai',
     image: '/optimized/Agent5.jpg',
-    color: '#dc2626', // Red
+    color: '#16a34a', // Green
     description: 'Technical & SEO Specialist',
     personality: 'Technical and detail-oriented',
   },

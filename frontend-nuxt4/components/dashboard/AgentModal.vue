@@ -348,6 +348,7 @@
 
 <script setup>
 import { computed, onMounted, ref } from 'vue'
+import { useAgentSettings } from '../../composables/useAgentSettings'
 
 const props = defineProps({
   isOpen: {
@@ -357,6 +358,9 @@ const props = defineProps({
 })
 
 const emit = defineEmits(['close'])
+
+// Use the agent settings composable
+const { agentName, selectedAgentId, selectedAgent, setSelectedAgent, setAgentName } = useAgentSettings()
 
 const activeTab = ref('chats')
 const messageInput = ref('')
@@ -372,22 +376,20 @@ const chatMessages = ref([
     timestamp: '10:30 AM',
   },
 ])
-const agentSettings = ref({
-  name: 'Professional Assistant',
-  selectedAgent: 1,
-})
+
+// Temporary settings for the modal (before saving)
 const tempSettings = ref({
-  name: 'Professional Assistant',
+  name: '',
   selectedAgent: 1,
 })
 
-// Available agents - matching backend agent definitions
+// Available agents - matching actual UI colors from Agent Settings modal
 const agents = [
   {
     id: 1,
     name: 'Alex',
     image: '/optimized/Agent1.jpg',
-    color: 'bg-blue-600',
+    color: '#f97316', // Orange
     description: 'Analytics & Strategy Specialist',
     personality: 'Data-driven and analytical',
   },
@@ -395,7 +397,7 @@ const agents = [
     id: 2,
     name: 'Levi',
     image: '/optimized/Agent2.jpg',
-    color: 'bg-yellow-600',
+    color: '#3b82f6', // Blue
     description: 'Content Creation Specialist',
     personality: 'Creative and innovative',
   },
@@ -403,7 +405,7 @@ const agents = [
     id: 3,
     name: 'Maya',
     image: '/optimized/Agent3.jpg',
-    color: 'bg-green-600',
+    color: '#a855f7', // Purple
     description: 'Audience Engagement Specialist',
     personality: 'Community-focused and empathetic',
   },
@@ -411,7 +413,7 @@ const agents = [
     id: 4,
     name: 'Zara',
     image: '/optimized/Agent4.jpg',
-    color: 'bg-purple-600',
+    color: '#eab308', // Yellow
     description: 'Growth & Optimization Specialist',
     personality: 'Results-driven and strategic',
   },
@@ -419,7 +421,7 @@ const agents = [
     id: 5,
     name: 'Kai',
     image: '/optimized/Agent5.jpg',
-    color: 'bg-red-600',
+    color: '#16a34a', // Green
     description: 'Technical & SEO Specialist',
     personality: 'Technical and detail-oriented',
   },
@@ -427,11 +429,10 @@ const agents = [
 
 // Computed property for current agent data
 const agentData = computed(() => {
-  const selectedAgentData =
-    agents.find(agent => agent.id === agentSettings.value.selectedAgent) || agents[0]
+  const selectedAgentData = selectedAgent.value || agents[0]
   return {
     ...selectedAgentData,
-    name: agentSettings.value.name || selectedAgentData.name,
+    name: agentName.value || selectedAgentData.name,
   }
 })
 
@@ -440,17 +441,12 @@ const selectedTempAgentData = computed(() => {
   return agents.find(agent => agent.id === tempSettings.value.selectedAgent) || agents[0]
 })
 
-// Load agent settings
-const loadAgentSettings = () => {
-  const savedSettings = localStorage.getItem('agentSettings')
-  if (savedSettings) {
-    agentSettings.value = JSON.parse(savedSettings)
-  }
-}
-
 const openSettings = () => {
   // Copy current settings to temp settings
-  tempSettings.value = { ...agentSettings.value }
+  tempSettings.value = {
+    name: agentName.value,
+    selectedAgent: selectedAgentId.value
+  }
   showSettings.value = true
 }
 
@@ -459,11 +455,14 @@ const closeSettings = () => {
 }
 
 const saveAgentSettings = () => {
-  // Update main settings
-  agentSettings.value = { ...tempSettings.value }
+  // Update settings using the composable
+  if (tempSettings.value.name !== agentName.value) {
+    setAgentName(tempSettings.value.name)
+  }
 
-  // Save to localStorage
-  localStorage.setItem('agentSettings', JSON.stringify(agentSettings.value))
+  if (tempSettings.value.selectedAgent !== selectedAgentId.value) {
+    setSelectedAgent(tempSettings.value.selectedAgent)
+  }
 
   // Close settings panel
   showSettings.value = false
@@ -531,17 +530,10 @@ const deleteSavedQuestion = questionId => {
 
 // Load settings when component mounts
 onMounted(() => {
-  loadAgentSettings()
-
   // Load saved questions from localStorage
   const saved = localStorage.getItem('savedQuestions')
   if (saved) {
     savedQuestions.value = JSON.parse(saved)
   }
 })
-
-// Watch for settings changes (in case user updates settings in another tab)
-if (typeof window !== 'undefined') {
-  window.addEventListener('storage', loadAgentSettings)
-}
 </script>

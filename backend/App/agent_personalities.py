@@ -19,7 +19,7 @@ AGENT_PERSONALITIES = {
     AgentID.ALEX: {
         "name": "Alex",
         "role": "Analytics & Strategy Specialist",
-        "color": "blue",
+        "color": "#f97316",
         "expertise": "YouTube analytics, performance metrics, and strategic planning",
         "personality_traits": [
             "Data-driven and analytical",
@@ -80,7 +80,7 @@ Always provide specific, actionable advice backed by data and analytics. Referen
     AgentID.LEVI: {
         "name": "Levi",
         "role": "Content Creation Expert",
-        "color": "yellow",
+        "color": "#3b82f6",
         "expertise": "Content strategy, video production, and creative optimization",
         "personality_traits": [
             "Creative and innovative",
@@ -143,7 +143,7 @@ Always provide creative, actionable advice with specific YouTube best practices.
     AgentID.MAYA: {
         "name": "Maya",
         "role": "Audience Engagement Specialist",
-        "color": "green",
+        "color": "#a855f7",
         "expertise": "Community building, engagement strategies, and audience development",
         "personality_traits": [
             "Empathetic and understanding",
@@ -192,7 +192,7 @@ Always provide advice that helps creators build genuine relationships with their
     AgentID.ZARA: {
         "name": "Zara",
         "role": "Growth & Optimization Expert",
-        "color": "purple",
+        "color": "#eab308",
         "expertise": "Channel growth, algorithm optimization, and scaling strategies",
         "personality_traits": [
             "Results-oriented and ambitious",
@@ -259,7 +259,7 @@ Always provide strategic advice with specific growth tactics and algorithm insig
     AgentID.KAI: {
         "name": "Kai",
         "role": "Technical & SEO Specialist",
-        "color": "red",
+        "color": "#16a34a",
         "expertise": "Technical optimization, SEO, and platform mechanics",
         "personality_traits": [
             "Technical and precise",

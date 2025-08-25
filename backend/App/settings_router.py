@@ -19,11 +19,11 @@ router = APIRouter(prefix="/api/settings", tags=["settings"])
 
 # Default agent configurations
 AGENT_CONFIGS = {
-    "1": {"name": "Alex", "color": "blue", "expertise": "Analytics & Strategy"},
-    "2": {"name": "Levi", "color": "yellow", "expertise": "Content Creation"},
-    "3": {"name": "Maya", "color": "green", "expertise": "Audience Engagement"},
-    "4": {"name": "Zara", "color": "purple", "expertise": "Growth & Optimization"},
-    "5": {"name": "Kai", "color": "red", "expertise": "Technical & SEO"}
+    "1": {"name": "Alex", "color": "#f97316", "expertise": "Analytics & Strategy"},
+    "2": {"name": "Levi", "color": "#3b82f6", "expertise": "Content Creation"},
+    "3": {"name": "Maya", "color": "#a855f7", "expertise": "Audience Engagement"},
+    "4": {"name": "Zara", "color": "#eab308", "expertise": "Growth & Optimization"},
+    "5": {"name": "Kai", "color": "#16a34a", "expertise": "Technical & SEO"}
 }
 
 @router.get("/")

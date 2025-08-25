@@ -792,8 +792,6 @@ const truncateText = (text: string, maxLength: number) => {
 
 // Load settings on component mount
 onMounted(() => {
-  loadAgentSettings()
-
   // Handle OAuth callback if present
   handleOAuthCallback()
 })
