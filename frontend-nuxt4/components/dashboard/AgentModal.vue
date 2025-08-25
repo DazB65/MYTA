@@ -257,50 +257,46 @@
         <div class="space-y-6 overflow-y-auto p-6" style="height: calc(100% - 80px)">
           <!-- Agent Name -->
           <div>
-            <label class="mb-2 block text-sm font-medium text-gray-300">Agent Name</label>
+            <label class="mb-2 block text-sm font-medium text-gray-300">Boss Agent Name</label>
             <input
               v-model="tempSettings.name"
               type="text"
-              placeholder="Enter your agent's name"
+              placeholder="Enter your Boss Agent's name"
               class="w-full rounded-lg border border-green-600 bg-green-700 px-4 py-3 text-white placeholder-gray-400 focus:border-transparent focus:outline-none focus:ring-2 focus:ring-orange-500"
             />
+            <p class="mt-1 text-xs text-gray-400">
+              Your Boss Agent coordinates with specialized agents behind the scenes
+            </p>
           </div>
 
-          <!-- Agent Selection -->
+          <!-- Boss Agent Display -->
           <div>
-            <label class="mb-3 block text-sm font-medium text-gray-300">Choose Your Agent</label>
-            <div class="grid grid-cols-2 gap-3">
-              <div
-                v-for="agent in agents"
-                :key="agent.id"
-                :class="[
-                  'relative cursor-pointer rounded-lg border-2 p-3 transition-all hover:shadow-md',
-                  tempSettings.selectedAgent === agent.id
-                    ? 'border-orange-500 bg-orange-900/30'
-                    : 'border-gray-600 hover:border-gray-500',
-                ]"
-                @click="tempSettings.selectedAgent = agent.id"
-              >
-                <div class="text-center">
-                  <div class="mx-auto mb-2 h-12 w-12 overflow-hidden rounded-lg bg-gray-100">
-                    <img :src="agent.image" :alt="agent.name" class="h-full w-full object-cover" />
-                  </div>
-                  <div class="text-xs font-medium text-gray-300">{{ agent.name }}</div>
-                </div>
+            <label class="mb-3 block text-sm font-medium text-gray-300">Your Personal Boss Agent</label>
+            <div class="mb-6 text-center">
+              <div class="mx-auto mb-4 h-24 w-24 overflow-hidden rounded-xl bg-gray-100 ring-4 ring-orange-500 ring-opacity-50">
+                <img :src="bossAgent.image" :alt="bossAgent.name" class="h-full w-full object-cover" />
+              </div>
+              <div class="text-lg font-semibold text-white">{{ tempSettings.name || bossAgent.name }}</div>
+              <div class="text-sm text-gray-400">{{ bossAgent.description }}</div>
+            </div>
+          </div>
 
-                <!-- Selected indicator -->
-                <div
-                  v-if="tempSettings.selectedAgent === agent.id"
-                  class="absolute -right-2 -top-2 flex h-6 w-6 items-center justify-center rounded-full bg-orange-500"
-                >
-                  <svg class="h-4 w-4 text-white" fill="currentColor" viewBox="0 0 20 20">
-                    <path
-                      fill-rule="evenodd"
-                      d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
-                      clip-rule="evenodd"
-                    />
-                  </svg>
+          <!-- Specialist Agents Display -->
+          <div>
+            <label class="mb-3 block text-sm font-medium text-gray-300">Your Specialist Team</label>
+            <p class="mb-4 text-xs text-gray-400">
+              Your Boss Agent coordinates with these specialists behind the scenes
+            </p>
+            <div class="grid grid-cols-5 gap-2">
+              <div
+                v-for="agent in specialistAgents"
+                :key="agent.id"
+                class="text-center"
+              >
+                <div class="mx-auto mb-1 h-10 w-10 overflow-hidden rounded-lg bg-gray-100">
+                  <img :src="agent.image" :alt="agent.name" class="h-full w-full object-cover" />
                 </div>
+                <div class="text-xs font-medium text-gray-400">{{ agent.name }}</div>
               </div>
             </div>
           </div>
@@ -380,11 +376,18 @@ const chatMessages = ref([
 // Temporary settings for the modal (before saving)
 const tempSettings = ref({
   name: '',
-  selectedAgent: 1,
 })
 
-// Available agents - matching actual UI colors from Agent Settings modal
+// Available agents - Boss Agent is the main agent users interact with
 const agents = [
+  {
+    id: 0,
+    name: 'Boss Agent',
+    image: '/BossAgent.png',
+    color: '#f97316', // Orange - primary brand color
+    description: 'Your Personal AI Assistant',
+    personality: 'Adaptive and comprehensive - coordinates with specialized agents',
+  },
   {
     id: 1,
     name: 'Alex',
@@ -427,25 +430,22 @@ const agents = [
   },
 ]
 
-// Computed property for current agent data
-const agentData = computed(() => {
-  const selectedAgentData = selectedAgent.value || agents[0]
-  return {
-    ...selectedAgentData,
-    name: agentName.value || selectedAgentData.name,
-  }
-})
+// Computed properties for Boss Agent and specialists
+const bossAgent = computed(() => agents[0]) // Boss Agent is always first
+const specialistAgents = computed(() => agents.slice(1)) // All other agents are specialists
 
-// Computed property for temp settings preview
-const selectedTempAgentData = computed(() => {
-  return agents.find(agent => agent.id === tempSettings.value.selectedAgent) || agents[0]
+// Computed property for current agent data (always Boss Agent)
+const agentData = computed(() => {
+  return {
+    ...bossAgent.value,
+    name: agentName.value || bossAgent.value.name,
+  }
 })
 
 const openSettings = () => {
   // Copy current settings to temp settings
   tempSettings.value = {
-    name: agentName.value,
-    selectedAgent: selectedAgentId.value
+    name: agentName.value
   }
   showSettings.value = true
 }
@@ -455,20 +455,16 @@ const closeSettings = () => {
 }
 
 const saveAgentSettings = () => {
-  // Update settings using the composable
+  // Update settings using the composable (only name, since Boss Agent is always selected)
   if (tempSettings.value.name !== agentName.value) {
     setAgentName(tempSettings.value.name)
-  }
-
-  if (tempSettings.value.selectedAgent !== selectedAgentId.value) {
-    setSelectedAgent(tempSettings.value.selectedAgent)
   }
 
   // Close settings panel
   showSettings.value = false
 
   // Optional: Show success message
-  console.log('Agent settings saved!')
+  console.log('Boss Agent settings saved!')
 }
 
 const closeModal = () => {

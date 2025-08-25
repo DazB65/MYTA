@@ -14,8 +14,16 @@ export interface AgentData {
   personality: string
 }
 
-// Available agents data - matching actual UI colors from Agent Settings modal
+// Available agents data - Boss Agent is the main agent users interact with
 const agentsData: AgentData[] = [
+  {
+    id: 0,
+    name: 'Boss Agent',
+    image: '/BossAgent.png',
+    color: '#f97316', // Orange - primary brand color
+    description: 'Your Personal AI Assistant',
+    personality: 'Adaptive and comprehensive - coordinates with specialized agents',
+  },
   {
     id: 1,
     name: 'Alex',
@@ -60,8 +68,8 @@ const agentsData: AgentData[] = [
 
 export const useAgentSettings = () => {
   // Reactive state
-  const agentName = ref('Alex') // Default to first agent's name
-  const selectedAgentId = ref(1)
+  const agentName = ref('Boss Agent') // Default to Boss Agent's name
+  const selectedAgentId = ref(0) // Default to Boss Agent
 
   // Computed properties
   const selectedAgent = computed(() => {
@@ -77,8 +85,8 @@ export const useAgentSettings = () => {
       if (savedSettings) {
         try {
           const settings: AgentSettings = JSON.parse(savedSettings)
-          agentName.value = settings.name || 'Alex'
-          selectedAgentId.value = settings.selectedAgent || 1
+          agentName.value = settings.name || 'Boss Agent'
+          selectedAgentId.value = settings.selectedAgent || 0
         } catch (error) {
           console.error('Failed to parse agent settings:', error)
         }
@@ -118,24 +126,38 @@ export const useAgentSettings = () => {
     saveSettings({ name })
   }
 
+  // Reset to Boss Agent (useful for migration)
+  const resetToBossAgent = () => {
+    agentName.value = 'Boss Agent'
+    selectedAgentId.value = 0
+    saveSettings({ name: 'Boss Agent', selectedAgent: 0 })
+  }
+
   // Initialize on mount
   onMounted(() => {
     loadSettings()
+
+    // One-time migration: ensure Boss Agent is selected
+    if (selectedAgentId.value !== 0) {
+      console.log('Migrating to Boss Agent concept...')
+      resetToBossAgent()
+    }
   })
 
   return {
     // State
     agentName,
     selectedAgentId,
-    
+
     // Computed
     selectedAgent,
     allAgents,
-    
+
     // Actions
     loadSettings,
     saveSettings,
     setSelectedAgent,
     setAgentName,
+    resetToBossAgent,
   }
 }

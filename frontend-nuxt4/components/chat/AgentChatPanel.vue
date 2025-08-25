@@ -278,7 +278,7 @@
         @click="showSettings = false"
       >
         <div
-          class="bg-forest-700 rounded-xl p-6 w-full max-w-md border border-forest-600"
+          class="bg-forest-700 rounded-xl p-8 w-full max-w-2xl border border-forest-600"
           @click.stop
         >
           <div class="flex items-center justify-between mb-6">
@@ -295,7 +295,7 @@
 
           <!-- Agent Name Input -->
           <div class="mb-6">
-            <label class="block text-sm font-medium text-gray-300 mb-2">Agent Name</label>
+            <label class="block text-sm font-medium text-gray-300 mb-2">Name Your Boss Agent</label>
             <input
               v-model="tempAgentName"
               type="text"
@@ -305,88 +305,33 @@
             />
           </div>
 
-          <!-- Agent Selection -->
+          <!-- Boss Agent Display -->
           <div class="mb-6">
-            <label class="block text-sm font-medium text-gray-300 mb-3">Choose Your Personal Avatar</label>
-            <p class="text-xs text-gray-400 mb-4">Select your preferred visual representation</p>
-            <div class="grid grid-cols-2 gap-4">
+            <label class="block text-sm font-medium text-gray-300 mb-3">Your Personal Boss Agent</label>
+            <p class="text-sm text-gray-300 mb-4">Your Boss Agent coordinates with specialized agents behind the scenes</p>
+            <div class="text-center">
+              <div class="mx-auto mb-4 h-24 w-24 overflow-hidden rounded-xl bg-gray-100 ring-4 ring-orange-500 ring-opacity-50">
+                <img :src="bossAgent.image" :alt="bossAgent.name" class="h-full w-full object-cover" />
+              </div>
+              <div class="text-lg font-semibold text-white">{{ tempAgentName || bossAgent.name }}</div>
+              <div class="text-sm text-gray-400">{{ bossAgent.description }}</div>
+            </div>
+          </div>
+
+          <!-- Specialist Agents Display -->
+          <div class="mb-6">
+            <label class="block text-sm font-medium text-gray-300 mb-3">Your Specialist Team</label>
+            <p class="text-sm text-gray-300 mb-4">Your Boss Agent coordinates with these specialists behind the scenes</p>
+            <div class="grid grid-cols-5 gap-2">
               <div
-                v-for="agent in availableAgents"
+                v-for="agent in specialistAgents"
                 :key="agent.id"
-                class="group relative cursor-pointer rounded-xl border-2 p-4 transition-all duration-300 hover:scale-105 hover:shadow-lg"
-                :class="tempSelectedAgent === agent.id
-                  ? 'border-opacity-100 shadow-lg transform scale-105'
-                  : 'border-forest-500 hover:border-forest-400 border-opacity-50'"
-                :style="tempSelectedAgent === agent.id ? {
-                  borderColor: agent.color,
-                  backgroundColor: agent.color + '15',
-                  boxShadow: `0 8px 25px ${agent.color}30`
-                } : {}"
-                @click="tempSelectedAgent = agent.id"
+                class="text-center"
               >
-                <div class="text-center">
-                  <!-- Agent Avatar with Glow Effect -->
-                  <div
-                    class="mx-auto mb-3 h-14 w-14 overflow-hidden rounded-full bg-forest-700 ring-2 ring-opacity-0 transition-all duration-300 group-hover:ring-opacity-50"
-                    :class="tempSelectedAgent === agent.id ? 'ring-opacity-100' : ''"
-                    :style="tempSelectedAgent === agent.id ? {
-                      ringColor: agent.color,
-                      boxShadow: `0 0 15px ${agent.color}40`
-                    } : {}"
-                  >
-                    <img
-                      :src="agent.image"
-                      :alt="agent.name"
-                      class="h-full w-full object-cover transition-transform duration-300 group-hover:scale-110"
-                    />
-                  </div>
-
-                  <!-- Agent Name -->
-                  <div class="text-sm font-semibold text-gray-200 mb-1">{{ agent.name }}</div>
-
-                  <!-- Agent Description -->
-                  <div class="text-xs text-gray-400 leading-relaxed mb-2">{{ agent.description }}</div>
-
-                  <!-- Personality Badge -->
-                  <div
-                    class="inline-block px-2 py-1 rounded-full text-xs font-medium transition-all duration-300"
-                    :style="tempSelectedAgent === agent.id ? {
-                      backgroundColor: agent.color + '25',
-                      color: agent.color
-                    } : {
-                      backgroundColor: '#374151',
-                      color: '#9ca3af'
-                    }"
-                  >
-                    {{ agent.personality }}
-                  </div>
+                <div class="mx-auto mb-1 h-10 w-10 overflow-hidden rounded-lg bg-gray-100">
+                  <img :src="agent.image" :alt="agent.name" class="h-full w-full object-cover" />
                 </div>
-
-                <!-- Enhanced Selected Indicator -->
-                <div
-                  v-if="tempSelectedAgent === agent.id"
-                  class="absolute -right-2 -top-2 flex h-6 w-6 items-center justify-center rounded-full shadow-lg animate-pulse"
-                  :style="{
-                    backgroundColor: agent.color,
-                    boxShadow: `0 0 12px ${agent.color}60`
-                  }"
-                >
-                  <svg class="h-3 w-3 text-white" fill="currentColor" viewBox="0 0 20 20">
-                    <path
-                      fill-rule="evenodd"
-                      d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
-                      clip-rule="evenodd"
-                    />
-                  </svg>
-                </div>
-
-                <!-- Hover Glow Effect -->
-                <div
-                  class="absolute inset-0 rounded-xl opacity-0 transition-opacity duration-300 group-hover:opacity-100 pointer-events-none"
-                  :style="{
-                    background: `linear-gradient(135deg, ${agent.color}10 0%, transparent 50%, ${agent.color}10 100%)`
-                  }"
-                ></div>
+                <div class="text-xs font-medium text-gray-400">{{ agent.name }}</div>
               </div>
             </div>
           </div>
@@ -451,7 +396,7 @@ const isTyping = ref(false)
 const typingTimeout = ref<NodeJS.Timeout>()
 const showSettings = ref(false)
 const tempAgentName = ref('')
-const tempSelectedAgent = ref(1)
+const tempSelectedAgent = ref(0) // Boss Agent is always ID 0
 const savedQuestions = ref<Array<{ id: string; text: string; createdAt: Date }>>([])
 
 // Interface for saved questions
@@ -483,8 +428,9 @@ const smartSuggestions = computed(() => {
   return getContextualQuestions(agentId)
 })
 
-// Use agents from the main composable for consistency
-const availableAgents = computed(() => allAgents.value)
+// Boss Agent and specialist agents for the new interface
+const bossAgent = computed(() => allAgents.value[0]) // Boss Agent is always first
+const specialistAgents = computed(() => allAgents.value.slice(1)) // All other agents are specialists
 
 // Create or get existing chat session for the selected agent
 const ensureChatSession = () => {
@@ -694,17 +640,18 @@ const generateAIResponses = (userMessage: string, agent: any) => {
 }
 
 const saveSettings = () => {
-  // Update agent name if changed
+  // Update Boss Agent name if changed
   if (tempAgentName.value.trim()) {
     setAgentName(tempAgentName.value.trim())
   }
 
-  // Update selected agent if changed
-  if (tempSelectedAgent.value !== selectedAgent.value?.id) {
-    setSelectedAgent(tempSelectedAgent.value)
+  // Always ensure Boss Agent is selected (ID 0)
+  if (selectedAgent.value?.id !== 0) {
+    setSelectedAgent(0)
   }
 
   showSettings.value = false
+  success('Settings Saved', 'Your Boss Agent settings have been updated!')
 }
 
 // Saved questions management
@@ -830,7 +777,7 @@ watch(() => props.isOpen, (isOpen) => {
 watch(showSettings, (isOpen) => {
   if (isOpen) {
     tempAgentName.value = agentName.value || selectedAgentData.value.name || ''
-    tempSelectedAgent.value = selectedAgent.value?.id || 1
+    tempSelectedAgent.value = 0 // Always Boss Agent
   }
 })
 

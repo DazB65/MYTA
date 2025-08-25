@@ -57,107 +57,52 @@
           <div class="grid grid-cols-1 gap-8 lg:grid-cols-2">
             <!-- Agent Name -->
             <div>
-              <label class="mb-2 block text-sm font-medium text-white">Agent Name</label>
+              <label class="mb-2 block text-sm font-medium text-white">Boss Agent Name</label>
               <input
                 v-model="agentName"
                 type="text"
-                placeholder="Enter your agent's name"
+                placeholder="Enter your Boss Agent's name"
                 class="w-full rounded-lg border border-forest-600 bg-forest-700 px-4 py-3 text-white placeholder-gray-400 focus:border-orange-500 focus:outline-none focus:ring-2 focus:ring-orange-500"
               />
               <p class="mt-1 text-xs text-gray-400">
-                This name will appear in the agent modal header
+                Your Boss Agent coordinates with specialized agents behind the scenes
               </p>
             </div>
 
-            <!-- Agent Selection -->
+            <!-- Boss Agent Display -->
             <div>
-              <label class="mb-2 block text-sm font-medium text-white">Choose Your Personal Avatar</label>
-              <p class="mb-3 text-xs text-gray-400">
-                Select your preferred visual representation. This is purely cosmetic and doesn't affect functionality.
+              <label class="mb-2 block text-sm font-medium text-white">Your Personal Boss Agent</label>
+              <p class="mb-4 text-xs text-gray-400">
+                Your Boss Agent coordinates with all specialists behind the scenes.
               </p>
-              <div class="grid grid-cols-5 gap-4">
+              <div class="mb-6 text-center">
+                <div class="mx-auto mb-4 h-48 w-48 overflow-hidden rounded-xl bg-forest-700 ring-4 ring-orange-500 ring-opacity-50">
+                  <img :src="selectedAgent.image" :alt="selectedAgent.name" class="h-full w-full object-cover" />
+                </div>
+                <div class="text-xl font-semibold text-white">{{ agentName || selectedAgent.name }}</div>
+                <div class="text-sm text-gray-400">{{ selectedAgent.description }}</div>
+              </div>
+            </div>
+
+            <!-- Specialist Agents Display -->
+            <div>
+              <label class="mb-2 block text-sm font-medium text-white">Your Specialist Team</label>
+              <p class="mb-4 text-xs text-gray-400">
+                Your Boss Agent coordinates with these specialists behind the scenes.
+              </p>
+              <div class="grid grid-cols-5 gap-3">
                 <div
-                  v-for="agent in agents"
+                  v-for="agent in specialistAgents"
                   :key="agent.id"
-                  class="group relative cursor-pointer rounded-xl border-2 p-5 transition-all duration-300 hover:scale-105 hover:shadow-lg"
-                  :class="selectedAgentId === agent.id
-                    ? 'border-opacity-100 shadow-lg transform scale-105'
-                    : 'border-forest-600 hover:border-forest-500 border-opacity-50'"
-                  :style="selectedAgentId === agent.id ? {
-                    borderColor: agent.color,
-                    backgroundColor: agent.color + '15',
-                    boxShadow: `0 8px 25px ${agent.color}30`
-                  } : {}"
-                  @click="setSelectedAgent(agent.id)"
+                  class="text-center p-3 rounded-lg bg-forest-700"
                 >
-                  <div class="text-center">
-                    <!-- Agent Avatar with Glow Effect -->
-                    <div
-                      class="mx-auto mb-3 h-18 w-18 overflow-hidden rounded-full bg-forest-700 ring-2 ring-opacity-0 transition-all duration-300 group-hover:ring-opacity-50"
-                      :class="selectedAgentId === agent.id ? 'ring-opacity-100' : ''"
-                      :style="selectedAgentId === agent.id ? {
-                        ringColor: agent.color,
-                        boxShadow: `0 0 20px ${agent.color}40`
-                      } : {}"
-                    >
-                      <img
-                        :src="agent.image"
-                        :alt="agent.name"
-                        class="h-full w-full object-cover transition-transform duration-300 group-hover:scale-110"
-                      />
-                    </div>
-
-                    <!-- Agent Name -->
-                    <div class="text-sm font-semibold text-white mb-1">{{ agent.name }}</div>
-
-                    <!-- Agent Description -->
-                    <div class="text-xs text-gray-400 leading-relaxed">{{ agent.description }}</div>
-
-                    <!-- Personality Badge -->
-                    <div
-                      class="mt-2 inline-block px-2 py-1 rounded-full text-xs font-medium transition-all duration-300"
-                      :style="selectedAgentId === agent.id ? {
-                        backgroundColor: agent.color + '25',
-                        color: agent.color
-                      } : {
-                        backgroundColor: '#374151',
-                        color: '#9ca3af'
-                      }"
-                    >
-                      {{ agent.personality }}
-                    </div>
+                  <div class="mx-auto mb-2 h-12 w-12 overflow-hidden rounded-lg bg-forest-600">
+                    <img :src="agent.image" :alt="agent.name" class="h-full w-full object-cover" />
                   </div>
-
-                  <!-- Enhanced Selected Indicator -->
-                  <div
-                    v-if="selectedAgentId === agent.id"
-                    class="absolute -right-2 -top-2 flex h-7 w-7 items-center justify-center rounded-full shadow-lg animate-pulse"
-                    :style="{
-                      backgroundColor: agent.color,
-                      boxShadow: `0 0 15px ${agent.color}60`
-                    }"
-                  >
-                    <svg class="h-4 w-4 text-white" fill="currentColor" viewBox="0 0 20 20">
-                      <path
-                        fill-rule="evenodd"
-                        d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
-                        clip-rule="evenodd"
-                      />
-                    </svg>
-                  </div>
-
-                  <!-- Hover Glow Effect -->
-                  <div
-                    class="absolute inset-0 rounded-xl opacity-0 transition-opacity duration-300 group-hover:opacity-100 pointer-events-none"
-                    :style="{
-                      background: `linear-gradient(135deg, ${agent.color}10 0%, transparent 50%, ${agent.color}10 100%)`
-                    }"
-                  ></div>
+                  <div class="text-xs font-medium text-gray-300">{{ agent.name }}</div>
+                  <div class="text-xs text-gray-500 mt-1">{{ agent.description }}</div>
                 </div>
               </div>
-              <p class="mt-3 text-xs text-gray-500 text-center">
-                Choose your favorite avatar - this only changes how you appear in the interface
-              </p>
             </div>
           </div>
 
@@ -791,6 +736,9 @@ const { agentName, selectedAgentId, selectedAgent, allAgents, setSelectedAgent, 
 
 // Use agents from composable
 const agents = allAgents
+
+// Computed property for specialist agents (exclude Boss Agent)
+const specialistAgents = computed(() => allAgents.value.slice(1))
 
 // Toast notifications
 const { success, error } = useToast()

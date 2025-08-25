@@ -16,6 +16,25 @@ export const useAgentsStore = defineStore('agents', () => {
   // Initialize default agents with color-coded personalities - matching backend
   const defaultAgents: Agent[] = [
     {
+      id: 'boss_agent',
+      name: 'Boss Agent',
+      type: 'boss_agent',
+      status: 'online',
+      capabilities: [
+        'coordination',
+        'task_management',
+        'agent_delegation',
+        'comprehensive_analysis',
+        'user_interaction',
+      ],
+      description:
+        'Your Personal AI Assistant - Coordinates with specialized agents to provide comprehensive support',
+      avatar: '/BossAgent.png',
+      color: '#f97316', // Orange - primary brand color
+      personality: 'Adaptive and comprehensive - coordinates with specialized agents',
+      specialization: 'Personal AI Assistant',
+    },
+    {
       id: 'agent_1',
       name: 'Alex',
       type: 'content_analysis',
@@ -96,19 +115,6 @@ export const useAgentsStore = defineStore('agents', () => {
       color: '#dc2626', // Red
       personality: 'Technical and detail-oriented',
       specialization: 'Technical & SEO',
-    },
-    {
-      id: 'boss_agent',
-      name: 'Boss Agent',
-      type: 'boss_agent',
-      status: 'online',
-      capabilities: ['coordination', 'strategy', 'overview', 'orchestration', 'decision_making'],
-      description:
-        'Main Orchestrator - Coordinates all specialist agents and provides strategic oversight',
-      avatar: '/BossAgent.png',
-      color: '#7c2d12', // Brown
-      personality: 'Authoritative & Coordinating',
-      specialization: 'System Orchestration',
     },
   ]
 
