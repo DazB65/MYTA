@@ -13,11 +13,11 @@ export const useAgentsStore = defineStore('agents', () => {
   const isConnected = ref(false)
   const lastHeartbeat = ref<Date | null>(null)
 
-  // Initialize default agents with color-coded personalities
+  // Initialize default agents with color-coded personalities - matching backend
   const defaultAgents: Agent[] = [
     {
       id: 'agent_1',
-      name: 'Agent 1',
+      name: 'Alex',
       type: 'content_analysis',
       status: 'online',
       capabilities: [
@@ -27,75 +27,75 @@ export const useAgentsStore = defineStore('agents', () => {
         'viral_potential',
       ],
       description:
-        'AI Content Creator - Professional & Analytical specialist for content optimization',
+        'Analytics & Strategy Specialist - Data-driven insights for YouTube growth',
       avatar: '/optimized/Agent1.jpg',
-      color: '#ea580c', // Orange
-      personality: 'Professional & Analytical',
-      specialization: 'Content Creation & Analysis',
+      color: '#3b82f6', // Blue
+      personality: 'Data-driven and analytical',
+      specialization: 'Analytics & Strategy',
     },
     {
       id: 'agent_2',
-      name: 'Agent 2',
+      name: 'Levi',
       type: 'audience_insights',
       status: 'online',
       capabilities: [
-        'demographic_analysis',
-        'engagement_patterns',
-        'audience_growth',
-        'sentiment_analysis',
+        'content_creation',
+        'creative_strategy',
+        'video_production',
+        'storytelling',
       ],
-      description: 'Marketing Specialist - Strategic & Data-Driven expert for audience insights',
+      description: 'Content Creation Specialist - Creative and innovative expert for content strategy',
       avatar: '/optimized/Agent2.jpg',
       color: '#eab308', // Yellow
-      personality: 'Strategic & Data-Driven',
-      specialization: 'Marketing & Audience Analysis',
+      personality: 'Creative and innovative',
+      specialization: 'Content Creation',
     },
     {
       id: 'agent_3',
-      name: 'Agent 3',
+      name: 'Maya',
       type: 'seo_discoverability',
       status: 'online',
       capabilities: [
-        'keyword_optimization',
-        'search_ranking',
-        'discoverability',
-        'algorithm_analysis',
+        'audience_engagement',
+        'community_building',
+        'social_interaction',
+        'relationship_management',
       ],
       description:
-        'Analytics Expert - Detail-Oriented & Insightful specialist for SEO optimization',
+        'Audience Engagement Specialist - Community-focused and empathetic expert for audience growth',
       avatar: '/optimized/Agent3.jpg',
-      color: '#059669', // Green
-      personality: 'Detail-Oriented & Insightful',
-      specialization: 'SEO & Discoverability',
+      color: '#16a34a', // Green
+      personality: 'Community-focused and empathetic',
+      specialization: 'Audience Engagement',
     },
     {
       id: 'agent_4',
-      name: 'Agent 4',
+      name: 'Zara',
       type: 'competitive_analysis',
       status: 'online',
-      capabilities: ['competitor_tracking', 'market_trends', 'benchmarking', 'creative_analysis'],
-      description: 'Creative Assistant - Innovative & Artistic specialist for competitive analysis',
+      capabilities: ['growth_strategy', 'optimization', 'performance_analysis', 'scaling'],
+      description: 'Growth & Optimization Specialist - Results-driven and strategic expert for channel growth',
       avatar: '/optimized/Agent4.jpg',
-      color: '#ea580c', // Orange
-      personality: 'Innovative & Artistic',
-      specialization: 'Creative Strategy & Competition',
+      color: '#a855f7', // Purple
+      personality: 'Results-driven and strategic',
+      specialization: 'Growth & Optimization',
     },
     {
       id: 'agent_5',
-      name: 'Agent 5',
+      name: 'Kai',
       type: 'monetization_strategy',
       status: 'online',
       capabilities: [
-        'revenue_analysis',
-        'monetization_strategies',
-        'financial_optimization',
-        'growth_strategy',
+        'technical_optimization',
+        'seo_analysis',
+        'algorithm_insights',
+        'technical_strategy',
       ],
-      description: 'Strategy Advisor - Visionary & Strategic specialist for monetization',
+      description: 'Technical & SEO Specialist - Technical and detail-oriented expert for optimization',
       avatar: '/optimized/Agent5.jpg',
-      color: '#db2777', // Pink
-      personality: 'Visionary & Strategic',
-      specialization: 'Monetization & Growth',
+      color: '#dc2626', // Red
+      personality: 'Technical and detail-oriented',
+      specialization: 'Technical & SEO',
     },
     {
       id: 'boss_agent',

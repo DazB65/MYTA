@@ -79,13 +79,13 @@ export default {
           900: '#7c2d12',
         },
 
-        // Agent colors
+        // Agent colors - matching backend definitions
         agent: {
-          1: '#f97316', // Agent 1 - Orange (primary)
-          2: '#FFEAA7', // Agent 2 (Levi) - Yellow
-          3: '#059669', // Agent 3 - Green
-          4: '#ea580c', // Agent 4 - Dark Orange
-          5: '#db2777', // Agent 5 - Pink
+          1: '#3b82f6', // Alex - Blue
+          2: '#eab308', // Levi - Yellow (user preference)
+          3: '#16a34a', // Maya - Green
+          4: '#a855f7', // Zara - Purple
+          5: '#dc2626', // Kai - Red
           boss: '#7c2d12', // Boss Agent - Dark Red/Brown
         },
 

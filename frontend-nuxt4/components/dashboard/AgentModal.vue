@@ -381,47 +381,47 @@ const tempSettings = ref({
   selectedAgent: 1,
 })
 
-// Available agents (same as in settings)
+// Available agents - matching backend agent definitions
 const agents = [
   {
     id: 1,
-    name: 'Agent 1',
+    name: 'Alex',
     image: '/optimized/Agent1.jpg',
-    color: 'bg-orange-600',
-    description: 'Agent Content Creator',
-    personality: 'Professional & Analytical',
+    color: 'bg-blue-600',
+    description: 'Analytics & Strategy Specialist',
+    personality: 'Data-driven and analytical',
   },
   {
     id: 2,
-    name: 'Agent 2',
+    name: 'Levi',
     image: '/optimized/Agent2.jpg',
     color: 'bg-yellow-600',
-    description: 'Marketing Specialist',
-    personality: 'Strategic & Data-Driven',
+    description: 'Content Creation Specialist',
+    personality: 'Creative and innovative',
   },
   {
     id: 3,
-    name: 'Agent 3',
+    name: 'Maya',
     image: '/optimized/Agent3.jpg',
     color: 'bg-green-600',
-    description: 'Analytics Expert',
-    personality: 'Detail-Oriented & Insightful',
+    description: 'Audience Engagement Specialist',
+    personality: 'Community-focused and empathetic',
   },
   {
     id: 4,
-    name: 'Agent 4',
+    name: 'Zara',
     image: '/optimized/Agent4.jpg',
-    color: 'bg-orange-600',
-    description: 'Creative Assistant',
-    personality: 'Innovative & Artistic',
+    color: 'bg-purple-600',
+    description: 'Growth & Optimization Specialist',
+    personality: 'Results-driven and strategic',
   },
   {
     id: 5,
-    name: 'Agent 5',
+    name: 'Kai',
     image: '/optimized/Agent5.jpg',
-    color: 'bg-pink-600',
-    description: 'Strategy Advisor',
-    personality: 'Visionary & Strategic',
+    color: 'bg-red-600',
+    description: 'Technical & SEO Specialist',
+    personality: 'Technical and detail-oriented',
   },
 ]
 

@@ -223,7 +223,7 @@ definePageMeta({
   middleware: 'guest'
 })
 
-// Agent data with images from the public folder
+// Agent data with images from the public folder - matching backend definitions
 const agents = ref([
   {
     id: 'boss',
@@ -234,38 +234,38 @@ const agents = ref([
   },
   {
     id: 1,
-    name: 'Agent 1',
-    description: 'Content Creation',
+    name: 'Alex',
+    description: 'Analytics & Strategy',
     image: '/optimized/Agent1.jpg',
-    color: '#4ECDC4'
+    color: '#3b82f6'
   },
   {
     id: 2,
-    name: 'Agent 2',
-    description: 'Data & Insights',
+    name: 'Levi',
+    description: 'Content Creation',
     image: '/optimized/Agent2.jpg',
-    color: '#FFEAA7'
+    color: '#eab308'
   },
   {
     id: 3,
-    name: 'Agent 3',
-    description: 'Channel Growth',
+    name: 'Maya',
+    description: 'Audience Engagement',
     image: '/optimized/Agent3.jpg',
-    color: '#96CEB4'
+    color: '#16a34a'
   },
   {
     id: 4,
-    name: 'Agent 4',
-    description: 'Community Building',
+    name: 'Zara',
+    description: 'Growth & Optimization',
     image: '/optimized/Agent4.jpg',
-    color: '#FFEAA7'
+    color: '#a855f7'
   },
   {
     id: 5,
-    name: 'Agent 5',
-    description: 'Optimization',
+    name: 'Kai',
+    description: 'Technical & SEO',
     image: '/optimized/Agent5.jpg',
-    color: '#DDA0DD'
+    color: '#dc2626'
   }
 ])
 

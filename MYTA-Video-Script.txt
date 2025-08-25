@@ -1,0 +1,131 @@
+# MYTA App Video Demo Script
+
+## Opening Hook (0-10 seconds)
+[Screen: MYTA Dashboard with smooth zoom-in]
+
+"Meet MYTA - your AI-powered YouTube growth assistant that transforms how you create, plan, and optimize your content. Let me show you how it works."
+
+---
+
+## Dashboard Overview (10-25 seconds)
+[Screen: Dashboard with metrics visible]
+
+"Starting with your dashboard - get instant insights into your channel performance. 125K subscribers, 1.3M total views, and all your key metrics with growth indicators. But here's where it gets interesting..."
+
+[Hover over task section]
+
+"Your AI agent Levi is constantly working behind the scenes, managing your tasks and suggesting optimizations."
+
+---
+
+## AI-Powered Task Management (25-45 seconds)
+[Navigate to Tasks page]
+
+"In the Tasks section, you get a beautiful calendar view of your content schedule. But watch this..."
+
+[Click on Levi Insights section]
+
+"Levi provides personalized suggestions based on your content strategy. See 'AI Gaming Tools' here? One click..."
+
+[Click "Add as Task" button]
+
+"And it's automatically added to your calendar with smart scheduling. No manual data entry - your AI agent handles everything."
+
+---
+
+## Content Studio Magic (45-70 seconds)
+[Navigate to Content Studio]
+
+"The Content Studio is where the real magic happens. You can see your entire content workflow - from ideas to published content."
+
+[Scroll to Levi Content Suggestions]
+
+"But here's the game-changer - Levi analyzes trending topics and provides three types of suggestions:"
+
+[Point to each section]
+- "Trending topics that become actionable tasks"
+- "Content ideas that populate your content pipeline" 
+- "Optimization tips for better performance"
+
+[Click on "Behind-the-Scenes Content"]
+
+"Watch this - I click on a content idea, and..."
+
+[Show Content Modal opening with pre-filled data]
+
+"It opens a complete content brief with title, description, and workflow steps already filled out. This is AI-powered content planning at its finest."
+
+---
+
+## Analytics & Insights (70-85 seconds)
+[Navigate to Videos page]
+
+"Your Videos section gives you comprehensive analytics for every piece of content."
+
+[Click on a video to open stats modal]
+
+"Click any video for detailed performance metrics, engagement data, and revenue insights. Everything you need to understand what's working."
+
+---
+
+## Content Pillars Deep Dive (85-105 seconds)
+[Navigate to Pillars page]
+
+"Content Pillars help you analyze your content strategy by category."
+
+[Click on Game Development pillar]
+
+"Click any pillar for deep insights - performance analytics, content planning tools, SEO keyword tracking, and publishing schedule analysis. It's like having a content strategist built into your dashboard."
+
+---
+
+## Personalization & AI Agents (105-120 seconds)
+[Navigate to Settings]
+
+"And here's what makes MYTA special - you can choose from 5 different AI agents, each with unique personalities and specialties."
+
+[Show agent selection]
+
+"Whether you want analytical insights from Levi, creative inspiration from Agent 2, or strategic guidance from Agent 5 - your AI assistant adapts to your working style."
+
+---
+
+## Closing & Call to Action (120-130 seconds)
+[Return to Dashboard with smooth transition]
+
+"MYTA isn't just another analytics tool - it's your AI-powered content partner that turns data into actionable insights, suggestions into scheduled tasks, and ideas into published content."
+
+[Show logo/branding]
+
+"Ready to transform your YouTube strategy? Try MYTA today and let AI accelerate your channel growth."
+
+---
+
+## Key Demo Tips
+
+### Visual Flow:
+- Smooth transitions between pages
+- Highlight hover effects and interactive elements
+- Show real data populating in modals
+- Demonstrate click-to-action workflows
+
+### Timing Notes:
+- Total runtime: ~2 minutes
+- Pace: Moderate speed with clear narration
+- Pauses: Brief pauses to let visuals sink in
+- Emphasis: Stress AI automation and time-saving features
+
+### Technical Focus:
+- Show actual functionality - don't just describe
+- Demonstrate AI suggestions creating real tasks/content
+- Highlight seamless workflows from suggestion to execution
+- Emphasize personalization with agent selection
+
+### Key Selling Points:
+1. AI-powered automation - Suggestions become actionable items
+2. Comprehensive analytics - All data in one place  
+3. Beautiful, intuitive design - Professional and easy to use
+4. Complete workflow - From idea to published content
+5. Personalized experience - Choose your AI agent style
+
+This script showcases MYTA's core value proposition: AI-powered YouTube growth through intelligent automation and beautiful design.

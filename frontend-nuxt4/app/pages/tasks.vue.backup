@@ -627,47 +627,47 @@ const getPriorityColor = (priority: TaskPriority) => {
 const selectedAgent = ref(1)
 const agentName = ref('Professional Assistant')
 
-// Available agents (same as in settings and modal)
+// Available agents - matching backend agent definitions
 const agents = [
   {
     id: 1,
-    name: 'Agent 1',
-    image: '/optimized/Agent/optimized/Agent1.jpg.jpg',
-    color: '#ea580c', // Orange
-    description: 'AI Content Creator',
-    personality: 'Professional & Analytical',
+    name: 'Alex',
+    image: '/optimized/Agent1.jpg',
+    color: '#3b82f6', // Blue
+    description: 'Analytics & Strategy Specialist',
+    personality: 'Data-driven and analytical',
   },
   {
     id: 2,
-    name: 'Agent 2',
-    image: '/optimized/Agent/optimized/Agent2.jpg.jpg',
+    name: 'Levi',
+    image: '/optimized/Agent2.jpg',
     color: '#eab308', // Yellow
-    description: 'Marketing Specialist',
-    personality: 'Strategic & Data-Driven',
+    description: 'Content Creation Specialist',
+    personality: 'Creative and innovative',
   },
   {
     id: 3,
-    name: 'Agent 3',
-    image: '/optimized/Agent/optimized/Agent3.jpg.jpg',
+    name: 'Maya',
+    image: '/optimized/Agent3.jpg',
     color: '#16a34a', // Green
-    description: 'Analytics Expert',
-    personality: 'Detail-Oriented & Insightful',
+    description: 'Audience Engagement Specialist',
+    personality: 'Community-focused and empathetic',
   },
   {
     id: 4,
-    name: 'Agent 4',
-    image: '/optimized/Agent/optimized/Agent4.jpg.jpg',
-    color: '#ea580c', // Orange
-    description: 'Creative Assistant',
-    personality: 'Innovative & Artistic',
+    name: 'Zara',
+    image: '/optimized/Agent4.jpg',
+    color: '#a855f7', // Purple
+    description: 'Growth & Optimization Specialist',
+    personality: 'Results-driven and strategic',
   },
   {
     id: 5,
-    name: 'Agent 5',
-    image: '/optimized/Agent/optimized/Agent5.jpg.jpg',
-    color: '#dc2626', // Red/Pink
-    description: 'Strategy Advisor',
-    personality: 'Visionary & Strategic',
+    name: 'Kai',
+    image: '/optimized/Agent5.jpg',
+    color: '#dc2626', // Red
+    description: 'Technical & SEO Specialist',
+    personality: 'Technical and detail-oriented',
   },
 ]
 

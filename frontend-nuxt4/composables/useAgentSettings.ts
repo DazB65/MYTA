@@ -14,53 +14,53 @@ export interface AgentData {
   personality: string
 }
 
-// Available agents data
+// Available agents data - matching backend agent_personalities.py
 const agentsData: AgentData[] = [
   {
     id: 1,
-    name: 'Agent 1',
+    name: 'Alex',
     image: '/optimized/Agent1.jpg',
-    color: '#f97316',
-    description: 'Professional & Analytical',
-    personality: 'Strategic Thinker',
+    color: '#3b82f6', // Blue
+    description: 'Analytics & Strategy Specialist',
+    personality: 'Data-driven and analytical',
   },
   {
     id: 2,
-    name: 'Agent 2',
+    name: 'Levi',
     image: '/optimized/Agent2.jpg',
-    color: '#eab308',
-    description: 'Creative & Innovative',
-    personality: 'Artistic Visionary',
+    color: '#eab308', // Yellow (user preference)
+    description: 'Content Creation Specialist',
+    personality: 'Creative and innovative',
   },
   {
     id: 3,
-    name: 'Agent 3',
+    name: 'Maya',
     image: '/optimized/Agent3.jpg',
-    color: '#16a34a',
-    description: 'Detail-Oriented & Insightful',
-    personality: 'Data Specialist',
+    color: '#16a34a', // Green
+    description: 'Audience Engagement Specialist',
+    personality: 'Community-focused and empathetic',
   },
   {
     id: 4,
-    name: 'Agent 4',
+    name: 'Zara',
     image: '/optimized/Agent4.jpg',
-    color: '#ea580c',
-    description: 'Dynamic & Energetic',
-    personality: 'Growth Focused',
+    color: '#a855f7', // Purple
+    description: 'Growth & Optimization Specialist',
+    personality: 'Results-driven and strategic',
   },
   {
     id: 5,
-    name: 'Agent 5',
+    name: 'Kai',
     image: '/optimized/Agent5.jpg',
-    color: '#dc2626',
-    description: 'Visionary & Strategic',
-    personality: 'Tech Savvy',
+    color: '#dc2626', // Red
+    description: 'Technical & SEO Specialist',
+    personality: 'Technical and detail-oriented',
   },
 ]
 
 export const useAgentSettings = () => {
   // Reactive state
-  const agentName = ref('Professional Assistant')
+  const agentName = ref('Alex') // Default to first agent's name
   const selectedAgentId = ref(1)
 
   // Computed properties
@@ -77,7 +77,7 @@ export const useAgentSettings = () => {
       if (savedSettings) {
         try {
           const settings: AgentSettings = JSON.parse(savedSettings)
-          agentName.value = settings.name || 'Professional Assistant'
+          agentName.value = settings.name || 'Alex'
           selectedAgentId.value = settings.selectedAgent || 1
         } catch (error) {
           console.error('Failed to parse agent settings:', error)
