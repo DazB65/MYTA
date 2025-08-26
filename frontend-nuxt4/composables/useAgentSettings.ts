@@ -21,7 +21,7 @@ const agentsData: AgentData[] = [
     name: 'Boss Agent',
     image: '/BossAgent.png',
     color: '#f97316', // Orange - primary brand color
-    description: 'Your Personal AI Assistant',
+    description: 'Your Personal Agent',
     personality: 'Adaptive and comprehensive - coordinates with specialized agents',
   },
   {

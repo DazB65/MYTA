@@ -410,7 +410,7 @@ interface SavedQuestion {
 const selectedAgentData = computed(() => {
   return {
     ...selectedAgent.value,
-    name: agentName.value || selectedAgent.value?.name || 'AI Assistant'
+    name: agentName.value || selectedAgent.value?.name || 'Agent'
   }
 })
 

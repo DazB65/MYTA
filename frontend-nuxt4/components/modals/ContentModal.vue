@@ -198,7 +198,7 @@
           </form>
         </div>
 
-        <!-- Right Column: AI Assistant -->
+        <!-- Right Column: Agent -->
         <div class="w-96 border-l border-forest-700 bg-forest-900/50 overflow-y-auto">
 
           <div class="p-6 space-y-6">
@@ -348,6 +348,7 @@
 import { computed, onMounted, ref, watch } from 'vue'
 import { useAgentSettings } from '../../composables/useAgentSettings.js'
 import { useModals } from '../../composables/useModals.js'
+import { usePillars } from '../../composables/usePillars.js'
 
 const props = defineProps({
   content: {
@@ -364,13 +365,28 @@ const { selectedAgent, agentName, allAgents } = useAgentSettings()
 // Modal functions for creating new content/tasks
 const { openContent, openTask } = useModals()
 
-// Available pillars (mock data)
-const availablePillars = ref([
-  { id: 'marketing', name: 'Marketing', icon: '📈' },
-  { id: 'technology', name: 'Technology', icon: '💻' },
-  { id: 'lifestyle', name: 'Lifestyle', icon: '🌟' },
-  { id: 'education', name: 'Education', icon: '📚' }
-])
+// Get pillars from the main pillars composable
+const { pillars } = usePillars()
+
+// Transform pillars for the dropdown (use actual pillars from pillars page)
+const availablePillars = computed(() => {
+  return pillars.value.map(pillar => ({
+    id: pillar.id,
+    name: pillar.name,
+    icon: getIconEmoji(pillar.icon) // Convert icon name to emoji
+  }))
+})
+
+// Helper function to convert icon names to emojis
+const getIconEmoji = (iconName) => {
+  const iconMap = {
+    'GameIcon': '🎮',
+    'ReviewIcon': '⭐',
+    'TechIcon': '💻',
+    'ProductivityIcon': '⏰'
+  }
+  return iconMap[iconName] || '📝'
+}
 
 // Generation state
 const isGenerating = ref(false)
@@ -639,10 +655,12 @@ const generateTitle = async () => {
 
     let generatedTitle = ''
 
-    if ((agent.name === 'Levi' || agentName.value === 'Levi' || agent.id === 2) && pillar?.name === 'Marketing') {
-      generatedTitle = '5 Marketing Strategies That Actually Work in 2024'
-    } else if (pillar?.name === 'Technology') {
-      generatedTitle = 'The Ultimate Guide to Agent Tools for Content Creators'
+    if ((agent.name === 'Levi' || agentName.value === 'Levi' || agent.id === 2) && pillar?.name === 'Game Development') {
+      generatedTitle = '5 Game Development Tips That Actually Work in 2024'
+    } else if (pillar?.name === 'Tech Reviews') {
+      generatedTitle = 'The Ultimate Guide to Tech Review Content Creation'
+    } else if (pillar?.name === 'Productivity Tips') {
+      generatedTitle = 'Productivity Hacks That Will Transform Your Workflow'
     } else {
       generatedTitle = 'How to Create Engaging Content That Converts'
     }

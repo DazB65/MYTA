@@ -705,6 +705,7 @@ import { nextTick, ref } from 'vue'
 
 import { useAgentSettings } from '../../composables/useAgentSettings'
 import { useModals } from '../../composables/useModals.js'
+import { usePillars } from '../../composables/usePillars.js'
 
 // Protect this route with authentication
 definePageMeta({
@@ -716,6 +717,9 @@ const { selectedAgent, agentName } = useAgentSettings()
 
 // Use modal composable
 const { openContent, openTask } = useModals()
+
+// Get pillars from the main pillars composable
+const { pillars } = usePillars()
 
 // Open create modal using global system
 const openCreateModal = () => {
@@ -818,14 +822,25 @@ watch(() => editContent.value.status, (newStatus) => {
   editContent.value.stageCompletions = autoCompletePreviousStages(newStatus, { ...editContent.value.stageCompletions })
 })
 
-// Available pillars (mock data - in real app this would come from a store/API)
-const availablePillars = ref([
-  { id: 'pillar-1', name: 'YouTube Growth', icon: '📈' },
-  { id: 'pillar-2', name: 'Content Creation', icon: '🎬' },
-  { id: 'pillar-3', name: 'AI Tools', icon: '🤖' },
-  { id: 'pillar-4', name: 'Marketing Tips', icon: '📢' },
-  { id: 'pillar-5', name: 'Analytics', icon: '📊' }
-])
+// Transform pillars for the dropdown (use actual pillars from pillars page)
+const availablePillars = computed(() => {
+  return pillars.value.map(pillar => ({
+    id: pillar.id,
+    name: pillar.name,
+    icon: getIconEmoji(pillar.icon) // Convert icon name to emoji
+  }))
+})
+
+// Helper function to convert icon names to emojis
+const getIconEmoji = (iconName) => {
+  const iconMap = {
+    'GameIcon': '🎮',
+    'ReviewIcon': '⭐',
+    'TechIcon': '💻',
+    'ProductivityIcon': '⏰'
+  }
+  return iconMap[iconName] || '📝'
+}
 
 // Content items data
 const contentItems = ref([

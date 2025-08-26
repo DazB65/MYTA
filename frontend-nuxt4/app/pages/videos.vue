@@ -220,10 +220,16 @@
             </svg>
             <span>View on YouTube</span>
           </a>
-          <button class="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors">
+          <button
+            @click="handleUpdateSEO"
+            class="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
+          >
             Update SEO & Tags
           </button>
-          <button class="px-4 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-colors">
+          <button
+            @click="handleCreateFollowUp"
+            class="px-4 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-colors"
+          >
             Create Follow-up Content
           </button>
         </div>
@@ -234,6 +240,8 @@
 
 <script setup>
 import { computed, ref } from 'vue'
+import { useModals } from '../../composables/useModals'
+import { useToast } from '../../composables/useToast'
 
 // Protect this route with authentication
 definePageMeta({
@@ -251,6 +259,10 @@ const selectedVideo = ref(null)
 // State for filtering and sorting
 const selectedPillar = ref('all')
 const sortBy = ref('recent')
+
+// Composables
+const { openContent } = useModals()
+const { success, info } = useToast()
 
 // Sample data for videos
 const recentVideos = ref([
@@ -618,5 +630,33 @@ const formatNumber = (num) => {
     return (num / 1000).toFixed(1) + 'K'
   }
   return num.toString()
+}
+
+// Button handlers for video modal actions
+const handleUpdateSEO = () => {
+  if (!selectedVideo.value) return
+
+  info('SEO Update', `Opening SEO optimization for "${selectedVideo.value.title}". This feature will help you optimize tags, descriptions, and metadata.`)
+
+  // TODO: Implement SEO modal or redirect to SEO optimization page
+  // For now, we'll show a placeholder message
+  console.log('🔍 Opening SEO optimization for video:', selectedVideo.value.title)
+}
+
+const handleCreateFollowUp = () => {
+  if (!selectedVideo.value) return
+
+  // Open content creation modal with video context
+  openContent({
+    type: 'follow-up',
+    sourceVideo: selectedVideo.value,
+    title: `Follow-up to: ${selectedVideo.value.title}`,
+    description: `Create follow-up content based on "${selectedVideo.value.title}"`
+  })
+
+  success('Content Creator Opened', 'Creating follow-up content based on your selected video!')
+
+  // Close the video stats modal
+  closeStatsModal()
 }
 </script>

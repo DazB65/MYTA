@@ -172,7 +172,7 @@
                   >
                     <p class="text-sm">
                       <span class="font-medium text-white">
-                        {{ message.type === 'ai' ? 'AI Assistant' : 'You' }}
+                        {{ message.type === 'ai' ? 'Agent' : 'You' }}
                       </span>
                       <span
                         class="ml-2 text-xs"
@@ -385,7 +385,7 @@ const agents = [
     name: 'Boss Agent',
     image: '/BossAgent.png',
     color: '#f97316', // Orange - primary brand color
-    description: 'Your Personal AI Assistant',
+    description: 'Your Personal Agent',
     personality: 'Adaptive and comprehensive - coordinates with specialized agents',
   },
   {

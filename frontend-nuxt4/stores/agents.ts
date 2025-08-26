@@ -28,11 +28,11 @@ export const useAgentsStore = defineStore('agents', () => {
         'user_interaction',
       ],
       description:
-        'Your Personal AI Assistant - Coordinates with specialized agents to provide comprehensive support',
+        'Your Personal Agent - Coordinates with specialized agents to provide comprehensive support',
       avatar: '/BossAgent.png',
       color: '#f97316', // Orange - primary brand color
       personality: 'Adaptive and comprehensive - coordinates with specialized agents',
-      specialization: 'Personal AI Assistant',
+      specialization: 'Personal Agent',
     },
     {
       id: 'agent_1',
