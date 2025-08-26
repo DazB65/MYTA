@@ -1,5 +1,5 @@
 <template>
-  <div class="fixed inset-0 z-50 flex items-center justify-center">
+  <div class="fixed inset-0 z-[60] flex items-center justify-center">
     <!-- Backdrop -->
     <div class="absolute inset-0 bg-black bg-opacity-50" @click="$emit('close')" />
     
@@ -132,10 +132,10 @@
 
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue'
-import { useAnalyticsStore } from '../../stores/analytics'
 import type { ChannelGoal } from '../../stores/analytics'
-import VInput from '../ui/VInput.vue'
+import { useAnalyticsStore } from '../../stores/analytics'
 import VButton from '../ui/VButton.vue'
+import VInput from '../ui/VInput.vue'
 
 interface Props {
   goal?: ChannelGoal | null

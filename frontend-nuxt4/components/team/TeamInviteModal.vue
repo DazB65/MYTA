@@ -1,5 +1,5 @@
 <template>
-  <div class="fixed inset-0 z-50">
+  <div class="fixed inset-0 z-[60]">
     <!-- Backdrop -->
     <div class="absolute inset-0 bg-black bg-opacity-50" @click="$emit('close')" />
 
@@ -123,7 +123,7 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue'
+import { computed, onMounted, ref } from 'vue'
 import { useTeamManagement } from '../../composables/useTeamManagement'
 import { useToast } from '../../composables/useToast'
 

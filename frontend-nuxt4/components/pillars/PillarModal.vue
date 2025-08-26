@@ -1,5 +1,5 @@
 <template>
-  <div class="fixed inset-0 z-50 flex items-start justify-center" style="padding-top: 280px;">
+  <div class="fixed inset-0 z-[60] flex items-start justify-center" style="padding-top: 280px;">
     <!-- Backdrop -->
     <div class="absolute inset-0 bg-black bg-opacity-50" @click="$emit('close')" />
 

@@ -1,7 +1,7 @@
 <template>
   <div 
     v-if="isOpen" 
-    class="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50"
+    class="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-[60]"
     @click="closeModal"
   >
     <div 
@@ -161,7 +161,7 @@ const closeModal = () => {
 const saveGoal = () => {
   if (newGoal.value && newGoal.value > 0) {
     emit('save', {
-      metricId: props.goalData?.id,
+      id: props.goalData?.id,
       goal: parseFloat(newGoal.value)
     })
     closeModal()

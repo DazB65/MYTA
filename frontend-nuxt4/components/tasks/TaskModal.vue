@@ -1,10 +1,10 @@
 <template>
-  <div class="fixed inset-0 z-50 flex items-center justify-center">
+  <div class="fixed inset-0 z-[60] flex items-center justify-center">
     <!-- Backdrop -->
     <div class="absolute inset-0 bg-black bg-opacity-50" @click="$emit('close')" />
-    
+
     <!-- Modal -->
-    <div class="relative bg-background-card rounded-xl shadow-xl w-full max-w-2xl mx-4 max-h-[90vh] overflow-y-auto">
+    <div class="relative bg-background-card rounded-xl shadow-xl w-full max-w-2xl mx-4 my-8 max-h-[calc(100vh-8rem)] overflow-y-auto">
       <!-- Header -->
       <div class="flex items-center justify-between p-6 border-b border-border">
         <h3 class="text-lg font-semibold text-text-primary">

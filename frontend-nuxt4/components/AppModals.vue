@@ -26,6 +26,15 @@
         @save="handleGoalSave"
       />
 
+      <!-- Goal Setting Modal -->
+      <GoalSettingModal
+        v-if="modals.goalSetting"
+        :is-open="modals.goalSetting"
+        :goal-data="goalSettingData"
+        @close="() => modals.goalSetting = false"
+        @save="handleGoalSettingSave"
+      />
+
       <!-- Content Modal -->
       <ContentModal
         v-if="modals.content"
@@ -75,6 +84,7 @@ import { onMounted, onUnmounted, watch } from 'vue'
 import { useModals } from '../composables/useModals.js'
 import GoalModal from './goals/GoalModal.vue'
 import ContentModal from './modals/ContentModal.vue'
+import GoalSettingModal from './modals/GoalSettingModal.vue'
 import PillarModal from './pillars/PillarModal.vue'
 import TaskModal from './tasks/TaskModal.vue'
 import TeamEditModal from './team/TeamEditModal.vue'
@@ -89,6 +99,7 @@ const {
   modals,
   taskData,
   goalData,
+  goalSettingData,
   contentData,
   pillarData,
   teamInviteData,
@@ -96,6 +107,7 @@ const {
   teamMemberData,
   handleTaskSave,
   handleGoalSave,
+  handleGoalSettingSave,
   handleContentSave,
   handleTeamInviteSave,
   handleTeamEditSave,

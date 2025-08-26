@@ -5,6 +5,7 @@ const modals = reactive({
   youtubeConnect: false,
   task: false,
   goal: false,
+  goalSetting: false,
   content: false,
   pillar: false,
   teamInvite: false,
@@ -16,6 +17,7 @@ const modals = reactive({
 // Modal data objects
 const taskData = ref(null)
 const goalData = ref(null)
+const goalSettingData = ref(null)
 const contentData = ref(null)
 const pillarData = ref(null)
 const teamInviteData = ref(null)
@@ -51,6 +53,12 @@ const openGoalModal = (goal = null) => {
   console.log('🔥 Opening goal modal with data:', goal)
   goalData.value = goal
   modals.goal = true
+}
+
+const openGoalSettingModal = (goalSetting = null) => {
+  console.log('🔥 Opening goal setting modal with data:', goalSetting)
+  goalSettingData.value = goalSetting
+  modals.goalSetting = true
 }
 
 const openContentModal = (content = null) => {
@@ -100,6 +108,19 @@ const handleGoalSave = (data) => {
   closeModal('goal')
 }
 
+const handleGoalSettingSave = (data) => {
+  console.log('🔥 Goal setting saved:', data)
+
+  // Emit a custom event that the dashboard can listen to
+  if (typeof window !== 'undefined') {
+    window.dispatchEvent(new CustomEvent('goalUpdated', {
+      detail: data
+    }))
+  }
+
+  closeModal('goalSetting')
+}
+
 const handleContentSave = (data) => {
   console.log('🔥 Content saved:', data)
   closeModal('content')
@@ -132,6 +153,7 @@ export const useModals = () => {
     modals,
     taskData,
     goalData,
+    goalSettingData,
     contentData,
     pillarData,
     teamInviteData,
@@ -144,6 +166,7 @@ export const useModals = () => {
     closeAll: closeAllModals,
     openTask: openTaskModal,
     openGoal: openGoalModal,
+    openGoalSetting: openGoalSettingModal,
     openContent: openContentModal,
     openPillar: openPillarModal,
     openTeamInvite: openTeamInviteModal,
@@ -154,6 +177,7 @@ export const useModals = () => {
     // Save handlers
     handleTaskSave,
     handleGoalSave,
+    handleGoalSettingSave,
     handleContentSave,
     handleTeamInviteSave,
     handleTeamEditSave,
