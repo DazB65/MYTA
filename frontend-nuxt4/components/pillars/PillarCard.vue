@@ -1,7 +1,7 @@
 <template>
   <div
     class="rounded-xl bg-forest-800 p-6 cursor-pointer transition-all duration-300 hover:bg-forest-700 hover:scale-[1.02]"
-    @click="openPillarModal"
+    @click="toggleExpanded"
   >
     <!-- Header -->
     <div class="mb-4 flex items-center justify-between">
@@ -20,7 +20,7 @@
           <p class="text-sm text-gray-400">{{ pillar.videoCount }} Videos • {{ pillar.lastUpload }}</p>
         </div>
       </div>
-      <div class="text-gray-400">
+      <div class="text-gray-400 transition-transform duration-300" :class="{ 'rotate-90': isExpanded }">
         <svg class="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
           <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd" />
         </svg>
@@ -182,7 +182,10 @@
       <div class="flex items-center justify-between pt-4 border-t border-forest-600">
         <div class="text-sm text-gray-400">{{ pillar.status }}</div>
         <div class="flex space-x-2">
-          <button class="px-3 py-1 text-sm text-gray-300 hover:text-white transition-colors">
+          <button
+            class="px-3 py-1 text-sm text-gray-300 hover:text-white transition-colors"
+            @click.stop="openPillarModal"
+          >
             Edit Pillar
           </button>
           <button class="rounded px-3 py-1 text-sm text-white transition-colors" :class="getPillarButtonColor(pillar.icon)">
@@ -195,7 +198,7 @@
 </template>
 
 <script setup>
-import { computed } from 'vue'
+import { computed, ref } from 'vue'
 import { useModals } from '../../composables/useModals'
 
 // Props
@@ -208,6 +211,9 @@ const props = defineProps({
 
 // Composables
 const { openPillar } = useModals()
+
+// Local state
+const isExpanded = ref(false)
 
 // Computed properties
 const pillarStats = computed(() => {
@@ -230,6 +236,10 @@ const pillarStats = computed(() => {
 })
 
 // Methods
+const toggleExpanded = () => {
+  isExpanded.value = !isExpanded.value
+}
+
 const openPillarModal = () => {
   console.log('🔥 Opening pillar modal for:', props.pillar.name)
   openPillar(props.pillar)

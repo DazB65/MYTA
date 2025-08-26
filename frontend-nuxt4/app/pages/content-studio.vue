@@ -78,7 +78,7 @@
               <div
                 v-for="item in getColumnItems('ideas')"
                 :key="item.id"
-                class="cursor-pointer rounded-lg bg-forest-700 p-4 transition-colors hover:bg-forest-600 w-full relative"
+                class="cursor-pointer rounded-lg bg-forest-700 p-4 transition-all duration-300 hover:bg-forest-600 hover:scale-[1.02] hover:shadow-lg w-full relative"
                 draggable="true"
                 @dragstart="onDragStart($event, item)"
                 @click="openEditModal(item)"
@@ -191,7 +191,7 @@
               <div
                 v-for="item in getColumnItems('planning')"
                 :key="item.id"
-                class="cursor-pointer rounded-lg bg-forest-700 p-4 transition-colors hover:bg-forest-600 w-full relative"
+                class="cursor-pointer rounded-lg bg-forest-700 p-4 transition-all duration-300 hover:bg-forest-600 hover:scale-[1.02] hover:shadow-lg w-full relative"
                 draggable="true"
                 @dragstart="onDragStart($event, item)"
                 @click="openEditModal(item)"
@@ -304,7 +304,7 @@
               <div
                 v-for="item in getColumnItems('in-progress')"
                 :key="item.id"
-                class="cursor-pointer rounded-lg bg-forest-700 p-4 transition-colors hover:bg-forest-600 w-full relative"
+                class="cursor-pointer rounded-lg bg-forest-700 p-4 transition-all duration-300 hover:bg-forest-600 hover:scale-[1.02] hover:shadow-lg w-full relative"
                 draggable="true"
                 @dragstart="onDragStart($event, item)"
                 @click="openEditModal(item)"
@@ -423,7 +423,7 @@
               <div
                 v-for="item in getColumnItems('published')"
                 :key="item.id"
-                class="cursor-pointer rounded-lg bg-forest-700 p-4 transition-colors hover:bg-forest-600 w-full relative"
+                class="cursor-pointer rounded-lg bg-forest-700 p-4 transition-all duration-300 hover:bg-forest-600 hover:scale-[1.02] hover:shadow-lg w-full relative"
                 draggable="true"
                 @dragstart="onDragStart($event, item)"
                 @click="openEditModal(item)"
@@ -549,7 +549,7 @@
                 v-for="trending in contentSuggestions.trendingTopics"
                 :key="trending.id"
                 @click="handleSuggestionClick(trending)"
-                class="cursor-pointer rounded-md bg-forest-700 p-3 hover:bg-forest-600 transition-colors group"
+                class="cursor-pointer rounded-md bg-forest-700 p-3 hover:bg-forest-600 transition-all duration-300 hover:scale-[1.02] hover:shadow-md group"
               >
                 <div class="flex items-center justify-between">
                   <div>
@@ -580,7 +580,7 @@
                 v-for="suggestion in contentSuggestions.contentIdeas"
                 :key="suggestion.id"
                 @click="handleSuggestionClick(suggestion)"
-                class="cursor-pointer rounded-md bg-forest-700 p-3 hover:bg-forest-600 transition-colors group"
+                class="cursor-pointer rounded-md bg-forest-700 p-3 hover:bg-forest-600 transition-all duration-300 hover:scale-[1.02] hover:shadow-md group"
               >
                 <div class="flex items-center justify-between">
                   <div>
@@ -611,7 +611,7 @@
                 v-for="suggestion in contentSuggestions.optimizationTips"
                 :key="suggestion.id"
                 @click="handleSuggestionClick(suggestion)"
-                class="cursor-pointer rounded-md bg-forest-700 p-3 hover:bg-forest-600 transition-colors group"
+                class="cursor-pointer rounded-md bg-forest-700 p-3 hover:bg-forest-600 transition-all duration-300 hover:scale-[1.02] hover:shadow-md group"
               >
                 <div class="flex items-center justify-between">
                   <div>

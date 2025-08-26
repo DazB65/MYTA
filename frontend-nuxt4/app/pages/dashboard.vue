@@ -23,7 +23,7 @@
 
           <div class="relative z-10">
             <div class="flex items-center justify-between mb-3">
-              <p class="text-sm text-red-100 font-medium">Subscribers</p>
+              <p class="text-base text-red-100 font-medium">Subscribers</p>
               <!-- Change Indicator -->
               <div class="flex items-center space-x-1 px-2 py-1 rounded-full text-sm font-semibold bg-green-500/20 text-green-100">
                 <span>↗</span>
@@ -69,7 +69,7 @@
 
           <div class="relative z-10">
             <div class="flex items-center justify-between mb-3">
-              <p class="text-sm text-blue-100 font-medium">Views</p>
+              <p class="text-base text-blue-100 font-medium">Views</p>
               <!-- Change Indicator -->
               <div class="flex items-center space-x-1 px-2 py-1 rounded-full text-sm font-semibold bg-green-500/20 text-green-100">
                 <span>↗</span>
@@ -115,7 +115,7 @@
 
           <div class="relative z-10">
             <div class="flex items-center justify-between mb-3">
-              <p class="text-sm text-purple-100 font-medium">Watch Time</p>
+              <p class="text-base text-purple-100 font-medium">Watch Time</p>
               <!-- Change Indicator -->
               <div class="flex items-center space-x-1 px-2 py-1 rounded-full text-sm font-semibold bg-green-500/20 text-green-100">
                 <span>↗</span>
@@ -161,7 +161,7 @@
 
           <div class="relative z-10">
             <div class="flex items-center justify-between mb-3">
-              <p class="text-sm text-green-100 font-medium">Revenue</p>
+              <p class="text-base text-green-100 font-medium">Revenue</p>
               <!-- Change Indicator -->
               <div class="flex items-center space-x-1 px-2 py-1 rounded-full text-sm font-semibold bg-green-500/20 text-green-100">
                 <span>↗</span>
@@ -207,7 +207,7 @@
 
           <div class="relative z-10">
             <div class="flex items-center justify-between mb-3">
-              <p class="text-sm text-yellow-100 font-medium">Engagement</p>
+              <p class="text-base text-yellow-100 font-medium">Engagement</p>
               <!-- Change Indicator -->
               <div class="flex items-center space-x-1 px-2 py-1 rounded-full text-sm font-semibold bg-green-500/20 text-green-100">
                 <span>↗</span>
@@ -253,7 +253,7 @@
 
           <div class="relative z-10">
             <div class="flex items-center justify-between mb-3">
-              <p class="text-sm text-orange-100 font-medium">CTR</p>
+              <p class="text-base text-orange-100 font-medium">CTR</p>
               <!-- Change Indicator -->
               <div class="flex items-center space-x-1 px-2 py-1 rounded-full text-sm font-semibold bg-red-500/20 text-red-100">
                 <span>↘</span>
@@ -299,7 +299,7 @@
 
           <div class="relative z-10">
             <div class="flex items-center justify-between mb-3">
-              <p class="text-sm text-indigo-100 font-medium">Avg Duration</p>
+              <p class="text-base text-indigo-100 font-medium">Avg Duration</p>
               <!-- Change Indicator -->
               <div class="flex items-center space-x-1 px-2 py-1 rounded-full text-sm font-semibold bg-green-500/20 text-green-100">
                 <span>↗</span>
@@ -345,7 +345,7 @@
 
           <div class="relative z-10">
             <div class="flex items-center justify-between mb-3">
-              <p class="text-sm text-pink-100 font-medium">Retention</p>
+              <p class="text-base text-pink-100 font-medium">Retention</p>
               <!-- Change Indicator -->
               <div class="flex items-center space-x-1 px-2 py-1 rounded-full text-sm font-semibold bg-green-500/20 text-green-100">
                 <span>↗</span>
@@ -406,7 +406,7 @@
             <div
               v-for="task in tasks"
               :key="task.id"
-              class="flex items-center justify-between rounded-lg bg-forest-700 p-4 hover:bg-forest-600 transition-colors"
+              class="flex items-center justify-between rounded-lg bg-forest-700 p-4 hover:bg-forest-600 transition-all duration-300 hover:scale-[1.02] hover:shadow-lg cursor-pointer"
               :class="{
                 'border-l-4 border-red-500': isOverdue(task),
                 'border-l-4 border-yellow-500': isDueToday(task),
