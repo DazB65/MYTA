@@ -192,13 +192,28 @@
         </div>
 
         <!-- Actions -->
-        <div class="flex items-center justify-end space-x-3 pt-4 border-t border-border">
-          <VButton variant="ghost" @click="$emit('close')">
-            Cancel
-          </VButton>
-          <VButton variant="primary" type="submit" :disabled="!isFormValid">
-            {{ task ? 'Update Task' : 'Create Task' }}
-          </VButton>
+        <div class="flex items-center justify-between pt-4 border-t border-border">
+          <!-- Delete Button (only when editing) -->
+          <div>
+            <VButton
+              v-if="task"
+              variant="danger"
+              @click="handleDelete"
+              class="text-red-400 hover:text-red-300 hover:bg-red-500/10"
+            >
+              🗑️ Delete Task
+            </VButton>
+          </div>
+
+          <!-- Cancel & Save Buttons -->
+          <div class="flex items-center space-x-3">
+            <VButton variant="ghost" @click="$emit('close')">
+              Cancel
+            </VButton>
+            <VButton variant="primary" type="submit" :disabled="!isFormValid">
+              {{ task ? 'Update Task' : 'Create Task' }}
+            </VButton>
+          </div>
         </div>
       </form>
     </div>
@@ -220,6 +235,7 @@ const props = defineProps<Props>()
 const emit = defineEmits<{
   close: []
   save: [taskData: CreateTaskRequest]
+  delete: [taskId: string]
 }>()
 
 // Form state
@@ -439,6 +455,15 @@ const handleSubmit = () => {
 
   console.log('📤 TaskModal: Final taskData:', taskData)
   emit('save', taskData)
+}
+
+const handleDelete = () => {
+  if (!props.task) return
+
+  if (confirm('Are you sure you want to delete this task? This action cannot be undone.')) {
+    console.log('🗑️ TaskModal: Deleting task:', props.task.id)
+    emit('delete', props.task.id)
+  }
 }
 </script>
 

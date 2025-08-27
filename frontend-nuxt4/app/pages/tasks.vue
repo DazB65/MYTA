@@ -515,6 +515,7 @@
         :task="editingTask"
         @close="closeModal"
         @save="saveTask"
+        @delete="handleDeleteTask"
       />
 
 
@@ -866,6 +867,12 @@ const deleteTask = (taskId: string) => {
   if (confirm('Are you sure you want to delete this task?')) {
     tasksStore.deleteTask(taskId)
   }
+}
+
+const handleDeleteTask = (taskId: string) => {
+  console.log('🗑️ Tasks Page: handleDeleteTask called with ID:', taskId)
+  tasksStore.deleteTask(taskId)
+  closeModal() // Close the modal after deletion
 }
 
 // Calendar functionality

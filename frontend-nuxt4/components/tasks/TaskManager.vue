@@ -291,6 +291,7 @@
       :task="editingTask"
       @close="closeModal"
       @save="saveTask"
+      @delete="handleDeleteTask"
     />
   </div>
 </template>
@@ -298,7 +299,7 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue'
 import { useTasksStore } from '../../stores/tasks'
-import type { Task, TaskFilter, TaskCategory, TaskPriority } from '../../types/tasks'
+import type { Task, TaskCategory, TaskFilter, TaskPriority } from '../../types/tasks'
 
 const tasksStore = useTasksStore()
 
@@ -384,6 +385,12 @@ const saveTask = (taskData: any) => {
     tasksStore.addTask(taskData)
   }
   closeModal()
+}
+
+const handleDeleteTask = (taskId: string) => {
+  console.log('🗑️ TaskManager: handleDeleteTask called with ID:', taskId)
+  tasksStore.deleteTask(taskId)
+  closeModal() // Close the modal after deletion
 }
 
 const bulkComplete = () => {
