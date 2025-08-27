@@ -87,7 +87,10 @@
             class="block px-3 py-2 rounded-lg text-sm font-medium text-gray-300 hover:text-white hover:bg-forest-700 transition-colors"
             active-class="bg-orange-500 text-white hover:bg-orange-600"
           >
-            {{ item.name }}
+            <span class="flex items-center justify-between">
+              {{ item.name }}
+              <span v-if="item.premium" class="text-xs bg-orange-500 text-white px-2 py-1 rounded-full">PRO</span>
+            </span>
           </NuxtLink>
 
           <!-- Mobile Logout Button -->
@@ -113,10 +116,11 @@
               v-for="item in mainMenuItems"
               :key="item.path"
               :to="item.path"
-              class="px-3 py-2 rounded-lg text-sm font-medium text-gray-300 hover:text-white hover:bg-forest-700 transition-colors"
+              class="px-3 py-2 rounded-lg text-sm font-medium text-gray-300 hover:text-white hover:bg-forest-700 transition-colors relative"
               active-class="bg-orange-500 text-white hover:bg-orange-600"
             >
               {{ item.name }}
+              <span v-if="item.premium" class="absolute -top-1 -right-1 text-xs bg-orange-500 text-white px-1.5 py-0.5 rounded-full">PRO</span>
             </NuxtLink>
           </nav>
 
@@ -218,7 +222,8 @@ const mainMenuItems = [
   { name: 'Tasks', path: '/tasks' },
   { name: 'Pillars', path: '/pillars' },
   { name: 'Videos', path: '/videos' },
-  { name: 'Content Studio', path: '/content-studio' }
+  { name: 'Content Studio', path: '/content-studio' },
+  { name: 'Research', path: '/research-workspace', premium: true }
 ]
 
 // User data
