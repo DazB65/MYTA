@@ -36,45 +36,111 @@
       <div class="p-6 space-y-6">
         <!-- Stats Grid -->
         <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
-          <div class="bg-forest-700 rounded-lg p-4">
-            <div class="text-2xl font-bold text-white">{{ formatViews(pillarStats.totalViews) }}</div>
-            <div class="flex items-center text-sm mt-1" :class="pillarStats.viewsGrowth >= 0 ? 'text-green-400' : 'text-red-400'">
-              <svg class="mr-1 h-3 w-3" fill="currentColor" viewBox="0 0 20 20">
-                <path v-if="pillarStats.viewsGrowth >= 0" fill-rule="evenodd" d="M5.293 7.707a1 1 0 010-1.414l4-4a1 1 0 011.414 0l4 4a1 1 0 01-1.414 1.414L11 5.414V17a1 1 0 11-2 0V5.414L6.707 7.707a1 1 0 01-1.414 0z" clip-rule="evenodd" />
-                <path v-else fill-rule="evenodd" d="M14.707 12.293a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 111.414-1.414L9 14.586V3a1 1 0 112 0v11.586l2.293-2.293a1 1 0 011.414 0z" clip-rule="evenodd" />
-              </svg>
-              {{ Math.abs(pillarStats.viewsGrowth) }}%
+          <!-- Total Views Card -->
+          <div class="relative overflow-hidden rounded-xl bg-gradient-to-br from-blue-500 to-blue-600 p-4 transition-all duration-300 hover:scale-105 hover:shadow-xl cursor-pointer group">
+            <!-- Background Pattern -->
+            <div class="absolute inset-0 opacity-10">
+              <div class="absolute inset-0 bg-gradient-to-br from-white/20 to-transparent"></div>
+              <div class="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -translate-y-16 translate-x-16"></div>
             </div>
-            <div class="text-xs text-gray-400">Total Views</div>
-          </div>
-          
-          <div class="bg-forest-700 rounded-lg p-4">
-            <div class="text-2xl font-bold text-white">{{ pillarStats.watchTime }}</div>
-            <div class="flex items-center text-sm mt-1" :class="pillarStats.watchTimeGrowth >= 0 ? 'text-green-400' : 'text-red-400'">
-              <svg class="mr-1 h-3 w-3" fill="currentColor" viewBox="0 0 20 20">
-                <path v-if="pillarStats.watchTimeGrowth >= 0" fill-rule="evenodd" d="M5.293 7.707a1 1 0 010-1.414l4-4a1 1 0 011.414 0l4 4a1 1 0 01-1.414 1.414L11 5.414V17a1 1 0 11-2 0V5.414L6.707 7.707a1 1 0 01-1.414 0z" clip-rule="evenodd" />
-                <path v-else fill-rule="evenodd" d="M14.707 12.293a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 111.414-1.414L9 14.586V3a1 1 0 112 0v11.586l2.293-2.293a1 1 0 011.414 0z" clip-rule="evenodd" />
-              </svg>
-              {{ Math.abs(pillarStats.watchTimeGrowth) }}%
+
+            <div class="relative z-10">
+              <div class="flex items-center justify-between mb-3">
+                <p class="text-base text-blue-100 font-medium">Total Views</p>
+                <!-- Change Indicator -->
+                <div class="flex items-center space-x-1 px-2 py-1 rounded-full text-sm font-semibold" :class="pillarStats.viewsGrowth >= 0 ? 'bg-green-500/20 text-green-100' : 'bg-red-500/20 text-red-100'">
+                  <span>{{ pillarStats.viewsGrowth >= 0 ? '↗' : '↘' }}</span>
+                  <span>{{ Math.abs(pillarStats.viewsGrowth) }}%</span>
+                </div>
+              </div>
+
+              <div class="mb-3">
+                <div class="text-2xl font-bold text-white leading-tight">{{ formatViews(pillarStats.totalViews) }}</div>
+                <div class="text-sm text-white/70">Total views across all videos</div>
+              </div>
             </div>
-            <div class="text-xs text-gray-400">Watch Time</div>
+
+            <!-- Hover Glow Effect -->
+            <div class="absolute inset-0 bg-gradient-to-r from-white/0 via-white/5 to-white/0 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
           </div>
-          
-          <div class="bg-forest-700 rounded-lg p-4">
-            <div class="text-2xl font-bold text-white">{{ pillar.videoCount }}</div>
-            <div class="flex items-center text-sm mt-1" :class="pillarStats.videoGrowth >= 0 ? 'text-green-400' : 'text-red-400'">
-              <svg class="mr-1 h-3 w-3" fill="currentColor" viewBox="0 0 20 20">
-                <path v-if="pillarStats.videoGrowth >= 0" fill-rule="evenodd" d="M5.293 7.707a1 1 0 010-1.414l4-4a1 1 0 011.414 0l4 4a1 1 0 01-1.414 1.414L11 5.414V17a1 1 0 11-2 0V5.414L6.707 7.707a1 1 0 01-1.414 0z" clip-rule="evenodd" />
-                <path v-else fill-rule="evenodd" d="M14.707 12.293a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 111.414-1.414L9 14.586V3a1 1 0 112 0v11.586l2.293-2.293a1 1 0 011.414 0z" clip-rule="evenodd" />
-              </svg>
-              {{ Math.abs(pillarStats.videoGrowth) }}%
+
+          <!-- Watch Time Card -->
+          <div class="relative overflow-hidden rounded-xl bg-gradient-to-br from-green-500 to-green-600 p-4 transition-all duration-300 hover:scale-105 hover:shadow-xl cursor-pointer group">
+            <!-- Background Pattern -->
+            <div class="absolute inset-0 opacity-10">
+              <div class="absolute inset-0 bg-gradient-to-br from-white/20 to-transparent"></div>
+              <div class="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -translate-y-16 translate-x-16"></div>
             </div>
-            <div class="text-xs text-gray-400">Total Videos</div>
+
+            <div class="relative z-10">
+              <div class="flex items-center justify-between mb-3">
+                <p class="text-base text-green-100 font-medium">Watch Time</p>
+                <!-- Change Indicator -->
+                <div class="flex items-center space-x-1 px-2 py-1 rounded-full text-sm font-semibold" :class="pillarStats.watchTimeGrowth >= 0 ? 'bg-green-500/20 text-green-100' : 'bg-red-500/20 text-red-100'">
+                  <span>{{ pillarStats.watchTimeGrowth >= 0 ? '↗' : '↘' }}</span>
+                  <span>{{ Math.abs(pillarStats.watchTimeGrowth) }}%</span>
+                </div>
+              </div>
+
+              <div class="mb-3">
+                <div class="text-2xl font-bold text-white leading-tight">{{ pillarStats.watchTime }}</div>
+                <div class="text-sm text-white/70">Total hours watched</div>
+              </div>
+            </div>
+
+            <!-- Hover Glow Effect -->
+            <div class="absolute inset-0 bg-gradient-to-r from-white/0 via-white/5 to-white/0 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
           </div>
-          
-          <div class="bg-forest-700 rounded-lg p-4">
-            <div class="text-2xl font-bold text-white">{{ pillar.contentIdeas?.length || 0 }}</div>
-            <div class="text-xs text-gray-400">Content Ideas</div>
+
+          <!-- Total Videos Card -->
+          <div class="relative overflow-hidden rounded-xl bg-gradient-to-br from-purple-500 to-purple-600 p-4 transition-all duration-300 hover:scale-105 hover:shadow-xl cursor-pointer group">
+            <!-- Background Pattern -->
+            <div class="absolute inset-0 opacity-10">
+              <div class="absolute inset-0 bg-gradient-to-br from-white/20 to-transparent"></div>
+              <div class="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -translate-y-16 translate-x-16"></div>
+            </div>
+
+            <div class="relative z-10">
+              <div class="flex items-center justify-between mb-3">
+                <p class="text-base text-purple-100 font-medium">Total Videos</p>
+                <!-- Change Indicator -->
+                <div class="flex items-center space-x-1 px-2 py-1 rounded-full text-sm font-semibold" :class="pillarStats.videoGrowth >= 0 ? 'bg-green-500/20 text-green-100' : 'bg-red-500/20 text-red-100'">
+                  <span>{{ pillarStats.videoGrowth >= 0 ? '↗' : '↘' }}</span>
+                  <span>{{ Math.abs(pillarStats.videoGrowth) }}%</span>
+                </div>
+              </div>
+
+              <div class="mb-3">
+                <div class="text-2xl font-bold text-white leading-tight">{{ pillar.videoCount }}</div>
+                <div class="text-sm text-white/70">Videos in this pillar</div>
+              </div>
+            </div>
+
+            <!-- Hover Glow Effect -->
+            <div class="absolute inset-0 bg-gradient-to-r from-white/0 via-white/5 to-white/0 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+          </div>
+
+          <!-- Content Ideas Card -->
+          <div class="relative overflow-hidden rounded-xl bg-gradient-to-br from-orange-500 to-orange-600 p-4 transition-all duration-300 hover:scale-105 hover:shadow-xl cursor-pointer group">
+            <!-- Background Pattern -->
+            <div class="absolute inset-0 opacity-10">
+              <div class="absolute inset-0 bg-gradient-to-br from-white/20 to-transparent"></div>
+              <div class="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -translate-y-16 translate-x-16"></div>
+            </div>
+
+            <div class="relative z-10">
+              <div class="flex items-center justify-between mb-3">
+                <p class="text-base text-orange-100 font-medium">Content Ideas</p>
+              </div>
+
+              <div class="mb-3">
+                <div class="text-2xl font-bold text-white leading-tight">{{ pillar.contentIdeas?.length || 0 }}</div>
+                <div class="text-sm text-white/70">Ideas ready to create</div>
+              </div>
+            </div>
+
+            <!-- Hover Glow Effect -->
+            <div class="absolute inset-0 bg-gradient-to-r from-white/0 via-white/5 to-white/0 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
           </div>
         </div>
 
@@ -101,30 +167,80 @@
 
         <!-- Performance Trend & Status -->
         <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <div class="bg-forest-700 rounded-lg p-4">
-            <div class="flex items-center justify-between">
-              <span class="text-sm text-gray-400">Trend</span>
-              <span class="text-lg">{{ getPillarTrend() }}</span>
+          <!-- Trend Card -->
+          <div class="relative overflow-hidden rounded-xl bg-gradient-to-br from-yellow-500 to-yellow-600 p-4 transition-all duration-300 hover:scale-105 hover:shadow-xl cursor-pointer group">
+            <!-- Background Pattern -->
+            <div class="absolute inset-0 opacity-10">
+              <div class="absolute inset-0 bg-gradient-to-br from-white/20 to-transparent"></div>
+              <div class="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -translate-y-16 translate-x-16"></div>
             </div>
-            <div class="text-lg font-semibold text-white mt-1">{{ getPillarTrendText() }}</div>
+
+            <div class="relative z-10">
+              <div class="flex items-center justify-between mb-3">
+                <p class="text-base text-yellow-100 font-medium">Trend</p>
+                <span class="text-lg">{{ getPillarTrend() }}</span>
+              </div>
+
+              <div class="mb-3">
+                <div class="text-lg font-semibold text-white leading-tight">{{ getPillarTrendText() }}</div>
+                <div class="text-sm text-white/70">Performance direction</div>
+              </div>
+            </div>
+
+            <!-- Hover Glow Effect -->
+            <div class="absolute inset-0 bg-gradient-to-r from-white/0 via-white/5 to-white/0 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
           </div>
-          <div class="bg-forest-700 rounded-lg p-4">
-            <div class="flex items-center justify-between">
-              <span class="text-sm text-gray-400">Status</span>
-              <span class="px-2 py-1 rounded-full text-xs font-medium" :class="getPillarStatusColor()">
-                {{ getPillarStatus() }}
-              </span>
+
+          <!-- Status Card -->
+          <div class="relative overflow-hidden rounded-xl bg-gradient-to-br from-pink-500 to-pink-600 p-4 transition-all duration-300 hover:scale-105 hover:shadow-xl cursor-pointer group">
+            <!-- Background Pattern -->
+            <div class="absolute inset-0 opacity-10">
+              <div class="absolute inset-0 bg-gradient-to-br from-white/20 to-transparent"></div>
+              <div class="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -translate-y-16 translate-x-16"></div>
             </div>
-            <div class="text-sm text-gray-300 mt-1">{{ getPillarStatusText() }}</div>
+
+            <div class="relative z-10">
+              <div class="flex items-center justify-between mb-3">
+                <p class="text-base text-pink-100 font-medium">Status</p>
+                <span class="px-2 py-1 rounded-full text-xs font-medium bg-white/20 text-white">
+                  {{ getPillarStatus() }}
+                </span>
+              </div>
+
+              <div class="mb-3">
+                <div class="text-sm text-white leading-tight">{{ getPillarStatusText() }}</div>
+                <div class="text-sm text-white/70">Current state</div>
+              </div>
+            </div>
+
+            <!-- Hover Glow Effect -->
+            <div class="absolute inset-0 bg-gradient-to-r from-white/0 via-white/5 to-white/0 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
           </div>
-          <div class="bg-forest-700 rounded-lg p-4">
-            <div class="flex items-center justify-between">
-              <span class="text-sm text-gray-400">Next Upload</span>
-              <svg class="h-4 w-4 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
-                <path fill-rule="evenodd" d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z" clip-rule="evenodd" />
-              </svg>
+
+          <!-- Next Upload Card -->
+          <div class="relative overflow-hidden rounded-xl bg-gradient-to-br from-indigo-500 to-indigo-600 p-4 transition-all duration-300 hover:scale-105 hover:shadow-xl cursor-pointer group">
+            <!-- Background Pattern -->
+            <div class="absolute inset-0 opacity-10">
+              <div class="absolute inset-0 bg-gradient-to-br from-white/20 to-transparent"></div>
+              <div class="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -translate-y-16 translate-x-16"></div>
             </div>
-            <div class="text-lg font-semibold text-white mt-1">{{ getNextUploadDate() }}</div>
+
+            <div class="relative z-10">
+              <div class="flex items-center justify-between mb-3">
+                <p class="text-base text-indigo-100 font-medium">Next Upload</p>
+                <svg class="h-4 w-4 text-white/70" fill="currentColor" viewBox="0 0 20 20">
+                  <path fill-rule="evenodd" d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z" clip-rule="evenodd" />
+                </svg>
+              </div>
+
+              <div class="mb-3">
+                <div class="text-lg font-semibold text-white leading-tight">{{ getNextUploadDate() }}</div>
+                <div class="text-sm text-white/70">Scheduled upload</div>
+              </div>
+            </div>
+
+            <!-- Hover Glow Effect -->
+            <div class="absolute inset-0 bg-gradient-to-r from-white/0 via-white/5 to-white/0 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
           </div>
         </div>
 
