@@ -23,12 +23,6 @@
           >
             📋 Task Manager
           </button>
-          <button
-            class="rounded-lg bg-orange-500 px-4 py-2 text-sm text-white hover:bg-orange-600"
-            @click="showCreateModal = true"
-          >
-            ➕ New Task
-          </button>
         </div>
       </div>
 
