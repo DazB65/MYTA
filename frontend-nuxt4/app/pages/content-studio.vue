@@ -701,7 +701,7 @@
 </template>
 
 <script setup>
-import { nextTick, ref } from 'vue'
+import { nextTick, onMounted, onUnmounted, ref } from 'vue'
 
 import { useAgentSettings } from '../../composables/useAgentSettings'
 import { useModals } from '../../composables/useModals.js'
@@ -717,6 +717,64 @@ const { selectedAgent, agentName } = useAgentSettings()
 
 // Use modal composable
 const { openContent, openTask } = useModals()
+
+// Listen for content updates from the modal system
+const handleContentUpdate = (event) => {
+  const updatedContent = event.detail
+  console.log('🔥 Content update event received:', updatedContent)
+
+  if (updatedContent.id) {
+    // Update existing content
+    const itemIndex = contentItems.value.findIndex(item => item.id === updatedContent.id)
+    if (itemIndex !== -1) {
+      // Create a completely new object to ensure Vue reactivity
+      const updatedItem = {
+        ...contentItems.value[itemIndex],
+        ...updatedContent
+      }
+
+      // Use array splice to ensure reactivity
+      contentItems.value.splice(itemIndex, 1, updatedItem)
+
+      console.log('🔥 Content updated in kanban:', updatedItem)
+      console.log('🔥 New status:', updatedItem.status)
+      console.log('🔥 Items in new status column:', contentItems.value.filter(item => item.status === updatedItem.status).length)
+
+      // Force reactivity update using nextTick
+      nextTick(() => {
+        console.log('🔥 After nextTick - Items in status columns:')
+        console.log('Ideas:', contentItems.value.filter(item => item.status === 'ideas').length)
+        console.log('Planning:', contentItems.value.filter(item => item.status === 'planning').length)
+        console.log('In Progress:', contentItems.value.filter(item => item.status === 'in-progress').length)
+        console.log('Published:', contentItems.value.filter(item => item.status === 'published').length)
+      })
+    }
+  } else {
+    // Add new content
+    const newItem = {
+      id: Date.now(),
+      ...updatedContent,
+      createdAt: new Date().toISOString()
+    }
+    contentItems.value.push(newItem)
+    console.log('🔥 New content added to kanban:', newItem)
+  }
+}
+
+// Setup event listeners for content updates
+onMounted(() => {
+  if (typeof window !== 'undefined') {
+    window.addEventListener('contentUpdated', handleContentUpdate)
+    console.log('🔥 Content update event listener added')
+  }
+})
+
+onUnmounted(() => {
+  if (typeof window !== 'undefined') {
+    window.removeEventListener('contentUpdated', handleContentUpdate)
+    console.log('🔥 Content update event listener removed')
+  }
+})
 
 // Get pillars from the main pillars composable
 const { pillars } = usePillars()
@@ -1255,7 +1313,8 @@ const updateContent = () => {
     // Update the content item
     const itemIndex = contentItems.value.findIndex(item => item.id === selectedContentItem.value.id)
     if (itemIndex !== -1) {
-      contentItems.value[itemIndex] = {
+      // Create a completely new object to ensure Vue reactivity
+      const updatedItem = {
         ...contentItems.value[itemIndex],
         title: editContent.value.title.trim(),
         description: editContent.value.description.trim() || 'No description provided',
@@ -1270,6 +1329,13 @@ const updateContent = () => {
           icon: selectedPillar.icon
         } : null
       }
+
+      // Use array splice to ensure reactivity
+      contentItems.value.splice(itemIndex, 1, updatedItem)
+
+      console.log('🔥 Content updated:', updatedItem)
+      console.log('🔥 New status:', updatedItem.status)
+      console.log('🔥 Items in new status column:', contentItems.value.filter(item => item.status === updatedItem.status).length)
     }
 
     // Close modal and reset
@@ -1278,6 +1344,16 @@ const updateContent = () => {
 
     const dueDateText = editContent.value.dueDate ? ` (Due: ${new Date(editContent.value.dueDate).toLocaleDateString()})` : ''
     alert(`Updated content: "${editContent.value.title}"${dueDateText}`)
+
+    // Force reactivity update using nextTick
+    nextTick(() => {
+      console.log('🔥 After nextTick - Items in status columns:')
+      console.log('Ideas:', contentItems.value.filter(item => item.status === 'ideas').length)
+      console.log('Planning:', contentItems.value.filter(item => item.status === 'planning').length)
+      console.log('In Progress:', contentItems.value.filter(item => item.status === 'in-progress').length)
+      console.log('Published:', contentItems.value.filter(item => item.status === 'published').length)
+    })
+
   } catch (error) {
     console.error('Error updating content:', error)
     alert('Error updating content. Please try again.')

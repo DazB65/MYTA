@@ -123,6 +123,14 @@ const handleGoalSettingSave = (data) => {
 
 const handleContentSave = (data) => {
   console.log('🔥 Content saved:', data)
+
+  // Emit a custom event that the content studio page can listen to
+  if (typeof window !== 'undefined') {
+    window.dispatchEvent(new CustomEvent('contentUpdated', {
+      detail: data
+    }))
+  }
+
   closeModal('content')
 }
 
