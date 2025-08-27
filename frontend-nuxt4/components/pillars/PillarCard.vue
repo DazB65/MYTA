@@ -1,7 +1,7 @@
 <template>
   <div
     class="rounded-xl bg-forest-800 p-6 cursor-pointer transition-all duration-300 hover:bg-forest-700 hover:scale-[1.02]"
-    @click="toggleExpanded"
+    @click="openPillarModal"
   >
     <!-- Header -->
     <div class="mb-4 flex items-center justify-between">
@@ -20,7 +20,7 @@
           <p class="text-sm text-gray-400">{{ pillar.videoCount }} Videos • {{ pillar.lastUpload }}</p>
         </div>
       </div>
-      <div class="text-gray-400 transition-transform duration-300" :class="{ 'rotate-90': isExpanded }">
+      <div class="text-gray-400">
         <svg class="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
           <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd" />
         </svg>
@@ -115,90 +115,13 @@
       </div>
     </div>
 
-    <!-- Expanded Content (Conditional) -->
-    <div v-if="isExpanded" class="mt-6 pt-6 border-t border-forest-600 space-y-6">
-      <!-- All Recent Videos -->
-      <div>
-        <h4 class="text-sm font-medium text-gray-300 mb-3">All Recent Videos</h4>
-        <div class="space-y-3">
-          <div 
-            v-for="video in pillar.recentVideos" 
-            :key="video.id"
-            class="flex items-center space-x-3 p-3 rounded-lg bg-forest-700 hover:bg-forest-600 transition-colors cursor-pointer"
-          >
-            <div class="w-20 h-14 bg-gray-600 rounded overflow-hidden flex-shrink-0">
-              <img
-                :src="video.thumbnail"
-                :alt="video.title"
-                class="w-full h-full object-cover"
-                @error="handleImageError"
-                loading="lazy"
-              />
-            </div>
-            <div class="flex-1 min-w-0">
-              <p class="text-sm font-medium text-white truncate">{{ video.title }}</p>
-              <div class="flex items-center space-x-4 text-xs text-gray-400 mt-1">
-                <span>{{ formatViews(video.views) }} views</span>
-                <span>{{ video.uploadDate }}</span>
-                <span>{{ video.duration }}</span>
-              </div>
-            </div>
-            <div class="text-xs text-gray-400">
-              {{ video.performance }}
-            </div>
-          </div>
-        </div>
-      </div>
 
-      <!-- Content Ideas Queue -->
-      <div>
-        <div class="flex items-center justify-between mb-3">
-          <h4 class="text-sm font-medium text-gray-300">Content Ideas</h4>
-          <button class="text-xs hover:opacity-80 transition-opacity" :class="getPillarAccentColor(pillar.icon)">+ Add Idea</button>
-        </div>
-        <div class="space-y-2">
-          <div 
-            v-for="idea in pillar.contentIdeas" 
-            :key="idea.id"
-            class="flex items-center justify-between p-3 rounded-lg bg-forest-700"
-          >
-            <div>
-              <p class="text-sm text-white">{{ idea.title }}</p>
-              <p class="text-xs text-gray-400">{{ idea.description }}</p>
-            </div>
-            <div class="flex items-center space-x-2">
-              <span class="text-xs px-2 py-1 rounded-full bg-orange-500/20 text-orange-400">{{ idea.priority }}</span>
-              <button class="text-gray-400 hover:text-white">
-                <svg class="h-4 w-4" fill="currentColor" viewBox="0 0 20 20">
-                  <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" />
-                </svg>
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
 
-      <!-- Action Buttons -->
-      <div class="flex items-center justify-between pt-4 border-t border-forest-600">
-        <div class="text-sm text-gray-400">{{ pillar.status }}</div>
-        <div class="flex space-x-2">
-          <button
-            class="px-3 py-1 text-sm text-gray-300 hover:text-white transition-colors"
-            @click.stop="openPillarModal"
-          >
-            Edit Pillar
-          </button>
-          <button class="rounded px-3 py-1 text-sm text-white transition-colors" :class="getPillarButtonColor(pillar.icon)">
-            Create Content
-          </button>
-        </div>
-      </div>
-    </div>
   </div>
 </template>
 
 <script setup>
-import { computed, ref } from 'vue'
+import { computed } from 'vue'
 import { useModals } from '../../composables/useModals'
 
 // Props
@@ -212,8 +135,7 @@ const props = defineProps({
 // Composables
 const { openPillar } = useModals()
 
-// Local state
-const isExpanded = ref(false)
+
 
 // Computed properties
 const pillarStats = computed(() => {
@@ -236,9 +158,6 @@ const pillarStats = computed(() => {
 })
 
 // Methods
-const toggleExpanded = () => {
-  isExpanded.value = !isExpanded.value
-}
 
 const openPillarModal = () => {
   console.log('🔥 Opening pillar modal for:', props.pillar.name)
