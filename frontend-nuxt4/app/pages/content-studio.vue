@@ -736,6 +736,9 @@ const handleContentUpdate = (event) => {
       // Use array splice to ensure reactivity
       contentItems.value.splice(itemIndex, 1, updatedItem)
 
+      // Save to localStorage to persist changes
+      saveContentItems(contentItems.value)
+
       console.log('🔥 Content updated in kanban:', updatedItem)
       console.log('🔥 New status:', updatedItem.status)
       console.log('🔥 Items in new status column:', contentItems.value.filter(item => item.status === updatedItem.status).length)
@@ -757,13 +760,27 @@ const handleContentUpdate = (event) => {
       createdAt: new Date().toISOString()
     }
     contentItems.value.push(newItem)
+
+    // Save to localStorage to persist changes
+    saveContentItems(contentItems.value)
+
     console.log('🔥 New content added to kanban:', newItem)
   }
 }
 
-// Setup event listeners for content updates
+// Setup event listeners for content updates and load from localStorage
 onMounted(() => {
   if (typeof window !== 'undefined') {
+    // Load content items from localStorage after hydration is complete
+    const savedItems = loadContentItemsFromStorage()
+    if (savedItems) {
+      contentItems.value = savedItems
+      console.log('🔥 Content items loaded from localStorage after hydration')
+    } else {
+      console.log('🔥 Using default content items (no localStorage data found)')
+    }
+
+    // Setup event listener for content updates
     window.addEventListener('contentUpdated', handleContentUpdate)
     console.log('🔥 Content update event listener added')
   }
@@ -900,8 +917,8 @@ const getIconEmoji = (iconName) => {
   return iconMap[iconName] || '📝'
 }
 
-// Content items data
-const contentItems = ref([
+// Default content items data
+const defaultContentItems = [
   // Ideas
   {
     id: 1,
@@ -1108,7 +1125,39 @@ const contentItems = ref([
     },
     pillar: { id: 5, name: 'Analytics', icon: '📊' }
   },
-])
+];
+
+// Save content items to localStorage
+const saveContentItems = (items) => {
+  if (typeof window !== 'undefined') {
+    try {
+      localStorage.setItem('myta-content-items', JSON.stringify(items))
+      console.log('🔥 Saved content items to localStorage:', items.length, 'items')
+    } catch (error) {
+      console.error('🔥 Error saving content items to localStorage:', error)
+    }
+  }
+}
+
+// Load content items from localStorage (client-side only)
+const loadContentItemsFromStorage = () => {
+  if (typeof window !== 'undefined') {
+    try {
+      const saved = localStorage.getItem('myta-content-items')
+      if (saved) {
+        const parsed = JSON.parse(saved)
+        console.log('🔥 Loaded content items from localStorage:', parsed.length, 'items')
+        return parsed
+      }
+    } catch (error) {
+      console.error('🔥 Error loading content items from localStorage:', error)
+    }
+  }
+  return null
+}
+
+// Initialize content items with default data (for SSR compatibility)
+const contentItems = ref([...defaultContentItems])
 
 // Content Suggestions Data
 const contentSuggestions = ref({
@@ -1333,6 +1382,9 @@ const updateContent = () => {
       // Use array splice to ensure reactivity
       contentItems.value.splice(itemIndex, 1, updatedItem)
 
+      // Save to localStorage to persist changes
+      saveContentItems(contentItems.value)
+
       console.log('🔥 Content updated:', updatedItem)
       console.log('🔥 New status:', updatedItem.status)
       console.log('🔥 Items in new status column:', contentItems.value.filter(item => item.status === updatedItem.status).length)
@@ -1458,6 +1510,10 @@ const deleteContent = () => {
     if (itemIndex !== -1) {
       const deletedTitle = contentItems.value[itemIndex].title
       contentItems.value.splice(itemIndex, 1)
+
+      // Save to localStorage to persist changes
+      saveContentItems(contentItems.value)
+
       alert(`Deleted content: "${deletedTitle}"`)
     }
 
@@ -1492,6 +1548,10 @@ const onDrop = (event, toStatus) => {
 
     if (itemIndex !== -1 && data.fromStatus !== toStatus) {
       contentItems.value[itemIndex].status = toStatus
+
+      // Save to localStorage to persist changes
+      saveContentItems(contentItems.value)
+
       console.log(`Moved content from ${data.fromStatus} to ${toStatus}`)
     }
   } catch (error) {
