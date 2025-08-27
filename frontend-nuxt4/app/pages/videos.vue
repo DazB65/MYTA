@@ -223,67 +223,186 @@
 
           <div class="space-y-3">
             <!-- Performance Optimization -->
-            <div class="bg-forest-700/50 rounded-lg p-3 border-l-4 border-blue-500">
+            <div v-if="!isRecommendationDismissed('thumbnail')" class="bg-forest-700/50 rounded-lg p-3 border-l-4 border-blue-500 relative transition-all duration-300">
+              <button
+                @click="dismissRecommendation('thumbnail')"
+                class="absolute top-2 right-2 w-5 h-5 bg-gray-600 hover:bg-gray-500 rounded-full flex items-center justify-center transition-colors group"
+                title="Dismiss this recommendation"
+              >
+                <svg class="w-3 h-3 text-gray-300 group-hover:text-white" fill="currentColor" viewBox="0 0 20 20">
+                  <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"/>
+                </svg>
+              </button>
               <div class="flex items-start space-x-3">
                 <div class="w-6 h-6 bg-blue-500 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
                   <svg class="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
                     <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
                   </svg>
                 </div>
-                <div class="flex-1">
+                <div class="flex-1 pr-6">
                   <h5 class="font-medium text-white">Improve Thumbnail</h5>
                   <p class="text-sm text-gray-300 mt-1">Your click-through rate is {{ selectedVideo?.detailedStats?.ctr || '3.2' }}%. Consider A/B testing a brighter thumbnail with larger text to increase CTR by 15-25%.</p>
+                  <div class="flex items-center space-x-2 mt-2">
+                    <button
+                      @click="addSpecificTask('thumbnail')"
+                      class="px-2 py-1 text-xs bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors"
+                    >
+                      Add to Tasks
+                    </button>
+                    <button
+                      @click="copySpecificRecommendation('thumbnail')"
+                      class="px-2 py-1 text-xs bg-gray-600 text-gray-200 rounded hover:bg-gray-500 transition-colors"
+                    >
+                      Copy
+                    </button>
+                  </div>
                 </div>
               </div>
             </div>
 
             <!-- SEO Optimization -->
-            <div class="bg-forest-700/50 rounded-lg p-3 border-l-4 border-green-500">
+            <div v-if="!isRecommendationDismissed('seo')" class="bg-forest-700/50 rounded-lg p-3 border-l-4 border-green-500 relative transition-all duration-300">
+              <button
+                @click="dismissRecommendation('seo')"
+                class="absolute top-2 right-2 w-5 h-5 bg-gray-600 hover:bg-gray-500 rounded-full flex items-center justify-center transition-colors group"
+                title="Dismiss this recommendation"
+              >
+                <svg class="w-3 h-3 text-gray-300 group-hover:text-white" fill="currentColor" viewBox="0 0 20 20">
+                  <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"/>
+                </svg>
+              </button>
               <div class="flex items-start space-x-3">
                 <div class="w-6 h-6 bg-green-500 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
                   <svg class="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
                     <path fill-rule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clip-rule="evenodd"/>
                   </svg>
                 </div>
-                <div class="flex-1">
+                <div class="flex-1 pr-6">
                   <h5 class="font-medium text-white">Optimize Tags & Description</h5>
                   <p class="text-sm text-gray-300 mt-1">Add trending keywords like "{{ selectedVideo?.suggestedKeywords?.[0] || 'tutorial 2024' }}" and "{{ selectedVideo?.suggestedKeywords?.[1] || 'beginner guide' }}" to improve discoverability. Update description with timestamps.</p>
+                  <div class="flex items-center space-x-2 mt-2">
+                    <button
+                      @click="addSpecificTask('seo')"
+                      class="px-2 py-1 text-xs bg-green-600 text-white rounded hover:bg-green-700 transition-colors"
+                    >
+                      Add to Tasks
+                    </button>
+                    <button
+                      @click="copySpecificRecommendation('seo')"
+                      class="px-2 py-1 text-xs bg-gray-600 text-gray-200 rounded hover:bg-gray-500 transition-colors"
+                    >
+                      Copy
+                    </button>
+                  </div>
                 </div>
               </div>
             </div>
 
             <!-- Content Strategy -->
-            <div class="bg-forest-700/50 rounded-lg p-3 border-l-4 border-purple-500">
+            <div v-if="!isRecommendationDismissed('content')" class="bg-forest-700/50 rounded-lg p-3 border-l-4 border-purple-500 relative transition-all duration-300">
+              <button
+                @click="dismissRecommendation('content')"
+                class="absolute top-2 right-2 w-5 h-5 bg-gray-600 hover:bg-gray-500 rounded-full flex items-center justify-center transition-colors group"
+                title="Dismiss this recommendation"
+              >
+                <svg class="w-3 h-3 text-gray-300 group-hover:text-white" fill="currentColor" viewBox="0 0 20 20">
+                  <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"/>
+                </svg>
+              </button>
               <div class="flex items-start space-x-3">
                 <div class="w-6 h-6 bg-purple-500 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
                   <svg class="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
                     <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
                   </svg>
                 </div>
-                <div class="flex-1">
+                <div class="flex-1 pr-6">
                   <h5 class="font-medium text-white">Create Follow-up Content</h5>
                   <p class="text-sm text-gray-300 mt-1">This video has {{ selectedVideo?.detailedStats?.engagement || '4.2' }}% engagement. Create a "Part 2" or "Advanced Tips" video to capitalize on viewer interest and build a series.</p>
+                  <div class="flex items-center space-x-2 mt-2">
+                    <button
+                      @click="addSpecificTask('content')"
+                      class="px-2 py-1 text-xs bg-purple-600 text-white rounded hover:bg-purple-700 transition-colors"
+                    >
+                      Add to Tasks
+                    </button>
+                    <button
+                      @click="copySpecificRecommendation('content')"
+                      class="px-2 py-1 text-xs bg-gray-600 text-gray-200 rounded hover:bg-gray-500 transition-colors"
+                    >
+                      Copy
+                    </button>
+                  </div>
                 </div>
               </div>
             </div>
 
             <!-- Engagement Boost -->
-            <div class="bg-forest-700/50 rounded-lg p-3 border-l-4 border-yellow-500">
+            <div v-if="!isRecommendationDismissed('engagement')" class="bg-forest-700/50 rounded-lg p-3 border-l-4 border-yellow-500 relative transition-all duration-300">
+              <button
+                @click="dismissRecommendation('engagement')"
+                class="absolute top-2 right-2 w-5 h-5 bg-gray-600 hover:bg-gray-500 rounded-full flex items-center justify-center transition-colors group"
+                title="Dismiss this recommendation"
+              >
+                <svg class="w-3 h-3 text-gray-300 group-hover:text-white" fill="currentColor" viewBox="0 0 20 20">
+                  <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"/>
+                </svg>
+              </button>
               <div class="flex items-start space-x-3">
                 <div class="w-6 h-6 bg-yellow-500 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
                   <svg class="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
                     <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"/>
                   </svg>
                 </div>
-                <div class="flex-1">
+                <div class="flex-1 pr-6">
                   <h5 class="font-medium text-white">Boost Community Engagement</h5>
                   <p class="text-sm text-gray-300 mt-1">Pin a comment asking viewers about their experience. With {{ selectedVideo?.detailedStats?.comments || '127' }} comments, engaging responses could increase retention by 10%.</p>
+                  <div class="flex items-center space-x-2 mt-2">
+                    <button
+                      @click="addSpecificTask('engagement')"
+                      class="px-2 py-1 text-xs bg-yellow-600 text-white rounded hover:bg-yellow-700 transition-colors"
+                    >
+                      Add to Tasks
+                    </button>
+                    <button
+                      @click="copySpecificRecommendation('engagement')"
+                      class="px-2 py-1 text-xs bg-gray-600 text-gray-200 rounded hover:bg-gray-500 transition-colors"
+                    >
+                      Copy
+                    </button>
+                  </div>
                 </div>
               </div>
             </div>
           </div>
 
-          <!-- Quick Action Buttons -->
+          <!-- Show Dismissed Recommendations -->
+          <div v-if="hasDismissedRecommendations" class="mt-4 pt-3 border-t border-forest-600">
+            <button
+              @click="showDismissedRecommendations = !showDismissedRecommendations"
+              class="text-sm text-gray-400 hover:text-gray-300 transition-colors flex items-center space-x-1"
+            >
+              <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M3 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z" clip-rule="evenodd"/>
+              </svg>
+              <span>{{ showDismissedRecommendations ? 'Hide' : 'Show' }} dismissed recommendations ({{ dismissedCount }})</span>
+            </button>
+
+            <div v-if="showDismissedRecommendations" class="mt-3 space-y-2">
+              <div v-for="type in dismissedTypes" :key="type" class="bg-forest-700/30 rounded-lg p-2 border border-forest-600">
+                <div class="flex items-center justify-between">
+                  <span class="text-sm text-gray-300">{{ getRecommendationTitle(type) }}</span>
+                  <button
+                    @click="restoreRecommendation(type)"
+                    class="px-2 py-1 text-xs bg-green-600 text-white rounded hover:bg-green-700 transition-colors"
+                  >
+                    Restore
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Global Action Buttons -->
           <div class="flex items-center space-x-2 mt-4 pt-3 border-t border-forest-600">
             <button
               @click="openYouTubeStudio"
@@ -302,7 +421,7 @@
                 <path d="M8 3a1 1 0 011-1h2a1 1 0 110 2H9a1 1 0 01-1-1z"/>
                 <path d="M6 3a2 2 0 00-2 2v11a2 2 0 002 2h8a2 2 0 002-2V5a2 2 0 00-2-2 3 3 0 01-3 3H9a3 3 0 01-3-3z"/>
               </svg>
-              <span>Copy Suggestions</span>
+              <span>Copy All</span>
             </button>
             <button
               @click="addToTasks"
@@ -311,7 +430,7 @@
               <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
                 <path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clip-rule="evenodd"/>
               </svg>
-              <span>Add to Tasks</span>
+              <span>Add All to Tasks</span>
             </button>
           </div>
         </div>
@@ -368,6 +487,10 @@ const selectedVideo = ref(null)
 // State for filtering and sorting
 const selectedPillar = ref('all')
 const sortBy = ref('recent')
+
+// State for dismissed recommendations (per video)
+const dismissedRecommendations = ref({})
+const showDismissedRecommendations = ref(false)
 
 // Composables
 const { openContent } = useModals()
@@ -839,4 +962,194 @@ const addToTasks = () => {
   // Close the video stats modal
   closeStatsModal()
 }
+
+// Individual recommendation handlers
+const addSpecificTask = (type) => {
+  if (!selectedVideo.value) return
+
+  const taskDetails = {
+    thumbnail: {
+      title: `Improve Thumbnail: ${selectedVideo.value.title}`,
+      description: `• A/B test brighter thumbnail with larger text
+• Target: Increase CTR from ${selectedVideo.value.detailedStats?.ctr || '3.2'}% by 15-25%
+• Consider using contrasting colors and clear facial expressions
+• Test different text sizes and positioning`,
+      category: 'thumbnail-optimization'
+    },
+    seo: {
+      title: `Optimize SEO: ${selectedVideo.value.title}`,
+      description: `• Add trending keywords: "${selectedVideo.value.suggestedKeywords?.[0] || 'tutorial 2024'}", "${selectedVideo.value.suggestedKeywords?.[1] || 'beginner guide'}"
+• Update description with timestamps
+• Optimize tags for better discoverability
+• Research competitor keywords and trending topics`,
+      category: 'seo-optimization'
+    },
+    content: {
+      title: `Create Follow-up Content: ${selectedVideo.value.title}`,
+      description: `• Plan "Part 2" or "Advanced Tips" video
+• Current engagement: ${selectedVideo.value.detailedStats?.engagement || '4.8'}%
+• Build a series to capitalize on viewer interest
+• Research related topics and viewer questions`,
+      category: 'content-creation'
+    },
+    engagement: {
+      title: `Boost Engagement: ${selectedVideo.value.title}`,
+      description: `• Pin a comment asking about viewer experience
+• Current comments: ${selectedVideo.value.detailedStats?.comments || '234'}
+• Respond to top comments to increase retention
+• Create community posts related to this video`,
+      category: 'community-engagement'
+    }
+  }
+
+  const task = taskDetails[type]
+  if (!task) return
+
+  // Open task creation modal with pre-filled data
+  openTask({
+    title: task.title,
+    description: task.description,
+    priority: 'medium',
+    dueDate: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000).toISOString().split('T')[0], // 3 days from now
+    category: task.category
+  })
+
+  success('Task Created!', `${task.title.split(':')[0]} task added to your task list.`)
+
+  // Close the video stats modal
+  closeStatsModal()
+}
+
+const copySpecificRecommendation = async (type) => {
+  if (!selectedVideo.value) return
+
+  const recommendations = {
+    thumbnail: `🎨 THUMBNAIL OPTIMIZATION for "${selectedVideo.value.title}":
+
+Current CTR: ${selectedVideo.value.detailedStats?.ctr || '3.2'}%
+Target: Increase CTR by 15-25%
+
+Action Items:
+• A/B test brighter thumbnail with larger text
+• Use contrasting colors and clear facial expressions
+• Test different text sizes and positioning
+• Consider using arrows or highlighting key elements
+
+Generated by MYTA Boss Agent`,
+
+    seo: `🔍 SEO & TAGS OPTIMIZATION for "${selectedVideo.value.title}":
+
+Recommended Keywords:
+• "${selectedVideo.value.suggestedKeywords?.[0] || 'tutorial 2024'}"
+• "${selectedVideo.value.suggestedKeywords?.[1] || 'beginner guide'}"
+
+Action Items:
+• Update description with timestamps
+• Optimize tags for better discoverability
+• Research competitor keywords
+• Add trending topics to tags
+
+Generated by MYTA Boss Agent`,
+
+    content: `📺 FOLLOW-UP CONTENT STRATEGY for "${selectedVideo.value.title}":
+
+Current Engagement: ${selectedVideo.value.detailedStats?.engagement || '4.8'}%
+
+Action Items:
+• Create "Part 2" or "Advanced Tips" video
+• Build a series to capitalize on viewer interest
+• Research related topics viewers are asking about
+• Plan content calendar for series
+
+Generated by MYTA Boss Agent`,
+
+    engagement: `💬 COMMUNITY ENGAGEMENT for "${selectedVideo.value.title}":
+
+Current Comments: ${selectedVideo.value.detailedStats?.comments || '234'}
+
+Action Items:
+• Pin a comment asking about viewer experience
+• Respond to top comments to increase retention by 10%
+• Create community posts related to this video
+• Ask questions to encourage more comments
+
+Generated by MYTA Boss Agent`
+  }
+
+  const recommendation = recommendations[type]
+  if (!recommendation) return
+
+  try {
+    await navigator.clipboard.writeText(recommendation)
+    success('Recommendation Copied!', `${type.charAt(0).toUpperCase() + type.slice(1)} recommendation copied to clipboard.`)
+  } catch (err) {
+    console.error('Failed to copy recommendation:', err)
+    info('Copy Failed', 'Please manually copy the recommendation from the modal.')
+  }
+}
+
+// Recommendation dismissal functions
+const dismissRecommendation = (type) => {
+  if (!selectedVideo.value) return
+
+  const videoId = selectedVideo.value.id
+  if (!dismissedRecommendations.value[videoId]) {
+    dismissedRecommendations.value[videoId] = []
+  }
+
+  if (!dismissedRecommendations.value[videoId].includes(type)) {
+    dismissedRecommendations.value[videoId].push(type)
+  }
+
+  info('Recommendation Dismissed', `${getRecommendationTitle(type)} recommendation has been hidden.`)
+}
+
+const restoreRecommendation = (type) => {
+  if (!selectedVideo.value) return
+
+  const videoId = selectedVideo.value.id
+  if (dismissedRecommendations.value[videoId]) {
+    const index = dismissedRecommendations.value[videoId].indexOf(type)
+    if (index > -1) {
+      dismissedRecommendations.value[videoId].splice(index, 1)
+    }
+  }
+
+  success('Recommendation Restored', `${getRecommendationTitle(type)} recommendation is now visible again.`)
+}
+
+const isRecommendationDismissed = (type) => {
+  if (!selectedVideo.value) return false
+  const videoId = selectedVideo.value.id
+  return dismissedRecommendations.value[videoId]?.includes(type) || false
+}
+
+const getRecommendationTitle = (type) => {
+  const titles = {
+    thumbnail: 'Improve Thumbnail',
+    seo: 'Optimize Tags & Description',
+    content: 'Create Follow-up Content',
+    engagement: 'Boost Community Engagement'
+  }
+  return titles[type] || type
+}
+
+// Computed properties for dismissed recommendations
+const hasDismissedRecommendations = computed(() => {
+  if (!selectedVideo.value) return false
+  const videoId = selectedVideo.value.id
+  return dismissedRecommendations.value[videoId]?.length > 0
+})
+
+const dismissedCount = computed(() => {
+  if (!selectedVideo.value) return 0
+  const videoId = selectedVideo.value.id
+  return dismissedRecommendations.value[videoId]?.length || 0
+})
+
+const dismissedTypes = computed(() => {
+  if (!selectedVideo.value) return []
+  const videoId = selectedVideo.value.id
+  return dismissedRecommendations.value[videoId] || []
+})
 </script>
