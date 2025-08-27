@@ -207,6 +207,96 @@
           </div>
         </div>
 
+        <!-- Agent Suggestions -->
+        <div class="mt-6 bg-gradient-to-r from-orange-500/10 to-red-500/10 rounded-lg p-4 border border-orange-500/20">
+          <div class="flex items-center space-x-3 mb-4">
+            <div class="w-8 h-8 bg-orange-500 rounded-full flex items-center justify-center">
+              <svg class="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 20 20">
+                <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
+              </svg>
+            </div>
+            <div>
+              <h4 class="text-lg font-semibold text-white">Boss Agent Recommendations</h4>
+              <p class="text-sm text-gray-400">AI-powered suggestions to optimize this video</p>
+            </div>
+          </div>
+
+          <div class="space-y-3">
+            <!-- Performance Optimization -->
+            <div class="bg-forest-700/50 rounded-lg p-3 border-l-4 border-blue-500">
+              <div class="flex items-start space-x-3">
+                <div class="w-6 h-6 bg-blue-500 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
+                  <svg class="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                  </svg>
+                </div>
+                <div class="flex-1">
+                  <h5 class="font-medium text-white">Improve Thumbnail</h5>
+                  <p class="text-sm text-gray-300 mt-1">Your click-through rate is {{ selectedVideo?.detailedStats?.ctr || '3.2' }}%. Consider A/B testing a brighter thumbnail with larger text to increase CTR by 15-25%.</p>
+                </div>
+              </div>
+            </div>
+
+            <!-- SEO Optimization -->
+            <div class="bg-forest-700/50 rounded-lg p-3 border-l-4 border-green-500">
+              <div class="flex items-start space-x-3">
+                <div class="w-6 h-6 bg-green-500 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
+                  <svg class="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clip-rule="evenodd"/>
+                  </svg>
+                </div>
+                <div class="flex-1">
+                  <h5 class="font-medium text-white">Optimize Tags & Description</h5>
+                  <p class="text-sm text-gray-300 mt-1">Add trending keywords like "{{ selectedVideo?.suggestedKeywords?.[0] || 'tutorial 2024' }}" and "{{ selectedVideo?.suggestedKeywords?.[1] || 'beginner guide' }}" to improve discoverability. Update description with timestamps.</p>
+                </div>
+              </div>
+            </div>
+
+            <!-- Content Strategy -->
+            <div class="bg-forest-700/50 rounded-lg p-3 border-l-4 border-purple-500">
+              <div class="flex items-start space-x-3">
+                <div class="w-6 h-6 bg-purple-500 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
+                  <svg class="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
+                    <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                  </svg>
+                </div>
+                <div class="flex-1">
+                  <h5 class="font-medium text-white">Create Follow-up Content</h5>
+                  <p class="text-sm text-gray-300 mt-1">This video has {{ selectedVideo?.detailedStats?.engagement || '4.2' }}% engagement. Create a "Part 2" or "Advanced Tips" video to capitalize on viewer interest and build a series.</p>
+                </div>
+              </div>
+            </div>
+
+            <!-- Engagement Boost -->
+            <div class="bg-forest-700/50 rounded-lg p-3 border-l-4 border-yellow-500">
+              <div class="flex items-start space-x-3">
+                <div class="w-6 h-6 bg-yellow-500 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
+                  <svg class="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"/>
+                  </svg>
+                </div>
+                <div class="flex-1">
+                  <h5 class="font-medium text-white">Boost Community Engagement</h5>
+                  <p class="text-sm text-gray-300 mt-1">Pin a comment asking viewers about their experience. With {{ selectedVideo?.detailedStats?.comments || '127' }} comments, engaging responses could increase retention by 10%.</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Quick Action Buttons -->
+          <div class="flex items-center space-x-2 mt-4 pt-3 border-t border-forest-600">
+            <button class="px-3 py-1.5 bg-orange-500 text-white text-sm rounded-md hover:bg-orange-600 transition-colors">
+              Apply All Suggestions
+            </button>
+            <button class="px-3 py-1.5 bg-forest-600 text-gray-300 text-sm rounded-md hover:bg-forest-500 transition-colors">
+              Schedule Review
+            </button>
+            <button class="px-3 py-1.5 bg-forest-600 text-gray-300 text-sm rounded-md hover:bg-forest-500 transition-colors">
+              Get More Ideas
+            </button>
+          </div>
+        </div>
+
         <!-- Action Buttons -->
         <div class="flex items-center justify-end space-x-3 mt-6 pt-4 border-t border-forest-600">
           <a
