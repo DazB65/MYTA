@@ -14,18 +14,20 @@
         <img :src="video.thumbnail" :alt="video.title" />
         <div class="video-duration">{{ formatDuration(video.duration) }}</div>
         <div class="analysis-status" v-if="video.analysisStatus">
-          <Icon :name="getStatusIcon(video.analysisStatus)" />
+          <span class="status-indicator" :class="getStatusClass(video.analysisStatus)">
+            {{ getStatusText(video.analysisStatus) }}
+          </span>
         </div>
       </div>
       <div class="card-actions">
         <button class="action-btn" @click="toggleAnalysis" :disabled="isAnalyzing">
-          <Icon :name="isAnalyzing ? 'loader' : 'brain'" :class="{ 'animate-spin': isAnalyzing }" />
+          {{ isAnalyzing ? 'Analyzing...' : 'Analyze' }}
         </button>
         <button class="action-btn" @click="openVideoModal">
-          <Icon name="external-link" />
+          View
         </button>
         <button class="action-btn danger" @click="$emit('remove', video.id)">
-          <Icon name="trash" />
+          Remove
         </button>
       </div>
     </div>
@@ -44,19 +46,19 @@
     <!-- Performance Metrics -->
     <div class="performance-metrics" v-if="video.metrics">
       <div class="metric">
-        <Icon name="eye" class="metric-icon" />
+        <span class="metric-label">Views:</span>
         <span class="metric-value">{{ formatNumber(video.metrics.views) }}</span>
       </div>
       <div class="metric">
-        <Icon name="thumbs-up" class="metric-icon" />
+        <span class="metric-label">Likes:</span>
         <span class="metric-value">{{ formatNumber(video.metrics.likes) }}</span>
       </div>
       <div class="metric">
-        <Icon name="message-circle" class="metric-icon" />
+        <span class="metric-label">Comments:</span>
         <span class="metric-value">{{ formatNumber(video.metrics.comments) }}</span>
       </div>
       <div class="metric">
-        <Icon name="share" class="metric-icon" />
+        <span class="metric-label">Engagement:</span>
         <span class="metric-value">{{ video.metrics.engagementRate }}%</span>
       </div>
     </div>
@@ -64,23 +66,21 @@
     <!-- AI Analysis Results -->
     <div class="analysis-results" v-if="video.analysis && !isAnalyzing">
       <div class="analysis-header">
-        <Icon name="brain" class="analysis-icon" />
         <span class="analysis-title">AI Analysis</span>
         <div class="analysis-score" :class="getScoreClass(video.analysis.overallScore)">
           {{ video.analysis.overallScore }}/100
         </div>
       </div>
-      
+
       <div class="analysis-insights">
         <div class="insight-item" v-for="insight in video.analysis.keyInsights" :key="insight.id">
-          <Icon :name="insight.type" class="insight-icon" />
-          <span class="insight-text">{{ insight.text }}</span>
+          <span class="insight-text">• {{ insight.text }}</span>
         </div>
       </div>
 
       <div class="analysis-tags">
-        <span 
-          v-for="tag in video.analysis.tags" 
+        <span
+          v-for="tag in video.analysis.tags"
           :key="tag"
           class="analysis-tag"
         >
@@ -92,7 +92,7 @@
     <!-- Loading State -->
     <div class="analysis-loading" v-if="isAnalyzing">
       <div class="loading-spinner">
-        <Icon name="loader" class="animate-spin" />
+        <div class="spinner"></div>
       </div>
       <p class="loading-text">Analyzing video content...</p>
       <div class="loading-progress">
@@ -111,7 +111,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { ref } from 'vue'
 import type { ResearchVideo } from '../../types/research'
 
 interface Props {
@@ -226,12 +226,21 @@ const formatDate = (date: string) => {
   return new Date(date).toLocaleDateString()
 }
 
-const getStatusIcon = (status: string) => {
+const getStatusClass = (status: string) => {
   switch (status) {
-    case 'completed': return 'check-circle'
-    case 'analyzing': return 'loader'
-    case 'failed': return 'x-circle'
-    default: return 'clock'
+    case 'completed': return 'status-completed'
+    case 'analyzing': return 'status-analyzing'
+    case 'failed': return 'status-failed'
+    default: return 'status-pending'
+  }
+}
+
+const getStatusText = (status: string) => {
+  switch (status) {
+    case 'completed': return '✓'
+    case 'analyzing': return '⟳'
+    case 'failed': return '✗'
+    default: return '○'
   }
 }
 
@@ -319,11 +328,35 @@ const openVideoModal = () => {
 }
 
 .metric {
-  @apply flex items-center space-x-1 text-sm text-gray-600;
+  @apply flex items-center justify-between text-sm text-gray-600;
 }
 
-.metric-icon {
-  @apply w-4 h-4;
+.metric-label {
+  @apply font-medium;
+}
+
+.status-indicator {
+  @apply px-2 py-1 rounded-full text-xs font-medium;
+}
+
+.status-completed {
+  @apply bg-green-100 text-green-800;
+}
+
+.status-analyzing {
+  @apply bg-yellow-100 text-yellow-800;
+}
+
+.status-failed {
+  @apply bg-red-100 text-red-800;
+}
+
+.status-pending {
+  @apply bg-gray-100 text-gray-800;
+}
+
+.spinner {
+  @apply w-4 h-4 border-2 border-orange-500 border-t-transparent rounded-full animate-spin;
 }
 
 .analysis-results {

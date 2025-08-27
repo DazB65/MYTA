@@ -11,6 +11,15 @@
         </div>
         <div class="flex items-center space-x-3">
           <button
+            class="flex items-center space-x-2 rounded-lg bg-blue-500 px-4 py-2 text-white transition-colors hover:bg-blue-600"
+            @click="showProTips = true"
+          >
+            <svg class="h-4 w-4" fill="currentColor" viewBox="0 0 20 20">
+              <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"/>
+            </svg>
+            <span>Pro Tips</span>
+          </button>
+          <button
             class="flex items-center space-x-2 rounded-lg bg-forest-700 px-4 py-2 text-white transition-colors hover:bg-forest-600"
             @click="showTemplates = true"
           >
@@ -113,16 +122,32 @@
           <!-- Quick Actions -->
           <div class="rounded-lg bg-forest-800 p-4">
             <h3 class="mb-4 text-lg font-semibold text-white">Quick Actions</h3>
-            <div class="space-y-2">
-              <button
-                class="flex w-full items-center space-x-2 rounded-lg bg-forest-700 px-3 py-2 text-left transition-colors hover:bg-forest-600"
-                @click="analyzeVideoFromUrl"
-              >
-                <svg class="h-4 w-4 text-orange-400" fill="currentColor" viewBox="0 0 20 20">
-                  <path fill-rule="evenodd" d="M12.586 4.586a2 2 0 112.828 2.828l-3 3a2 2 0 01-2.828 0 1 1 0 00-1.414 1.414 4 4 0 005.656 0l3-3a4 4 0 00-5.656-5.656l-1.5 1.5a1 1 0 101.414 1.414l1.5-1.5zm-5 5a2 2 0 012.828 0 1 1 0 101.414-1.414 4 4 0 00-5.656 0l-3 3a4 4 0 105.656 5.656l1.5-1.5a1 1 0 10-1.414-1.414l-1.5 1.5a2 2 0 11-2.828-2.828l3-3z" clip-rule="evenodd"/>
-                </svg>
-                <span class="text-sm font-medium text-white">Analyze Video URL</span>
-              </button>
+            <div class="space-y-3">
+              <!-- Video URL Input -->
+              <div class="space-y-2">
+                <label class="text-sm font-medium text-gray-300">YouTube Video URL</label>
+                <div class="flex space-x-2">
+                  <input
+                    v-model="videoUrl"
+                    type="text"
+                    placeholder="https://youtube.com/watch?v=..."
+                    class="flex-1 rounded-lg bg-forest-700 border border-forest-600 px-3 py-2 text-white placeholder-gray-400 focus:border-orange-500 focus:outline-none focus:ring-1 focus:ring-orange-500"
+                    @keyup.enter="analyzeVideoFromUrl"
+                  />
+                  <button
+                    @click="analyzeVideoFromUrl"
+                    :disabled="isAnalyzing || !videoUrl.trim()"
+                    class="rounded-lg bg-orange-500 px-4 py-2 text-white transition-colors hover:bg-orange-600 disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    <svg v-if="isAnalyzing" class="h-4 w-4 animate-spin" fill="currentColor" viewBox="0 0 20 20">
+                      <path fill-rule="evenodd" d="M4 2a1 1 0 011 1v2.101a7.002 7.002 0 0111.601 2.566 1 1 0 11-1.885.666A5.002 5.002 0 005.999 7H9a1 1 0 010 2H4a1 1 0 01-1-1V3a1 1 0 011-1zm.008 9.057a1 1 0 011.276.61A5.002 5.002 0 0014.001 13H11a1 1 0 110-2h5a1 1 0 011 1v5a1 1 0 11-2 0v-2.101a7.002 7.002 0 01-11.601-2.566 1 1 0 01.61-1.276z" clip-rule="evenodd"/>
+                    </svg>
+                    <svg v-else class="h-4 w-4" fill="currentColor" viewBox="0 0 20 20">
+                      <path fill-rule="evenodd" d="M12.586 4.586a2 2 0 112.828 2.828l-3 3a2 2 0 01-2.828 0 1 1 0 00-1.414 1.414 4 4 0 005.656 0l3-3a4 4 0 00-5.656-5.656l-1.5 1.5a1 1 0 101.414 1.414l1.5-1.5zm-5 5a2 2 0 012.828 0 1 1 0 101.414-1.414 4 4 0 00-5.656 0l-3 3a4 4 0 105.656 5.656l1.5-1.5a1 1 0 10-1.414-1.414l-1.5 1.5a2 2 0 11-2.828-2.828l3-3z" clip-rule="evenodd"/>
+                    </svg>
+                  </button>
+                </div>
+              </div>
               <button
                 class="flex w-full items-center space-x-2 rounded-lg bg-forest-700 px-3 py-2 text-left transition-colors hover:bg-forest-600"
                 @click="findTrendingContent"
@@ -200,6 +225,17 @@
                   :connection="connection"
                   @remove="removeConnection"
                 />
+
+                <!-- Floating Add Note Button -->
+                <button
+                  @click="addNewNote"
+                  class="absolute bottom-4 right-4 h-12 w-12 rounded-full bg-orange-500 text-white shadow-lg hover:bg-orange-600 transition-colors flex items-center justify-center"
+                  title="Add Note"
+                >
+                  <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+                  </svg>
+                </button>
               </div>
             </div>
 
@@ -343,27 +379,30 @@
 
     <!-- Modals -->
     <VideoAnalyzerModal
-      v-if="showVideoAnalyzer"
+      :show="showVideoAnalyzer"
       @close="showVideoAnalyzer = false"
-      @analyze="addVideoToCanvas"
+      @addToCanvas="addVideoToCanvas"
     />
 
-    <CompetitorTrackerModal
-      v-if="showCompetitorTracker"
-      @close="showCompetitorTracker = false"
-      @track="addCompetitorToCanvas"
+    <ProTipsModal
+      :show="showProTips"
+      @close="showProTips = false"
+      @startTour="startInteractiveTour"
     />
 
-    <TrendScoutModal
-      v-if="showTrendScout"
-      @close="showTrendScout = false"
-      @add-trend="addTrendToCanvas"
+    <TemplatesModal
+      :show="showTemplates"
+      @close="showTemplates = false"
+      @useTemplate="applyTemplate"
     />
   </div>
 </template>
 
 <script setup lang="ts">
 import { ref } from 'vue'
+import ProTipsModal from '../../components/research/ProTipsModal.vue'
+import TemplatesModal from '../../components/research/TemplatesModal.vue'
+import VideoAnalyzerModal from '../../components/research/VideoAnalyzerModal.vue'
 
 // Mock data for research agents
 const researchAgents = ref([
@@ -420,11 +459,7 @@ const researchInsights = ref([
   }
 ])
 
-const trendingTopics = ref([
-  { id: 1, title: 'AI Productivity Tools', growth: 45 },
-  { id: 2, title: 'Remote Work Setup', growth: 32 },
-  { id: 3, title: 'Content Creation Tips', growth: 28 }
-])
+
 
 // Reactive state
 const selectedAgent = ref(null)
@@ -437,8 +472,19 @@ const showCompetitorTracker = ref(false)
 const showTrendScout = ref(false)
 const showTemplates = ref(false)
 const showSavedProjects = ref(false)
+const showProTips = ref(false)
 const chatInput = ref('')
 const canvasContainer = ref(null)
+const videoUrl = ref('')
+const isAnalyzing = ref(false)
+const currentProject = ref(null)
+const trendingTopics = ref([
+  { id: 1, title: 'AI Content Creation', growth: 45, category: 'Technology' },
+  { id: 2, title: 'YouTube Shorts Strategy', growth: 32, category: 'Marketing' },
+  { id: 3, title: 'Creator Economy 2024', growth: 28, category: 'Business' },
+  { id: 4, title: 'Video SEO Tips', growth: 25, category: 'SEO' },
+  { id: 5, title: 'Monetization Strategies', growth: 22, category: 'Business' }
+])
 
 // Methods
 const selectAgent = (agent) => {
@@ -490,31 +536,442 @@ const openCompetitorTracker = () => showCompetitorTracker.value = true
 const openTrendScout = () => showTrendScout.value = true
 const openKeywordResearch = () => console.log('Opening keyword research tool')
 
-const analyzeVideoFromUrl = () => console.log('Analyzing video from URL')
-const findTrendingContent = () => console.log('Finding trending content')
-const saveProject = () => console.log('Saving project')
-const exportToContentStudio = () => console.log('Exporting to content studio')
+const analyzeVideoFromUrl = async () => {
+  if (!videoUrl.value.trim()) {
+    alert('Please enter a YouTube video URL')
+    return
+  }
 
-const addToCanvas = (insight) => console.log('Adding insight to canvas:', insight)
-const researchTrend = (trend) => console.log('Researching trend:', trend)
+  isAnalyzing.value = true
+
+  try {
+    // Extract video ID from URL
+    const videoId = extractVideoId(videoUrl.value)
+    if (!videoId) {
+      alert('Invalid YouTube URL')
+      return
+    }
+
+    // Simulate API call to get video data
+    const videoData = await fetchVideoData(videoId)
+
+    // Add video to canvas
+    const newVideo = {
+      id: Date.now().toString(),
+      url: videoUrl.value,
+      videoId: videoId,
+      title: videoData.title,
+      channelName: videoData.channelName,
+      channelId: videoData.channelId,
+      thumbnail: videoData.thumbnail,
+      duration: videoData.duration,
+      views: videoData.views,
+      publishedAt: videoData.publishedAt,
+      position: {
+        x: Math.random() * 400 + 100,
+        y: Math.random() * 300 + 100
+      },
+      addedAt: new Date(),
+      analysisStatus: 'analyzing',
+      analysis: null,
+      metrics: null,
+      tags: []
+    }
+
+    researchVideos.value.push(newVideo)
+
+    // Simulate AI analysis
+    setTimeout(async () => {
+      await performVideoAnalysis(newVideo.id)
+    }, 2000)
+
+    videoUrl.value = ''
+
+  } catch (error) {
+    console.error('Error analyzing video:', error)
+    alert('Error analyzing video. Please try again.')
+  } finally {
+    isAnalyzing.value = false
+  }
+}
+
+const findTrendingContent = () => {
+  // Simulate finding trending content
+  const trendingVideos = [
+    {
+      id: Date.now().toString() + '_1',
+      url: 'https://youtube.com/watch?v=trending1',
+      videoId: 'trending1',
+      title: 'Top 10 AI Tools for Content Creators',
+      channelName: 'TechCreator',
+      channelId: 'techcreator123',
+      thumbnail: 'https://img.youtube.com/vi/trending1/maxresdefault.jpg',
+      duration: 720,
+      views: 125000,
+      publishedAt: '2024-01-15',
+      position: { x: 150, y: 150 },
+      addedAt: new Date(),
+      analysisStatus: 'pending',
+      tags: ['trending', 'ai', 'tools']
+    },
+    {
+      id: Date.now().toString() + '_2',
+      url: 'https://youtube.com/watch?v=trending2',
+      videoId: 'trending2',
+      title: 'YouTube Algorithm Secrets Revealed',
+      channelName: 'GrowthHacker',
+      channelId: 'growthhacker456',
+      thumbnail: 'https://img.youtube.com/vi/trending2/maxresdefault.jpg',
+      duration: 540,
+      views: 89000,
+      publishedAt: '2024-01-14',
+      position: { x: 350, y: 200 },
+      addedAt: new Date(),
+      analysisStatus: 'pending',
+      tags: ['trending', 'algorithm', 'growth']
+    }
+  ]
+
+  researchVideos.value.push(...trendingVideos)
+}
+
+const saveProject = () => {
+  const project = {
+    id: currentProject.value?.id || Date.now().toString(),
+    name: currentProject.value?.name || 'Untitled Research Project',
+    description: currentProject.value?.description || '',
+    createdAt: currentProject.value?.createdAt || new Date(),
+    updatedAt: new Date(),
+    videos: researchVideos.value,
+    notes: researchNotes.value,
+    connections: connections.value,
+    insights: []
+  }
+
+  // Save to localStorage for demo purposes
+  const savedProjects = JSON.parse(localStorage.getItem('researchProjects') || '[]')
+  const existingIndex = savedProjects.findIndex(p => p.id === project.id)
+
+  if (existingIndex >= 0) {
+    savedProjects[existingIndex] = project
+  } else {
+    savedProjects.push(project)
+  }
+
+  localStorage.setItem('researchProjects', JSON.stringify(savedProjects))
+  currentProject.value = project
+
+  alert('Project saved successfully!')
+}
+
+const exportToContentStudio = () => {
+  const exportData = {
+    videos: researchVideos.value.filter(v => v.analysis),
+    insights: researchVideos.value.flatMap(v => v.analysis?.keyInsights || []),
+    notes: researchNotes.value,
+    exportedAt: new Date()
+  }
+
+  // Save export data for content studio
+  localStorage.setItem('researchExport', JSON.stringify(exportData))
+
+  // Navigate to content studio
+  navigateTo('/content-studio?imported=true')
+}
+
+const addToCanvas = (insight) => {
+  const note = {
+    id: Date.now().toString(),
+    content: insight.text || insight.title || 'New insight',
+    position: {
+      x: Math.random() * 400 + 100,
+      y: Math.random() * 300 + 100
+    },
+    createdAt: new Date(),
+    color: '#FEF3C7'
+  }
+  researchNotes.value.push(note)
+}
+
+const researchTrend = async (trend) => {
+  try {
+    // Simulate researching a trend and finding related videos
+    const trendVideos = await fetchTrendVideos(trend)
+
+    trendVideos.forEach((video, index) => {
+      const newVideo = {
+        ...video,
+        id: Date.now().toString() + '_trend_' + index,
+        position: {
+          x: 200 + (index * 150),
+          y: 250 + (index * 50)
+        },
+        addedAt: new Date(),
+        analysisStatus: 'pending',
+        tags: [...(video.tags || []), 'trend', trend.category.toLowerCase()]
+      }
+      researchVideos.value.push(newVideo)
+    })
+
+    // Add trend insight note
+    addToCanvas({
+      text: `Researched trend: ${trend.title} (+${trend.growth}% growth)`
+    })
+
+  } catch (error) {
+    console.error('Error researching trend:', error)
+    alert('Error researching trend. Please try again.')
+  }
+}
 
 // Canvas methods
-const updateVideoPosition = (videoId, position) => console.log('Updating video position:', videoId, position)
-const updateNotePosition = (noteId, position) => console.log('Updating note position:', noteId, position)
-const analyzeVideo = (video) => console.log('Analyzing video:', video)
-const removeVideo = (videoId) => console.log('Removing video:', videoId)
-const editNote = (note) => console.log('Editing note:', note)
-const removeNote = (noteId) => console.log('Removing note:', noteId)
-const removeConnection = (connectionId) => console.log('Removing connection:', connectionId)
+const updateVideoPosition = (videoId, position) => {
+  const video = researchVideos.value.find(v => v.id === videoId)
+  if (video) {
+    video.position = position
+  }
+}
+
+const updateNotePosition = (noteId, position) => {
+  const note = researchNotes.value.find(n => n.id === noteId)
+  if (note) {
+    note.position = position
+  }
+}
+
+const analyzeVideo = async (videoId) => {
+  await performVideoAnalysis(videoId)
+}
+
+const removeVideo = (videoId) => {
+  const index = researchVideos.value.findIndex(v => v.id === videoId)
+  if (index >= 0) {
+    researchVideos.value.splice(index, 1)
+  }
+
+  // Remove any connections involving this video
+  connections.value = connections.value.filter(c =>
+    c.fromId !== videoId && c.toId !== videoId
+  )
+}
+
+const editNote = (note) => {
+  const newContent = prompt('Edit note:', note.content)
+  if (newContent !== null) {
+    note.content = newContent
+  }
+}
+
+const removeNote = (noteId) => {
+  const index = researchNotes.value.findIndex(n => n.id === noteId)
+  if (index >= 0) {
+    researchNotes.value.splice(index, 1)
+  }
+
+  // Remove any connections involving this note
+  connections.value = connections.value.filter(c =>
+    c.fromId !== noteId && c.toId !== noteId
+  )
+}
+
+const removeConnection = (connectionId) => {
+  const index = connections.value.findIndex(c => c.id === connectionId)
+  if (index >= 0) {
+    connections.value.splice(index, 1)
+  }
+}
+
+const addNewNote = () => {
+  const content = prompt('Enter note content:')
+  if (content) {
+    const note = {
+      id: Date.now().toString(),
+      content,
+      position: {
+        x: Math.random() * 400 + 100,
+        y: Math.random() * 300 + 100
+      },
+      createdAt: new Date(),
+      color: '#FEF3C7'
+    }
+    researchNotes.value.push(note)
+  }
+}
+
+const startInteractiveTour = () => {
+  // Future implementation: Interactive tour of the research workspace
+  alert('Interactive tour coming soon! For now, explore the features using the Pro Tips as your guide.')
+}
+
+const applyTemplate = (template) => {
+  // Clear current research
+  researchVideos.value = []
+  researchNotes.value = []
+  connections.value = []
+
+  // Set project name based on template
+  currentProject.value = {
+    id: Date.now().toString(),
+    name: template.name,
+    description: template.goal,
+    createdAt: new Date(),
+    template: template.name
+  }
+
+  // Add template instructions as notes
+  const instructionNote = {
+    id: Date.now().toString(),
+    content: `${template.name}\n\nGoal: ${template.goal}\n\nSteps:\n${template.steps.map((step, i) => `${i + 1}. ${step}`).join('\n')}`,
+    position: { x: 100, y: 100 },
+    createdAt: new Date(),
+    color: '#DBEAFE' // Blue for template instructions
+  }
+
+  researchNotes.value.push(instructionNote)
+
+  // Add a getting started note
+  const gettingStartedNote = {
+    id: (Date.now() + 1).toString(),
+    content: `Getting Started:\n\n• Follow the template steps on the left\n• Use the research tools to find videos\n• Add your findings to the canvas\n• Document insights as you go`,
+    position: { x: 400, y: 100 },
+    createdAt: new Date(),
+    color: '#FEF3C7' // Yellow for getting started
+  }
+
+  researchNotes.value.push(gettingStartedNote)
+
+  // Show success message
+  alert(`${template.name} template applied! Follow the blue instruction note to get started.`)
+}
 
 const zoomIn = () => console.log('Zooming in')
 const zoomOut = () => console.log('Zooming out')
 const resetZoom = () => console.log('Resetting zoom')
 const fitToScreen = () => console.log('Fitting to screen')
 
-const addVideoToCanvas = (video) => console.log('Adding video to canvas:', video)
-const addCompetitorToCanvas = (competitor) => console.log('Adding competitor to canvas:', competitor)
-const addTrendToCanvas = (trend) => console.log('Adding trend to canvas:', trend)
+const addVideoToCanvas = (video) => {
+  const newVideo = {
+    ...video,
+    id: Date.now().toString(),
+    position: {
+      x: Math.random() * 400 + 100,
+      y: Math.random() * 300 + 100
+    },
+    addedAt: new Date(),
+    analysisStatus: 'pending'
+  }
+  researchVideos.value.push(newVideo)
+}
+
+const addCompetitorToCanvas = (competitor) => {
+  // Add competitor as a special note or video
+  const competitorNote = {
+    id: Date.now().toString(),
+    content: `Competitor: ${competitor.name}\nChannel: ${competitor.channel}\nSubscribers: ${competitor.subscribers}`,
+    position: {
+      x: Math.random() * 400 + 100,
+      y: Math.random() * 300 + 100
+    },
+    createdAt: new Date(),
+    color: '#FEE2E2' // Red for competitors
+  }
+  researchNotes.value.push(competitorNote)
+}
+
+const addTrendToCanvas = (trend) => {
+  const trendNote = {
+    id: Date.now().toString(),
+    content: `Trend: ${trend.title}\nGrowth: +${trend.growth}%\nCategory: ${trend.category}`,
+    position: {
+      x: Math.random() * 400 + 100,
+      y: Math.random() * 300 + 100
+    },
+    createdAt: new Date(),
+    color: '#DBEAFE' // Blue for trends
+  }
+  researchNotes.value.push(trendNote)
+}
+
+// Helper functions
+const extractVideoId = (url) => {
+  const regex = /(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([^&\n?#]+)/
+  const match = url.match(regex)
+  return match ? match[1] : null
+}
+
+const fetchVideoData = async (videoId) => {
+  // Simulate API call - in real app this would call YouTube API
+  await new Promise(resolve => setTimeout(resolve, 1000))
+
+  return {
+    title: `Sample Video Title ${videoId.slice(0, 6)}`,
+    channelName: 'Sample Channel',
+    channelId: 'samplechannel123',
+    thumbnail: `https://img.youtube.com/vi/${videoId}/maxresdefault.jpg`,
+    duration: Math.floor(Math.random() * 600) + 120, // 2-12 minutes
+    views: Math.floor(Math.random() * 100000) + 1000,
+    publishedAt: new Date(Date.now() - Math.random() * 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]
+  }
+}
+
+const performVideoAnalysis = async (videoId) => {
+  const video = researchVideos.value.find(v => v.id === videoId)
+  if (!video) return
+
+  video.analysisStatus = 'analyzing'
+
+  // Simulate AI analysis
+  await new Promise(resolve => setTimeout(resolve, 3000))
+
+  const analysisResults = {
+    overallScore: Math.floor(Math.random() * 40) + 60, // 60-100
+    keyInsights: [
+      { id: 1, type: 'engagement', text: 'High engagement rate in first 30 seconds' },
+      { id: 2, type: 'content', text: 'Strong hook and clear value proposition' },
+      { id: 3, type: 'seo', text: 'Well-optimized title and description' }
+    ],
+    tags: ['educational', 'trending', 'high-engagement'],
+    sentiment: 'positive',
+    topics: ['content creation', 'youtube strategy', 'growth'],
+    competitorAnalysis: {
+      similarChannels: ['Channel A', 'Channel B'],
+      performanceComparison: 'Above average'
+    }
+  }
+
+  video.analysis = analysisResults
+  video.analysisStatus = 'completed'
+}
+
+const fetchTrendVideos = async (trend) => {
+  // Simulate fetching videos related to a trend
+  await new Promise(resolve => setTimeout(resolve, 1500))
+
+  return [
+    {
+      url: `https://youtube.com/watch?v=trend_${trend.id}_1`,
+      videoId: `trend_${trend.id}_1`,
+      title: `${trend.title} - Complete Guide`,
+      channelName: 'TrendMaster',
+      channelId: 'trendmaster123',
+      thumbnail: `https://img.youtube.com/vi/trend_${trend.id}_1/maxresdefault.jpg`,
+      duration: 480,
+      views: 45000,
+      publishedAt: '2024-01-10'
+    },
+    {
+      url: `https://youtube.com/watch?v=trend_${trend.id}_2`,
+      videoId: `trend_${trend.id}_2`,
+      title: `Why ${trend.title} is Exploding Right Now`,
+      channelName: 'InsightHub',
+      channelId: 'insighthub456',
+      thumbnail: `https://img.youtube.com/vi/trend_${trend.id}_2/maxresdefault.jpg`,
+      duration: 360,
+      views: 32000,
+      publishedAt: '2024-01-12'
+    }
+  ]
+}
 </script>
 
 <style scoped>

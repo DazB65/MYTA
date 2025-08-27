@@ -91,8 +91,10 @@ export interface ResearchNote {
 
 export interface ResearchConnection {
   id: string
-  sourceId: string
-  targetId: string
+  fromId: string
+  toId: string
+  fromPosition: { x: number, y: number }
+  toPosition: { x: number, y: number }
   type: 'related' | 'inspired-by' | 'competitor' | 'trend' | 'custom'
   label?: string
   createdAt: Date
