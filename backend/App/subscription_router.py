@@ -92,19 +92,19 @@ async def get_subscription_plans():
                 "price_monthly": 39,
                 "price_yearly": 390,
                 "features": [
-                    "Unlimited AI conversations",
+                    "300 AI conversations/month",
                     "Advanced Research Workspace with custom AI research",
                     "Unlimited video analysis & competitor tracking",
                     "AI-powered content strategy recommendations",
                     "Revenue optimization insights",
-                    "Custom agent training on your channel data",
                     "Advanced automation & scheduled reports",
                     "Team collaboration (3 members)",
                     "API access for integrations",
-                    "Priority support (4-12h response)"
+                    "Priority support (4-12h response)",
+                    "Fair use policy for heavy usage"
                 ],
                 "limits": {
-                    "ai_conversations": -1,
+                    "ai_conversations": 300,
                     "agents_count": 5,
                     "content_pillars": -1,
                     "goals": -1,
@@ -122,25 +122,26 @@ async def get_subscription_plans():
                 "price_monthly": 99,
                 "price_yearly": 990,
                 "features": [
-                    "Everything in Pro",
+                    "500 AI conversations/month",
                     "Multi-channel management (up to 10 channels)",
-                    "White-label options",
                     "Unlimited team members",
-                    "Dedicated account manager",
-                    "Custom AI agent development",
-                    "Advanced reporting & analytics",
-                    "24/7 phone & chat support",
-                    "Custom integrations & API limits"
+                    "Advanced reporting & analytics exports",
+                    "Priority email support (4-12h response)",
+                    "Enhanced data retention (2 years)",
+                    "Usage monitoring & alerts",
+                    "Bulk operations across channels",
+                    "Advanced team permissions & roles"
                 ],
                 "limits": {
-                    "ai_conversations": -1,
+                    "ai_conversations": 500,
                     "agents_count": 5,
                     "content_pillars": -1,
                     "goals": -1,
                     "competitors": -1,
                     "team_members": -1,
                     "research_projects": -1,
-                    "video_analysis": -1
+                    "video_analysis": -1,
+                    "channels": 10
                 },
                 "trial_days": 30
             }

@@ -864,16 +864,16 @@ const availablePlans = ref([
     price: { monthly: 39, yearly: 390 },
     popular: false,
     features: [
-      'Unlimited AI conversations',
+      '300 AI conversations/month',
       'Advanced Research Workspace with custom AI research',
       'Unlimited video analysis & competitor tracking',
       'AI-powered content strategy recommendations',
       'Revenue optimization insights',
-      'Custom agent training on your channel data',
       'Advanced automation & scheduled reports',
       'Team collaboration (3 members)',
       'API access for integrations',
-      'Priority support (4-12h response)'
+      'Priority support (4-12h response)',
+      'Fair use policy for heavy usage'
     ]
   },
   {
@@ -883,15 +883,15 @@ const availablePlans = ref([
     price: { monthly: 99, yearly: 990 },
     popular: false,
     features: [
-      'Everything in Pro',
+      '500 AI conversations/month',
       'Multi-channel management (up to 10 channels)',
-      'White-label options',
       'Unlimited team members',
-      'Dedicated account manager',
-      'Custom AI agent development',
-      'Advanced reporting & analytics',
-      '24/7 phone & chat support',
-      'Custom integrations & API limits'
+      'Advanced reporting & analytics exports',
+      'Priority email support (4-12h response)',
+      'Enhanced data retention (2 years)',
+      'Usage monitoring & alerts',
+      'Bulk operations across channels',
+      'Advanced team permissions & roles'
     ]
   }
 ])
