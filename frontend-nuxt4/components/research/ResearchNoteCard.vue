@@ -178,7 +178,7 @@ const getTemplateSteps = (note: any) => {
 <style scoped>
 .research-note-card {
   position: absolute;
-  width: 320px;
+  width: 480px;
   min-height: 200px;
   background: #1F2937;
   border: 1px solid #374151;
