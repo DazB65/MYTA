@@ -780,108 +780,118 @@ const tabs = [
 
 // Subscription data
 const currentPlan = ref({
-  id: 'growth',
-  name: 'Growth',
-  billing: '$9/month',
+  id: 'creator',
+  name: 'Creator',
+  billing: '$19/month',
   features: [
-    '3 AI Agents (Alex + choice of 2 others)',
-    '50 AI conversations/month',
-    'Enhanced analytics with engagement metrics',
-    '10 content pillars',
-    'Advanced task management (up to 50 tasks)',
-    'Basic goal tracking (3 goals)',
-    'Weekly trending alerts',
-    'Email support (48-72h response)',
-    'Basic competitive insights (1 competitor)'
+    'All 5 AI Agents with full personalities',
+    '100 AI conversations/month',
+    'Advanced analytics with engagement insights',
+    'Unlimited content pillars',
+    'Smart task management with AI suggestions',
+    'Unlimited goal tracking',
+    'Research Workspace PRO with templates',
+    'Competitor analysis (3 competitors)',
+    'Video performance analysis (50/month)',
+    'Daily trending alerts',
+    'Priority email support (24-48h response)'
   ],
   limits: {
-    aiConversations: 50,
-    agentsCount: 3,
-    contentPillars: 10,
-    goals: 3,
-    competitors: 1
+    aiConversations: 100,
+    agentsCount: 5,
+    contentPillars: -1,
+    goals: -1,
+    competitors: 3,
+    researchProjects: 10,
+    videoAnalysis: 50
   }
 })
 
 const usage = ref({
-  aiConversations: 23,
-  agentsCount: 3,
-  contentPillars: 7,
-  goals: 2,
-  competitors: 1
+  aiConversations: 34,
+  agentsCount: 5,
+  contentPillars: 12,
+  goals: 4,
+  competitors: 2,
+  researchProjects: 3,
+  videoAnalysis: 18
 })
 
 // Available plans for upgrade modal
 const availablePlans = ref([
   {
-    id: 'growth',
-    name: 'Growth',
-    description: 'Essential tools for serious creators',
-    price: { monthly: 9, yearly: 90 },
+    id: 'starter',
+    name: 'Starter',
+    description: 'Perfect for new YouTubers getting started',
+    price: { monthly: 7, yearly: 70 },
     popular: false,
     features: [
-      '3 AI Agents (Alex + choice of 2 others)',
-      '50 AI conversations/month',
-      'Enhanced analytics with engagement metrics',
-      '10 content pillars',
-      'Advanced task management (up to 50 tasks)',
-      'Basic goal tracking (3 goals)',
+      'Boss Agent + 1 specialist agent',
+      '30 AI conversations/month',
+      'Basic analytics dashboard',
+      '5 content pillars',
+      'Task management (up to 25 tasks)',
+      'Goal tracking (2 goals)',
       'Weekly trending alerts',
-      'Email support (48-72h response)',
-      'Basic competitive insights (1 competitor)'
+      'Research Workspace (basic)',
+      'Email support (72h response)'
     ]
   },
   {
     id: 'creator',
     name: 'Creator',
-    description: 'For creators ready to scale',
+    description: 'For serious creators ready to scale',
     price: { monthly: 19, yearly: 190 },
     popular: true,
     features: [
       'All 5 AI Agents with full personalities',
-      '150 AI conversations/month',
-      'Real-time analytics with live data',
-      'Advanced charts & insights (retention, CTR, revenue)',
+      '100 AI conversations/month',
+      'Advanced analytics with engagement insights',
       'Unlimited content pillars',
       'Smart task management with AI suggestions',
-      'Advanced competitive analysis (3 competitors)',
       'Unlimited goal tracking',
-      'Priority email support (24-48h response)',
-      'Daily trending alerts'
+      'Research Workspace PRO with templates',
+      'Competitor analysis (3 competitors)',
+      'Video performance analysis (50/month)',
+      'Daily trending alerts',
+      'Priority email support (24-48h response)'
     ]
   },
   {
     id: 'pro',
     name: 'Pro',
-    description: 'For established creators maximizing growth',
-    price: { monthly: 49, yearly: 490 },
+    description: 'For established creators maximizing revenue',
+    price: { monthly: 39, yearly: 390 },
     popular: false,
     features: [
       'Unlimited AI conversations',
-      'Advanced competitive analysis (unlimited competitors)',
-      'AI-powered content strategy with personalized recommendations',
+      'Advanced Research Workspace with custom AI research',
+      'Unlimited video analysis & competitor tracking',
+      'AI-powered content strategy recommendations',
+      'Revenue optimization insights',
       'Custom agent training on your channel data',
-      'Priority support (4-12h response)',
       'Advanced automation & scheduled reports',
       'Team collaboration (3 members)',
-      'Custom dashboard layouts',
-      'API access for integrations'
+      'API access for integrations',
+      'Priority support (4-12h response)'
     ]
   },
   {
     id: 'enterprise',
     name: 'Enterprise',
-    description: 'For agencies and top-tier creators',
-    price: { monthly: 149, yearly: 1490 },
+    description: 'For agencies and multi-channel operations',
+    price: { monthly: 99, yearly: 990 },
     popular: false,
     features: [
+      'Everything in Pro',
+      'Multi-channel management (up to 10 channels)',
       'White-label options',
       'Unlimited team members',
-      'Multi-channel management (up to 10 channels)',
       'Dedicated account manager',
       'Custom AI agent development',
+      'Advanced reporting & analytics',
       '24/7 phone & chat support',
-      'Custom reporting & analytics'
+      'Custom integrations & API limits'
     ]
   }
 ])

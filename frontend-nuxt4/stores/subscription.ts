@@ -15,6 +15,8 @@ export interface SubscriptionPlan {
     goals: number
     competitors: number
     team_members: number
+    research_projects: number
+    video_analysis: number
   }
   popular?: boolean
   trial_days?: number

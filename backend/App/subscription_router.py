@@ -25,77 +25,83 @@ async def get_subscription_plans():
         # For now, return mock data that matches your frontend
         plans = [
             {
-                "id": "growth",
-                "name": "Growth",
-                "description": "Essential tools for serious creators",
-                "price_monthly": 9,
-                "price_yearly": 90,
+                "id": "starter",
+                "name": "Starter",
+                "description": "Perfect for new YouTubers getting started",
+                "price_monthly": 7,
+                "price_yearly": 70,
                 "features": [
-                    "3 AI Agents (Alex + choice of 2 others)",
-                    "50 AI conversations/month",
-                    "Enhanced analytics with engagement metrics",
-                    "10 content pillars",
-                    "Advanced task management (up to 50 tasks)",
-                    "Basic goal tracking (3 goals)",
+                    "Boss Agent + 1 specialist agent",
+                    "30 AI conversations/month",
+                    "Basic analytics dashboard",
+                    "5 content pillars",
+                    "Task management (up to 25 tasks)",
+                    "Goal tracking (2 goals)",
                     "Weekly trending alerts",
-                    "Email support (48-72h response)",
-                    "Basic competitive insights (1 competitor)"
+                    "Research Workspace (basic)",
+                    "Email support (72h response)"
                 ],
                 "limits": {
-                    "ai_conversations": 50,
-                    "agents_count": 3,
-                    "content_pillars": 10,
-                    "goals": 3,
+                    "ai_conversations": 30,
+                    "agents_count": 2,
+                    "content_pillars": 5,
+                    "goals": 2,
                     "competitors": 1,
-                    "team_members": 1
+                    "team_members": 1,
+                    "research_projects": 3,
+                    "video_analysis": 10
                 },
-                "trial_days": 5
+                "trial_days": 7
             },
             {
                 "id": "creator",
                 "name": "Creator",
-                "description": "For creators ready to scale",
+                "description": "For serious creators ready to scale",
                 "price_monthly": 19,
                 "price_yearly": 190,
                 "features": [
                     "All 5 AI Agents with full personalities",
-                    "150 AI conversations/month",
-                    "Real-time analytics with live data",
-                    "Advanced charts & insights (retention, CTR, revenue)",
+                    "100 AI conversations/month",
+                    "Advanced analytics with engagement insights",
                     "Unlimited content pillars",
                     "Smart task management with AI suggestions",
-                    "Advanced competitive analysis (3 competitors)",
                     "Unlimited goal tracking",
-                    "Priority email support (24-48h response)",
-                    "Daily trending alerts"
+                    "Research Workspace PRO with templates",
+                    "Competitor analysis (3 competitors)",
+                    "Video performance analysis (50/month)",
+                    "Daily trending alerts",
+                    "Priority email support (24-48h response)"
                 ],
                 "limits": {
-                    "ai_conversations": 150,
+                    "ai_conversations": 100,
                     "agents_count": 5,
                     "content_pillars": -1,
                     "goals": -1,
                     "competitors": 3,
-                    "team_members": 1
+                    "team_members": 1,
+                    "research_projects": 10,
+                    "video_analysis": 50
                 },
                 "popular": True,
-                "trial_days": 5
+                "trial_days": 14
             },
             {
                 "id": "pro",
                 "name": "Pro",
-                "description": "For established creators maximizing growth",
-                "price_monthly": 49,
-                "price_yearly": 490,
+                "description": "For established creators maximizing revenue",
+                "price_monthly": 39,
+                "price_yearly": 390,
                 "features": [
                     "Unlimited AI conversations",
-                    "Advanced competitive analysis (unlimited competitors)",
-                    "AI-powered content strategy with personalized recommendations",
+                    "Advanced Research Workspace with custom AI research",
+                    "Unlimited video analysis & competitor tracking",
+                    "AI-powered content strategy recommendations",
+                    "Revenue optimization insights",
                     "Custom agent training on your channel data",
-                    "Priority support (4-12h response)",
                     "Advanced automation & scheduled reports",
                     "Team collaboration (3 members)",
-                    "Custom dashboard layouts",
-                    "API access for integrations"
+                    "API access for integrations",
+                    "Priority support (4-12h response)"
                 ],
                 "limits": {
                     "ai_conversations": -1,
@@ -103,24 +109,28 @@ async def get_subscription_plans():
                     "content_pillars": -1,
                     "goals": -1,
                     "competitors": -1,
-                    "team_members": 3
+                    "team_members": 3,
+                    "research_projects": -1,
+                    "video_analysis": -1
                 },
-                "trial_days": 5
+                "trial_days": 14
             },
             {
                 "id": "enterprise",
                 "name": "Enterprise",
-                "description": "For agencies and top-tier creators",
-                "price_monthly": 149,
-                "price_yearly": 1490,
+                "description": "For agencies and multi-channel operations",
+                "price_monthly": 99,
+                "price_yearly": 990,
                 "features": [
+                    "Everything in Pro",
+                    "Multi-channel management (up to 10 channels)",
                     "White-label options",
                     "Unlimited team members",
-                    "Multi-channel management (up to 10 channels)",
                     "Dedicated account manager",
                     "Custom AI agent development",
+                    "Advanced reporting & analytics",
                     "24/7 phone & chat support",
-                    "Custom reporting & analytics"
+                    "Custom integrations & API limits"
                 ],
                 "limits": {
                     "ai_conversations": -1,
@@ -128,9 +138,11 @@ async def get_subscription_plans():
                     "content_pillars": -1,
                     "goals": -1,
                     "competitors": -1,
-                    "team_members": -1
+                    "team_members": -1,
+                    "research_projects": -1,
+                    "video_analysis": -1
                 },
-                "trial_days": 5
+                "trial_days": 30
             }
         ]
         

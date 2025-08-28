@@ -141,13 +141,17 @@ export const useStripe = () => {
       monthly: 'price_starter_monthly',
       yearly: 'price_starter_yearly'
     },
-    growth: {
-      monthly: 'price_growth_monthly', 
-      yearly: 'price_growth_yearly'
+    creator: {
+      monthly: 'price_creator_monthly',
+      yearly: 'price_creator_yearly'
     },
     pro: {
       monthly: 'price_pro_monthly',
       yearly: 'price_pro_yearly'
+    },
+    enterprise: {
+      monthly: 'price_enterprise_monthly',
+      yearly: 'price_enterprise_yearly'
     }
   }
 
