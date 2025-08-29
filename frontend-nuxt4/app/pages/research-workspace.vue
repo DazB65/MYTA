@@ -50,7 +50,7 @@
       </div>
 
       <!-- Main Workspace Layout -->
-      <div class="grid grid-cols-12 gap-2 h-[calc(100vh-200px)]">
+      <div class="grid grid-cols-12 gap-2 h-[calc(100vh-320px)]">
         <!-- Left Panel - Research Workflow -->
         <div class="col-span-4 space-y-3 px-3 overflow-y-auto">
 
@@ -211,7 +211,7 @@
         </div>
 
         <!-- Main Canvas Area -->
-        <div class="col-span-8">
+        <div class="col-span-6">
           <div class="rounded-lg bg-forest-800 p-4 h-full relative overflow-hidden">
             <!-- Canvas Header -->
             <div class="relative z-20 mb-4 flex items-center justify-between">
@@ -354,6 +354,15 @@
           </div>
         </div>
 
+        <!-- Right Panel - Workflow Guide -->
+        <div class="col-span-2 space-y-3 px-3 overflow-y-auto">
+          <!-- Workflow Guide -->
+          <WorkflowGuide
+            :research-items="[...researchVideos, ...researchNotes]"
+            @execute-action="handleWorkflowAction"
+            @template-complete="handleTemplateComplete"
+          />
+        </div>
 
       </div>
     </div>
@@ -384,6 +393,14 @@
       @saveAsTask="saveResearchAsTask"
       @saveAsGoal="saveResearchAsGoal"
     />
+
+    <ConnectionManager
+      :show="showConnectionManager"
+      :source-item="connectionSource"
+      :target-item="connectionTarget"
+      @close="showConnectionManager = false"
+      @create="createNewConnection"
+    />
   </div>
 </template>
 
@@ -393,6 +410,7 @@ import ProTipsModal from '../../components/research/ProTipsModal.vue'
 import ResearchResultModal from '../../components/research/ResearchResultModal.vue'
 import TemplatesModal from '../../components/research/TemplatesModal.vue'
 import VideoAnalyzerModal from '../../components/research/VideoAnalyzerModal.vue'
+import WorkflowGuide from '../../components/research/WorkflowGuide.vue'
 import { useTasksStore } from '../../stores/tasks'
 
 // Initialize stores
@@ -469,6 +487,9 @@ const showSavedProjects = ref(false)
 const showProTips = ref(false)
 const showResearchModal = ref(false)
 const selectedNote = ref(null)
+const showConnectionManager = ref(false)
+const connectionSource = ref(null)
+const connectionTarget = ref(null)
 const chatInput = ref('')
 const canvasContainer = ref(null)
 const videoUrl = ref('')
@@ -1073,6 +1094,206 @@ const addCompetitorToCanvas = (competitor) => {
     color: '#FEE2E2' // Red for competitors
   }
   researchNotes.value.push(competitorNote)
+}
+
+// Enhanced functionality methods
+const handleWorkflowAction = async (data) => {
+  const { action, template, step } = data
+
+  if (action.type === 'search') {
+    // Trigger search functionality based on action
+    if (action.id === 'search-competitors') {
+      await searchCompetitors()
+    } else if (action.id === 'search-viral') {
+      await searchViralVideos()
+    } else {
+      // Generic search
+      showVideoAnalyzer.value = true
+    }
+  } else if (action.type === 'analysis') {
+    // Trigger analysis functionality
+    if (action.id === 'analyze-videos') {
+      await analyzeAllVideos()
+    } else if (action.id === 'analyze-elements') {
+      await analyzeVideoElements()
+    } else if (action.id === 'find-gaps') {
+      await findContentGaps()
+    }
+  } else if (action.type === 'manual') {
+    // Show guidance for manual actions with specific instructions
+    const instructions = getActionInstructions(action.id)
+    alert(`${action.label}\n\n${instructions}`)
+  }
+}
+
+// Workflow action implementations
+const searchCompetitors = async () => {
+  // Simulate competitor search and add to canvas
+  const competitors = [
+    { name: 'Competitor 1', channel: '@competitor1', subscribers: '500K' },
+    { name: 'Competitor 2', channel: '@competitor2', subscribers: '750K' },
+    { name: 'Competitor 3', channel: '@competitor3', subscribers: '1.2M' }
+  ]
+
+  competitors.forEach((competitor, index) => {
+    const competitorNote = {
+      id: Date.now().toString() + '_comp_' + index,
+      content: `🏆 Competitor: ${competitor.name}\nChannel: ${competitor.channel}\nSubscribers: ${competitor.subscribers}`,
+      position: {
+        x: 100 + (index * 200),
+        y: 150 + (index * 50)
+      },
+      createdAt: new Date(),
+      color: '#FEE2E2', // Red for competitors
+      type: 'competitor'
+    }
+    researchNotes.value.push(competitorNote)
+  })
+
+  alert('Added 3 competitor channels to canvas for analysis')
+}
+
+const searchViralVideos = async () => {
+  // Simulate viral video search
+  const viralVideos = [
+    { title: 'Viral Video 1 - 5M views', views: '5M', engagement: 'High' },
+    { title: 'Viral Video 2 - 3.2M views', views: '3.2M', engagement: 'Very High' },
+    { title: 'Viral Video 3 - 8M views', views: '8M', engagement: 'Extreme' }
+  ]
+
+  viralVideos.forEach((video, index) => {
+    const viralNote = {
+      id: Date.now().toString() + '_viral_' + index,
+      content: `📈 ${video.title}\nViews: ${video.views}\nEngagement: ${video.engagement}`,
+      position: {
+        x: 150 + (index * 180),
+        y: 200 + (index * 60)
+      },
+      createdAt: new Date(),
+      color: '#FEF3C7', // Yellow for viral content
+      type: 'viral'
+    }
+    researchNotes.value.push(viralNote)
+  })
+
+  alert('Added 3 viral videos to canvas for pattern analysis')
+}
+
+const analyzeAllVideos = async () => {
+  // Simulate video analysis
+  const analysisNote = {
+    id: Date.now().toString() + '_analysis',
+    content: `📊 Video Analysis Results:\n\n• Common themes: Educational, How-to, Problem-solving\n• Average length: 8-12 minutes\n• Thumbnail style: Bold text, bright colors\n• Title patterns: Numbers, questions, benefits`,
+    position: { x: 300, y: 300 },
+    createdAt: new Date(),
+    color: '#DBEAFE', // Blue for analysis
+    type: 'analysis'
+  }
+  researchNotes.value.push(analysisNote)
+  alert('Video analysis complete! Results added to canvas.')
+}
+
+const analyzeVideoElements = async () => {
+  // Simulate element analysis
+  const elementNote = {
+    id: Date.now().toString() + '_elements',
+    content: `🎯 Element Analysis:\n\n• Titles: Use numbers (70%), questions (40%), benefits (60%)\n• Thumbnails: Face + text (80%), bright backgrounds (90%)\n• Hooks: Problem statement in first 15 seconds\n• CTAs: Subscribe reminder at 2-3 minute mark`,
+    position: { x: 400, y: 250 },
+    createdAt: new Date(),
+    color: '#F3E8FF', // Purple for elements
+    type: 'elements'
+  }
+  researchNotes.value.push(elementNote)
+  alert('Element analysis complete! Key patterns identified.')
+}
+
+const findContentGaps = async () => {
+  // Simulate gap analysis
+  const gapNote = {
+    id: Date.now().toString() + '_gaps',
+    content: `🔍 Content Gap Opportunities:\n\n• Beginner tutorials (underserved)\n• Advanced techniques (high demand, low supply)\n• Tool comparisons (trending searches)\n• Behind-the-scenes content (engagement opportunity)`,
+    position: { x: 500, y: 200 },
+    createdAt: new Date(),
+    color: '#D1FAE5', // Green for opportunities
+    type: 'gaps'
+  }
+  researchNotes.value.push(gapNote)
+  alert('Content gaps identified! New opportunities added to canvas.')
+}
+
+const getActionInstructions = (actionId) => {
+  const instructions = {
+    'add-competitors': 'Use the search tools on the left to find competitor channels. Look for channels with similar content and audience size. Add their best videos to the canvas.',
+    'document-patterns': 'Review the videos on your canvas and note common patterns in titles, thumbnails, content structure, and engagement strategies.',
+    'create-strategy': 'Based on your analysis, create a strategy note outlining how you can differentiate from competitors and capitalize on opportunities.'
+  }
+  return instructions[actionId] || 'Complete this action manually using the tools available.'
+}
+
+const handleTemplateComplete = (template) => {
+  // Generate completion summary
+  const completionNote = {
+    id: Date.now().toString() + '_completion',
+    content: `✅ ${template.name} Complete!\n\n📊 Research Summary:\n• Total items analyzed: ${researchVideos.value.length + researchNotes.value.length}\n• Connections made: ${connections.value.length}\n• Key insights gathered: ${researchNotes.value.filter(n => n.type === 'analysis').length}\n\n🎯 Next Steps:\n• Export to Content Studio\n• Create content strategy\n• Plan video production`,
+    position: { x: 50, y: 50 },
+    createdAt: new Date(),
+    color: '#D1FAE5', // Green for completion
+    type: 'completion'
+  }
+  researchNotes.value.push(completionNote)
+
+  // Show completion dialog with options
+  const nextAction = confirm(`${template.name} workflow completed!\n\nYour research contains:\n• ${researchVideos.value.length} videos\n• ${researchNotes.value.length} notes\n• ${connections.value.length} connections\n\nWould you like to export to Content Studio now?`)
+
+  if (nextAction) {
+    exportToContentStudio()
+  }
+}
+
+const addAgentInsightToCanvas = (insightData) => {
+  const note = {
+    id: Date.now().toString(),
+    content: `${insightData.agent.name} Insight: ${insightData.content.description}`,
+    position: insightData.position,
+    createdAt: new Date(),
+    color: insightData.agent.color + '40', // Semi-transparent agent color
+    type: 'agent-insight',
+    agent: insightData.agent
+  }
+  researchNotes.value.push(note)
+}
+
+const handleAgentRecommendation = (data) => {
+  const { agent, recommendation } = data
+
+  if (recommendation.action === 'competitor_analysis') {
+    // Trigger competitor analysis workflow
+    console.log('Starting competitor analysis workflow')
+  } else if (recommendation.action === 'content_templates') {
+    // Create content templates
+    console.log('Creating content templates')
+  }
+
+  alert(`Applied ${agent.name}'s recommendation: ${recommendation.text}`)
+}
+
+const createNewConnection = (connectionData) => {
+  const connection = {
+    id: Date.now().toString(),
+    fromId: connectionData.sourceId,
+    toId: connectionData.targetId,
+    fromPosition: connectionData.sourcePosition,
+    toPosition: connectionData.targetPosition,
+    type: connectionData.type,
+    label: connectionData.label,
+    strength: connectionData.strength,
+    createdAt: new Date()
+  }
+
+  connections.value.push(connection)
+  showConnectionManager.value = false
+  connectionSource.value = null
+  connectionTarget.value = null
 }
 
 const addTrendToCanvas = (trend) => {
