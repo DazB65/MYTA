@@ -31,22 +31,19 @@ async def get_subscription_plans():
                 "price_monthly": 7,
                 "price_yearly": 70,
                 "features": [
-                    "Boss Agent + 1 specialist agent",
+                    "All 5 AI Agents with full personalities",
                     "30 AI conversations/month",
-                    "Basic analytics dashboard",
-                    "5 content pillars",
+                    "4 content pillars",
                     "Task management (up to 25 tasks)",
                     "Goal tracking (2 goals)",
                     "Weekly trending alerts",
-                    "Research Workspace (basic)",
                     "Email support (72h response)"
                 ],
                 "limits": {
                     "ai_conversations": 30,
-                    "agents_count": 2,
-                    "content_pillars": 5,
+                    "agents_count": 5,
+                    "content_pillars": 4,
                     "goals": 2,
-                    "competitors": 1,
                     "team_members": 1,
                     "research_projects": 3,
                     "video_analysis": 10
@@ -60,24 +57,17 @@ async def get_subscription_plans():
                 "price_monthly": 19,
                 "price_yearly": 190,
                 "features": [
-                    "All 5 AI Agents with full personalities",
-                    "100 AI conversations/month",
-                    "Advanced analytics with engagement insights",
-                    "Unlimited content pillars",
-                    "Smart task management with AI suggestions",
-                    "Unlimited goal tracking",
-                    "Research Workspace PRO with templates",
-                    "Competitor analysis (3 competitors)",
-                    "Video performance analysis (50/month)",
-                    "Daily trending alerts",
-                    "Priority email support (24-48h response)"
+                    "All of Starter, plus:",
+                    "70 additional AI conversations/month (100 total)",
+                    "4 additional content pillars (8 total)",
+                    "3 additional goal tracking (5 total)",
+                    "Research Workspace PRO with templates"
                 ],
                 "limits": {
                     "ai_conversations": 100,
                     "agents_count": 5,
-                    "content_pillars": -1,
-                    "goals": -1,
-                    "competitors": 3,
+                    "content_pillars": 8,
+                    "goals": 5,
                     "team_members": 1,
                     "research_projects": 10,
                     "video_analysis": 50
@@ -92,24 +82,18 @@ async def get_subscription_plans():
                 "price_monthly": 39,
                 "price_yearly": 390,
                 "features": [
-                    "300 AI conversations/month",
-                    "Advanced Research Workspace with custom AI research",
-                    "Unlimited video analysis & competitor tracking",
-                    "AI-powered content strategy recommendations",
-                    "Revenue optimization insights",
-                    "Advanced automation & scheduled reports",
-                    "Team collaboration (3 members)",
-                    "API access for integrations",
-                    "Priority support (4-12h response)",
-                    "Fair use policy for heavy usage"
+                    "All of Creator, plus:",
+                    "200 additional AI conversations/month (300 total)",
+                    "Unlimited content pillars (vs 8)",
+                    "Unlimited goal tracking (vs 5)",
+                    "Team collaboration (2 members including owner)"
                 ],
                 "limits": {
                     "ai_conversations": 300,
                     "agents_count": 5,
                     "content_pillars": -1,
                     "goals": -1,
-                    "competitors": -1,
-                    "team_members": 3,
+                    "team_members": 2,
                     "research_projects": -1,
                     "video_analysis": -1
                 },
@@ -123,25 +107,19 @@ async def get_subscription_plans():
                 "price_yearly": 990,
                 "features": [
                     "500 AI conversations/month",
-                    "Multi-channel management (up to 10 channels)",
-                    "Unlimited team members",
-                    "Advanced reporting & analytics exports",
-                    "Priority email support (4-12h response)",
-                    "Enhanced data retention (2 years)",
-                    "Usage monitoring & alerts",
-                    "Bulk operations across channels",
-                    "Advanced team permissions & roles"
+                    "Team collaboration (4 members including owner)",
+                    "Advanced team permissions & roles",
+                    "Dedicated account management",
+                    "Priority feature development"
                 ],
                 "limits": {
                     "ai_conversations": 500,
                     "agents_count": 5,
                     "content_pillars": -1,
                     "goals": -1,
-                    "competitors": -1,
-                    "team_members": -1,
+                    "team_members": 4,
                     "research_projects": -1,
-                    "video_analysis": -1,
-                    "channels": 10
+                    "video_analysis": -1
                 },
                 "trial_days": 30
             }
@@ -189,7 +167,6 @@ async def get_usage_stats(current_user: Dict = Depends(get_current_user)):
             "agents_count": 3,
             "content_pillars": 7,
             "goals": 2,
-            "competitors": 1,
             "period_start": "2024-01-01T00:00:00Z",
             "period_end": "2024-02-01T00:00:00Z"
         }

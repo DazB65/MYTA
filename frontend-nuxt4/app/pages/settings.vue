@@ -586,7 +586,7 @@
 
     <!-- Plans Modal -->
     <div v-if="showPlansModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
-      <div class="bg-forest-800 rounded-xl p-6 max-w-6xl w-full mx-4 max-h-[90vh] overflow-y-auto">
+      <div class="bg-forest-800 rounded-xl p-6 max-w-7xl w-full mx-4 max-h-[95vh] overflow-y-auto">
         <div class="flex items-center justify-between mb-6">
           <div>
             <h2 class="text-2xl font-bold text-white">Choose Your Plan</h2>
@@ -670,7 +670,7 @@
             <!-- Features -->
             <div class="space-y-3 mb-6">
               <div
-                v-for="feature in plan.features.slice(0, 6)"
+                v-for="feature in plan.features"
                 :key="feature"
                 class="flex items-start space-x-2"
               >
@@ -678,9 +678,6 @@
                   <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
                 </svg>
                 <span class="text-sm text-gray-300">{{ feature }}</span>
-              </div>
-              <div v-if="plan.features.length > 6" class="text-xs text-gray-400">
-                +{{ plan.features.length - 6 }} more features
               </div>
             </div>
 
@@ -826,14 +823,12 @@ const availablePlans = ref([
     price: { monthly: 7, yearly: 70 },
     popular: false,
     features: [
-      'Boss Agent + 1 specialist agent',
+      'All 5 AI Agents with full personalities',
       '30 AI conversations/month',
-      'Basic analytics dashboard',
-      '5 content pillars',
+      '4 content pillars',
       'Task management (up to 25 tasks)',
       'Goal tracking (2 goals)',
       'Weekly trending alerts',
-      'Research Workspace (basic)',
       'Email support (72h response)'
     ]
   },
@@ -844,17 +839,11 @@ const availablePlans = ref([
     price: { monthly: 19, yearly: 190 },
     popular: true,
     features: [
-      'All 5 AI Agents with full personalities',
-      '100 AI conversations/month',
-      'Advanced analytics with engagement insights',
-      'Unlimited content pillars',
-      'Smart task management with AI suggestions',
-      'Unlimited goal tracking',
-      'Research Workspace PRO with templates',
-      'Competitor analysis (3 competitors)',
-      'Video performance analysis (50/month)',
-      'Daily trending alerts',
-      'Priority email support (24-48h response)'
+      'All of Starter, plus:',
+      '70 additional AI conversations/month (100 total)',
+      '4 additional content pillars (8 total)',
+      '3 additional goal tracking (5 total)',
+      'Research Workspace PRO with templates'
     ]
   },
   {
@@ -864,16 +853,11 @@ const availablePlans = ref([
     price: { monthly: 39, yearly: 390 },
     popular: false,
     features: [
-      '300 AI conversations/month',
-      'Advanced Research Workspace with custom AI research',
-      'Unlimited video analysis & competitor tracking',
-      'AI-powered content strategy recommendations',
-      'Revenue optimization insights',
-      'Advanced automation & scheduled reports',
-      'Team collaboration (3 members)',
-      'API access for integrations',
-      'Priority support (4-12h response)',
-      'Fair use policy for heavy usage'
+      'All of Creator, plus:',
+      '200 additional AI conversations/month (300 total)',
+      'Unlimited content pillars (vs 8)',
+      'Unlimited goal tracking (vs 5)',
+      'Team collaboration (2 members including owner)'
     ]
   },
   {
@@ -884,14 +868,10 @@ const availablePlans = ref([
     popular: false,
     features: [
       '500 AI conversations/month',
-      'Multi-channel management (up to 10 channels)',
-      'Unlimited team members',
-      'Advanced reporting & analytics exports',
-      'Priority email support (4-12h response)',
-      'Enhanced data retention (2 years)',
-      'Usage monitoring & alerts',
-      'Bulk operations across channels',
-      'Advanced team permissions & roles'
+      'Team collaboration (4 members including owner)',
+      'Advanced team permissions & roles',
+      'Dedicated account management',
+      'Priority feature development'
     ]
   }
 ])
