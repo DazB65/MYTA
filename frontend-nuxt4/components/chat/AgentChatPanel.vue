@@ -138,25 +138,7 @@
             >
               ➕
             </button>
-            <!-- Delete Chat Button -->
-            <button
-              v-if="messages.length > 0"
-              @click="showDeleteConfirmation = true"
-              class="p-2 rounded-lg bg-red-500/20 hover:bg-red-500/30 transition-all duration-200 text-red-200 hover:text-white border border-red-400/30 hover:border-red-400/50"
-              title="Delete Current Chat"
-            >
-              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-              </svg>
-            </button>
-            <!-- Executive Dashboard Button -->
-            <button
-              @click="showExecutiveDashboard = true"
-              class="p-2 rounded-lg bg-orange-500/20 hover:bg-orange-500/30 transition-all duration-200 text-orange-200 hover:text-white border border-orange-400/30 hover:border-orange-400/50"
-              title="Executive Dashboard"
-            >
-              📊
-            </button>
+
             <!-- Delete Chat Button -->
             <button
               @click="deleteCurrentChat"
@@ -231,57 +213,7 @@
             </div>
           </div>
 
-          <!-- Executive Dashboard Overview -->
-          <div class="bg-gradient-to-br from-orange-900/40 to-orange-800/40 rounded-xl p-6 mb-6 border border-orange-500/30 backdrop-blur-sm">
-            <h4 class="text-lg font-bold text-orange-200 mb-4 flex items-center justify-center">
-              <span class="mr-2">📊</span>
-              Executive Dashboard
-            </h4>
-            <div class="grid grid-cols-2 gap-4">
-              <div class="bg-orange-800/30 rounded-lg p-3 border border-orange-600/30">
-                <div class="text-xl font-bold text-orange-200">1.2K</div>
-                <div class="text-orange-300/80 text-sm">Subscribers</div>
-                <div class="text-green-400 text-xs">↗ +12% this month</div>
-              </div>
-              <div class="bg-orange-800/30 rounded-lg p-3 border border-orange-600/30">
-                <div class="text-xl font-bold text-orange-200">45.6K</div>
-                <div class="text-orange-300/80 text-sm">Total Views</div>
-                <div class="text-green-400 text-xs">↗ +8% this week</div>
-              </div>
-              <div class="bg-orange-800/30 rounded-lg p-3 border border-orange-600/30">
-                <div class="text-xl font-bold text-orange-200">12</div>
-                <div class="text-orange-300/80 text-sm">Videos</div>
-                <div class="text-blue-400 text-xs">3 in pipeline</div>
-              </div>
-              <div class="bg-orange-800/30 rounded-lg p-3 border border-orange-600/30">
-                <div class="text-xl font-bold text-orange-200">4.2%</div>
-                <div class="text-orange-300/80 text-sm">Avg CTR</div>
-                <div class="text-green-400 text-xs">↗ Above average</div>
-              </div>
-            </div>
 
-            <!-- Quick Executive Actions -->
-            <div class="mt-4 flex flex-wrap gap-2 justify-center">
-              <button
-                @click="loadQuickAction('Provide me with a comprehensive growth strategy for my YouTube channel')"
-                class="px-3 py-1 bg-orange-600/30 hover:bg-orange-600/50 text-orange-200 text-xs rounded-full border border-orange-500/30 transition-colors"
-              >
-                📈 Growth Strategy
-              </button>
-              <button
-                @click="loadQuickAction('Help me create a strategic content planning roadmap for the next quarter')"
-                class="px-3 py-1 bg-blue-600/30 hover:bg-blue-600/50 text-blue-200 text-xs rounded-full border border-blue-500/30 transition-colors"
-              >
-                🎯 Content Planning
-              </button>
-              <button
-                @click="loadQuickAction('Coordinate with your specialist team for a comprehensive channel audit and recommendations')"
-                class="px-3 py-1 bg-purple-600/30 hover:bg-purple-600/50 text-purple-200 text-xs rounded-full border border-purple-500/30 transition-colors"
-              >
-                👥 Team Coordination
-              </button>
-            </div>
-          </div>
 
           <p class="text-orange-300/80 text-sm font-medium">Ready to strategize your channel's growth? I'm coordinating with my specialist team to provide you with comprehensive insights.</p>
         </div>
@@ -607,7 +539,6 @@ const showSettings = ref(false)
 const tempAgentName = ref('')
 const tempSelectedAgent = ref(0) // Boss Agent is always ID 0
 const savedQuestions = ref<Array<{ id: string; text: string; createdAt: Date }>>([])
-const showExecutiveDashboard = ref(false)
 
 const typingStage = ref(0)
 const voiceInputActive = ref(false)
