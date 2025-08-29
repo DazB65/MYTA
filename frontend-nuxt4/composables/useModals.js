@@ -45,8 +45,11 @@ const closeAllModals = () => {
 // Modal opening functions with data
 const openTaskModal = (task = null) => {
   console.log('🔥 Opening task modal with data:', task)
+  console.log('🔥 Modal state before opening:', modals.task)
   taskData.value = task
   modals.task = true
+  console.log('🔥 Modal state after opening:', modals.task)
+  console.log('🔥 Task data set to:', taskData.value)
 }
 
 const openGoalModal = (goal = null) => {
@@ -100,6 +103,14 @@ const openTeamMemberRemoveModal = (member = null) => {
 // Modal save handlers
 const handleTaskSave = (data) => {
   console.log('🔥 Task saved:', data)
+
+  // Emit a custom event that the tasks page can listen to
+  if (typeof window !== 'undefined') {
+    window.dispatchEvent(new CustomEvent('taskCreated', {
+      detail: data
+    }))
+  }
+
   closeModal('task')
 }
 

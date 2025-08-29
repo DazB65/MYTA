@@ -133,14 +133,21 @@ export const useSaveToTask = () => {
    * Prepare task data for modal editing
    */
   const prepareTaskData = (message: ChatMessage, agentData: any) => {
+    // Set due date to tomorrow by default
+    const tomorrow = new Date()
+    tomorrow.setDate(tomorrow.getDate() + 1)
+
     return {
       title: extractTaskTitle(message.content),
       description: message.content,
       category: inferCategory(message.content),
       priority: inferPriority(message.content),
-      agentId: agentData.id?.toString(),
+      dueDate: tomorrow,
+      estimatedTime: 60, // Default to 1 hour
       tags: ['agent-generated', agentData.name.toLowerCase().replace(/\s+/g, '-')],
-      actionItems: extractActionItems(message.content)
+      status: 'pending',
+      notes: '',
+      agentId: agentData.id?.toString()
     }
   }
 

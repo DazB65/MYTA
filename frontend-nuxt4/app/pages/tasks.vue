@@ -572,6 +572,11 @@ const analyticsStore = useAnalyticsStore()
 const { openTask, openGoal, openContent } = useModals()
 console.log('🔥 Tasks page - using modal composable')
 
+// Watch for task changes
+watch(() => tasksStore.tasks.length, (newLength, oldLength) => {
+  console.log('🔥 Tasks page: Task count changed from', oldLength, 'to', newLength)
+}, { immediate: true })
+
 // Local state
 const currentView = ref<'dashboard' | 'manager'>('dashboard')
 const showCreateModal = ref(false)
@@ -666,6 +671,7 @@ const productivityStats = computed(() => tasksStore.getProductivityStats())
 // Filtered tasks based on active filter and search
 const filteredTasks = computed(() => {
   let tasks = tasksStore.tasks
+  console.log('🔥 Tasks page: Computing filtered tasks, total tasks:', tasks.length)
 
   // Apply filter
   switch (activeFilter.value) {

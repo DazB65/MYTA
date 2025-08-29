@@ -42,6 +42,9 @@ export type MessageType =
   | 'chart_data'
   | 'system'
   | 'error'
+  | 'coordination'
+  | 'executive_insight'
+  | 'strategic_recommendation'
 
 export interface MessageMetadata {
   analysisType?: string
@@ -49,6 +52,15 @@ export interface MessageMetadata {
   sources?: string[]
   chartData?: any
   actionItems?: string[]
+  // Executive message metadata
+  coordinatedAgents?: string[]
+  coordinationTime?: string
+  priority?: 'low' | 'medium' | 'high' | 'critical'
+  kpis?: Record<string, string>
+  strategicPillars?: string[]
+  timeline?: string
+  expectedROI?: string
+  analysisDepth?: string
 }
 
 export interface ChatSession {

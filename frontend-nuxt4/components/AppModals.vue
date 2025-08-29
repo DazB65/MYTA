@@ -14,8 +14,8 @@
       <TaskModal
         v-if="modals.task"
         :task="taskData"
-        @close="() => modals.task = false"
-        @save="handleTaskSave"
+        @close="() => { console.log('🔥 AppModals: Closing task modal'); modals.task = false }"
+        @save="handleGlobalTaskSave"
       />
 
       <!-- Goal Modal -->
@@ -82,6 +82,8 @@
 <script setup>
 import { onMounted, onUnmounted, watch } from 'vue'
 import { useModals } from '../composables/useModals.js'
+import { useToast } from '../composables/useToast'
+import { useTasksStore } from '../stores/tasks'
 import GoalModal from './goals/GoalModal.vue'
 import ContentModal from './modals/ContentModal.vue'
 import GoalSettingModal from './modals/GoalSettingModal.vue'
@@ -115,6 +117,12 @@ const {
   closeAll: closeAllModals
 } = useModals()
 
+// Watch for modal state changes
+watch(() => modals.task, (newValue, oldValue) => {
+  console.log('🔥 AppModals: Task modal state changed from', oldValue, 'to', newValue)
+  console.log('🔥 AppModals: Task data is:', taskData.value)
+}, { immediate: true })
+
 // Pillar modal handlers
 const handlePillarEdit = (pillar) => {
   console.log('🔥 Pillar edit requested:', pillar)
@@ -125,6 +133,34 @@ const handlePillarEdit = (pillar) => {
 const handlePillarDelete = (pillar) => {
   console.log('🔥 Pillar delete completed:', pillar)
   modals.pillar = false
+}
+
+// Custom task save handler that actually saves to the store
+const handleGlobalTaskSave = (data) => {
+  console.log('🔥 Global task save:', data)
+
+  // Get stores and composables
+  const tasksStore = useTasksStore()
+  const { success } = useToast()
+
+  try {
+    // Add the task to the store
+    console.log('🔥 Tasks before adding:', tasksStore.tasks.length)
+    const newTask = tasksStore.addTask(data)
+    console.log('🔥 New task created:', newTask)
+    console.log('🔥 Tasks after adding:', tasksStore.tasks.length)
+    console.log('🔥 All tasks:', tasksStore.tasks.map(t => ({ id: t.id, title: t.title })))
+
+    // Show success message
+    success('Task Created', 'Task has been successfully created and added to your calendar.')
+
+    // Close the modal
+    modals.task = false
+  } catch (error) {
+    console.error('Failed to save task:', error)
+    const { error: showError } = useToast()
+    showError('Failed to Save Task', 'There was an error saving the task. Please try again.')
+  }
 }
 
 

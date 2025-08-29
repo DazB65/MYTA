@@ -343,11 +343,17 @@ watch(() => props.task, (task) => {
     console.log('🔍 TaskModal: Task data received:', {
       id: task.id,
       title: task.title,
+      description: task.description,
+      priority: task.priority,
+      category: task.category,
       estimatedTime: task.estimatedTime,
       estimatedTimeType: typeof task.estimatedTime,
       tags: task.tags,
+      status: task.status,
+      notes: task.notes,
       isInsightTask: task.tags?.includes('levi-insight')
     })
+    console.log('🔍 TaskModal: Full task object:', task)
 
     form.value = {
       title: task.title,
