@@ -310,21 +310,8 @@
           <span class="text-base">📋</span>
           <span class="font-medium">Add to Tasks</span>
         </button>
-        <button
-          @click="$emit('save-as-goal', message)"
-          class="text-sm px-4 py-2 rounded-xl bg-gradient-to-r from-purple-600/80 to-purple-700/80 hover:from-purple-600 hover:to-purple-700 text-white transition-all duration-200 flex items-center space-x-2 shadow-lg border border-purple-500/30 hover:border-purple-400/50 backdrop-blur-sm"
-          title="Set as strategic goal"
-        >
-          <span class="text-base">🎯</span>
-          <span class="font-medium">Set as Goal</span>
-        </button>
-        <button
-          class="text-sm px-4 py-2 rounded-xl bg-gradient-to-r from-emerald-600/80 to-emerald-700/80 hover:from-emerald-600 hover:to-emerald-700 text-white transition-all duration-200 flex items-center space-x-2 shadow-lg border border-emerald-500/30 hover:border-emerald-400/50 backdrop-blur-sm"
-          title="Share with team"
-        >
-          <span class="text-base">📤</span>
-          <span class="font-medium">Share</span>
-        </button>
+
+
       </div>
 
       <!-- Timestamp -->
@@ -350,7 +337,6 @@ defineProps<Props>()
 defineEmits<{
   'action-click': [action: string]
   'save-as-task': [message: ChatMessage]
-  'save-as-goal': [message: ChatMessage]
 }>()
 
 const formatTime = (timestamp: Date) => {

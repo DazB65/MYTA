@@ -24,8 +24,49 @@ export const useTasksStore = defineStore('tasks', () => {
   const showCompleted = ref(true)
   const isInitialized = ref(false)
 
+  // Persistence functions
+  const saveTasksToStorage = () => {
+    if (typeof window !== 'undefined') {
+      try {
+        localStorage.setItem('myta_tasks', JSON.stringify(tasks.value))
+      } catch (error) {
+        console.error('Failed to save tasks to localStorage:', error)
+      }
+    }
+  }
+
+  const loadTasksFromStorage = (): Task[] => {
+    if (typeof window !== 'undefined') {
+      try {
+        const stored = localStorage.getItem('myta_tasks')
+        if (stored) {
+          const parsed = JSON.parse(stored)
+          // Convert date strings back to Date objects
+          return parsed.map((task: any) => ({
+            ...task,
+            dueDate: new Date(task.dueDate),
+            createdAt: new Date(task.createdAt),
+            updatedAt: new Date(task.updatedAt)
+          }))
+        }
+      } catch (error) {
+        console.error('Failed to load tasks from localStorage:', error)
+      }
+    }
+    return []
+  }
+
   // Initialize with sample tasks
   const initializeTasks = () => {
+    // First try to load from localStorage
+    const storedTasks = loadTasksFromStorage()
+    if (storedTasks.length > 0) {
+      tasks.value = storedTasks
+      isInitialized.value = true
+      return
+    }
+
+    // If no stored tasks, use sample tasks
     const sampleTasks: Task[] = [
       {
         id: '1',
@@ -315,6 +356,7 @@ export const useTasksStore = defineStore('tasks', () => {
       task.completed = !task.completed
       task.status = task.completed ? 'completed' : 'pending'
       task.updatedAt = new Date()
+      saveTasksToStorage() // Persist to localStorage
     }
   }
 
@@ -329,6 +371,7 @@ export const useTasksStore = defineStore('tasks', () => {
       tags: taskData.tags || [],
     }
     tasks.value.unshift(newTask) // Add to beginning for recent tasks
+    saveTasksToStorage() // Persist to localStorage
     return newTask
   }
 
@@ -391,6 +434,7 @@ export const useTasksStore = defineStore('tasks', () => {
       if (taskData.notes !== undefined) currentTask.notes = taskData.notes
 
       currentTask.updatedAt = new Date()
+      saveTasksToStorage() // Persist to localStorage
 
       console.log('✅ Tasks Store: Task updated to:', { ...currentTask })
     } else {
@@ -402,6 +446,7 @@ export const useTasksStore = defineStore('tasks', () => {
     const taskIndex = tasks.value.findIndex(t => t.id === taskId)
     if (taskIndex !== -1) {
       tasks.value.splice(taskIndex, 1)
+      saveTasksToStorage() // Persist to localStorage
     }
   }
 
@@ -429,10 +474,12 @@ export const useTasksStore = defineStore('tasks', () => {
         }
       }
     })
+    saveTasksToStorage() // Persist to localStorage
   }
 
   const bulkDeleteTasks = (taskIds: string[]) => {
     tasks.value = tasks.value.filter(task => !taskIds.includes(task.id))
+    saveTasksToStorage() // Persist to localStorage
   }
 
   const markTasksAsCompleted = (taskIds: string[]) => {
@@ -443,6 +490,7 @@ export const useTasksStore = defineStore('tasks', () => {
     const completedTasks = tasks.value.filter(task => task.completed)
     // In a real app, you might move these to an archive store or send to backend
     tasks.value = tasks.value.filter(task => !task.completed)
+    saveTasksToStorage() // Persist to localStorage
     return completedTasks.length
   }
 
@@ -553,5 +601,7 @@ export const useTasksStore = defineStore('tasks', () => {
     getProductivityStats,
     initializeTasks,
     initialize,
+    saveTasksToStorage,
+    loadTasksFromStorage,
   }
 })

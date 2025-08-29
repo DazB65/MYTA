@@ -1,13 +1,15 @@
-import { useAuthStore } from '~/stores/auth'
-import { useAnalyticsStore } from '~/stores/analytics'
 import { useAgentsStore } from '~/stores/agents'
+import { useAnalyticsStore } from '~/stores/analytics'
+import { useAuthStore } from '~/stores/auth'
 import { useChatStore } from '~/stores/chat'
+import { useTasksStore } from '~/stores/tasks'
 
 export default defineNuxtPlugin(async () => {
   const authStore = useAuthStore()
   const analyticsStore = useAnalyticsStore()
   const agentsStore = useAgentsStore()
   const chatStore = useChatStore()
+  const tasksStore = useTasksStore()
 
   // Auto-initialize analytics when user is authenticated
   watch(
@@ -22,6 +24,9 @@ export default defineNuxtPlugin(async () => {
 
           // Load chat sessions
           await chatStore.loadAllSessions()
+
+          // Initialize tasks store
+          tasksStore.initializeTasks()
         } catch (error) {
           console.warn('Failed to initialize app data:', error)
         }

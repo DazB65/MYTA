@@ -527,7 +527,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref } from 'vue'
+import { computed, ref, watch } from 'vue'
 import { useModals } from '../../composables/useModals.js'
 import { useAnalyticsStore } from '../../stores/analytics'
 import { useTasksStore } from '../../stores/tasks'
@@ -571,6 +571,8 @@ const analyticsStore = useAnalyticsStore()
 // Use modal composable
 const { openTask, openGoal, openContent } = useModals()
 console.log('🔥 Tasks page - using modal composable')
+
+// Tasks store is now initialized globally via plugin
 
 // Watch for task changes
 watch(() => tasksStore.tasks.length, (newLength, oldLength) => {
