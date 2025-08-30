@@ -3,16 +3,18 @@
     <!-- Background Pattern -->
     <div class="absolute inset-0 bg-[url('/grid-pattern.svg')] opacity-10" />
     
+    <!-- Logo in Top Left -->
+    <div class="absolute top-0 left-0 z-20">
+      <img src="/MY YT AGENT.png" alt="MYTA Logo" class="w-96 h-96">
+    </div>
+
     <!-- Content Container -->
     <div class="relative flex min-h-screen items-center justify-center p-6">
       <!-- Login Card -->
       <div class="w-full max-w-md">
-        <!-- Logo Section -->
+        <!-- Welcome Section -->
         <div class="mb-8 text-center">
-          <div class="flex items-center justify-center mb-4">
-            <img src="/MY YT AGENT.png" alt="MYTA Logo" class="w-64 h-64">
-          </div>
-          <h1 class="text-3xl font-bold text-white">Welcome Back</h1>
+          <h1 class="text-3xl font-bold text-white mb-2">Welcome Back</h1>
           <p class="text-gray-400">Sign in to your MYTA account</p>
         </div>
         

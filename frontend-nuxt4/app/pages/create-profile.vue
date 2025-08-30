@@ -17,24 +17,31 @@
 
         </div>
 
-        <!-- Agent Selection -->
-        <div class="mb-3">
-          <h2 class="text-2xl font-semibold text-white text-center mb-6">Choose Your Agent Icon</h2>
-          <div class="grid grid-cols-6 gap-4 max-w-6xl mx-auto">
-            <div
-              v-for="agent in agents"
-              :key="agent.id"
-              @click="selectAgent(agent.id)"
-              :class="[
-                'agent-card',
-                selectedAgent === agent.id ? 'selected' : ''
-              ]"
-              class="bg-white/10 backdrop-blur-lg rounded-2xl p-4 text-center cursor-pointer transition-all duration-300 hover:bg-white/20 hover:scale-105 border border-white/20"
-            >
-              <div class="w-16 h-16 mx-auto mb-3 rounded-xl overflow-hidden bg-white/20 flex items-center justify-center">
-                <img :src="agent.image" :alt="agent.name" class="w-full h-full object-cover">
+        <!-- Boss Agent Naming -->
+        <div class="mb-8">
+          <h2 class="text-2xl font-semibold text-white text-center mb-6">Name Your Boss Agent</h2>
+          <div class="max-w-md mx-auto">
+            <div class="bg-white/10 backdrop-blur-lg rounded-2xl p-6 border border-white/20">
+              <div class="flex items-center space-x-4 mb-4">
+                <div class="w-16 h-16 rounded-xl overflow-hidden bg-white/20 flex items-center justify-center flex-shrink-0">
+                  <img src="/BossAgent.png" alt="Boss Agent" class="w-full h-full object-cover">
+                </div>
+                <div class="flex-1">
+                  <label for="agentName" class="block text-sm font-semibold text-white mb-2">
+                    Boss Agent Name
+                  </label>
+                  <input
+                    id="agentName"
+                    v-model="formData.agentName"
+                    type="text"
+                    placeholder="e.g., Fred, Alex, Sarah..."
+                    class="w-full p-3 bg-white/10 border border-white/20 rounded-xl text-white placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-orange-400 focus:border-transparent backdrop-blur-sm"
+                  >
+                </div>
               </div>
-              <h3 class="text-white font-semibold mb-1 text-xs">{{ agent.name }}</h3>
+              <p class="text-gray-300 text-sm text-center">
+                Your Boss Agent will coordinate with specialized agents behind the scenes to help you grow your channel.
+              </p>
             </div>
           </div>
         </div>
@@ -274,6 +281,7 @@ const selectedAgent = ref('boss') // Default to Boss Agent
 
 // Form data
 const formData = ref({
+  agentName: 'Fred', // Default name for Executive Agent
   motivation: '',
   niche: '',
   contentType: '',
@@ -284,10 +292,10 @@ const formData = ref({
 
 // Form validation
 const isFormValid = computed(() => {
-  return formData.value.motivation.trim() !== '' &&
+  return formData.value.agentName.trim() !== '' &&
+         formData.value.motivation.trim() !== '' &&
          formData.value.niche !== '' &&
-         formData.value.contentType !== '' &&
-         selectedAgent.value !== null
+         formData.value.contentType !== ''
 })
 
 // Select agent function
