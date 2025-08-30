@@ -222,8 +222,7 @@ const mainMenuItems = [
   { name: 'Tasks', path: '/tasks' },
   { name: 'Pillars', path: '/pillars' },
   { name: 'Videos', path: '/videos' },
-  { name: 'Content Studio', path: '/content-studio' },
-  { name: 'Research', path: '/research-workspace', premium: true }
+  { name: 'Content Studio', path: '/content-studio' }
 ]
 
 // User data

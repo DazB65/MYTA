@@ -587,10 +587,14 @@ const smartSuggestions = computed(() => {
 const executiveQuickActions = computed(() => [
   { id: 1, emoji: '📊', label: 'Analytics Review', text: 'Provide me with a comprehensive analytics review of my channel performance' },
   { id: 2, emoji: '🎯', label: 'Growth Strategy', text: 'What\'s our strategic plan for channel growth this quarter?' },
-  { id: 3, emoji: '💡', label: 'Content Ideas', text: 'Generate executive-level content recommendations for my niche' },
-  { id: 4, emoji: '🔍', label: 'Competitor Analysis', text: 'Analyze my top competitors and identify opportunities' },
+  { id: 3, emoji: '💡', label: 'Content Ideas', text: 'Generate 5 viral content ideas for my niche based on current trends' },
+  { id: 4, emoji: '🔍', label: 'Competitor Analysis', text: 'Analyze my top 3 competitors and identify content gaps I can exploit' },
   { id: 5, emoji: '📈', label: 'Revenue Optimization', text: 'How can we optimize revenue streams and monetization?' },
-  { id: 6, emoji: '👥', label: 'Team Coordination', text: 'Coordinate with your specialist team for a comprehensive channel audit' }
+  { id: 6, emoji: '🎬', label: 'Video Optimization', text: 'Review my latest video and suggest improvements for better performance' },
+  { id: 7, emoji: '🔥', label: 'Trending Topics', text: 'What are the hottest trending topics in my niche right now?' },
+  { id: 8, emoji: '📝', label: 'Script Ideas', text: 'Generate 3 detailed video script outlines for my next uploads' },
+  { id: 9, emoji: '🎨', label: 'Thumbnail Tips', text: 'Analyze successful thumbnails in my niche and give me design tips' },
+  { id: 10, emoji: '⚡', label: 'Quick Wins', text: 'Give me 5 quick actions I can take today to boost my channel' }
 ])
 
 // Boss Agent and specialist agents for the new interface

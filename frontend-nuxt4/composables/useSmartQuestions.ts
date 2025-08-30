@@ -14,44 +14,65 @@ export const useSmartQuestions = () => {
     // Analytics & Performance
     {
       id: 'analytics-1',
-      text: 'How is my channel performing this month?',
+      text: 'Analyze my channel performance and give me 3 key insights',
       category: 'analytics',
       agentSpecific: ['2'], // Levi - Content Analysis
       icon: '📊'
     },
     {
-      id: 'analytics-2', 
-      text: 'Which videos are driving the most engagement?',
+      id: 'analytics-2',
+      text: 'Which of my videos should I promote more and why?',
       category: 'analytics',
       agentSpecific: ['2'],
       icon: '🔥'
     },
     {
       id: 'analytics-3',
-      text: 'What are my peak viewing hours?',
+      text: 'What time should I post to maximize views?',
       category: 'analytics',
       agentSpecific: ['3'], // Agent 3 - Audience Insights
       icon: '⏰'
+    },
+    {
+      id: 'analytics-4',
+      text: 'Why did my latest video underperform?',
+      category: 'analytics',
+      agentSpecific: ['2'],
+      icon: '📉'
     },
 
     // Content Strategy
     {
       id: 'content-1',
-      text: 'What content should I create next?',
+      text: 'Generate 5 viral video ideas for my niche',
       category: 'content',
       agentSpecific: ['2'],
       icon: '💡'
     },
     {
       id: 'content-2',
-      text: 'How can I improve my video thumbnails?',
+      text: 'What trending topics should I cover this week?',
+      category: 'content',
+      agentSpecific: ['2'],
+      icon: '🔥'
+    },
+    {
+      id: 'content-3',
+      text: 'Help me plan a content series that will go viral',
+      category: 'content',
+      agentSpecific: ['2'],
+      icon: '🎬'
+    },
+    {
+      id: 'content-4',
+      text: 'Design me 3 thumbnail concepts that will get clicks',
       category: 'content',
       agentSpecific: ['2'],
       icon: '🎨'
     },
     {
-      id: 'content-3',
-      text: 'What trending topics match my niche?',
+      id: 'content-5',
+      text: 'What trending topics should I jump on this week?',
       category: 'content',
       agentSpecific: ['2', '4'], // Content Analysis + SEO
       icon: '📈'
@@ -60,44 +81,51 @@ export const useSmartQuestions = () => {
     // Growth & Audience
     {
       id: 'growth-1',
-      text: 'How can I grow my subscriber base?',
+      text: 'Give me 5 proven strategies to gain 1000 subscribers',
       category: 'growth',
       agentSpecific: ['3'],
       icon: '🚀'
     },
     {
       id: 'growth-2',
-      text: 'What demographics watch my content?',
+      text: 'Who is my target audience and how do I reach them?',
       category: 'growth',
       agentSpecific: ['3'],
       icon: '👥'
     },
     {
       id: 'growth-3',
-      text: 'How do I increase my video retention?',
+      text: 'Why do people click away from my videos?',
       category: 'growth',
       agentSpecific: ['2', '3'],
       icon: '⏱️'
+    },
+    {
+      id: 'growth-4',
+      text: 'What should I do to get featured on YouTube homepage?',
+      category: 'growth',
+      agentSpecific: ['4'],
+      icon: '⭐'
     },
 
     // SEO & Discoverability
     {
       id: 'seo-1',
-      text: 'How can I optimize my video titles?',
+      text: 'Write me 5 high-converting titles for my next video',
       category: 'seo',
       agentSpecific: ['4'], // Agent 4 - SEO Discoverability
       icon: '🔍'
     },
     {
       id: 'seo-2',
-      text: 'What keywords should I target?',
+      text: 'Find me low-competition keywords I can rank for',
       category: 'seo',
       agentSpecific: ['4'],
       icon: '🎯'
     },
     {
       id: 'seo-3',
-      text: 'How do I rank higher in search?',
+      text: 'Optimize my video description for maximum discoverability',
       category: 'seo',
       agentSpecific: ['4'],
       icon: '📍'
@@ -106,24 +134,31 @@ export const useSmartQuestions = () => {
     // Monetization
     {
       id: 'monetization-1',
-      text: 'How can I increase my ad revenue?',
+      text: 'Show me 3 ways to double my YouTube revenue',
       category: 'monetization',
       agentSpecific: ['5'], // Agent 5 - Monetization Strategy
       icon: '💰'
     },
     {
       id: 'monetization-2',
-      text: 'What sponsorship opportunities exist?',
+      text: 'Find brands that would sponsor my content',
       category: 'monetization',
       agentSpecific: ['5'],
       icon: '🤝'
     },
     {
       id: 'monetization-3',
-      text: 'Should I create a membership program?',
+      text: 'Should I launch a Patreon or membership program?',
       category: 'monetization',
       agentSpecific: ['5'],
       icon: '⭐'
+    },
+    {
+      id: 'monetization-4',
+      text: 'What products could I create and sell to my audience?',
+      category: 'monetization',
+      agentSpecific: ['5'],
+      icon: '🛍️'
     }
   ])
 
