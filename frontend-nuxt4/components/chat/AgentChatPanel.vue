@@ -56,6 +56,42 @@
           </div>
         </div>
 
+        <!-- Quick Actions Section -->
+        <div class="p-4 border-b border-forest-700">
+          <div class="flex items-center justify-between mb-3">
+            <h4 class="text-xs font-medium text-gray-300 uppercase tracking-wide flex items-center">
+              <span class="text-orange-400 mr-2">⚡</span>
+              Quick Actions
+            </h4>
+          </div>
+          <div class="grid grid-cols-2 gap-2">
+            <button
+              v-for="action in executiveQuickActions.slice(0, 6)"
+              :key="action.id"
+              @click="loadQuickAction(action.text)"
+              :disabled="isSending"
+              class="flex items-center space-x-2 text-left text-xs text-gray-300 hover:text-white bg-orange-600/20 hover:bg-orange-600/30 rounded-lg px-2 py-2 transition-colors border border-orange-500/30 disabled:opacity-50 disabled:cursor-not-allowed"
+              :class="{ 'animate-pulse': isSending }"
+            >
+              <span class="text-sm">{{ action.emoji }}</span>
+              <span class="truncate">{{ action.label }}</span>
+            </button>
+          </div>
+          <div class="grid grid-cols-2 gap-2 mt-2">
+            <button
+              v-for="action in executiveQuickActions.slice(6, 10)"
+              :key="action.id"
+              @click="loadQuickAction(action.text)"
+              :disabled="isSending"
+              class="flex items-center space-x-2 text-left text-xs text-gray-300 hover:text-white bg-orange-600/20 hover:bg-orange-600/30 rounded-lg px-2 py-2 transition-colors border border-orange-500/30 disabled:opacity-50 disabled:cursor-not-allowed"
+              :class="{ 'animate-pulse': isSending }"
+            >
+              <span class="text-sm">{{ action.emoji }}</span>
+              <span class="truncate">{{ action.label }}</span>
+            </button>
+          </div>
+        </div>
+
         <!-- Smart Suggestions Section -->
         <div v-if="smartSuggestions.length > 0" class="p-4 flex-1 overflow-y-auto">
           <div class="flex items-center justify-between mb-3">
@@ -279,27 +315,12 @@
 
       <!-- Enhanced Executive Input Area -->
       <div class="border-t border-orange-500/30 p-4 bg-gradient-to-r from-orange-900/20 to-orange-800/20">
-        <!-- Executive Quick Actions Bar -->
-        <div class="flex items-center space-x-2 mb-3 overflow-x-auto pb-2">
-          <button
-            v-for="action in executiveQuickActions"
-            :key="action.id"
-            @click="loadQuickAction(action.text)"
-            :disabled="isSending"
-            class="flex-shrink-0 px-3 py-1 bg-orange-600/20 hover:bg-orange-600/30 text-orange-200 text-xs rounded-full border border-orange-500/30 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
-            :class="{ 'animate-pulse': isSending }"
-          >
-            <span class="mr-1">{{ action.emoji }}</span>
-            {{ action.label }}
-          </button>
-        </div>
-
         <div class="flex items-center space-x-3">
           <input
             v-model="messageInput"
             type="text"
             :placeholder="executivePlaceholder"
-            class="flex-1 bg-gradient-to-r from-orange-900/40 to-orange-800/40 border border-orange-500/30 rounded-xl px-4 py-3 text-white placeholder-orange-300/60 focus:outline-none focus:ring-2 focus:ring-orange-400/50 focus:border-orange-400/50 backdrop-blur-sm"
+            class="flex-1 bg-gray-800 border border-gray-600 rounded-xl px-4 py-3 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-orange-400 focus:border-orange-400 transition-all duration-200"
             @keyup.enter="sendMessage"
             @input="handleTyping"
           />
