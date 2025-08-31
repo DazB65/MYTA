@@ -9,7 +9,7 @@ from datetime import datetime, timedelta
 from typing import Optional, Dict, Any, Callable
 from functools import wraps
 
-from fastapi import Request, HTTPException, Depends
+from fastapi import Request, HTTPException, Depends, Response
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from pydantic.v1 import BaseModel
 
@@ -27,9 +27,10 @@ class AuthToken(BaseModel):
 
 class AuthenticationMiddleware:
     """Handles user authentication and session management"""
-    
+
     def __init__(self):
         self.security_config = get_security_config()
+        self.blacklisted_tokens = set()  # In production, use Redis
         self.security = HTTPBearer(auto_error=False)
         
     def generate_auth_token(self, user_id: str, session_id: str, 
@@ -62,18 +63,22 @@ class AuthenticationMiddleware:
     def verify_auth_token(self, token: str) -> AuthToken:
         """Verify and decode authentication token"""
         try:
+            # Check if token is blacklisted
+            if self.is_token_blacklisted(token):
+                raise HTTPException(status_code=401, detail="Token has been revoked")
+
             secret_key = self.security_config.get_boss_agent_secret()
             payload = jwt.decode(
-                token, 
-                secret_key, 
+                token,
+                secret_key,
                 algorithms=['HS256'],
                 audience='Vidalytics_Users'
             )
-            
+
             # Check expiration
             if datetime.utcnow().timestamp() > payload['exp']:
                 raise HTTPException(status_code=401, detail="Token expired")
-            
+
             return AuthToken(
                 user_id=payload['user_id'],
                 session_id=payload['session_id'],
@@ -91,31 +96,86 @@ class AuthenticationMiddleware:
             logger.error(f"Token verification error: {e}")
             raise HTTPException(status_code=401, detail="Authentication failed")
 
+    def set_secure_cookie(self, response: Response, token: str, max_age: int = 28800) -> None:
+        """Set secure httpOnly cookie with JWT token"""
+        response.set_cookie(
+            key="auth_token",
+            value=token,
+            max_age=max_age,  # 8 hours default
+            httponly=True,
+            secure=True,  # HTTPS only in production
+            samesite="strict",
+            path="/"
+        )
+
+    def clear_auth_cookie(self, response: Response) -> None:
+        """Clear authentication cookie"""
+        response.delete_cookie(
+            key="auth_token",
+            path="/",
+            httponly=True,
+            secure=True,
+            samesite="strict"
+        )
+
+    def get_token_from_cookie(self, request: Request) -> Optional[str]:
+        """Extract token from httpOnly cookie"""
+        return request.cookies.get("auth_token")
+
+    def blacklist_token(self, token: str) -> None:
+        """Add token to blacklist"""
+        self.blacklisted_tokens.add(token)
+        logger.info("Token blacklisted successfully")
+
+    def is_token_blacklisted(self, token: str) -> bool:
+        """Check if token is blacklisted"""
+        return token in self.blacklisted_tokens
+
 # Global middleware instance
 auth_middleware = AuthenticationMiddleware()
 
 async def get_current_user(
+    request: Request,
     credentials: Optional[HTTPAuthorizationCredentials] = Depends(HTTPBearer(auto_error=False))
 ) -> AuthToken:
-    """Dependency to get current authenticated user"""
-    if not credentials:
+    """Dependency to get current authenticated user from Bearer token or cookie"""
+    token = None
+
+    # Try Bearer token first
+    if credentials:
+        token = credentials.credentials
+    else:
+        # Try cookie as fallback
+        token = auth_middleware.get_token_from_cookie(request)
+
+    if not token:
         raise HTTPException(
-            status_code=401, 
+            status_code=401,
             detail="Authentication required",
             headers={"WWW-Authenticate": "Bearer"}
         )
-    
-    return auth_middleware.verify_auth_token(credentials.credentials)
+
+    return auth_middleware.verify_auth_token(token)
 
 async def get_optional_user(
+    request: Request,
     credentials: Optional[HTTPAuthorizationCredentials] = Depends(HTTPBearer(auto_error=False))
 ) -> Optional[AuthToken]:
     """Dependency to get current user if authenticated, None if not"""
-    if not credentials:
+    token = None
+
+    # Try Bearer token first
+    if credentials:
+        token = credentials.credentials
+    else:
+        # Try cookie as fallback
+        token = auth_middleware.get_token_from_cookie(request)
+
+    if not token:
         return None
-    
+
     try:
-        return auth_middleware.verify_auth_token(credentials.credentials)
+        return auth_middleware.verify_auth_token(token)
     except HTTPException:
         return None
 
@@ -175,10 +235,25 @@ def create_session_token(user_id: str, session_data: Dict[str, Any] = None) -> s
     """Create a session token for authenticated user"""
     import uuid
     session_id = str(uuid.uuid4())
-    
+
     # Store session data if needed (implement session storage)
     # For now, just create the token
     return auth_middleware.generate_auth_token(user_id, session_id)
+
+def create_authenticated_response(response_data: Dict[str, Any], user_id: str, response: Response) -> Dict[str, Any]:
+    """Create response with secure authentication cookie"""
+    # Generate token
+    token = create_session_token(user_id)
+
+    # Set secure cookie
+    auth_middleware.set_secure_cookie(response, token)
+
+    # Return response data (without token in body for security)
+    return {
+        **response_data,
+        "authenticated": True,
+        "user_id": user_id
+    }
 
 # Utility functions for common authentication patterns
 class AuthUtils:

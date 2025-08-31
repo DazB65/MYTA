@@ -3,13 +3,15 @@ Vidalytics Multi-Agent API - Refactored Main Application
 Modular FastAPI application with separated routers for better maintainability
 """
 
-from fastapi import FastAPI, HTTPException, Request, Depends
+from fastapi import FastAPI, HTTPException, Request, Response, Depends
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import JSONResponse, FileResponse
 from datetime import datetime
+from typing import Optional, Dict, Any
 import traceback
 import os
+import sqlite3
 from slowapi.errors import RateLimitExceeded
 
 # Import security middleware
@@ -64,7 +66,7 @@ from .enhanced_user_context import get_user_context
 from .rate_limiter import limiter, custom_rate_limit_handler, get_rate_limit
 
 # Import authentication
-from .auth_middleware import get_current_user, get_optional_user, get_user_id_from_request, AuthToken, create_session_token
+from .auth_middleware import get_current_user, get_optional_user, get_user_id_from_request, AuthToken, create_session_token, auth_middleware
 
 # Import CSRF protection
 from .csrf_protection import setup_csrf_protection
@@ -622,9 +624,24 @@ async def login(request: Request):
         raise HTTPException(status_code=400, detail="Login failed")
 
 @app.post("/api/auth/logout")
-async def logout(current_user: AuthToken = Depends(get_current_user)):
+async def logout(request: Request, response: Response, current_user: AuthToken = Depends(get_current_user)):
     """Logout endpoint - invalidates session"""
     try:
+        # Get the current token to blacklist it
+        token = None
+        auth_header = request.headers.get("authorization")
+        if auth_header and auth_header.startswith("Bearer "):
+            token = auth_header[7:]
+        else:
+            token = auth_middleware.get_token_from_cookie(request)
+
+        # Blacklist the token
+        if token:
+            auth_middleware.blacklist_token(token)
+
+        # Clear authentication cookie
+        auth_middleware.clear_auth_cookie(response)
+
         logger.info(
             "User logged out",
             extra={
@@ -636,8 +653,7 @@ async def logout(current_user: AuthToken = Depends(get_current_user)):
                 }
             }
         )
-        # TODO: Add token to blacklist in production
-        
+
         return create_success_response("Logout successful")
         
     except Exception as e:
@@ -949,12 +965,13 @@ async def get_user_profile(
                 channel_name = channel_info.get("name")
                 logger.info(f"No channel ID found, checking known channel mappings for: {channel_name}")
                 
-                # TODO: Implement proper channel search or fix OAuth to save channel IDs
-                known_channels = {}  # remove any hardcoded mappings
-                
-                if channel_name in known_channels:
-                    found_channel_id = known_channels[channel_name]
-                    logger.info(f"Found known channel ID: {found_channel_id}")
+                # Implement proper channel search using YouTube API
+                found_channel_id = await search_channel_by_name(channel_name, user_id)
+
+                if found_channel_id:
+                    logger.info(f"Found channel ID via search: {found_channel_id}")
+                    # Update user's channel info with the found ID
+                    await update_user_channel_id(user_id, found_channel_id)
                     
                     # Get YouTube API integration instance
                     youtube_api = get_youtube_integration()
@@ -1165,6 +1182,52 @@ def get_app_info():
             }
         }
     )
+
+# Helper functions for channel resolution
+async def search_channel_by_name(channel_name: str, user_id: str) -> Optional[str]:
+    """Search for a channel ID by name using YouTube API"""
+    try:
+        youtube_service = await get_youtube_service(user_id)
+        if not youtube_service:
+            return None
+
+        # Search for channels by name
+        search_response = youtube_service.search().list(
+            q=channel_name,
+            type='channel',
+            part='snippet',
+            maxResults=5
+        ).execute()
+
+        # Look for exact or close matches
+        for item in search_response.get('items', []):
+            if item['snippet']['title'].lower() == channel_name.lower():
+                return item['snippet']['channelId']
+
+        # If no exact match, return the first result if available
+        if search_response.get('items'):
+            return search_response['items'][0]['snippet']['channelId']
+
+        return None
+    except Exception as e:
+        logger.error(f"Error searching for channel by name: {e}")
+        return None
+
+async def update_user_channel_id(user_id: str, channel_id: str) -> None:
+    """Update user's stored channel ID"""
+    try:
+        db_manager = get_database_manager()
+        with sqlite3.connect(db_manager.db_path) as conn:
+            cursor = conn.cursor()
+            cursor.execute("""
+                UPDATE user_youtube_data
+                SET channel_id = ?
+                WHERE user_id = ?
+            """, (channel_id, user_id))
+            conn.commit()
+            logger.info(f"Updated channel ID for user {user_id}")
+    except Exception as e:
+        logger.error(f"Error updating user channel ID: {e}")
 
 if __name__ == "__main__":
     import uvicorn

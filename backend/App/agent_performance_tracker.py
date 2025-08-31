@@ -411,11 +411,13 @@ class PerformanceTracker:
                 
                 # Get aggregated metrics (using parameterized query)
                 query = """
-                    SELECT 
+                    SELECT
                         agent_type,
                         COUNT(*) as total_requests,
                         SUM(CASE WHEN status = 'success' OR status = 'cache_hit' THEN 1 ELSE 0 END) as successful_requests,
                         SUM(CASE WHEN status = 'error' THEN 1 ELSE 0 END) as failed_requests,
+                        SUM(CASE WHEN status = 'timeout' THEN 1 ELSE 0 END) as timeout_requests,
+                        SUM(CASE WHEN status = 'rate_limited' THEN 1 ELSE 0 END) as rate_limited_requests,
                         SUM(CASE WHEN cache_hit = 1 THEN 1 ELSE 0 END) as cache_hits,
                         AVG(total_latency_ms) as avg_latency_ms,
                         MAX(total_latency_ms) as max_latency_ms,
@@ -423,7 +425,7 @@ class PerformanceTracker:
                         SUM(output_tokens) as total_output_tokens,
                         SUM(cost_estimate) as total_cost_estimate,
                         AVG(CASE WHEN cache_lookup_time_ms IS NOT NULL THEN cache_lookup_time_ms ELSE 0 END) as avg_cache_lookup_time_ms
-                    FROM agent_performance_metrics 
+                    FROM agent_performance_metrics
                     WHERE """ + where_clause + """
                     GROUP BY agent_type
                 """
@@ -433,8 +435,8 @@ class PerformanceTracker:
                 health_snapshots = []
                 
                 for row in results:
-                    (agent_type_str, total_requests, successful_requests, failed_requests, 
-                     cache_hits, avg_latency_ms, max_latency_ms, total_input_tokens, 
+                    (agent_type_str, total_requests, successful_requests, failed_requests,
+                     timeout_requests, rate_limited_requests, cache_hits, avg_latency_ms, max_latency_ms, total_input_tokens,
                      total_output_tokens, total_cost_estimate, avg_cache_lookup_time_ms) = row
                     
                     # Calculate percentiles (simplified)
@@ -451,6 +453,8 @@ class PerformanceTracker:
                     
                     # Calculate rates
                     error_rate = failed_requests / total_requests if total_requests > 0 else 0
+                    timeout_rate = timeout_requests / total_requests if total_requests > 0 else 0
+                    rate_limit_rate = rate_limited_requests / total_requests if total_requests > 0 else 0
                     cache_hit_rate = cache_hits / total_requests if total_requests > 0 else 0
                     
                     # Calculate health score
@@ -473,8 +477,8 @@ class PerformanceTracker:
                         total_output_tokens=total_output_tokens or 0,
                         total_cost_estimate=total_cost_estimate or 0,
                         error_rate=error_rate,
-                        timeout_rate=0,  # TODO: Calculate from timeout status
-                        rate_limit_rate=0,  # TODO: Calculate from rate limit status
+                        timeout_rate=timeout_rate,
+                        rate_limit_rate=rate_limit_rate,
                         cache_hit_rate=cache_hit_rate,
                         avg_cache_lookup_time_ms=avg_cache_lookup_time_ms or 0,
                         health_score=health_score
