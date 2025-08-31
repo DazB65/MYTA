@@ -558,6 +558,7 @@
         </div>
 
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+
           <!-- Trending Topics -->
           <div class="rounded-lg bg-forest-700/50 p-4 border border-forest-600/20">
             <div class="mb-3 flex items-center justify-between">
@@ -1184,6 +1185,29 @@ const contentItems = ref([...defaultContentItems])
 
 // Content Suggestions Data
 const contentSuggestions = ref({
+  performanceInsights: [
+    {
+      id: 'best-pillar',
+      title: 'Top Performing Pillar',
+      description: 'Marketing content gets 40% more engagement',
+      icon: '📈',
+      metric: '+40% engagement'
+    },
+    {
+      id: 'optimal-time',
+      title: 'Best Upload Time',
+      description: 'Post at 2-4 PM for maximum reach',
+      icon: '⏰',
+      metric: '2-4 PM PST'
+    },
+    {
+      id: 'content-gap',
+      title: 'Content Opportunity',
+      description: 'Tutorial content has 60% less competition',
+      icon: '🎯',
+      metric: '60% less competition'
+    }
+  ],
   trendingTopics: [
     {
       id: 'ai-tools',

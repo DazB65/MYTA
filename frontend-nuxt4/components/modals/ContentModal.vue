@@ -263,8 +263,8 @@
               </div>
             </div>
 
-            <!-- Content Generation Tools -->
-            <div class="space-y-4">
+            <!-- Content Generation Tools (for new content only) -->
+            <div v-if="!props.content" class="space-y-4">
               <h5 class="text-sm font-medium text-gray-300 uppercase tracking-wide">Content Generation</h5>
 
               <div class="space-y-3">
@@ -315,11 +315,90 @@
               </div>
             </div>
 
-            <!-- AI Suggestions -->
-            <div class="space-y-4">
+            <!-- Performance Predictions (for existing content) -->
+            <div v-if="props.content" class="space-y-6">
+              <h5 class="text-sm font-medium text-gray-300 uppercase tracking-wide">Performance Predictions</h5>
+
+              <!-- Confidence Score -->
+              <div class="p-4 bg-gradient-to-r from-green-900/30 to-emerald-900/30 rounded-lg border border-green-500/30">
+                <div class="flex items-center justify-between">
+                  <div class="flex items-center space-x-2">
+                    <div class="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
+                    <h6 class="text-sm font-medium text-green-300">Confidence Score</h6>
+                  </div>
+                  <span class="text-lg font-bold text-green-400">{{ getContentConfidence() }}%</span>
+                </div>
+                <div class="mt-2 w-full bg-gray-700 rounded-full h-2">
+                  <div class="bg-gradient-to-r from-green-400 to-emerald-400 h-2 rounded-full transition-all duration-500" :style="{ width: getContentConfidence() + '%' }"></div>
+                </div>
+              </div>
+
+              <!-- Expected Views -->
+              <div class="p-4 bg-gradient-to-r from-blue-900/30 to-cyan-900/30 rounded-lg border border-blue-500/30">
+                <div class="flex items-center space-x-2 mb-3">
+                  <span class="text-lg">👁️</span>
+                  <h6 class="text-sm font-medium text-blue-300">Expected Views</h6>
+                </div>
+                <div class="text-2xl font-bold text-blue-400 mb-1">{{ getContentPredictedViews() }}</div>
+                <div class="text-xs text-blue-200">Based on content priority and pillar performance</div>
+              </div>
+
+              <!-- Engagement Rate -->
+              <div class="p-4 bg-gradient-to-r from-purple-900/30 to-pink-900/30 rounded-lg border border-purple-500/30">
+                <div class="flex items-center space-x-2 mb-3">
+                  <span class="text-lg">💬</span>
+                  <h6 class="text-sm font-medium text-purple-300">Engagement Rate</h6>
+                </div>
+                <div class="text-2xl font-bold text-purple-400 mb-1">{{ getContentPredictedEngagement() }}%</div>
+                <div class="text-xs text-purple-200">Likes, comments, and shares prediction</div>
+              </div>
+
+              <!-- Best Time to Post -->
+              <div class="p-4 bg-gradient-to-r from-orange-900/30 to-yellow-900/30 rounded-lg border border-orange-500/30">
+                <div class="flex items-center space-x-2 mb-3">
+                  <span class="text-lg">⏰</span>
+                  <h6 class="text-sm font-medium text-orange-300">Optimal Posting Time</h6>
+                </div>
+                <div class="text-xl font-bold text-orange-400 mb-1">{{ getContentBestTime() }}</div>
+                <div class="text-xs text-orange-200">When your audience is most active</div>
+              </div>
+
+              <!-- Completion Date -->
+              <div class="p-4 bg-gradient-to-r from-indigo-900/30 to-blue-900/30 rounded-lg border border-indigo-500/30">
+                <div class="flex items-center space-x-2 mb-3">
+                  <span class="text-lg">📅</span>
+                  <h6 class="text-sm font-medium text-indigo-300">Estimated Completion</h6>
+                </div>
+                <div class="text-xl font-bold text-indigo-400 mb-1">{{ getContentCompletionDate() }}</div>
+                <div class="text-xs text-indigo-200">Based on current priority and workflow</div>
+              </div>
+
+              <div class="space-y-4">
+                <h6 class="text-sm font-medium text-gray-300 uppercase tracking-wide">Optimization Tips</h6>
+                <div
+                  v-for="(tip, index) in getContentOptimizationTips()"
+                  :key="tip.id"
+                  class="p-4 rounded-lg border transition-all duration-200 hover:scale-[1.02]"
+                  :class="{
+                    'bg-gradient-to-r from-red-900/30 to-pink-900/30 border-red-500/30': index === 0,
+                    'bg-gradient-to-r from-teal-900/30 to-cyan-900/30 border-teal-500/30': index === 1,
+                    'bg-gradient-to-r from-amber-900/30 to-orange-900/30 border-amber-500/30': index === 2
+                  }"
+                >
+                  <div class="flex items-start space-x-3">
+                    <span class="text-lg">{{ tip.icon }}</span>
+                    <div class="flex-1">
+                      <div class="text-sm font-medium text-white mb-1">{{ tip.title }}</div>
+                      <div class="text-xs text-gray-300">{{ tip.description }}</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- AI Suggestions (for new content) -->
+            <div v-else class="space-y-4">
               <h5 class="text-sm font-medium text-gray-300 uppercase tracking-wide">Smart Suggestions</h5>
-
-
 
               <div class="space-y-3">
                 <div
@@ -360,27 +439,27 @@
                   </div>
                 </div>
               </div>
-            </div>
 
-            <!-- Content Templates -->
-            <div class="space-y-4">
-              <h5 class="text-sm font-medium text-gray-300 uppercase tracking-wide">Content Templates</h5>
+              <!-- Content Templates (for new content only) -->
+              <div class="space-y-4">
+                <h5 class="text-sm font-medium text-gray-300 uppercase tracking-wide">Content Templates</h5>
 
-              <div class="space-y-2">
-                <button
-                  v-for="template in contentTemplates"
-                  :key="template.id"
-                  @click="applyTemplate(template)"
-                  class="w-full p-3 bg-forest-700/30 hover:bg-forest-700 rounded-lg transition-colors text-left border border-forest-600/20"
-                >
-                  <div class="flex items-center space-x-3">
-                    <span class="text-lg">{{ template.icon }}</span>
-                    <div>
-                      <div class="text-sm font-medium text-white">{{ template.name }}</div>
-                      <div class="text-xs text-gray-400">{{ template.description }}</div>
+                <div class="space-y-2">
+                  <button
+                    v-for="template in contentTemplates"
+                    :key="template.id"
+                    @click="applyTemplate(template)"
+                    class="w-full p-3 bg-forest-700/30 hover:bg-forest-700 rounded-lg transition-colors text-left border border-forest-600/20"
+                  >
+                    <div class="flex items-center space-x-3">
+                      <span class="text-lg">{{ template.icon }}</span>
+                      <div>
+                        <div class="text-sm font-medium text-white">{{ template.name }}</div>
+                        <div class="text-xs text-gray-400">{{ template.description }}</div>
+                      </div>
                     </div>
-                  </div>
-                </button>
+                  </button>
+                </div>
               </div>
             </div>
           </div>
@@ -808,6 +887,112 @@ const suggestTopics = async () => {
   } finally {
     isGenerating.value = false
   }
+}
+
+// Performance Prediction Methods for Existing Content
+const getContentConfidence = () => {
+  if (!props.content) return 85
+
+  const priority = form.value.priority || props.content.priority
+  const pillar = availablePillars.value.find(p => p.id === form.value.pillarId) || props.content.pillar
+
+  let confidence = 75
+  if (priority === 'high') confidence += 15
+  if (priority === 'urgent') confidence += 10
+  if (pillar?.name === 'Marketing') confidence += 10
+  if (pillar?.name === 'Game Development') confidence += 5
+
+  return Math.min(confidence, 95)
+}
+
+const getContentPredictedViews = () => {
+  if (!props.content) return '5.0K - 12.0K'
+
+  const priority = form.value.priority || props.content.priority
+  const pillar = availablePillars.value.find(p => p.id === form.value.pillarId) || props.content.pillar
+
+  let baseMin = 3000, baseMax = 8000
+
+  if (priority === 'high') { baseMin += 3000; baseMax += 7000 }
+  if (priority === 'urgent') { baseMin += 2000; baseMax += 5000 }
+  if (pillar?.name === 'Marketing') { baseMin += 2000; baseMax += 6000 }
+  if (pillar?.name === 'Game Development') { baseMin += 1000; baseMax += 3000 }
+
+  const formatNum = (num) => num >= 1000 ? (num/1000).toFixed(1) + 'K' : num.toString()
+  return `${formatNum(baseMin)} - ${formatNum(baseMax)}`
+}
+
+const getContentPredictedEngagement = () => {
+  if (!props.content) return '3.5'
+
+  const priority = form.value.priority || props.content.priority
+  const pillar = availablePillars.value.find(p => p.id === form.value.pillarId) || props.content.pillar
+
+  let engagement = 3.2
+  if (priority === 'high') engagement += 1.0
+  if (priority === 'urgent') engagement += 0.8
+  if (pillar?.name === 'Marketing') engagement += 0.6
+  if (pillar?.name === 'Game Development') engagement += 0.4
+
+  return Math.min(engagement, 6.5).toFixed(1)
+}
+
+const getContentBestTime = () => {
+  const pillar = availablePillars.value.find(p => p.id === form.value.pillarId) || props.content?.pillar
+
+  if (pillar?.name === 'Marketing') return '2:00 PM PST'
+  if (pillar?.name === 'Game Development') return '6:00 PM PST'
+  if (pillar?.name === 'Tech Tutorials') return '10:00 AM PST'
+  return '3:00 PM PST'
+}
+
+const getContentCompletionDate = () => {
+  const status = form.value.status || props.content?.status
+  const priority = form.value.priority || props.content?.priority
+
+  let daysToAdd = 7
+  if (status === 'planning') daysToAdd = 5
+  if (status === 'in-progress') daysToAdd = 3
+  if (priority === 'high') daysToAdd -= 2
+  if (priority === 'urgent') daysToAdd -= 3
+
+  const date = new Date()
+  date.setDate(date.getDate() + Math.max(daysToAdd, 1))
+  return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
+}
+
+const getContentOptimizationTips = () => {
+  const pillar = availablePillars.value.find(p => p.id === form.value.pillarId) || props.content?.pillar
+  const priority = form.value.priority || props.content?.priority
+
+  const tips = []
+
+  if (pillar?.name === 'Marketing') {
+    tips.push({
+      id: 'marketing-tip',
+      icon: '📈',
+      title: 'Add trending hashtags',
+      description: 'Marketing content performs 40% better with trending hashtags'
+    })
+  }
+
+  if (priority === 'high' || priority === 'urgent') {
+    tips.push({
+      id: 'priority-tip',
+      icon: '⚡',
+      title: 'Fast-track production',
+      description: 'High priority content should be published within 3 days'
+    })
+  }
+
+  tips.push({
+    id: 'engagement-tip',
+    icon: '💬',
+    title: 'Add call-to-action',
+    description: 'Content with clear CTAs get 25% more engagement'
+  })
+
+  return tips.slice(0, 3)
 }
 
 const applySuggestion = (suggestion) => {
