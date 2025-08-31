@@ -482,8 +482,6 @@
 
 <script setup>
 // Import VidIQ-inspired components
-import PerformancePredictions from '~/components/dashboard/PerformancePredictions.vue'
-import TrendingKeywords from '~/components/dashboard/TrendingKeywords.vue'
 
 // Page metadata
 definePageMeta({
