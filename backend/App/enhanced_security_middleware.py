@@ -30,25 +30,35 @@ class EnhancedSecurityMiddleware(BaseHTTPMiddleware):
         self.csp_policy = self._build_csp_policy()
         
     def _build_csp_policy(self) -> str:
-        """Build Content Security Policy based on mode"""
+        """Build enhanced Content Security Policy based on mode"""
         if self.strict_mode:
             return (
                 "default-src 'self'; "
-                "script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://unpkg.com; "
-                "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; "
-                "font-src 'self' https://fonts.gstatic.com; "
-                "img-src 'self' data: https:; "
-                "connect-src 'self' https://api.openai.com https://api.anthropic.com https://generativelanguage.googleapis.com; "
+                "script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://unpkg.com https://www.googletagmanager.com; "
+                "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdn.jsdelivr.net; "
+                "font-src 'self' https://fonts.gstatic.com data:; "
+                "img-src 'self' data: https: blob:; "
+                "media-src 'self' https:; "
+                "object-src 'none'; "
+                "connect-src 'self' https://api.openai.com https://api.anthropic.com https://generativelanguage.googleapis.com "
+                "https://www.googleapis.com https://oauth2.googleapis.com https://accounts.google.com wss: ws:; "
+                "frame-src 'none'; "
                 "frame-ancestors 'none'; "
                 "base-uri 'self'; "
                 "form-action 'self'; "
-                "upgrade-insecure-requests;"
+                "manifest-src 'self'; "
+                "worker-src 'self' blob:; "
+                "child-src 'self'; "
+                "upgrade-insecure-requests; "
+                "block-all-mixed-content;"
             )
         else:
             return (
                 "default-src 'self' http: https:; "
                 "script-src 'self' 'unsafe-inline' 'unsafe-eval'; "
-                "style-src 'self' 'unsafe-inline';"
+                "style-src 'self' 'unsafe-inline'; "
+                "img-src 'self' data: https:; "
+                "connect-src 'self' http: https: ws: wss:;"
             )
     
     async def dispatch(self, request: Request, call_next: Callable) -> Response:
@@ -93,11 +103,20 @@ class EnhancedSecurityMiddleware(BaseHTTPMiddleware):
         
         # Content Security Policy
         response.headers["Content-Security-Policy"] = self.csp_policy
-        
+
+        # Additional security headers
+        response.headers["Cross-Origin-Embedder-Policy"] = "require-corp"
+        response.headers["Cross-Origin-Opener-Policy"] = "same-origin"
+        response.headers["Cross-Origin-Resource-Policy"] = "same-origin"
+        response.headers["X-DNS-Prefetch-Control"] = "off"
+        response.headers["Expect-CT"] = "max-age=86400, enforce"
+
         # Remove server identification headers
         response.headers.pop("Server", None)
         response.headers.pop("X-Powered-By", None)
-        
+        response.headers.pop("X-AspNet-Version", None)
+        response.headers.pop("X-AspNetMvc-Version", None)
+
         # Add security monitoring headers
         response.headers["X-Security-Mode"] = "strict" if self.strict_mode else "standard"
         

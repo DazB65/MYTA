@@ -57,9 +57,9 @@ class CacheService:
             kwargs_str = ':'.join(f"{k}={v}" for k, v in sorted_kwargs)
             key_data += f":{kwargs_str}"
         
-        # Hash long keys to keep them manageable
+        # Hash long keys to keep them manageable using SHA-256
         if len(key_data) > 200:
-            key_hash = hashlib.md5(key_data.encode()).hexdigest()
+            key_hash = hashlib.sha256(key_data.encode()).hexdigest()
             return f"{prefix}:hash:{key_hash}"
         
         return key_data

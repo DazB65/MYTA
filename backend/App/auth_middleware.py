@@ -17,6 +17,15 @@ from backend.App.security_config import get_security_config
 
 logger = logging.getLogger(__name__)
 
+# Import security monitoring (lazy import to avoid circular dependencies)
+def get_security_monitor():
+    try:
+        from .security_monitoring import log_auth_failure, log_suspicious_request
+        return log_auth_failure, log_suspicious_request
+    except ImportError:
+        # Fallback if security monitoring is not available
+        return lambda *args, **kwargs: None, lambda *args, **kwargs: None
+
 class AuthToken(BaseModel):
     """Authentication token data"""
     user_id: str
@@ -88,11 +97,20 @@ class AuthenticationMiddleware:
             )
             
         except jwt.ExpiredSignatureError:
+            # Log expired token attempt
+            log_auth_failure, _ = get_security_monitor()
+            log_auth_failure("unknown", "unknown", "unknown", {"error": "expired_token"})
             raise HTTPException(status_code=401, detail="Token expired")
         except jwt.InvalidTokenError as e:
+            # Log invalid token attempt
+            log_auth_failure, _ = get_security_monitor()
+            log_auth_failure("unknown", "unknown", "unknown", {"error": "invalid_token", "details": str(e)})
             logger.warning(f"Invalid token: {e}")
             raise HTTPException(status_code=401, detail="Invalid token")
         except Exception as e:
+            # Log general authentication failure
+            log_auth_failure, _ = get_security_monitor()
+            log_auth_failure("unknown", "unknown", "unknown", {"error": "auth_failure", "details": str(e)})
             logger.error(f"Token verification error: {e}")
             raise HTTPException(status_code=401, detail="Authentication failed")
 

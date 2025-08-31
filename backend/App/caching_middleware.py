@@ -107,9 +107,9 @@ def generate_cache_key(request: Request, user_id: str = None) -> str:
     if user_id:
         key_components.append(user_id)
     
-    # Generate hash
+    # Generate hash using SHA-256 for better security
     key_string = ":".join(key_components)
-    cache_key = hashlib.md5(key_string.encode()).hexdigest()
+    cache_key = hashlib.sha256(key_string.encode()).hexdigest()
     
     return f"api_cache:{cache_key}"
 
@@ -227,7 +227,7 @@ def cache_result(duration: int = 300, key_prefix: str = "func"):
                 args_str = json.dumps([str(arg) for arg in args], sort_keys=True)
                 kwargs_str = json.dumps(kwargs, sort_keys=True)
                 
-                cache_key = f"{key_prefix}:{func_name}:{hashlib.md5(f'{args_str}:{kwargs_str}'.encode()).hexdigest()}"
+                cache_key = f"{key_prefix}:{func_name}:{hashlib.sha256(f'{args_str}:{kwargs_str}'.encode()).hexdigest()}"
                 
                 # Try to get cached result
                 cached_result = redis_service.get(cache_key)

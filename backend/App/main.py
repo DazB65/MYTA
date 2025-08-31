@@ -53,6 +53,7 @@ from .dynamic_response_router import router as dynamic_response_router
 from .collaboration_router import router as collaboration_router
 from .realtime_analytics_router import router as realtime_analytics_router
 from .notification_router import router as notification_router
+from .security_dashboard_router import router as security_router
 from .team_router import router as team_router
 from .youtube_channel_endpoints import router as youtube_channel_router
 from .request_logging import log_request_middleware
@@ -485,6 +486,9 @@ app.include_router(realtime_analytics_router)
 
 # Include notification router (handles smart notifications and user preferences)
 app.include_router(notification_router)
+
+# Include security dashboard router (handles security monitoring and metrics)
+app.include_router(security_router)
 
 # Include team router (handles team collaboration and member management)
 app.include_router(team_router)

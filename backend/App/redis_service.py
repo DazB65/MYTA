@@ -189,9 +189,9 @@ class RedisService:
             return False
         
         try:
-            # Create cache key from endpoint and params
+            # Create cache key from endpoint and params using SHA-256
             params_str = json.dumps(params, sort_keys=True)
-            cache_key = hashlib.md5(f"{endpoint}:{params_str}".encode()).hexdigest()
+            cache_key = hashlib.sha256(f"{endpoint}:{params_str}".encode()).hexdigest()
             
             cache_data = {
                 "endpoint": endpoint,
@@ -213,7 +213,7 @@ class RedisService:
         
         try:
             params_str = json.dumps(params, sort_keys=True)
-            cache_key = hashlib.md5(f"{endpoint}:{params_str}".encode()).hexdigest()
+            cache_key = hashlib.sha256(f"{endpoint}:{params_str}".encode()).hexdigest()
             
             cached_data = self.get(f"api_response:{cache_key}")
             
