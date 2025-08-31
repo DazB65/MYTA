@@ -466,12 +466,25 @@
             </div>
           </div>
         </div>
+
+        <!-- VidIQ-Inspired Features Grid -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6">
+          <!-- Trending Keywords Widget -->
+          <TrendingKeywords />
+
+          <!-- Performance Predictions -->
+          <PerformancePredictions />
+        </div>
       </div>
     </div>
   </div>
 </template>
 
 <script setup>
+// Import VidIQ-inspired components
+import PerformancePredictions from '~/components/dashboard/PerformancePredictions.vue'
+import TrendingKeywords from '~/components/dashboard/TrendingKeywords.vue'
+
 // Page metadata
 definePageMeta({
   title: 'Dashboard - MYTA',

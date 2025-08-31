@@ -98,6 +98,52 @@
               </select>
             </div>
 
+            <!-- Tags with Keyword Suggestions -->
+            <div>
+              <label class="block text-sm font-medium text-gray-300 mb-2">Tags & Keywords</label>
+              <div class="relative">
+                <input
+                  v-model="form.tags"
+                  type="text"
+                  placeholder="Enter tags separated by commas"
+                  class="w-full px-4 py-3 bg-forest-700 border border-forest-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent pr-10"
+                  @focus="showKeywordSuggestions = true"
+                />
+                <button
+                  @click="generateKeywordSuggestions"
+                  class="absolute right-3 top-3 p-1 text-orange-400 hover:text-orange-300 transition-colors"
+                  title="Get keyword suggestions"
+                >
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
+                  </svg>
+                </button>
+              </div>
+
+              <!-- Keyword Suggestions -->
+              <div v-if="showKeywordSuggestions && keywordSuggestions.length > 0" class="mt-2 p-3 bg-orange-500/10 rounded-lg border border-orange-500/20">
+                <div class="text-sm font-medium text-orange-300 mb-2">💡 Suggested Keywords:</div>
+                <div class="flex flex-wrap gap-2">
+                  <button
+                    v-for="keyword in keywordSuggestions"
+                    :key="keyword"
+                    @click="addKeywordToTags(keyword)"
+                    class="px-2 py-1 bg-orange-500/20 text-orange-300 rounded text-xs hover:bg-orange-500/30 transition-colors border border-orange-500/30"
+                  >
+                    + {{ keyword }}
+                  </button>
+                </div>
+                <button
+                  @click="showKeywordSuggestions = false"
+                  class="mt-2 text-xs text-gray-400 hover:text-gray-300"
+                >
+                  Hide suggestions
+                </button>
+              </div>
+
+              <p class="text-xs text-gray-400 mt-1">Separate tags with commas for better SEO</p>
+            </div>
+
             <!-- Stage Workflow -->
             <div class="space-y-4">
               <h4 class="text-sm font-medium text-gray-300 uppercase tracking-wide">Content Workflow</h4>
@@ -391,6 +437,54 @@ const getIconEmoji = (iconName) => {
 // Generation state
 const isGenerating = ref(false)
 
+// Keyword suggestions state
+const showKeywordSuggestions = ref(false)
+const keywordSuggestions = ref([
+  'YouTube growth', 'content strategy', 'video optimization', 'creator tips',
+  'analytics insights', 'engagement boost', 'viral content', 'SEO tactics'
+])
+
+// Generate keyword suggestions based on title and pillar
+const generateKeywordSuggestions = async () => {
+  try {
+    // In real implementation, this would call an API
+    const pillar = availablePillars.value.find(p => p.id === form.value.pillarId)
+    const suggestions = []
+
+    if (pillar) {
+      suggestions.push(`${pillar.name.toLowerCase()} tips`)
+      suggestions.push(`${pillar.name.toLowerCase()} strategy`)
+    }
+
+    if (form.value.title) {
+      const titleWords = form.value.title.toLowerCase().split(' ')
+      titleWords.forEach(word => {
+        if (word.length > 4) {
+          suggestions.push(`${word} guide`)
+          suggestions.push(`${word} tutorial`)
+        }
+      })
+    }
+
+    // Add trending keywords
+    suggestions.push('YouTube 2024', 'content creator', 'viral strategy', 'growth hacks')
+
+    keywordSuggestions.value = [...new Set(suggestions)].slice(0, 8)
+    showKeywordSuggestions.value = true
+  } catch (error) {
+    console.error('Error generating keyword suggestions:', error)
+  }
+}
+
+// Add keyword to tags
+const addKeywordToTags = (keyword) => {
+  const currentTags = form.value.tags ? form.value.tags.split(',').map(t => t.trim()) : []
+  if (!currentTags.includes(keyword)) {
+    currentTags.push(keyword)
+    form.value.tags = currentTags.join(', ')
+  }
+}
+
 // AI Suggestions based on selected agent and content context
 const aiSuggestions = computed(() => {
   const agent = selectedAgent.value
@@ -587,6 +681,7 @@ const form = ref({
   status: 'ideas',
   priority: 'medium',
   pillarId: '',
+  tags: '',
   stageDueDates: {
     ideas: '',
     planning: '',
