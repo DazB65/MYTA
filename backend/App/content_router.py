@@ -92,15 +92,15 @@ async def generate_script(
         - Reference specific platforms, software, or methodologies you use
         - Preview the exact, measurable value viewers will get
 
-        3. DETAILED MAIN CONTENT:
-        Based on the content idea, provide:
-        - Step-by-step breakdown with specific actions and exact settings
-        - Exact tools, software, platforms, or apps to use (with specific features)
-        - Real examples with actual numbers, metrics, or results
-        - Specific configurations, settings, or parameters
-        - Common mistakes with exact solutions
-        - Advanced techniques that require {pillar} expertise
-        - Specific benchmarks or targets to aim for
+        3. DETAILED MAIN CONTENT (Write the complete spoken content):
+        Based on the content idea, write the full spoken content including:
+        - Complete step-by-step explanations with specific actions and exact settings
+        - Name specific tools, software, platforms, or apps (TubeBuddy, Canva, Photoshop, etc.)
+        - Include real examples with actual numbers, metrics, or results you create
+        - Mention specific configurations, settings, or parameters in detail
+        - Explain common mistakes with exact solutions in full sentences
+        - Share advanced techniques that demonstrate {pillar} expertise
+        - Provide specific benchmarks or targets with complete explanations
 
         4. EXPERT ENGAGEMENT:
         - Ask specific questions about viewers' {pillar} tools or experience
@@ -149,16 +149,27 @@ async def generate_script(
         
         script_prompt += f"""
 
-        FINAL REQUIREMENTS:
-        - Generate a complete, ready-to-use script that sounds natural when spoken aloud
-        - Be EXTREMELY SPECIFIC - avoid generic advice or vague statements
-        - Include exact tools, numbers, steps, and actionable details
-        - Use the content idea as the foundation for all specific examples
-        - Make it clear this comes from deep {pillar} expertise
-        - Optimize for YouTube retention with specific hooks and engagement
-        - Sound like {agent['name']} speaking directly to {pillar} practitioners
+        CRITICAL FINAL REQUIREMENTS:
+        - Generate a COMPLETE, FULL script with NO placeholders, brackets, or [INSERT X HERE] text
+        - Write out every single word that should be spoken - this is the final script
+        - NO placeholders like [Your Name], [Tool Name], [Number], [Example] - fill in everything
+        - Use real, specific examples, tools, numbers, and case studies
+        - Make up realistic but specific data points, metrics, and examples if needed
+        - Write as if you are {agent['name']} speaking directly to the camera
+        - Include natural speech patterns, pauses, and conversational flow
+        - The script should be 100% ready to read aloud without any editing
 
-        REMEMBER: Generic scripts are useless. Make this so specific that only someone with real {pillar} experience could have written it.
+        ABSOLUTELY NO PLACEHOLDERS ALLOWED:
+        ❌ Don't write: "Use [tool name] to achieve [result]"
+        ✅ Do write: "Use TubeBuddy's A/B testing feature to achieve a 40% CTR increase"
+
+        ❌ Don't write: "I increased my [metric] by [percentage]"
+        ✅ Do write: "I increased my click-through rate from 2.1% to 8.7% in just 90 days"
+
+        EXAMPLE OF WHAT WE WANT:
+        "Hey everyone, it's {agent['name']} here, and today I'm going to show you the exact thumbnail optimization strategy that increased my click-through rate from 2.1% to 8.7% in just 90 days. I've tested over 200 thumbnails using TubeBuddy's A/B testing feature, and I've discovered three specific design principles that consistently outperform everything else..."
+
+        Generate a complete, word-for-word script exactly like this example - specific, detailed, and ready to read aloud.
         """
         
         # Call AI model for script generation
@@ -168,7 +179,7 @@ async def generate_script(
             prompt_data={
                 "prompt": script_prompt,
                 "analysis_depth": "deep",
-                "system_message": f"You are {agent['name']}, an expert YouTube content creator specializing in {pillar} content. Create engaging, professional scripts that drive viewer engagement and retention."
+                "system_message": f"You are {agent['name']}, an expert YouTube content creator specializing in {pillar} content. Write complete, word-for-word scripts with NO placeholders or brackets. Every sentence should be ready to speak aloud. Use specific tools, numbers, and examples - never write [insert X] or [your tool]. Create engaging, professional scripts that drive viewer engagement and retention."
             }
         )
         

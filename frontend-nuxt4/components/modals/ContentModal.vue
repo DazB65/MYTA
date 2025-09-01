@@ -513,22 +513,6 @@
                 <div class="text-sm text-blue-200 font-medium">
                   {{ form.pillarId ? '✅ Pillar selected' : '⏳ Select your content pillar first' }}
                 </div>
-
-                <!-- Content Idea Description -->
-                <div v-if="form.pillarId" class="space-y-2">
-                  <label class="block text-sm font-medium text-blue-300">
-                    Describe your content idea
-                  </label>
-                  <textarea
-                    v-model="form.contentIdea"
-                    placeholder="What specific topic, problem, or idea do you want to cover? Be as detailed as possible..."
-                    class="w-full px-3 py-2 bg-forest-700 border border-forest-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
-                    rows="3"
-                  ></textarea>
-                  <div class="text-xs text-gray-400">
-                    💡 The more specific you are, the better your AI-generated content will be
-                  </div>
-                </div>
               </div>
 
               <!-- Step 2: Description Generation -->
@@ -787,6 +771,16 @@
                 </div>
               </div>
 
+              <!-- Trending Keywords -->
+              <div class="space-y-4 mb-6">
+                <TrendingKeywords
+                  @keyword-selected="handleKeywordSelected"
+                  @content-idea-selected="handleContentIdeaSelected"
+                  @generate-ideas="handleGenerateIdeas"
+                  @analyze-competitors="handleAnalyzeCompetitors"
+                />
+              </div>
+
               <!-- Content Templates (for new content only) -->
               <div class="space-y-4">
                 <h5 class="text-sm font-medium text-gray-300 uppercase tracking-wide">Content Templates</h5>
@@ -821,6 +815,7 @@ import { computed, onMounted, ref, watch } from 'vue'
 import { useAgentSettings } from '../../composables/useAgentSettings.js'
 import { useModals } from '../../composables/useModals.js'
 import { usePillars } from '../../composables/usePillars.js'
+import TrendingKeywords from '../dashboard/TrendingKeywords.vue'
 
 const props = defineProps({
   content: {
@@ -2177,6 +2172,113 @@ const applyTemplate = (template) => {
   form.value.description = template.template.description
 }
 
+// Trending Keywords Event Handlers
+const handleKeywordSelected = (keyword) => {
+  console.log('🔥 Keyword selected:', keyword.term)
+
+  // Auto-populate title with keyword if title is empty
+  if (!form.value.title.trim()) {
+    form.value.title = `How to ${keyword.term}`
+  }
+
+  // Add keyword to description if description is empty
+  if (!form.value.description.trim()) {
+    form.value.description = `Learn everything about ${keyword.term} in this comprehensive guide. This trending topic has ${keyword.searchVolume} searches and is growing by ${keyword.growth}%.`
+  }
+
+  // Add keyword to tags if tags field exists
+  if (form.value.tags !== undefined) {
+    const currentTags = form.value.tags ? form.value.tags.split(',').map(t => t.trim()).filter(t => t) : []
+    if (!currentTags.includes(keyword.term)) {
+      currentTags.push(keyword.term)
+      form.value.tags = currentTags.join(', ')
+    }
+  }
+}
+
+const handleContentIdeaSelected = ({ keyword, idea }) => {
+  console.log('🔥 Content idea selected:', idea)
+
+  // Handle both string and object idea formats
+  const title = typeof idea === 'string' ? idea : idea.title
+  const reasoning = typeof idea === 'object' ? idea.reasoning : `Strategic content leveraging trending topic "${keyword.term}"`
+
+  // Use the specific content idea as the title
+  form.value.title = title
+
+  // Create a comprehensive description with AI reasoning
+  let description = `${reasoning}\n\n`
+  description += `📊 STRATEGIC CONTEXT:\n`
+  description += `• Trending topic: "${keyword.term}" (${keyword.searchVolume} searches, +${keyword.growth}% growth)\n`
+  description += `• Competition level: ${keyword.competitionLevel}\n`
+  description += `• Expected performance: ${keyword.expectedViews} views\n`
+  description += `• Best upload time: ${keyword.bestUploadTime}\n\n`
+
+  if (typeof idea === 'object') {
+    description += `🎯 CONTENT STRATEGY:\n`
+    if (idea.hooks?.length) {
+      description += `• Hook: "${idea.hooks[0]}"\n`
+    }
+    if (idea.keyPoints?.length) {
+      description += `• Key points to cover:\n`
+      idea.keyPoints.forEach(point => {
+        description += `  - ${point}\n`
+      })
+    }
+    if (idea.estimatedPerformance) {
+      description += `• Expected performance: ${idea.estimatedPerformance}\n`
+    }
+    description += `\n`
+  }
+
+  if (keyword.strategicInsights) {
+    description += `💡 AUDIENCE INSIGHTS:\n`
+    description += `• Target audience: ${keyword.strategicInsights.audienceIntent}\n`
+    description += `• Market gap: ${keyword.strategicInsights.competitorGaps}\n`
+    description += `• Monetization potential: ${keyword.strategicInsights.monetizationPotential}\n`
+
+    if (keyword.strategicInsights.trendingSubtopics?.length) {
+      description += `• Related trending topics: ${keyword.strategicInsights.trendingSubtopics.join(', ')}\n`
+    }
+  }
+
+  form.value.description = description
+
+  // Add keyword and related tags
+  if (form.value.tags !== undefined) {
+    const currentTags = form.value.tags ? form.value.tags.split(',').map(t => t.trim()).filter(t => t) : []
+
+    // Add main keyword
+    if (!currentTags.includes(keyword.term)) {
+      currentTags.push(keyword.term)
+    }
+
+    // Add related trending subtopics as tags
+    if (keyword.strategicInsights?.trendingSubtopics) {
+      keyword.strategicInsights.trendingSubtopics.forEach(subtopic => {
+        if (!currentTags.includes(subtopic)) {
+          currentTags.push(subtopic)
+        }
+      })
+    }
+
+    form.value.tags = currentTags.slice(0, 10).join(', ') // Limit to 10 tags
+  }
+}
+
+const handleGenerateIdeas = (keywords) => {
+  console.log('🔥 Generating content ideas from keywords:', keywords)
+  // This could trigger AI generation based on trending keywords
+  // For now, we'll show a simple notification
+  alert('Content ideas will be generated based on trending keywords!')
+}
+
+const handleAnalyzeCompetitors = (keywords) => {
+  console.log('🔥 Analyzing competitors for keywords:', keywords)
+  // This could open a competitor analysis modal or section
+  alert('Competitor analysis feature coming soon!')
+}
+
 const handleSubmit = () => {
   if (!form.value.title.trim()) {
     alert('Please enter a title')
@@ -2194,9 +2296,13 @@ const handleSubmit = () => {
     id: props.content?.id || Date.now(),
     title: form.value.title.trim(),
     description: form.value.description.trim(),
+    contentIdea: form.value.contentIdea.trim(),
     status: form.value.status,
     priority: form.value.priority,
     pillar: selectedPillar,
+    tags: form.value.tags.trim(),
+    hashtags: form.value.hashtags.trim(),
+    script: form.value.script.trim(),
     stageDueDates: form.value.stageDueDates,
     stageCompletions: form.value.stageCompletions,
     createdAt: props.content?.createdAt || new Date().toISOString(),

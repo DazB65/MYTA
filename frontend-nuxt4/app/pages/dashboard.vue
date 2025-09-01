@@ -467,11 +467,7 @@
           </div>
         </div>
 
-        <!-- VidIQ-Inspired Features Grid -->
-        <div class="mt-6">
-          <!-- Trending Keywords Widget -->
-          <TrendingKeywords />
-        </div>
+
       </div>
     </div>
   </div>
