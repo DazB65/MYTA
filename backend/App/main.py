@@ -56,6 +56,7 @@ from .notification_router import router as notification_router
 from .security_dashboard_router import router as security_router
 from .team_router import router as team_router
 from .youtube_channel_endpoints import router as youtube_channel_router
+from .content_router import router as content_router
 from .request_logging import log_request_middleware
 from .error_handler import create_error_response, MYTAError
 
@@ -495,6 +496,9 @@ app.include_router(team_router)
 
 # Include YouTube channel router (handles channel data fetching and OAuth)
 app.include_router(youtube_channel_router)
+
+# Include content router (handles AI-powered content generation)
+app.include_router(content_router)
 
 # =============================================================================
 # Global Exception Handlers

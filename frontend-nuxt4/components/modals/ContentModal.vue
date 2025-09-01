@@ -28,46 +28,329 @@
         <div class="flex-1 overflow-y-auto">
 
           <form @submit.prevent="handleSubmit" class="p-6 space-y-6">
-            <!-- Title -->
-            <div>
-              <label class="block text-sm font-medium text-gray-300 mb-2">
-                Title *
+            <!-- Step 1: Pillar Selection -->
+            <div class="bg-gradient-to-r from-blue-500/10 to-purple-500/10 border border-blue-500/20 rounded-xl p-4">
+              <label class="block text-sm font-medium text-gray-300 mb-3">
+                <span class="inline-flex items-center">
+                  <span class="bg-gradient-to-r from-blue-500 to-purple-500 text-white text-sm font-bold px-3 py-2 rounded-full mr-3 shadow-lg">1</span>
+                  <span class="text-lg font-semibold text-blue-300">Content Pillar *</span>
+                </span>
               </label>
-              <input
-                v-model="form.title"
-                type="text"
-                class="w-full px-4 py-3 bg-forest-700 border border-forest-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent"
-                placeholder="Enter content title"
-                required
-              />
-            </div>
-
-            <!-- Description -->
-            <div>
-              <label class="block text-sm font-medium text-gray-300 mb-2">
-                Description
-              </label>
-              <textarea
-                v-model="form.description"
-                rows="3"
-                class="w-full px-4 py-3 bg-forest-700 border border-forest-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent resize-none"
-                placeholder="Enter content description"
-              />
-            </div>
-
-            <!-- Pillar Selection -->
-            <div>
-              <label class="block text-sm font-medium text-gray-300 mb-2">Content Pillar *</label>
               <select
                 v-model="form.pillarId"
                 required
-                class="w-full px-4 py-3 bg-forest-700 border border-forest-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                class="w-full px-4 py-3 bg-forest-700 border border-forest-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               >
                 <option value="">Select a pillar...</option>
                 <option v-for="pillar in availablePillars" :key="pillar.id" :value="pillar.id">
                   {{ pillar.icon }} {{ pillar.name }}
                 </option>
               </select>
+              <p class="text-sm text-blue-200 mt-2 font-medium">🎯 Choose your content pillar to guide the content strategy</p>
+            </div>
+
+            <!-- Step 2: Description -->
+            <div class="bg-gradient-to-r from-green-500/10 to-blue-500/10 border border-green-500/20 rounded-xl p-4">
+              <label class="block text-sm font-medium text-gray-300 mb-3">
+                <span class="inline-flex items-center">
+                  <span class="bg-gradient-to-r from-green-500 to-blue-500 text-white text-sm font-bold px-3 py-2 rounded-full mr-3 shadow-lg">2</span>
+                  <span class="text-lg font-semibold text-green-300">Description</span>
+                </span>
+              </label>
+              <textarea
+                v-model="form.description"
+                rows="3"
+                class="w-full px-4 py-3 bg-forest-700 border border-forest-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-transparent resize-none"
+                placeholder="Enter content description"
+              />
+              <p class="text-sm text-green-200 mt-2 font-medium">📝 Provide context and details about your content</p>
+            </div>
+
+            <!-- Step 3: Title -->
+            <div class="bg-gradient-to-r from-yellow-500/10 to-green-500/10 border border-yellow-500/20 rounded-xl p-4">
+              <label class="block text-sm font-medium text-gray-300 mb-3">
+                <span class="inline-flex items-center">
+                  <span class="bg-gradient-to-r from-yellow-500 to-green-500 text-white text-sm font-bold px-3 py-2 rounded-full mr-3 shadow-lg">3</span>
+                  <span class="text-lg font-semibold text-yellow-300">Title *</span>
+                </span>
+              </label>
+              <input
+                v-model="form.title"
+                type="text"
+                class="w-full px-4 py-3 bg-forest-700 border border-forest-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-transparent"
+                placeholder="Enter content title"
+                required
+              />
+              <p class="text-sm text-yellow-200 mt-2 font-medium">✨ Create a compelling title that captures attention</p>
+            </div>
+
+            <!-- Step 4: Script Generator Section -->
+            <div class="bg-gradient-to-r from-orange-500/10 to-yellow-500/10 border border-orange-500/20 rounded-xl p-4 space-y-3">
+              <div class="flex items-center justify-between">
+                <label class="block text-sm font-medium text-gray-300">
+                  <span class="inline-flex items-center">
+                    <span class="bg-gradient-to-r from-orange-500 to-yellow-500 text-white text-sm font-bold px-3 py-2 rounded-full mr-3 shadow-lg">4</span>
+                    <span class="text-lg font-semibold text-orange-300">Video Script</span>
+                  </span>
+                </label>
+                <button
+                  type="button"
+                  @click.stop="generateScript"
+                  class="text-xs text-purple-400 hover:text-purple-300 transition-colors flex items-center space-x-1"
+                  title="Generate AI script"
+                >
+                  <span>✨</span>
+                  <span>Generate Script</span>
+                </button>
+              </div>
+              <div class="relative">
+                <textarea
+                  v-model="form.script"
+                  placeholder="Your video script will appear here... Click 'Generate Script' to create an AI-powered script based on your title and description."
+                  class="w-full px-3 py-2 bg-forest-800 border border-forest-600 rounded-md text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent resize-none"
+                  rows="8"
+                ></textarea>
+              </div>
+
+              <!-- Script Generation Options -->
+              <div v-if="showScriptOptions" class="space-y-3 p-3 bg-purple-500/10 border border-purple-500/20 rounded-md">
+                <div class="text-xs text-purple-300 font-medium">🎬 Script Options:</div>
+
+                <!-- Script Type Selection -->
+                <div class="space-y-2">
+                  <label class="text-xs text-gray-300">Script Type:</label>
+                  <div class="flex flex-wrap gap-2">
+                    <button
+                      v-for="type in scriptTypes"
+                      :key="type.value"
+                      type="button"
+                      @click.stop="selectedScriptType = type.value"
+                      :class="[
+                        'px-2 py-1 text-xs rounded transition-colors border',
+                        selectedScriptType === type.value
+                          ? 'bg-purple-500/30 text-purple-300 border-purple-500/50'
+                          : 'bg-purple-500/10 text-purple-400 border-purple-500/20 hover:bg-purple-500/20'
+                      ]"
+                    >
+                      {{ type.label }}
+                    </button>
+                  </div>
+                </div>
+
+                <!-- Script Length Selection -->
+                <div class="space-y-2">
+                  <label class="text-xs text-gray-300">Video Length:</label>
+                  <div class="flex flex-wrap gap-2">
+                    <button
+                      v-for="length in scriptLengths"
+                      :key="length.value"
+                      type="button"
+                      @click.stop="selectedScriptLength = length.value"
+                      :class="[
+                        'px-2 py-1 text-xs rounded transition-colors border',
+                        selectedScriptLength === length.value
+                          ? 'bg-purple-500/30 text-purple-300 border-purple-500/50'
+                          : 'bg-purple-500/10 text-purple-400 border-purple-500/20 hover:bg-purple-500/20'
+                      ]"
+                    >
+                      {{ length.label }}
+                    </button>
+                  </div>
+                </div>
+
+                <!-- Tone Selection -->
+                <div class="space-y-2">
+                  <label class="text-xs text-gray-300">Tone & Style:</label>
+                  <div class="flex flex-wrap gap-2">
+                    <button
+                      v-for="tone in scriptTones"
+                      :key="tone.value"
+                      type="button"
+                      @click.stop="selectedScriptTone = tone.value"
+                      :class="[
+                        'px-2 py-1 text-xs rounded transition-colors border',
+                        selectedScriptTone === tone.value
+                          ? 'bg-purple-500/30 text-purple-300 border-purple-500/50'
+                          : 'bg-purple-500/10 text-purple-400 border-purple-500/20 hover:bg-purple-500/20'
+                      ]"
+                    >
+                      {{ tone.label }}
+                    </button>
+                  </div>
+                </div>
+
+                <div class="flex justify-between items-center pt-2">
+                  <button
+                    type="button"
+                    @click.stop="showScriptOptions = false"
+                    class="text-xs text-gray-400 hover:text-gray-300"
+                  >
+                    Hide options
+                  </button>
+                  <button
+                    type="button"
+                    @click.stop="generateCustomScript"
+                    class="px-3 py-1 bg-purple-500 text-white text-xs rounded hover:bg-purple-600 transition-colors"
+                  >
+                    Generate Custom Script
+                  </button>
+                </div>
+              </div>
+
+              <!-- Script Templates -->
+              <div v-if="showScriptTemplates" class="space-y-2">
+                <div class="text-xs text-purple-300 font-medium">📝 Quick Script Templates:</div>
+                <div class="grid grid-cols-2 gap-2">
+                  <button
+                    v-for="template in scriptTemplates"
+                    :key="template.name"
+                    type="button"
+                    @click.stop="applyScriptTemplate(template)"
+                    class="p-2 bg-purple-500/10 border border-purple-500/20 rounded text-xs text-purple-300 hover:bg-purple-500/20 transition-colors text-left"
+                  >
+                    <div class="font-medium">{{ template.name }}</div>
+                    <div class="text-gray-400 text-xs">{{ template.description }}</div>
+                  </button>
+                </div>
+                <button
+                  type="button"
+                  @click.stop="showScriptTemplates = false"
+                  class="text-xs text-gray-400 hover:text-gray-300"
+                >
+                  Hide templates
+                </button>
+              </div>
+
+              <div class="flex justify-between items-center">
+                <div class="flex space-x-2 text-xs">
+                  <button
+                    type="button"
+                    @click.stop="showScriptOptions = !showScriptOptions"
+                    class="text-purple-400 hover:text-purple-300 transition-colors"
+                  >
+                    ⚙️ Options
+                  </button>
+                  <button
+                    type="button"
+                    @click.stop="showScriptTemplates = !showScriptTemplates"
+                    class="text-purple-400 hover:text-purple-300 transition-colors"
+                  >
+                    📋 Templates
+                  </button>
+                </div>
+                <div class="text-xs text-gray-400">
+                  {{ form.script ? form.script.split(' ').length : 0 }} words
+                </div>
+              </div>
+
+              <p class="text-sm text-orange-200 mt-2 font-medium">🎬 AI-generated scripts help structure your content and improve engagement</p>
+            </div>
+
+            <!-- Step 5: Tags with Keyword Suggestions -->
+            <div class="bg-gradient-to-r from-red-500/10 to-orange-500/10 border border-red-500/20 rounded-xl p-4">
+              <label class="block text-sm font-medium text-gray-300 mb-3">
+                <span class="inline-flex items-center">
+                  <span class="bg-gradient-to-r from-red-500 to-orange-500 text-white text-sm font-bold px-3 py-2 rounded-full mr-3 shadow-lg">5</span>
+                  <span class="text-lg font-semibold text-red-300">Tags & Keywords</span>
+                </span>
+              </label>
+              <div class="relative">
+                <input
+                  v-model="form.tags"
+                  type="text"
+                  placeholder="Enter tags separated by commas"
+                  class="w-full px-4 py-3 bg-forest-700 border border-forest-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent pr-10"
+                  @focus="showKeywordSuggestions = true"
+                />
+                <button
+                  type="button"
+                  @click.stop="generateKeywordSuggestions"
+                  class="absolute right-3 top-3 p-1 text-orange-400 hover:text-orange-300 transition-colors"
+                  title="Get keyword suggestions"
+                >
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
+                  </svg>
+                </button>
+              </div>
+
+              <!-- Keyword Suggestions -->
+              <div v-if="showKeywordSuggestions && keywordSuggestions.length > 0" class="mt-2 p-3 bg-orange-500/10 rounded-lg border border-orange-500/20">
+                <div class="text-sm font-medium text-orange-300 mb-2">💡 Suggested Keywords:</div>
+                <div class="flex flex-wrap gap-2">
+                  <button
+                    v-for="keyword in keywordSuggestions"
+                    :key="keyword"
+                    type="button"
+                    @click.stop="addKeywordToTags(keyword)"
+                    class="px-2 py-1 bg-orange-500/20 text-orange-300 rounded text-xs hover:bg-orange-500/30 transition-colors border border-orange-500/30"
+                  >
+                    + {{ keyword }}
+                  </button>
+                </div>
+                <button
+                  type="button"
+                  @click.stop="showKeywordSuggestions = false"
+                  class="mt-2 text-xs text-gray-400 hover:text-gray-300"
+                >
+                  Hide suggestions
+                </button>
+              </div>
+
+              <p class="text-sm text-red-200 mt-2 font-medium">🏷️ Separate tags with commas for better SEO</p>
+            </div>
+
+            <!-- Step 6: Hashtags Section -->
+            <div class="bg-gradient-to-r from-pink-500/10 to-red-500/10 border border-pink-500/20 rounded-xl p-4 space-y-3">
+              <div class="flex items-center justify-between">
+                <label class="block text-sm font-medium text-gray-300">
+                  <span class="inline-flex items-center">
+                    <span class="bg-gradient-to-r from-pink-500 to-red-500 text-white text-sm font-bold px-3 py-2 rounded-full mr-3 shadow-lg">6</span>
+                    <span class="text-lg font-semibold text-pink-300">Hashtags</span>
+                  </span>
+                </label>
+                <button
+                  type="button"
+                  @click.stop="generateHashtagSuggestions"
+                  class="text-xs text-blue-400 hover:text-blue-300 transition-colors flex items-center space-x-1"
+                  title="Get hashtag suggestions"
+                >
+                  <span>💡</span>
+                  <span>Get hashtags</span>
+                </button>
+              </div>
+              <div class="relative">
+                <textarea
+                  v-model="form.hashtags"
+                  placeholder="Enter hashtags separated by spaces (e.g., #contentcreator #youtube #socialmedia)"
+                  class="w-full px-3 py-2 bg-forest-800 border border-forest-600 rounded-md text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
+                  rows="2"
+                ></textarea>
+              </div>
+
+              <!-- Hashtag Suggestions -->
+              <div v-if="showHashtagSuggestions" class="space-y-2">
+                <div class="text-xs text-blue-300 font-medium">💡 Suggested Hashtags:</div>
+                <div class="flex flex-wrap gap-1">
+                  <button
+                    v-for="hashtag in hashtagSuggestions"
+                    :key="hashtag"
+                    type="button"
+                    @click.stop="addHashtagToContent(hashtag)"
+                    class="px-2 py-1 bg-blue-500/20 text-blue-300 rounded text-xs hover:bg-blue-500/30 transition-colors border border-blue-500/30"
+                  >
+                    {{ hashtag }}
+                  </button>
+                </div>
+                <button
+                  type="button"
+                  @click.stop="showHashtagSuggestions = false"
+                  class="mt-2 text-xs text-gray-400 hover:text-gray-300"
+                >
+                  Hide hashtag suggestions
+                </button>
+              </div>
+              <p class="text-sm text-pink-200 mt-2 font-medium">#️⃣ Use hashtags to increase discoverability on social platforms</p>
             </div>
 
             <!-- Priority -->
@@ -96,52 +379,6 @@
                 <option value="in-progress">In Progress</option>
                 <option value="published">Published</option>
               </select>
-            </div>
-
-            <!-- Tags with Keyword Suggestions -->
-            <div>
-              <label class="block text-sm font-medium text-gray-300 mb-2">Tags & Keywords</label>
-              <div class="relative">
-                <input
-                  v-model="form.tags"
-                  type="text"
-                  placeholder="Enter tags separated by commas"
-                  class="w-full px-4 py-3 bg-forest-700 border border-forest-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent pr-10"
-                  @focus="showKeywordSuggestions = true"
-                />
-                <button
-                  @click="generateKeywordSuggestions"
-                  class="absolute right-3 top-3 p-1 text-orange-400 hover:text-orange-300 transition-colors"
-                  title="Get keyword suggestions"
-                >
-                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
-                  </svg>
-                </button>
-              </div>
-
-              <!-- Keyword Suggestions -->
-              <div v-if="showKeywordSuggestions && keywordSuggestions.length > 0" class="mt-2 p-3 bg-orange-500/10 rounded-lg border border-orange-500/20">
-                <div class="text-sm font-medium text-orange-300 mb-2">💡 Suggested Keywords:</div>
-                <div class="flex flex-wrap gap-2">
-                  <button
-                    v-for="keyword in keywordSuggestions"
-                    :key="keyword"
-                    @click="addKeywordToTags(keyword)"
-                    class="px-2 py-1 bg-orange-500/20 text-orange-300 rounded text-xs hover:bg-orange-500/30 transition-colors border border-orange-500/30"
-                  >
-                    + {{ keyword }}
-                  </button>
-                </div>
-                <button
-                  @click="showKeywordSuggestions = false"
-                  class="mt-2 text-xs text-gray-400 hover:text-gray-300"
-                >
-                  Hide suggestions
-                </button>
-              </div>
-
-              <p class="text-xs text-gray-400 mt-1">Separate tags with commas for better SEO</p>
             </div>
 
             <!-- Stage Workflow -->
@@ -263,14 +500,68 @@
               </div>
             </div>
 
-            <!-- Content Generation Tools (for new content only) -->
-            <div v-if="!props.content" class="space-y-4">
-              <h5 class="text-sm font-medium text-gray-300 uppercase tracking-wide">Content Generation</h5>
+            <!-- Step-by-Step Content Workflow (for new content only) -->
+            <div v-if="!props.content" class="space-y-6">
+              <h5 class="text-sm font-medium text-gray-300 uppercase tracking-wide">Content Workflow Assistant</h5>
 
-              <div class="space-y-3">
+              <!-- Step 1: Pillar Selection -->
+              <div class="bg-gradient-to-r from-blue-500/10 to-purple-500/10 border border-blue-500/20 rounded-xl p-3 space-y-3">
+                <div class="flex items-center space-x-3">
+                  <span class="bg-gradient-to-r from-blue-500 to-purple-500 text-white text-sm font-bold px-3 py-2 rounded-full shadow-lg">1</span>
+                  <span class="text-base font-semibold text-blue-300">Choose Content Pillar</span>
+                </div>
+                <div class="text-sm text-blue-200 font-medium">
+                  {{ form.pillarId ? '✅ Pillar selected' : '⏳ Select your content pillar first' }}
+                </div>
+
+                <!-- Content Idea Description -->
+                <div v-if="form.pillarId" class="space-y-2">
+                  <label class="block text-sm font-medium text-blue-300">
+                    Describe your content idea
+                  </label>
+                  <textarea
+                    v-model="form.contentIdea"
+                    placeholder="What specific topic, problem, or idea do you want to cover? Be as detailed as possible..."
+                    class="w-full px-3 py-2 bg-forest-700 border border-forest-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
+                    rows="3"
+                  ></textarea>
+                  <div class="text-xs text-gray-400">
+                    💡 The more specific you are, the better your AI-generated content will be
+                  </div>
+                </div>
+              </div>
+
+              <!-- Step 2: Description Generation -->
+              <div class="bg-gradient-to-r from-green-500/10 to-blue-500/10 border border-green-500/20 rounded-xl p-3 space-y-3">
+                <div class="flex items-center space-x-3">
+                  <span class="bg-gradient-to-r from-green-500 to-blue-500 text-white text-sm font-bold px-3 py-2 rounded-full shadow-lg">2</span>
+                  <span class="text-base font-semibold text-green-300">Add Description</span>
+                </div>
+                <button
+                  @click="generateDescription"
+                  :disabled="isGenerating || !form.title"
+                  class="w-full flex items-center justify-between p-3 bg-forest-700 hover:bg-forest-600 rounded-lg transition-colors text-left disabled:opacity-50"
+                >
+                  <div class="flex items-center space-x-3">
+                    <span class="text-lg">📝</span>
+                    <div>
+                      <div class="text-sm font-medium text-white">Generate Description</div>
+                      <div class="text-xs text-gray-400">Detailed content descriptions</div>
+                    </div>
+                  </div>
+                  <span class="text-gray-400">→</span>
+                </button>
+              </div>
+
+              <!-- Step 3: Title Generation -->
+              <div class="bg-gradient-to-r from-yellow-500/10 to-green-500/10 border border-yellow-500/20 rounded-xl p-3 space-y-3">
+                <div class="flex items-center space-x-3">
+                  <span class="bg-gradient-to-r from-yellow-500 to-green-500 text-white text-sm font-bold px-3 py-2 rounded-full shadow-lg">3</span>
+                  <span class="text-base font-semibold text-yellow-300">Create Title</span>
+                </div>
                 <button
                   @click="generateTitle"
-                  :disabled="isGenerating"
+                  :disabled="isGenerating || !form.pillarId"
                   class="w-full flex items-center justify-between p-3 bg-forest-700 hover:bg-forest-600 rounded-lg transition-colors text-left disabled:opacity-50"
                 >
                   <div class="flex items-center space-x-3">
@@ -283,35 +574,59 @@
                   <span class="text-gray-400">→</span>
                 </button>
 
-                <button
-                  @click="generateDescription"
-                  :disabled="isGenerating"
-                  class="w-full flex items-center justify-between p-3 bg-forest-700 hover:bg-forest-600 rounded-lg transition-colors text-left disabled:opacity-50"
-                >
-                  <div class="flex items-center space-x-3">
-                    <span class="text-lg">📝</span>
-                    <div>
-                      <div class="text-sm font-medium text-white">Generate Description</div>
-                      <div class="text-xs text-gray-400">Detailed content descriptions</div>
-                    </div>
+                <!-- Title Suggestions Panel -->
+                <div v-if="showTitleSuggestions" class="mt-3 space-y-2">
+                  <div class="text-sm font-medium text-yellow-300 mb-2">💡 Title Suggestions</div>
+                  <div class="space-y-1">
+                    <button
+                      v-for="(suggestion, index) in titleSuggestions"
+                      :key="`title-${index}`"
+                      @click="selectTitleSuggestion(suggestion)"
+                      class="w-full text-left p-2 bg-forest-800/50 hover:bg-forest-700 rounded text-xs text-gray-300 hover:text-white transition-colors border border-forest-600/30 hover:border-yellow-500/50"
+                    >
+                      {{ suggestion }}
+                    </button>
                   </div>
-                  <span class="text-gray-400">→</span>
-                </button>
+                  <button
+                    @click="showTitleSuggestions = false"
+                    class="text-xs text-gray-400 hover:text-gray-300 mt-2"
+                  >
+                    ✕ Close suggestions
+                  </button>
+                </div>
+              </div>
 
-                <button
-                  @click="suggestTopics"
-                  :disabled="isGenerating"
-                  class="w-full flex items-center justify-between p-3 bg-forest-700 hover:bg-forest-600 rounded-lg transition-colors text-left disabled:opacity-50"
-                >
-                  <div class="flex items-center space-x-3">
-                    <span class="text-lg">💡</span>
-                    <div>
-                      <div class="text-sm font-medium text-white">Suggest Topics</div>
-                      <div class="text-xs text-gray-400">Related content ideas</div>
-                    </div>
-                  </div>
-                  <span class="text-gray-400">→</span>
-                </button>
+              <!-- Step 4: Script Generation -->
+              <div class="bg-gradient-to-r from-orange-500/10 to-yellow-500/10 border border-orange-500/20 rounded-xl p-3 space-y-2">
+                <div class="flex items-center space-x-3">
+                  <span class="bg-gradient-to-r from-orange-500 to-yellow-500 text-white text-sm font-bold px-3 py-2 rounded-full shadow-lg">4</span>
+                  <span class="text-base font-semibold text-orange-300">Generate Script</span>
+                </div>
+                <div class="text-sm text-orange-200 ml-10 font-medium">
+                  {{ form.script ? '✅ Script generated' : '⏳ Use the Generate Script button in the form' }}
+                </div>
+              </div>
+
+              <!-- Step 5: Keywords -->
+              <div class="bg-gradient-to-r from-red-500/10 to-orange-500/10 border border-red-500/20 rounded-xl p-3 space-y-2">
+                <div class="flex items-center space-x-3">
+                  <span class="bg-gradient-to-r from-red-500 to-orange-500 text-white text-sm font-bold px-3 py-2 rounded-full shadow-lg">5</span>
+                  <span class="text-base font-semibold text-red-300">Add Keywords</span>
+                </div>
+                <div class="text-sm text-red-200 ml-10 font-medium">
+                  {{ form.tags ? '✅ Keywords added' : '⏳ Use keyword suggestions in the form' }}
+                </div>
+              </div>
+
+              <!-- Step 6: Hashtags -->
+              <div class="bg-gradient-to-r from-pink-500/10 to-red-500/10 border border-pink-500/20 rounded-xl p-3 space-y-2">
+                <div class="flex items-center space-x-3">
+                  <span class="bg-gradient-to-r from-pink-500 to-red-500 text-white text-sm font-bold px-3 py-2 rounded-full shadow-lg">6</span>
+                  <span class="text-base font-semibold text-pink-300">Add Hashtags</span>
+                </div>
+                <div class="text-sm text-pink-200 ml-10 font-medium">
+                  {{ form.hashtags ? '✅ Hashtags added' : '⏳ Use hashtag suggestions in the form' }}
+                </div>
               </div>
             </div>
 
@@ -396,13 +711,45 @@
               </div>
             </div>
 
-            <!-- AI Suggestions (for new content) -->
+            <!-- Contextual Tips & Suggestions (for new content) -->
             <div v-else class="space-y-4">
-              <h5 class="text-sm font-medium text-gray-300 uppercase tracking-wide">Smart Suggestions</h5>
+              <h5 class="text-sm font-medium text-gray-300 uppercase tracking-wide">Contextual Tips</h5>
 
+              <!-- Current Step Guidance -->
+              <div class="p-3 bg-purple-500/10 border border-purple-500/20 rounded-lg">
+                <div class="flex items-center space-x-2 mb-2">
+                  <span class="text-purple-400">💡</span>
+                  <span class="text-sm font-medium text-purple-300">Current Step</span>
+                </div>
+                <div class="text-xs text-gray-300">
+                  <div v-if="!form.pillarId">
+                    <strong>Step 1:</strong> Choose a content pillar to define your content strategy and unlock AI suggestions.
+                  </div>
+                  <div v-else-if="!form.description">
+                    <strong>Step 2:</strong> Add a description to provide context for your content.
+                  </div>
+                  <div v-else-if="!form.title">
+                    <strong>Step 3:</strong> Create a compelling title. Use the Generate Title button for AI suggestions.
+                  </div>
+                  <div v-else-if="!form.script">
+                    <strong>Step 4:</strong> Generate a video script to structure your content and improve engagement.
+                  </div>
+                  <div v-else-if="!form.tags">
+                    <strong>Step 5:</strong> Add keywords and tags for better SEO and discoverability.
+                  </div>
+                  <div v-else-if="!form.hashtags">
+                    <strong>Step 6:</strong> Add hashtags to increase social media reach and engagement.
+                  </div>
+                  <div v-else>
+                    <strong>✅ Complete!</strong> Your content is ready. Review and create when satisfied.
+                  </div>
+                </div>
+              </div>
+
+              <!-- Dynamic Suggestions Based on Current Step -->
               <div class="space-y-3">
                 <div
-                  v-for="(suggestion, index) in aiSuggestions"
+                  v-for="(suggestion, index) in getContextualSuggestions()"
                   :key="`suggestion-${index}`"
                   class="p-3 bg-forest-700/50 rounded-lg border border-forest-600/30 hover:bg-forest-700/70 transition-colors cursor-pointer"
                   @click="selectSuggestion(suggestion)"
@@ -523,7 +870,7 @@ const keywordSuggestions = ref([
   'analytics insights', 'engagement boost', 'viral content', 'SEO tactics'
 ])
 
-// Generate keyword suggestions based on title and pillar
+// Generate keyword suggestions based on title, pillar, and script content
 const generateKeywordSuggestions = async () => {
   try {
     // In real implementation, this would call an API
@@ -545,10 +892,39 @@ const generateKeywordSuggestions = async () => {
       })
     }
 
+    // Analyze script content for additional keywords
+    if (form.value.script) {
+      const scriptText = form.value.script.toLowerCase()
+
+      // Extract key phrases from script
+      const keyPhrases = [
+        'step by step', 'how to', 'tutorial', 'guide', 'tips', 'tricks',
+        'strategy', 'beginner', 'advanced', 'complete', 'ultimate', 'best',
+        'review', 'comparison', 'vs', 'analysis', 'breakdown', 'explained'
+      ]
+
+      keyPhrases.forEach(phrase => {
+        if (scriptText.includes(phrase)) {
+          suggestions.push(phrase)
+        }
+      })
+
+      // Extract important words from script (longer than 5 characters)
+      const scriptWords = scriptText.match(/\b\w{6,}\b/g) || []
+      const commonWords = scriptWords
+        .filter(word => !['introduction', 'conclusion', 'everyone', 'welcome', 'channel', 'subscribe'].includes(word))
+        .slice(0, 5)
+
+      commonWords.forEach(word => {
+        suggestions.push(word)
+        suggestions.push(`${word} tips`)
+      })
+    }
+
     // Add trending keywords
     suggestions.push('YouTube 2024', 'content creator', 'viral strategy', 'growth hacks')
 
-    keywordSuggestions.value = [...new Set(suggestions)].slice(0, 8)
+    keywordSuggestions.value = [...new Set(suggestions)].slice(0, 12)
     showKeywordSuggestions.value = true
   } catch (error) {
     console.error('Error generating keyword suggestions:', error)
@@ -562,6 +938,486 @@ const addKeywordToTags = (keyword) => {
     currentTags.push(keyword)
     form.value.tags = currentTags.join(', ')
   }
+}
+
+// Hashtag suggestions state
+const showHashtagSuggestions = ref(false)
+const hashtagSuggestions = ref([])
+
+// Generate hashtag suggestions based on title, pillar, script, and content
+const generateHashtagSuggestions = async () => {
+  try {
+    const pillar = availablePillars.value.find(p => p.id === form.value.pillarId)
+    const title = form.value.title.toLowerCase()
+    const description = form.value.description.toLowerCase()
+    const script = form.value.script.toLowerCase()
+
+    let suggestions = []
+
+    // Base hashtags for all content
+    suggestions.push('#contentcreator', '#youtube', '#socialmedia', '#content')
+
+    // Pillar-specific hashtags
+    if (pillar?.name === 'Game Development') {
+      suggestions.push('#gamedev', '#indiegame', '#gaming', '#unity', '#unreal', '#gamedesign')
+    } else if (pillar?.name === 'Marketing') {
+      suggestions.push('#marketing', '#digitalmarketing', '#socialmediamarketing', '#contentmarketing', '#growth')
+    } else if (pillar?.name === 'Tech Tutorials') {
+      suggestions.push('#tech', '#tutorial', '#coding', '#programming', '#webdev', '#javascript')
+    } else if (pillar?.name === 'Game Reviews') {
+      suggestions.push('#gamereview', '#gaming', '#gamer', '#videogames', '#gameanalysis')
+    }
+
+    // Content-specific hashtags based on title/description/script
+    const allContent = `${title} ${description} ${script}`
+
+    if (allContent.includes('ai')) {
+      suggestions.push('#ai', '#artificialintelligence', '#machinelearning')
+    }
+    if (allContent.includes('trend')) {
+      suggestions.push('#trends', '#trending', '#2024trends')
+    }
+    if (allContent.includes('guide') || allContent.includes('tutorial')) {
+      suggestions.push('#guide', '#howto', '#tips', '#tutorial')
+    }
+    if (allContent.includes('strategy')) {
+      suggestions.push('#strategy', '#tactics', '#growth')
+    }
+    if (allContent.includes('review')) {
+      suggestions.push('#review', '#honest', '#analysis', '#breakdown')
+    }
+    if (allContent.includes('beginner')) {
+      suggestions.push('#beginner', '#basics', '#101', '#starter')
+    }
+    if (allContent.includes('advanced')) {
+      suggestions.push('#advanced', '#pro', '#expert', '#masterclass')
+    }
+    if (allContent.includes('step') || allContent.includes('steps')) {
+      suggestions.push('#stepbystep', '#process', '#method')
+    }
+    if (allContent.includes('secret') || allContent.includes('hack')) {
+      suggestions.push('#secrets', '#hacks', '#insider', '#protips')
+    }
+    if (allContent.includes('2024')) {
+      suggestions.push('#2024', '#latest', '#new', '#updated')
+    }
+
+    // Script-specific hashtags based on content type
+    if (script) {
+      if (script.includes('subscribe') || script.includes('like')) {
+        suggestions.push('#subscribe', '#like', '#engagement')
+      }
+      if (script.includes('comment')) {
+        suggestions.push('#comment', '#community', '#discussion')
+      }
+      if (script.includes('share')) {
+        suggestions.push('#share', '#viral', '#spread')
+      }
+    }
+
+    // Popular general hashtags
+    suggestions.push('#viral', '#fyp', '#explore', '#creator', '#influence')
+
+    // Remove duplicates and limit to 15 suggestions
+    hashtagSuggestions.value = [...new Set(suggestions)].slice(0, 15)
+    showHashtagSuggestions.value = true
+  } catch (error) {
+    console.error('Error generating hashtag suggestions:', error)
+  }
+}
+
+// Add hashtag to content
+const addHashtagToContent = (hashtag) => {
+  const currentHashtags = form.value.hashtags ? form.value.hashtags.split(' ').filter(h => h.trim()) : []
+  if (!currentHashtags.includes(hashtag)) {
+    currentHashtags.push(hashtag)
+    form.value.hashtags = currentHashtags.join(' ')
+  }
+}
+
+// Script generation state
+const showScriptOptions = ref(false)
+const showScriptTemplates = ref(false)
+const selectedScriptType = ref('tutorial')
+const selectedScriptLength = ref('medium')
+const selectedScriptTone = ref('engaging')
+
+// Script generation options
+const scriptTypes = ref([
+  { value: 'tutorial', label: 'Tutorial' },
+  { value: 'review', label: 'Review' },
+  { value: 'vlog', label: 'Vlog' },
+  { value: 'educational', label: 'Educational' },
+  { value: 'entertainment', label: 'Entertainment' },
+  { value: 'unboxing', label: 'Unboxing' },
+  { value: 'comparison', label: 'Comparison' },
+  { value: 'listicle', label: 'Top 10 List' }
+])
+
+const scriptLengths = ref([
+  { value: 'short', label: '1-3 min' },
+  { value: 'medium', label: '5-8 min' },
+  { value: 'long', label: '10-15 min' },
+  { value: 'extended', label: '20+ min' }
+])
+
+const scriptTones = ref([
+  { value: 'engaging', label: 'Engaging' },
+  { value: 'professional', label: 'Professional' },
+  { value: 'casual', label: 'Casual' },
+  { value: 'energetic', label: 'Energetic' },
+  { value: 'educational', label: 'Educational' },
+  { value: 'humorous', label: 'Humorous' }
+])
+
+const scriptTemplates = ref([
+  {
+    name: 'Hook + Tutorial',
+    description: 'Strong opening with step-by-step guide',
+    template: `[HOOK - 0:00-0:15]
+"Have you ever wondered how to [TOPIC]? In the next [TIME], I'll show you exactly how to do it, step by step."
+
+[INTRODUCTION - 0:15-0:30]
+"Hey everyone, welcome back to my channel! I'm [NAME], and today we're diving into [TOPIC]. If this helps you out, don't forget to hit that like button and subscribe for more content like this."
+
+[MAIN CONTENT - 0:30-[TIME]]
+"Let's jump right in. Here's what we'll cover:
+1. [STEP 1]
+2. [STEP 2]
+3. [STEP 3]
+
+First, let's start with [STEP 1]..."
+
+[CALL TO ACTION - [TIME]]
+"And that's how you [TOPIC]! Which step did you find most helpful? Let me know in the comments below. If you want to see more tutorials like this, make sure to subscribe and hit the notification bell. I'll see you in the next video!"`
+  },
+  {
+    name: 'Problem + Solution',
+    description: 'Address a problem and provide solution',
+    template: `[PROBLEM IDENTIFICATION - 0:00-0:20]
+"Are you struggling with [PROBLEM]? You're not alone. This is one of the most common issues that [AUDIENCE] face, and today I'm going to show you exactly how to solve it."
+
+[CREDIBILITY - 0:20-0:35]
+"I'm [NAME], and I've been [EXPERIENCE/CREDENTIALS]. I've helped [NUMBER] people overcome this exact challenge."
+
+[SOLUTION PREVIEW - 0:35-0:50]
+"In this video, I'll share [NUMBER] proven strategies that will help you [DESIRED OUTCOME]. Stay until the end because tip number [NUMBER] is a game-changer."
+
+[MAIN CONTENT - 0:50-[TIME]]
+"Let's dive into solution number one..."
+
+[CONCLUSION - [TIME]]
+"These [NUMBER] strategies have worked for thousands of people, and they'll work for you too. Try them out and let me know your results in the comments!"`
+  },
+  {
+    name: 'Story + Lesson',
+    description: 'Personal story with valuable takeaway',
+    template: `[STORY HOOK - 0:00-0:20]
+"[TIME PERIOD] ago, I [SITUATION/CHALLENGE]. What happened next completely changed my perspective on [TOPIC]."
+
+[STORY DEVELOPMENT - 0:20-[TIME]]
+"Let me tell you the full story. It all started when [BEGINNING OF STORY]...
+
+[TURNING POINT]
+But then something happened that changed everything...
+
+[RESOLUTION]
+And that's when I realized [KEY INSIGHT]."
+
+[LESSON APPLICATION - [TIME]]
+"Here's what this taught me, and how you can apply it to your own [SITUATION]:
+1. [LESSON 1]
+2. [LESSON 2]
+3. [LESSON 3]"
+
+[CALL TO ACTION]
+"What's your biggest takeaway from this story? Share it in the comments below!"`
+  },
+  {
+    name: 'Review Format',
+    description: 'Comprehensive product/service review',
+    template: `[INTRODUCTION - 0:00-0:30]
+"Today I'm reviewing [PRODUCT/SERVICE]. I've been using it for [TIME PERIOD], and I'm going to give you my honest thoughts - the good, the bad, and everything in between."
+
+[OVERVIEW - 0:30-1:00]
+"First, let me show you what [PRODUCT] is and who it's for..."
+
+[DETAILED REVIEW - 1:00-[TIME]]
+"Let's break this down into categories:
+
+PROS:
+- [PRO 1]
+- [PRO 2]
+- [PRO 3]
+
+CONS:
+- [CON 1]
+- [CON 2]
+
+PRICING:
+[PRICING DETAILS]"
+
+[FINAL VERDICT - [TIME]]
+"So, is [PRODUCT] worth it? Here's my final verdict: [RECOMMENDATION]. If you're [TARGET AUDIENCE], then yes. If you're [NOT TARGET AUDIENCE], then probably not."
+
+[CALL TO ACTION]
+"Have you tried [PRODUCT]? Let me know your experience in the comments!"`
+  }
+])
+
+// Generate basic script based on title and description
+const generateScript = async () => {
+  try {
+    if (!form.value.title.trim()) {
+      alert('Please enter a title first to generate a script')
+      return
+    }
+
+    isGenerating.value = true
+    const { $api } = useNuxtApp()
+
+    const pillar = availablePillars.value.find(p => p.id === form.value.pillarId)
+    const title = form.value.title
+    const description = form.value.description || 'No description provided'
+    const pillarName = pillar?.name || 'General'
+
+    // Call backend AI service for script generation
+    const response = await $api('/api/content/generate-script', {
+      method: 'POST',
+      body: {
+        title,
+        description,
+        contentIdea: form.value.contentIdea,
+        pillar: pillarName,
+        type: 'tutorial',
+        length: 'medium',
+        tone: 'engaging',
+        agent_id: selectedAgent.value.id
+      }
+    })
+
+    if (response.status === 'success') {
+      form.value.script = response.data.script
+    } else {
+      // Fallback to template-based generation
+      let script = generateScriptContent(title, description, pillarName, 'tutorial', 'medium', 'engaging')
+      form.value.script = script
+    }
+  } catch (error) {
+    console.error('Error generating script:', error)
+    // Fallback to template-based generation
+    const pillar = availablePillars.value.find(p => p.id === form.value.pillarId)
+    const title = form.value.title
+    const description = form.value.description || 'No description provided'
+    const pillarName = pillar?.name || 'General'
+    let script = generateScriptContent(title, description, pillarName, 'tutorial', 'medium', 'engaging')
+    form.value.script = script
+  } finally {
+    isGenerating.value = false
+  }
+}
+
+// Generate custom script with selected options
+const generateCustomScript = async () => {
+  try {
+    if (!form.value.title.trim()) {
+      alert('Please enter a title first to generate a script')
+      return
+    }
+
+    isGenerating.value = true
+    const { $api } = useNuxtApp()
+
+    const pillar = availablePillars.value.find(p => p.id === form.value.pillarId)
+    const title = form.value.title
+    const description = form.value.description || 'No description provided'
+    const pillarName = pillar?.name || 'General'
+
+    // Call backend AI service for custom script generation
+    const response = await $api('/api/content/generate-script', {
+      method: 'POST',
+      body: {
+        title,
+        description,
+        contentIdea: form.value.contentIdea,
+        pillar: pillarName,
+        type: selectedScriptType.value,
+        length: selectedScriptLength.value,
+        tone: selectedScriptTone.value,
+        agent_id: selectedAgent.value.id
+      }
+    })
+
+    if (response.status === 'success') {
+      form.value.script = response.data.script
+    } else {
+      // Fallback to template-based generation
+      let script = generateScriptContent(
+        title,
+        description,
+        pillarName,
+        selectedScriptType.value,
+        selectedScriptLength.value,
+        selectedScriptTone.value
+      )
+      form.value.script = script
+    }
+
+    showScriptOptions.value = false
+  } catch (error) {
+    console.error('Error generating custom script:', error)
+    // Fallback to template-based generation
+    const pillar = availablePillars.value.find(p => p.id === form.value.pillarId)
+    const title = form.value.title
+    const description = form.value.description || 'No description provided'
+    const pillarName = pillar?.name || 'General'
+    let script = generateScriptContent(
+      title,
+      description,
+      pillarName,
+      selectedScriptType.value,
+      selectedScriptLength.value,
+      selectedScriptTone.value
+    )
+    form.value.script = script
+    showScriptOptions.value = false
+  } finally {
+    isGenerating.value = false
+  }
+}
+
+// Apply script template
+const applyScriptTemplate = (template) => {
+  form.value.script = template.template
+  showScriptTemplates.value = false
+}
+
+// Core script generation logic
+const generateScriptContent = (title, description, pillar, type, length, tone) => {
+  const hooks = {
+    tutorial: [
+      `Have you ever wondered how to ${title.toLowerCase()}? In this video, I'll show you exactly how to do it step by step.`,
+      `Want to master ${title.toLowerCase()}? You're in the right place! Let's dive in.`,
+      `${title} - sounds complicated? It's actually easier than you think. Let me show you how.`
+    ],
+    review: [
+      `I've been testing ${title.toLowerCase()} for the past few weeks, and here's my honest review.`,
+      `Is ${title.toLowerCase()} worth your money? Let's find out together.`,
+      `${title} - the good, the bad, and everything you need to know before buying.`
+    ],
+    educational: [
+      `Today we're exploring ${title.toLowerCase()} - and trust me, this will change how you think about ${pillar.toLowerCase()}.`,
+      `What if I told you that ${title.toLowerCase()} could revolutionize your approach to ${pillar.toLowerCase()}?`,
+      `Let's break down ${title.toLowerCase()} in a way that actually makes sense.`
+    ]
+  }
+
+  const introductions = {
+    engaging: `Hey everyone! Welcome back to my channel. I'm [YOUR NAME], and if you're new here, I create content about ${pillar.toLowerCase()} to help you [ACHIEVE GOAL].`,
+    professional: `Hello and welcome. I'm [YOUR NAME], and today we'll be discussing ${title.toLowerCase()} in detail.`,
+    casual: `What's up everyone! Back with another video, and today we're talking about ${title.toLowerCase()}.`,
+    energetic: `Hey hey hey! Welcome back to the channel! I am SO excited to share this with you today!`,
+    educational: `Welcome to today's lesson. I'm [YOUR NAME], and we'll be exploring ${title.toLowerCase()} from a comprehensive perspective.`,
+    humorous: `Well, well, well... look who's back for more ${pillar.toLowerCase()} content! Today's topic: ${title.toLowerCase()}. Buckle up!`
+  }
+
+  const mainContentStructures = {
+    tutorial: `
+[MAIN CONTENT]
+Let's break this down into simple steps:
+
+Step 1: [FIRST STEP]
+${description.includes('step') ? 'As mentioned in the description, ' : ''}[Detailed explanation of first step]
+
+Step 2: [SECOND STEP]
+Now that we've covered the basics, let's move on to [next concept]
+
+Step 3: [THIRD STEP]
+This is where it gets interesting. [Advanced technique or tip]
+
+Pro Tip: [BONUS TIP]
+Here's something most people don't know about ${title.toLowerCase()}...`,
+
+    review: `
+[DETAILED REVIEW]
+Let me break down my experience with ${title.toLowerCase()}:
+
+What I Loved:
+✓ [POSITIVE ASPECT 1]
+✓ [POSITIVE ASPECT 2]
+✓ [POSITIVE ASPECT 3]
+
+What Could Be Better:
+✗ [NEGATIVE ASPECT 1]
+✗ [NEGATIVE ASPECT 2]
+
+Overall Performance:
+${description ? `Based on ${description.toLowerCase()}, ` : ''}I'd rate this [RATING]/10.`,
+
+    educational: `
+[CORE CONCEPTS]
+To understand ${title.toLowerCase()}, we need to cover three key areas:
+
+1. The Foundation
+${description ? `As we discussed, ${description.toLowerCase()}` : 'The basic principles are...'}
+
+2. Practical Applications
+Here's how this applies in real-world scenarios...
+
+3. Advanced Strategies
+Once you master the basics, you can implement these advanced techniques...`
+  }
+
+  const conclusions = {
+    short: `And that's a wrap! Hope this helped you understand ${title.toLowerCase()} better.`,
+    medium: `So there you have it - everything you need to know about ${title.toLowerCase()}. The key takeaways are [SUMMARY OF MAIN POINTS].`,
+    long: `We've covered a lot of ground today. From [TOPIC 1] to [TOPIC 2], you now have a comprehensive understanding of ${title.toLowerCase()}. Remember, the most important thing is to [KEY ACTION].`,
+    extended: `This has been an in-depth exploration of ${title.toLowerCase()}. We've discussed [COMPREHENSIVE SUMMARY]. As you implement these strategies, remember that [FINAL WISDOM].`
+  }
+
+  const callToActions = [
+    `If this video helped you out, smash that like button and subscribe for more ${pillar.toLowerCase()} content!`,
+    `What's your experience with ${title.toLowerCase()}? Drop a comment below and let me know!`,
+    `Don't forget to hit the notification bell so you never miss my latest videos!`,
+    `Share this video with someone who needs to see it, and I'll see you in the next one!`
+  ]
+
+  // Select random elements for variety
+  const selectedHook = hooks[type] ? hooks[type][Math.floor(Math.random() * hooks[type].length)] : hooks.tutorial[0]
+  const selectedIntro = introductions[tone] || introductions.engaging
+  const selectedMainContent = mainContentStructures[type] || mainContentStructures.tutorial
+  const selectedConclusion = conclusions[length] || conclusions.medium
+  const selectedCTA = callToActions[Math.floor(Math.random() * callToActions.length)]
+
+  return `[HOOK - 0:00-0:15]
+${selectedHook}
+
+[INTRODUCTION - 0:15-0:45]
+${selectedIntro}
+
+${selectedMainContent}
+
+[CONCLUSION - ${length === 'short' ? '2:30' : length === 'medium' ? '7:00' : length === 'long' ? '14:00' : '18:00'}]
+${selectedConclusion}
+
+[CALL TO ACTION]
+${selectedCTA}
+
+---
+📝 SCRIPT NOTES:
+- Replace [PLACEHOLDERS] with your specific content
+- Adjust timing based on your speaking pace
+- Add personal anecdotes to make it more engaging
+- Include relevant visuals or graphics during key points
+- Remember to maintain eye contact with the camera
+- Speak clearly and at a moderate pace
+
+💡 ENGAGEMENT TIPS:
+- Ask questions to encourage comments
+- Use hand gestures to emphasize points
+- Vary your tone to maintain interest
+- Include a clear call-to-action
+- End with a teaser for your next video`
 }
 
 // AI Suggestions based on selected agent and content context
@@ -709,6 +1565,127 @@ const aiSuggestions = computed(() => {
   return suggestions
 })
 
+// Contextual suggestions based on current workflow step
+const getContextualSuggestions = () => {
+  const suggestions = []
+  const pillar = availablePillars.value.find(p => p.id === form.value.pillarId)
+
+  // Step 1: Pillar Selection
+  if (!form.value.pillarId) {
+    suggestions.push(
+      {
+        id: 'pillar-guide',
+        icon: '🎯',
+        title: 'Choose the Right Content Pillar',
+        description: 'Learn how to select the best pillar for your content strategy',
+        action: null
+      },
+      {
+        id: 'pillar-examples',
+        icon: '💡',
+        title: 'Content Pillar Examples',
+        description: 'See examples of successful content for each pillar type',
+        action: null
+      }
+    )
+  }
+  // Step 2: Title Creation
+  else if (!form.value.title) {
+    suggestions.push(
+      {
+        id: 'title-formulas',
+        icon: '✨',
+        title: 'Proven Title Formulas',
+        description: 'Use tested title structures that drive clicks and engagement',
+        action: null
+      },
+      {
+        id: 'title-keywords',
+        icon: '🔍',
+        title: 'SEO Title Optimization',
+        description: 'Include target keywords for better search visibility',
+        action: null
+      }
+    )
+  }
+  // Step 3: Description
+  else if (!form.value.description) {
+    suggestions.push(
+      {
+        id: 'description-hook',
+        icon: '🎣',
+        title: 'Write Compelling Descriptions',
+        description: 'Create descriptions that hook viewers and encourage engagement',
+        action: null
+      }
+    )
+  }
+  // Step 4: Script
+  else if (!form.value.script) {
+    suggestions.push(
+      {
+        id: 'script-structure',
+        icon: '📝',
+        title: 'Video Script Structure',
+        description: 'Learn the proven structure for engaging video scripts',
+        action: null
+      },
+      {
+        id: 'script-hooks',
+        icon: '🎬',
+        title: 'Powerful Opening Hooks',
+        description: 'Start your videos with hooks that grab attention immediately',
+        action: null
+      }
+    )
+  }
+  // Step 5: Keywords
+  else if (!form.value.tags) {
+    suggestions.push(
+      {
+        id: 'keyword-research',
+        icon: '🔍',
+        title: 'Keyword Research Tips',
+        description: 'Find the right keywords to boost your content discoverability',
+        action: null
+      }
+    )
+  }
+  // Step 6: Hashtags
+  else if (!form.value.hashtags) {
+    suggestions.push(
+      {
+        id: 'hashtag-strategy',
+        icon: '#️⃣',
+        title: 'Hashtag Strategy Guide',
+        description: 'Use hashtags effectively to reach your target audience',
+        action: null
+      }
+    )
+  }
+  // All steps complete
+  else {
+    suggestions.push(
+      {
+        id: 'content-optimization',
+        icon: '🚀',
+        title: 'Final Content Review',
+        description: 'Review and optimize your content before publishing',
+        action: null
+      },
+      {
+        id: 'promotion-strategy',
+        icon: '📢',
+        title: 'Content Promotion Plan',
+        description: 'Plan how to promote your content across platforms',
+        action: null
+      }
+    )
+  }
+
+  return suggestions
+}
+
 // Content Templates
 const contentTemplates = ref([
   {
@@ -760,7 +1737,10 @@ const form = ref({
   status: 'ideas',
   priority: 'medium',
   pillarId: '',
+  contentIdea: '',
   tags: '',
+  hashtags: '',
+  script: '',
   stageDueDates: {
     ideas: '',
     planning: '',
@@ -785,6 +1765,10 @@ const initializeForm = () => {
       status: props.content.status || 'ideas',
       priority: props.content.priority || 'medium',
       pillarId: props.content.pillar?.id || '',
+      contentIdea: props.content.contentIdea || '',
+      tags: props.content.tags || '',
+      hashtags: props.content.hashtags || '',
+      script: props.content.script || '',
       stageDueDates: props.content.stageDueDates || {
         ideas: '',
         planning: '',
@@ -815,36 +1799,111 @@ watch(() => props.content, () => {
 
 
 
+// Title suggestions state
+const titleSuggestions = ref([])
+const showTitleSuggestions = ref(false)
+
 // AI Generation Functions
 const generateTitle = async () => {
   if (isGenerating.value) return
 
   isGenerating.value = true
   try {
-    // Simulate Agent generation (replace with actual Agent service call)
-    await new Promise(resolve => setTimeout(resolve, 1500))
-
+    const { $api } = useNuxtApp()
     const pillar = availablePillars.value.find(p => p.id === form.value.pillarId)
-    const agent = selectedAgent.value
+    const pillarName = pillar?.name || 'General'
 
-    let generatedTitle = ''
+    // Get topic from content idea, existing title, or use pillar name
+    const topic = form.value.contentIdea || form.value.title || pillarName
 
-    if ((agent.name === 'Levi' || agentName.value === 'Levi' || agent.id === 2) && pillar?.name === 'Game Development') {
-      generatedTitle = '5 Game Development Tips That Actually Work in 2024'
-    } else if (pillar?.name === 'Tech Reviews') {
-      generatedTitle = 'The Ultimate Guide to Tech Review Content Creation'
-    } else if (pillar?.name === 'Productivity Tips') {
-      generatedTitle = 'Productivity Hacks That Will Transform Your Workflow'
+    // Call backend AI service for title generation
+    const response = await $api('/api/content/generate-title', {
+      method: 'POST',
+      body: {
+        topic,
+        contentIdea: form.value.contentIdea,
+        pillar: pillarName,
+        agent_id: selectedAgent.value.id,
+        count: 5
+      }
+    })
+
+    if (response.status === 'success' && response.data.titles) {
+      titleSuggestions.value = response.data.titles
+      showTitleSuggestions.value = true
     } else {
-      generatedTitle = 'How to Create Engaging Content That Converts'
-    }
+      // Fallback to template-based generation
+      let suggestions = []
 
-    form.value.title = generatedTitle
+      if (pillar?.name === 'Game Development') {
+        suggestions = [
+          '5 Game Development Tips That Actually Work in 2024',
+          'Complete Beginner\'s Guide to Game Development',
+          'How to Build Your First Game in 30 Days',
+          'Game Development Mistakes Every Beginner Makes',
+          'From Idea to Launch: Game Development Roadmap'
+        ]
+      } else if (pillar?.name === 'Game Reviews') {
+        suggestions = [
+          'Honest Review: Is This Game Worth Your Time?',
+          'Top 10 Hidden Gems You Need to Play',
+          'Game Review: What They Don\'t Tell You',
+          'Complete Analysis: Graphics vs Gameplay',
+          'Why This Game Failed (And What We Can Learn)'
+        ]
+      } else if (pillar?.name === 'Tech Tutorials') {
+        suggestions = [
+          'Complete Guide to Technology for Beginners',
+          'Step-by-Step Tutorial: Master Skills in 2024',
+          'Tech Tutorial: From Zero to Pro',
+          'How to Learn Technology Fast (Proven Method)',
+          'Advanced Techniques Explained'
+        ]
+      } else if (pillar?.name === 'Productivity Tips') {
+        suggestions = [
+          'Productivity Hacks That Will Transform Your Workflow',
+          '10 Productivity Tips That Actually Work',
+          'How to 10x Your Productivity in 2024',
+          'Productivity System That Changed My Life',
+          'Time Management Secrets of Successful People'
+        ]
+      } else {
+        suggestions = [
+          'How to Create Engaging Content That Converts',
+          'Content Creation Strategy That Works',
+          'From Zero to Viral: Content Creation Guide',
+          'Content Creator\'s Complete Playbook',
+          'How to Build an Audience Through Content'
+        ]
+      }
+
+      titleSuggestions.value = suggestions
+      showTitleSuggestions.value = true
+    }
   } catch (error) {
     console.error('Failed to generate title:', error)
+    // Fallback to template-based generation on error
+    const pillar = availablePillars.value.find(p => p.id === form.value.pillarId)
+
+    const suggestions = [
+      'How to Master Your Topic in 30 Days',
+      'The Ultimate Guide to Your Topic',
+      'Top 10 Tips for Beginners',
+      'Why Everyone is Wrong About This',
+      'The Secret to Success'
+    ]
+
+    titleSuggestions.value = suggestions
+    showTitleSuggestions.value = true
   } finally {
     isGenerating.value = false
   }
+}
+
+// Select a title suggestion
+const selectTitleSuggestion = (title) => {
+  form.value.title = title
+  showTitleSuggestions.value = false
 }
 
 const generateDescription = async () => {
@@ -852,11 +1911,41 @@ const generateDescription = async () => {
 
   isGenerating.value = true
   try {
-    await new Promise(resolve => setTimeout(resolve, 1500))
-
+    const { $api } = useNuxtApp()
     const pillar = availablePillars.value.find(p => p.id === form.value.pillarId)
-    const agent = selectedAgent.value
+    const pillarName = pillar?.name || 'General'
+    const title = form.value.title || 'Your Content'
 
+    // Call backend AI service for description generation
+    const response = await $api('/api/content/generate-description', {
+      method: 'POST',
+      body: {
+        title,
+        pillar: pillarName,
+        agent_id: selectedAgent.value.id,
+        keywords: []
+      }
+    })
+
+    if (response.status === 'success' && response.data.description) {
+      form.value.description = response.data.description
+    } else {
+      // Fallback to template-based generation
+      const agent = selectedAgent.value
+      let generatedDescription = ''
+
+      if (agent.name === 'Levi') {
+        generatedDescription = 'A comprehensive guide that breaks down proven strategies and actionable tactics. Perfect for creators looking to level up their content game with data-driven insights and creative approaches.'
+      } else {
+        generatedDescription = 'An in-depth analysis covering everything you need to know, with practical examples and step-by-step instructions to help you achieve your goals.'
+      }
+
+      form.value.description = generatedDescription
+    }
+  } catch (error) {
+    console.error('Failed to generate description:', error)
+    // Fallback to template-based generation on error
+    const agent = selectedAgent.value
     let generatedDescription = ''
 
     if (agent.name === 'Levi') {
@@ -866,8 +1955,6 @@ const generateDescription = async () => {
     }
 
     form.value.description = generatedDescription
-  } catch (error) {
-    console.error('Failed to generate description:', error)
   } finally {
     isGenerating.value = false
   }
