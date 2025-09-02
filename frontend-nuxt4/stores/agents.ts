@@ -13,7 +13,7 @@ export const useAgentsStore = defineStore('agents', () => {
   const isConnected = ref(false)
   const lastHeartbeat = ref<Date | null>(null)
 
-  // Initialize default agents with color-coded personalities - matching backend
+  // Initialize default AI team members with color-coded personalities - matching backend
   const defaultAgents: Agent[] = [
     {
       id: 'boss_agent',
@@ -21,18 +21,18 @@ export const useAgentsStore = defineStore('agents', () => {
       type: 'boss_agent',
       status: 'online',
       capabilities: [
-        'coordination',
+        'team_coordination',
         'task_management',
         'agent_delegation',
         'comprehensive_analysis',
         'user_interaction',
       ],
       description:
-        'Your Personal Agent - Coordinates with specialized agents to provide comprehensive support',
+        'Your Team Leader - Coordinates with specialized team members to provide comprehensive support',
       avatar: '/BossAgent.png',
       color: '#f97316', // Orange - primary brand color
-      personality: 'Adaptive and comprehensive - coordinates with specialized agents',
-      specialization: 'Personal Agent',
+      personality: 'Leads your AI team and coordinates with specialized team members',
+      specialization: 'Team Leader',
     },
     {
       id: 'agent_1',
@@ -40,17 +40,17 @@ export const useAgentsStore = defineStore('agents', () => {
       type: 'content_analysis',
       status: 'online',
       capabilities: [
-        'video_analysis',
-        'performance_metrics',
-        'content_optimization',
+        'team_video_analysis',
+        'collaborative_metrics',
+        'team_optimization',
         'viral_potential',
       ],
       description:
-        'Analytics & Strategy Specialist - Data-driven insights for YouTube growth',
+        'Analytics Team Member - Collaborates with team on data-driven insights for YouTube growth',
       avatar: '/optimized/Agent1.jpg',
       color: '#3b82f6', // Blue
-      personality: 'Data-driven and analytical',
-      specialization: 'Analytics & Strategy',
+      personality: 'Data-driven team member who collaborates on strategic insights',
+      specialization: 'Analytics Team Member',
     },
     {
       id: 'agent_2',
@@ -58,16 +58,16 @@ export const useAgentsStore = defineStore('agents', () => {
       type: 'audience_insights',
       status: 'online',
       capabilities: [
-        'content_creation',
-        'creative_strategy',
+        'team_content_creation',
+        'collaborative_strategy',
         'video_production',
         'storytelling',
       ],
-      description: 'Content Creation Specialist - Creative and innovative expert for content strategy',
+      description: 'Content Team Member - Works with team on creative and innovative content strategy',
       avatar: '/optimized/Agent2.jpg',
       color: '#eab308', // Yellow
-      personality: 'Creative and innovative',
-      specialization: 'Content Creation',
+      personality: 'Creative team member who works with others on content strategy',
+      specialization: 'Content Team Member',
     },
     {
       id: 'agent_3',
@@ -75,29 +75,29 @@ export const useAgentsStore = defineStore('agents', () => {
       type: 'seo_discoverability',
       status: 'online',
       capabilities: [
-        'audience_engagement',
-        'community_building',
+        'team_audience_engagement',
+        'collaborative_community_building',
         'social_interaction',
         'relationship_management',
       ],
       description:
-        'Audience Engagement Specialist - Community-focused and empathetic expert for audience growth',
+        'Engagement Team Member - Collaborates with team on community-focused audience growth strategies',
       avatar: '/optimized/Agent3.jpg',
       color: '#16a34a', // Green
-      personality: 'Community-focused and empathetic',
-      specialization: 'Audience Engagement',
+      personality: 'Community-focused team member who collaborates on audience strategy',
+      specialization: 'Engagement Team Member',
     },
     {
       id: 'agent_4',
       name: 'Zara',
       type: 'competitive_analysis',
       status: 'online',
-      capabilities: ['growth_strategy', 'optimization', 'performance_analysis', 'scaling'],
-      description: 'Growth & Optimization Specialist - Results-driven and strategic expert for channel growth',
+      capabilities: ['team_growth_strategy', 'collaborative_optimization', 'performance_analysis', 'scaling'],
+      description: 'Growth Team Member - Works with team on results-driven strategies for channel growth',
       avatar: '/optimized/Agent4.jpg',
       color: '#a855f7', // Purple
-      personality: 'Results-driven and strategic',
-      specialization: 'Growth & Optimization',
+      personality: 'Results-driven team member who works with others on optimization',
+      specialization: 'Growth Team Member',
     },
     {
       id: 'agent_5',
@@ -105,16 +105,16 @@ export const useAgentsStore = defineStore('agents', () => {
       type: 'monetization_strategy',
       status: 'online',
       capabilities: [
-        'technical_optimization',
-        'seo_analysis',
+        'team_technical_optimization',
+        'collaborative_seo_analysis',
         'algorithm_insights',
         'technical_strategy',
       ],
-      description: 'Technical & SEO Specialist - Technical and detail-oriented expert for optimization',
+      description: 'Technical Team Member - Coordinates with team on technical and detail-oriented optimization',
       avatar: '/optimized/Agent5.jpg',
       color: '#dc2626', // Red
-      personality: 'Technical and detail-oriented',
-      specialization: 'Technical & SEO',
+      personality: 'Technical team member who coordinates on SEO and optimization',
+      specialization: 'Technical Team Member',
     },
   ]
 

@@ -171,18 +171,35 @@ export const useTeamManagement = () => {
       return response.data
     } catch (err: any) {
       // Handle backend not available gracefully
-      if (err.message?.includes('404') || err.message?.includes('Failed to fetch')) {
-        error.value = 'Team features require backend connection. Please start the backend server.'
+      if (err.message?.includes('404') || err.message?.includes('Failed to fetch') || err.message?.includes('fetch')) {
+        console.log('Backend not available, creating demo team')
         // Create mock team for frontend development
         const mockTeam = {
-          id: 'mock-team-id',
+          id: 'demo-team-' + Date.now(),
           name,
           max_seats: maxSeats,
-          owner_id: 'mock-user-id',
+          owner_id: getCurrentUser()?.id || 'demo-user',
           created_at: new Date().toISOString(),
-          updated_at: new Date().toISOString()
+          updated_at: new Date().toISOString(),
+          members: [
+            {
+              id: 'demo-member-1',
+              user_id: getCurrentUser()?.id || 'demo-user',
+              user_name: getCurrentUser()?.name || 'Demo User',
+              user_email: getCurrentUser()?.email || 'demo@example.com',
+              role: 'owner',
+              joined_at: new Date().toISOString(),
+              invited_by: getCurrentUser()?.id || 'demo-user',
+              invited_by_name: getCurrentUser()?.name || 'Demo User'
+            }
+          ],
+          pending_invitations: [],
+          member_count: 1,
+          available_seats: maxSeats - 1,
+          is_full: false
         }
         currentTeam.value = mockTeam
+        error.value = null // Clear error for demo mode
         return mockTeam
       }
       error.value = err.message || 'Failed to create team'

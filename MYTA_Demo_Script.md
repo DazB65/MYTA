@@ -1,112 +1,130 @@
 # 🎬 **MYTA App Demo Script - Page by Page**
 
 ## **Opening Hook (5-10 seconds)**
-*"Meet MYTA - the AI-powered YouTube growth assistant that transforms how content creators build their channels. Let me show you how it works."*
+
+_"Meet MYTA - your AI team for YouTube growth. While others give you AI tools, we give you an AI team that works together to grow your channel strategically. Let me show you how it works."_
 
 ---
 
-## **1. Dashboard Page** *(30-45 seconds)*
+## **1. Dashboard Page** _(30-45 seconds)_
 
 ### **What to Show:**
+
 - Main dashboard with metrics containers
 - iPhone compartment with AI chat
 - Agent compartment on the right
 - Task manager and channel goals
 
 ### **Script:**
-*"This is your MYTA dashboard - your command center for YouTube growth. You get real-time analytics showing your subscriber growth, view metrics, and engagement rates. The iPhone compartment here gives you instant access to your AI assistant for quick questions and content ideas. On the right, you can see your selected AI agent - I'm using Levi today, who specializes in innovative and artistic content strategies. Below, your task manager keeps you organized with AI-generated action items, and your channel goals track your progress toward specific targets."*
+
+_"This is your MYTA dashboard - your team command center for YouTube growth. You get real-time analytics showing your subscriber growth, view metrics, and engagement rates. The iPhone compartment here gives you instant access to your AI team for quick questions and content ideas. On the right, you can see your selected AI agent - I'm using Levi today, who specializes in innovative and artistic content strategies. Notice how your AI agents work together - below, your task manager shows AI-generated action items from multiple agents collaborating, and your channel goals track your progress toward specific targets."_
 
 ---
 
-## **2. Tasks Page** *(20-30 seconds)*
+## **2. Tasks Page** _(20-30 seconds)_
 
 ### **What to Show:**
+
 - Calendar layout with tasks
 - Task creation and management
 - Levi suggestions beside calendar
 
 ### **Script:**
-*"The Tasks page gives you a calendar view of all your content activities. MYTA's AI automatically generates personalized tasks based on your channel's needs - from content creation deadlines to optimization reminders. Levi provides smart suggestions right here to help you stay ahead of trends and maximize your content impact."*
+
+_"The Tasks page gives you a calendar view of all your content activities. MYTA's AI team automatically generates personalized tasks based on your channel's needs - from content creation deadlines to optimization reminders. Notice how Levi provides smart suggestions right here, but he's coordinating with other agents behind the scenes to help you stay ahead of trends and maximize your content impact through strategic collaboration."_
 
 ---
 
-## **3. Pillars Page** *(25-35 seconds)*
+## **3. Pillars Page** _(25-35 seconds)_
 
 ### **What to Show:**
+
 - Content pillar cards
 - Pillar creation process
 - How pillars organize content strategy
 
 ### **Script:**
-*"Content pillars are the foundation of successful YouTube channels. MYTA helps you define and organize your core content themes. Each pillar represents a key topic area for your channel - whether that's tutorials, reviews, or entertainment. This strategic approach ensures consistent, focused content that builds audience loyalty and improves your channel's authority in your niche."*
+
+_"Content pillars are the foundation of successful YouTube channels. MYTA's AI team helps you define and organize your core content themes collaboratively. Each pillar represents a key topic area for your channel - whether that's tutorials, reviews, or entertainment. Notice how different team members contribute: Levi suggests creative angles, Alex provides data-driven insights, and Maya considers audience engagement. This coordinated team approach ensures consistent, focused content that builds audience loyalty and improves your channel's authority in your niche."_
 
 ---
 
-## **4. Videos Page** *(20-30 seconds)*
+## **4. Videos Page** _(20-30 seconds)_
 
 ### **What to Show:**
+
 - Video library and management
 - Performance tracking per video
 - Content optimization suggestions
 
 ### **Script:**
-*"Your Videos page is where you track and optimize your content performance. See how each video is performing with detailed analytics, get AI-powered suggestions for improving titles and thumbnails, and identify which content resonates most with your audience. MYTA helps you understand what works so you can create more of it."*
+
+_"Your Videos page is where your AI team tracks and optimizes content performance together. See how each video is performing with detailed analytics, get coordinated AI team suggestions for improving titles and thumbnails, and identify which content resonates most with your audience. Alex provides the data insights, Levi suggests creative improvements, and Maya analyzes engagement patterns - all working together so you understand what works and can create more of it."_
 
 ---
 
-## **5. Content Studio** *(30-40 seconds)*
+## **5. Content Studio** _(30-40 seconds)_
 
 ### **What to Show:**
+
 - AI content generation tools
 - Title and thumbnail creation
 - Content planning features
 
 ### **Script:**
-*"The Content Studio is where the magic happens. Generate compelling video titles, create eye-catching thumbnails, and plan your content calendar with AI assistance. MYTA analyzes trending topics in your niche and suggests content ideas that are likely to perform well. It's like having a content strategist, designer, and trend analyst all in one."*
+
+_"The Content Studio is where your AI team collaboration magic happens. Generate compelling video titles, create eye-catching thumbnails, and plan your content calendar with coordinated AI team assistance. MYTA's team analyzes trending topics in your niche and suggests content ideas that are likely to perform well. It's like having a content strategist, designer, and trend analyst all working together as your personal AI team - Levi handles creative strategy, Alex provides performance insights, Maya considers audience appeal, and they all coordinate to give you the best recommendations."_
 
 ---
 
-## **6. Settings - Agent Selection** *(15-25 seconds)*
+## **6. Settings - Agent Selection** _(15-25 seconds)_
 
 ### **What to Show:**
+
 - Agent selection interface
 - Different agent personalities
 - Agent customization
 
 ### **Script:**
-*"MYTA offers five unique AI agents, each with different personalities and expertise. Choose from professional and analytical agents like Agent 1, or creative specialists like Levi. Each agent brings a unique perspective to your content strategy, and you can switch between them based on your current needs."*
+
+_"MYTA offers five unique AI team members, each with different personalities and expertise that work together. Choose your team leader from professional and analytical members like Alex, or creative specialists like Levi. Each team member brings a unique perspective to your content strategy, but the magic happens when they collaborate together. Your chosen agent leads the team coordination, but all team members work behind the scenes to provide comprehensive, coordinated recommendations."_
 
 ---
 
-## **7. Settings - Subscription** *(20-30 seconds)*
+## **7. Settings - Subscription** _(20-30 seconds)_
 
 ### **What to Show:**
+
 - Subscription plans (Starter, Growth, Pro)
 - Plan features and pricing
 - Billing management
 
 ### **Script:**
-*"MYTA offers flexible subscription plans to match your growth stage. Start with our basic plan for essential features, or upgrade to Pro for advanced analytics, more AI conversations, and priority support. Manage your subscription, update payment methods, and track your usage all from this clean, professional interface."*
+
+_"MYTA offers flexible subscription plans designed for both individuals and teams. Start with our Solo Creator plan for essential AI team features, upgrade to Team for full collaboration capabilities, or choose Agency for advanced team management and client features. Built for teams, perfect for individuals - manage your subscription, update payment methods, and track your AI team usage all from this clean, professional interface."_
 
 ---
 
-## **Closing** *(10-15 seconds)*
+## **Closing** _(10-15 seconds)_
 
 ### **Script:**
-*"MYTA isn't just another analytics tool - it's your AI-powered growth partner that helps you create better content, understand your audience, and scale your YouTube channel strategically. Ready to transform your YouTube journey? Try MYTA today."*
+
+_"MYTA isn't just another analytics tool - it's your AI team working together to grow your channel strategically. While others give you individual AI tools, we give you coordinated AI agents that collaborate to help you create better content, understand your audience, and scale your YouTube channel. Built for teams, perfect for individuals. Ready to transform your YouTube journey? Try MYTA today."_
 
 ---
 
 ## **📝 Total Video Length: 3-4 minutes**
 
 ## **🎯 Key Talking Points to Emphasize:**
-- **AI-Powered Intelligence** - Not just analytics, but actionable insights
-- **Personalized Experience** - Different agents for different needs
-- **Strategic Approach** - Content pillars and systematic growth
-- **Professional Tools** - Everything creators need in one place
-- **Scalable Plans** - Grows with your channel
+
+- **AI Team Collaboration** - Coordinated agents working together, not individual tools
+- **Built for Teams** - Team collaboration features with individual creator benefits
+- **Strategic Orchestration** - Multi-agent coordination for comprehensive growth
+- **Professional Collaboration** - Everything teams and individuals need in one place
+- **Scalable Team Plans** - Grows with your team and channel
 
 ## **🎬 Pro Tips for Recording:**
+
 1. **Smooth Transitions** - Use cursor movements to guide viewer attention
 2. **Show Real Interactions** - Click buttons, open modals, demonstrate features
 3. **Highlight Key Numbers** - Point out metrics and usage stats
@@ -116,6 +134,7 @@
 ---
 
 ## **📋 Recording Checklist:**
+
 - [ ] Dashboard metrics and AI chat demo
 - [ ] Tasks calendar and suggestions
 - [ ] Content pillars explanation
@@ -127,4 +146,4 @@
 
 ---
 
-**This script showcases MYTA as a comprehensive, professional YouTube growth platform that combines AI intelligence with practical creator tools! 🚀**
+**This script showcases MYTA as your AI team for YouTube growth - a comprehensive platform where coordinated AI agents work together to help teams and individuals grow strategically! 🚀**

@@ -16,17 +16,17 @@
 <script setup>
 // Global app configuration
 useHead({
-  title: 'MYTA - Your AI Agent for Content and Growth',
+  title: 'MYTA - Your AI Team for YouTube Growth',
   meta: [
-    { name: 'description', content: 'MYTA helps YouTube creators grow their channels with AI-powered insights, content planning, and analytics.' },
-    { name: 'keywords', content: 'YouTube analytics, content creation, AI assistant, channel growth, video optimization' },
-    { property: 'og:title', content: 'MYTA - Your AI Agent for Content and Growth' },
-    { property: 'og:description', content: 'Grow your YouTube channel with AI-powered insights and content planning.' },
+    { name: 'description', content: 'MYTA is your AI team for YouTube growth. Built for teams, perfect for individuals. Get coordinated AI agents working together to grow your channel strategically.' },
+    { name: 'keywords', content: 'YouTube team collaboration, AI agents, content strategy, team management, YouTube growth, multi-agent AI' },
+    { property: 'og:title', content: 'MYTA - Your AI Team for YouTube Growth' },
+    { property: 'og:description', content: 'Built for teams, perfect for individuals. Coordinated AI agents working together for strategic YouTube growth.' },
     { property: 'og:type', content: 'website' },
     { property: 'og:image', content: '/og-image.png' },
     { name: 'twitter:card', content: 'summary_large_image' },
-    { name: 'twitter:title', content: 'MYTA - Your AI Agent for Content and Growth' },
-    { name: 'twitter:description', content: 'Grow your YouTube channel with AI-powered insights and content planning.' },
+    { name: 'twitter:title', content: 'MYTA - Your AI Team for YouTube Growth' },
+    { name: 'twitter:description', content: 'Built for teams, perfect for individuals. Coordinated AI agents working together for strategic YouTube growth.' },
     { name: 'twitter:image', content: '/og-image.png' }
   ],
   link: [

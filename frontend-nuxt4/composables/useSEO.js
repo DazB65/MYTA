@@ -20,8 +20,8 @@ export const useSEO = () => {
     tags = []
   }) => {
     // Construct full title
-    const fullTitle = title ? `${title} | MYTA` : 'MYTA - Your AI Agent for YouTube Content and Growth'
-    const fullDescription = description || 'AI-powered YouTube analytics and content optimization platform. Track performance, get AI insights, and grow your channel with intelligent recommendations.'
+    const fullTitle = title ? `${title} | MYTA` : 'MYTA - Your AI Team for YouTube Growth'
+    const fullDescription = description || 'Your AI team for YouTube growth. Built for teams, perfect for individuals. Coordinated AI agents working together to grow your channel strategically.'
     const fullUrl = url ? `https://myta.app${url}` : 'https://myta.app'
     const fullImage = image.startsWith('http') ? image : `https://myta.app${image}`
 

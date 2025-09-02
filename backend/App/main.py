@@ -133,7 +133,7 @@ app = FastAPI(
     The API uses Redis-based session management. Most endpoints require authentication.
     Use the `/api/session/login` endpoint to create a session.
     """,
-    summary="AI-powered YouTube optimization platform",
+    summary="Your AI team for YouTube growth - coordinated agents working together",
     debug=settings.debug,
     docs_url="/docs" if getattr(settings, "enable_api_docs", True) else None,
     redoc_url="/redoc" if getattr(settings, "enable_api_docs", True) else None,
@@ -1090,7 +1090,7 @@ def health_check(request: Request):
     response = JSONResponse(content={
         "status": "healthy",
         "timestamp": datetime.now().isoformat(),
-        "service": "Vidalytics Multi-Agent API",
+        "service": "MYTA - Your AI Team for YouTube Growth",
         "version": "2.0.0"
     })
     return add_security_headers(response)
@@ -1160,7 +1160,7 @@ def get_app_info():
         {
             "name": "Vidalytics Multi-Agent API",
             "version": "2.0.0",
-            "description": "Hierarchical multi-agent system for YouTube analytics and optimization",
+            "description": "Your AI team for YouTube growth - coordinated multi-agent system for strategic channel development",
             "architecture": "modular_fastapi_with_routers",
             "agents": [
                 "boss_agent", 

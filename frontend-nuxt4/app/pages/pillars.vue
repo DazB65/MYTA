@@ -3,11 +3,11 @@
     <!-- Main Content Area -->
     <div class="p-6 pt-24">
       <!-- Header -->
-      <div class="mb-4 flex items-center justify-between">
+      <div class="mb-6 flex items-center justify-between">
         <div class="flex items-center space-x-4">
-          <h1 class="text-2xl font-bold text-white">Content Pillars</h1>
+          <h1 class="text-2xl font-bold text-white">Content Pillars & Strategy</h1>
           <span class="text-gray-400">•</span>
-          <p class="text-gray-400">Analyze and optimize your content strategy</p>
+          <p class="text-gray-400">AI team collaboration for strategic content planning</p>
         </div>
         <div class="flex items-center space-x-4">
           <div class="text-sm text-gray-400">{{ totalVideos }} total videos</div>
@@ -25,6 +25,11 @@
             <span>Add Pillar</span>
           </button>
         </div>
+      </div>
+
+      <!-- Strategic Planning Dashboard -->
+      <div class="mb-8">
+        <StrategicPlanningDashboard />
       </div>
 
       <!-- Pillar Cards Grid -->
@@ -143,6 +148,7 @@
 <script setup>
 import { computed, ref } from 'vue'
 import PillarCard from '../../components/pillars/PillarCard.vue'
+import StrategicPlanningDashboard from '../../components/strategy/StrategicPlanningDashboard.vue'
 import { usePillars } from '../../composables/usePillars'
 
 // Protect this route with authentication

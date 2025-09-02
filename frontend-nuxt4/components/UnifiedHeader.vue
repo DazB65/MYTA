@@ -220,6 +220,7 @@ const showChatPanel = ref(false)
 const mainMenuItems = [
   { name: 'Dashboard', path: '/dashboard' },
   { name: 'Tasks', path: '/tasks' },
+  { name: 'Team', path: '/team' },
   { name: 'Pillars', path: '/pillars' },
   { name: 'Videos', path: '/videos' },
   { name: 'Content Studio', path: '/content-studio' }

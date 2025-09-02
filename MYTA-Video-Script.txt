@@ -3,7 +3,7 @@
 ## Opening Hook (0-10 seconds)
 [Screen: MYTA Dashboard with smooth zoom-in]
 
-"Meet MYTA - your AI-powered YouTube growth assistant that transforms how you create, plan, and optimize your content. Let me show you how it works."
+"Meet MYTA - your AI team for YouTube growth. While others give you AI tools, we give you an AI team that works together to transform how you create, plan, and optimize your content. Let me show you how it works."
 
 ---
 
@@ -14,7 +14,7 @@
 
 [Hover over task section]
 
-"Your AI agent Levi is constantly working behind the scenes, managing your tasks and suggesting optimizations."
+"Your AI team, led by agent Levi, is constantly working together behind the scenes, coordinating tasks and collaborating on optimizations."
 
 ---
 

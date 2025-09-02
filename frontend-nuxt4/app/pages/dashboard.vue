@@ -379,6 +379,8 @@
         </div>
       </div>
 
+
+
       <!-- Main Dashboard Content -->
       <div class="mb-6">
         <!-- Channel Tasks - Full Width -->
@@ -474,6 +476,8 @@
 </template>
 
 <script setup>
+// Import team collaboration components
+
 // Import VidIQ-inspired components
 
 // Page metadata

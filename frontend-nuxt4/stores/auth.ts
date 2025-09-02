@@ -11,7 +11,7 @@ export interface User {
   email: string
   name: string
   avatar?: string
-  subscription_tier: 'free' | 'pro' | 'enterprise'
+  subscription_tier: 'free' | 'pro' | 'team' | 'enterprise'
   youtube_connected: boolean
   channel_id?: string
   created_at: Date
@@ -84,7 +84,7 @@ export const useAuthStore = defineStore('auth', () => {
         id: '1',
         email: credentials.email,
         name: 'Demo User',
-        subscription_tier: 'pro' as const,
+        subscription_tier: 'team' as const,
         youtube_connected: true,
         created_at: new Date(),
       }

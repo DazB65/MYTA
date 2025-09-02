@@ -378,55 +378,55 @@ const tempSettings = ref({
   name: '',
 })
 
-// Available agents - Boss Agent is the main agent users interact with
+// Available AI team members - Boss Agent leads the team coordination
 const agents = [
   {
     id: 0,
     name: 'Boss Agent',
     image: '/BossAgent.png',
     color: '#f97316', // Orange - primary brand color
-    description: 'Your Personal Agent',
-    personality: 'Adaptive and comprehensive - coordinates with specialized agents',
+    description: 'Your Team Leader',
+    personality: 'Leads your AI team and coordinates with specialized team members',
   },
   {
     id: 1,
     name: 'Alex',
     image: '/optimized/Agent1.jpg',
     color: '#f97316', // Orange
-    description: 'Analytics & Strategy Specialist',
-    personality: 'Data-driven and analytical',
+    description: 'Analytics Team Member',
+    personality: 'Data-driven team member who collaborates on strategic insights',
   },
   {
     id: 2,
     name: 'Levi',
     image: '/optimized/Agent2.jpg',
     color: '#3b82f6', // Blue
-    description: 'Content Creation Specialist',
-    personality: 'Creative and innovative',
+    description: 'Content Team Member',
+    personality: 'Creative team member who works with others on content strategy',
   },
   {
     id: 3,
     name: 'Maya',
     image: '/optimized/Agent3.jpg',
     color: '#a855f7', // Purple
-    description: 'Audience Engagement Specialist',
-    personality: 'Community-focused and empathetic',
+    description: 'Engagement Team Member',
+    personality: 'Community-focused team member who collaborates on audience strategy',
   },
   {
     id: 4,
     name: 'Zara',
     image: '/optimized/Agent4.jpg',
     color: '#eab308', // Yellow
-    description: 'Growth & Optimization Specialist',
-    personality: 'Results-driven and strategic',
+    description: 'Growth Team Member',
+    personality: 'Results-driven team member who works with others on optimization',
   },
   {
     id: 5,
     name: 'Kai',
     image: '/optimized/Agent5.jpg',
     color: '#16a34a', // Green
-    description: 'Technical & SEO Specialist',
-    personality: 'Technical and detail-oriented',
+    description: 'Technical Team Member',
+    personality: 'Technical team member who coordinates on SEO and optimization',
   },
 ]
 
