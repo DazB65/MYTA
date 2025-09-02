@@ -141,7 +141,7 @@
               <!-- Selected Agent Button -->
               <button
                 v-if="selectedAgent"
-                class="btn btn-agent"
+                class="btn btn-agent relative"
                 @click="showChatPanel = true"
                 :title="`Chat with ${selectedAgent.name}`"
               >
@@ -154,6 +154,12 @@
                 </div>
                 <span class="font-medium">{{ agentName || selectedAgent.name }}</span>
                 <div class="w-2 h-2 rounded-full bg-green-400 shadow-sm" :title="`${selectedAgent.name} is online`"></div>
+
+                <!-- Agent Notification Badge -->
+                <div v-if="unreadAgentNotifications > 0"
+                     class="absolute -top-1 -right-1 w-5 h-5 bg-red-500 text-white text-xs font-bold rounded-full flex items-center justify-center border-2 border-forest-800">
+                  {{ unreadAgentNotifications > 9 ? '9+' : unreadAgentNotifications }}
+                </div>
               </button>
 
               <!-- Fallback Agent Button -->
@@ -208,6 +214,9 @@ const authStore = useAuthStore()
 
 // Agent settings
 const { selectedAgent, agentName } = useAgentSettings()
+
+// Agent notifications count (mock data for now - in real app this would come from a store)
+const unreadAgentNotifications = ref(5)
 
 // Mobile menu state
 const showMobileMenu = ref(false)

@@ -41,24 +41,21 @@
           <!-- Chat & Communication Tab -->
           <div v-if="activeTab === 'chat'" class="h-full">
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 h-full">
-              <!-- Team Chat - Takes up 2 columns -->
+              <!-- Tabbed Chat Interface - Takes up 2 columns -->
               <div class="lg:col-span-2 h-full">
                 <div class="rounded-xl bg-forest-700 h-full flex flex-col">
-                  <TeamChatInterface :team-id="'demo_team_123'" />
+                  <TabbedChatInterface ref="tabbedChatRef" :team-id="'demo_team_123'" />
                 </div>
               </div>
 
               <!-- Member Presence - Takes up 1 column -->
               <div class="lg:col-span-1">
-                <TeamMemberPresence />
+                <TeamMemberPresence @start-direct-message="handleStartDirectMessage" />
               </div>
             </div>
           </div>
 
-          <!-- Notifications Tab -->
-          <div v-if="activeTab === 'notifications'" class="h-full">
-            <TeamNotificationCenter />
-          </div>
+
 
           <!-- Analytics Tab -->
           <div v-if="activeTab === 'analytics'" class="space-y-6">
@@ -200,11 +197,10 @@
 </template>
 
 <script setup>
-import { computed, ref } from 'vue'
+import { computed, nextTick, ref } from 'vue'
 import { useRouter } from 'vue-router'
-import TeamChatInterface from '../../components/team/TeamChatInterface.vue'
+import TabbedChatInterface from '../../components/team/TabbedChatInterface.vue'
 import TeamMemberPresence from '../../components/team/TeamMemberPresence.vue'
-import TeamNotificationCenter from '../../components/team/TeamNotificationCenter.vue'
 import TeamRolesManager from '../../components/team/TeamRolesManager.vue'
 import { useModals } from '../../composables/useModals'
 import { useTeamManagement } from '../../composables/useTeamManagement'
@@ -239,6 +235,9 @@ const {
 // Tab state
 const activeTab = ref('management')
 
+// Chat interface ref
+const tabbedChatRef = ref(null)
+
 // Tab definitions
 const tabs = computed(() => [
   {
@@ -253,12 +252,7 @@ const tabs = computed(() => [
     icon: '💬',
     badge: 2 // Unread messages count
   },
-  {
-    id: 'notifications',
-    name: 'Notifications',
-    icon: '🔔',
-    badge: 8 // Notification count
-  },
+
   {
     id: 'analytics',
     name: 'Team Analytics',
@@ -315,5 +309,20 @@ const editTeamSettings = () => {
   } else {
     error('Permission Denied', 'Only team owners can edit team settings')
   }
+}
+
+// Handle starting direct message from team member presence
+const handleStartDirectMessage = (member) => {
+  // Switch to chat tab if not already active
+  if (activeTab.value !== 'chat') {
+    activeTab.value = 'chat'
+  }
+
+  // Wait for next tick to ensure the chat component is rendered
+  nextTick(() => {
+    if (tabbedChatRef.value && tabbedChatRef.value.startDirectMessage) {
+      tabbedChatRef.value.startDirectMessage(member)
+    }
+  })
 }
 </script>

@@ -255,17 +255,28 @@
         </div>
 
         <!-- Messages -->
-        <MessageBubble
-          v-for="message in messages"
-          :key="message.id"
-          :message="message"
-          :agent-color="selectedAgentData.color"
-          :agent-image="selectedAgentData.image"
-          :agent-name="selectedAgentData.name"
-          :show-action-buttons="true"
-          @action-click="handleActionClick"
-          @save-as-task="handleSaveAsTask"
-        />
+        <template v-for="message in allMessages" :key="message.id">
+          <!-- Agent Notification Messages -->
+          <div v-if="message.type === 'agent_notification'" class="mb-4">
+            <AgentNotificationBubble
+              :notification="message"
+              @action-click="handleNotificationAction"
+              @mark-read="markNotificationAsRead"
+            />
+          </div>
+
+          <!-- Regular Chat Messages -->
+          <MessageBubble
+            v-else
+            :message="message"
+            :agent-color="selectedAgentData.color"
+            :agent-image="selectedAgentData.image"
+            :agent-name="selectedAgentData.name"
+            :show-action-buttons="true"
+            @action-click="handleActionClick"
+            @save-as-task="handleSaveAsTask"
+          />
+        </template>
 
         <!-- Enhanced Executive Typing Indicator -->
         <div v-if="isTyping" class="flex items-start space-x-3">
@@ -520,11 +531,13 @@
 
 <script setup lang="ts">
 import { computed, nextTick, onMounted, ref, watch } from 'vue';
+
 import { useAgentSettings } from '../../composables/useAgentSettings';
 import { useSaveToTask } from '../../composables/useSaveToTask';
 import { useSmartQuestions } from '../../composables/useSmartQuestions';
 import { useToast } from '../../composables/useToast';
 import { useChatStore } from '../../stores/chat';
+import AgentNotificationBubble from './AgentNotificationBubble.vue';
 import MessageBubble from './MessageBubble.vue';
 
 // Props
@@ -564,6 +577,85 @@ const voiceInputActive = ref(false)
 const currentTypingAgents = ref<string[]>(['Alex', 'Levi', 'Maya'])
 const showDeleteConfirmation = ref(false)
 
+// Agent Notifications - proactive insights from AI agents
+const agentNotifications = ref([
+  {
+    id: 'ai_coordination_1',
+    agentId: '2', // Alex
+    agentName: 'Alex',
+    type: 'ai_coordination',
+    title: 'AI Team Coordination',
+    message: 'Hey! I\'ve been working with the team and we\'ve identified optimization opportunities across 3 of your recent videos. The patterns we found could boost your engagement by 25-40%. Want me to walk you through what we discovered?',
+    timestamp: new Date(Date.now() - 3 * 60 * 60 * 1000), // 3 hours ago
+    actionButtons: [
+      { text: 'Review Videos', action: 'review_opportunities' },
+      { text: 'Optimize Now', action: 'show_optimization_details' }
+    ],
+    isRead: false,
+    priority: 'high'
+  },
+  {
+    id: 'performance_alert_1',
+    agentId: '4', // Maya
+    agentName: 'Maya',
+    type: 'performance_alert',
+    title: 'Content Performance Alert',
+    message: 'Exciting news! Your latest video is performing 45% above your average. I\'ve analyzed the key factors driving this success - the thumbnail style, posting time, and topic angle are all hitting the sweet spot. Should we create a content series capitalizing on this trend?',
+    timestamp: new Date(Date.now() - 2 * 60 * 60 * 1000), // 2 hours ago
+    actionButtons: [
+      { text: 'Create Content', action: 'create_similar_content' },
+      { text: 'View Analytics', action: 'analyze_success' }
+    ],
+    isRead: false,
+    priority: 'high'
+  },
+  {
+    id: 'strategy_update_1',
+    agentId: '3', // Levi
+    agentName: 'Levi',
+    type: 'strategy_update',
+    title: 'Q1 Strategy Analysis Complete',
+    message: 'Alex and I just finished the comprehensive content strategy analysis for your Q1 planning. We\'ve identified 5 high-impact content pillars and mapped out a 12-week content calendar that aligns with trending topics in your niche. The projected growth potential looks very promising!',
+    timestamp: new Date(Date.now() - 5 * 60 * 1000), // 5 minutes ago
+    actionButtons: [
+      { text: 'View Strategy', action: 'view_strategy_analysis' },
+      { text: 'Create Tasks', action: 'implement_strategy' }
+    ],
+    isRead: false,
+    priority: 'medium'
+  },
+  {
+    id: 'trending_opportunity_1',
+    agentId: '5', // Kai
+    agentName: 'Kai',
+    type: 'trending_opportunity',
+    title: 'Trending Topic Alert',
+    message: 'I\'ve spotted a trending topic in your niche that\'s gaining massive traction! "AI productivity tools" is exploding with 340% search increase this week. We should create content around this immediately to capture the wave.',
+    timestamp: new Date(Date.now() - 30 * 60 * 1000), // 30 minutes ago
+    actionButtons: [
+      { text: 'Create Content', action: 'create_trending_content' },
+      { text: 'View Trends', action: 'view_trending_topics' }
+    ],
+    isRead: false,
+    priority: 'high'
+  },
+  {
+    id: 'task_suggestion_1',
+    agentId: '2', // Alex
+    agentName: 'Alex',
+    type: 'task_suggestion',
+    title: 'Weekly Tasks Ready',
+    message: 'I\'ve prepared your weekly content optimization tasks based on your recent performance data. There are 5 high-impact tasks that could boost your channel growth by 15-20% this week.',
+    timestamp: new Date(Date.now() - 45 * 60 * 1000), // 45 minutes ago
+    actionButtons: [
+      { text: 'View Tasks', action: 'view_weekly_tasks' },
+      { text: 'Start Working', action: 'start_task_workflow' }
+    ],
+    isRead: false,
+    priority: 'medium'
+  }
+])
+
 // Interface for saved questions
 interface SavedQuestion {
   id: string
@@ -598,6 +690,34 @@ const executivePlaceholder = computed(() => {
 
 const messages = computed(() => {
   return chatStore.activeSessionMessages || []
+})
+
+const unreadNotificationCount = computed(() => {
+  return agentNotifications.value.filter(n => !n.isRead).length
+})
+
+// Combine regular messages with agent notifications for display
+const allMessages = computed(() => {
+  const regularMessages = messages.value || []
+  const notificationMessages = agentNotifications.value.map(notification => ({
+    id: notification.id,
+    agentId: notification.agentId,
+    userId: 'system',
+    content: notification.message,
+    type: 'agent_notification',
+    timestamp: notification.timestamp,
+    isFromUser: false,
+    agentName: notification.agentName,
+    title: notification.title,
+    actionButtons: notification.actionButtons,
+    priority: notification.priority,
+    isRead: notification.isRead
+  }))
+
+  // Combine and sort by timestamp
+  return [...regularMessages, ...notificationMessages].sort((a, b) =>
+    new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime()
+  )
 })
 
 const smartSuggestions = computed(() => {
@@ -1199,6 +1319,118 @@ onMounted(() => {
   // Ensure we have a chat session
   ensureChatSession()
 })
+
+// Agent Notification Handlers
+const handleNotificationAction = async (data: { action: string; notification: any }) => {
+  const { action, notification } = data
+
+  // Mark notification as read when user interacts with it
+  markNotificationAsRead(notification.id)
+
+  // Handle different notification actions with navigation
+  switch (action) {
+    case 'review_opportunities':
+      // Send message and navigate to Videos page for optimization
+      await sendMessage(`${notification.agentName}, I'm ready to review the optimization opportunities. Taking me to the videos section now.`)
+      setTimeout(() => {
+        navigateTo('/videos')
+        // Close chat panel after navigation
+        emit('close')
+      }, 1500)
+      break
+
+    case 'show_optimization_details':
+      // Send message and navigate to specific video optimization
+      await sendMessage(`${notification.agentName}, show me the detailed optimization breakdown for each video.`)
+      setTimeout(() => {
+        navigateTo('/videos?tab=optimization')
+        emit('close')
+      }, 1500)
+      break
+
+    case 'create_similar_content':
+      // Send message and navigate to Content Studio
+      await sendMessage(`${notification.agentName}, let's create content similar to my high-performing video. Taking me to the content studio.`)
+      setTimeout(() => {
+        navigateTo('/content-studio')
+        emit('close')
+      }, 1500)
+      break
+
+    case 'analyze_success':
+      // Send message and navigate to Analytics/Dashboard
+      await sendMessage(`${notification.agentName}, analyzing the success factors now. Let me show you the performance data.`)
+      setTimeout(() => {
+        navigateTo('/dashboard?focus=analytics')
+        emit('close')
+      }, 1500)
+      break
+
+    case 'view_strategy_analysis':
+      // Send message and navigate to Pillars for strategy
+      await sendMessage(`${notification.agentName}, opening the Q1 strategy analysis. Taking you to the content pillars section.`)
+      setTimeout(() => {
+        navigateTo('/pillars')
+        emit('close')
+      }, 1500)
+      break
+
+    case 'implement_strategy':
+      // Send message and navigate to Tasks for implementation
+      await sendMessage(`${notification.agentName}, let's implement the Q1 strategy. I'll create tasks for you to track progress.`)
+      setTimeout(() => {
+        navigateTo('/tasks?category=strategy')
+        emit('close')
+      }, 1500)
+      break
+
+    case 'create_trending_content':
+      // Send message and navigate to Content Studio with trending focus
+      await sendMessage(`${notification.agentName}, let's create content around this trending topic! Taking you to the content studio.`)
+      setTimeout(() => {
+        navigateTo('/content-studio?focus=trending')
+        emit('close')
+      }, 1500)
+      break
+
+    case 'view_trending_topics':
+      // Send message and navigate to Dashboard trending section
+      await sendMessage(`${notification.agentName}, showing you the latest trending topics and opportunities.`)
+      setTimeout(() => {
+        navigateTo('/dashboard?section=trending')
+        emit('close')
+      }, 1500)
+      break
+
+    case 'view_weekly_tasks':
+      // Send message and navigate to Tasks page
+      await sendMessage(`${notification.agentName}, opening your weekly optimization tasks. Let's get your channel growing!`)
+      setTimeout(() => {
+        navigateTo('/tasks')
+        emit('close')
+      }, 1500)
+      break
+
+    case 'start_task_workflow':
+      // Send message and navigate to Tasks with workflow focus
+      await sendMessage(`${notification.agentName}, starting your task workflow. I'll guide you through each optimization step.`)
+      setTimeout(() => {
+        navigateTo('/tasks?workflow=optimization')
+        emit('close')
+      }, 1500)
+      break
+
+    default:
+      await sendMessage(`${notification.agentName}, tell me more about: ${notification.title}`)
+  }
+}
+
+const markNotificationAsRead = (notificationId: string) => {
+  const notification = agentNotifications.value.find(n => n.id === notificationId)
+  if (notification) {
+    notification.isRead = true
+  }
+}
 </script>
 
 <style scoped>

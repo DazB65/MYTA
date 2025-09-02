@@ -129,6 +129,9 @@ import { useModals } from '../../composables/useModals'
 import { useToast } from '../../composables/useToast'
 import { useTeamChatStore } from '../../stores/teamChat'
 
+// Define emits
+const emit = defineEmits(['start-direct-message'])
+
 // Composables
 const teamChatStore = useTeamChatStore()
 const { openTeamInvite, openTeamMemberEdit } = useModals()
@@ -206,8 +209,8 @@ const toggleMemberMenu = (memberId) => {
 }
 
 const startDirectMessage = (member) => {
-  // In a real app, this would create or switch to a direct message channel
-  success('Direct Message', `Starting conversation with ${member.name}`)
+  // Emit event to parent component to start direct message
+  emit('start-direct-message', member)
   openMenuId.value = null
 }
 

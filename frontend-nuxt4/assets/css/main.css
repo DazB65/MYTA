@@ -472,6 +472,19 @@ button:active:not(:disabled),
 .rounded-xl:hover {
   transform: translateY(-2px);
   box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+  /* Override any bright green background with subtle forest hover */
+  background-color: var(--color-bg-elevated) !important;
+}
+
+/* Prevent bright green hover effects on containers */
+.bg-forest-800:hover,
+.bg-forest-700:hover {
+  background-color: #2d4a37 !important; /* forest-700 - subtle hover */
+}
+
+/* Ensure text remains readable on hover */
+.rounded-xl:hover * {
+  color: inherit !important;
 }
 
 /* Smooth animations */
