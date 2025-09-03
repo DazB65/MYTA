@@ -139,9 +139,9 @@
           </div>
         </div>
 
-        <div class="space-y-3">
+        <div v-if="convertedRecommendations.size < 3" class="space-y-3">
           <!-- Performance Optimization -->
-          <div class="bg-forest-700/50 rounded-lg p-3 border-l-4 border-blue-500">
+          <div v-if="!convertedRecommendations.has('thumbnail')" class="bg-forest-700/50 rounded-lg p-3 border-l-4 border-blue-500">
             <div class="flex items-start space-x-3 justify-between">
               <div class="w-6 h-6 bg-blue-500 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
                 <svg class="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
@@ -162,7 +162,7 @@
           </div>
 
           <!-- SEO Optimization -->
-          <div class="bg-forest-700/50 rounded-lg p-3 border-l-4 border-green-500">
+          <div v-if="!convertedRecommendations.has('seo')" class="bg-forest-700/50 rounded-lg p-3 border-l-4 border-green-500">
             <div class="flex items-start space-x-3 justify-between">
               <div class="w-6 h-6 bg-green-500 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
                 <svg class="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
@@ -183,7 +183,7 @@
           </div>
 
           <!-- Content Strategy -->
-          <div class="bg-forest-700/50 rounded-lg p-3 border-l-4 border-purple-500">
+          <div v-if="!convertedRecommendations.has('content')" class="bg-forest-700/50 rounded-lg p-3 border-l-4 border-purple-500">
             <div class="flex items-start space-x-3 justify-between">
               <div class="w-6 h-6 bg-purple-500 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
                 <svg class="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
@@ -202,6 +202,17 @@
               </button>
             </div>
           </div>
+        </div>
+
+        <!-- Empty State - All recommendations converted to tasks -->
+        <div v-else class="text-center py-8">
+          <div class="w-16 h-16 mx-auto mb-4 bg-green-500/10 rounded-full flex items-center justify-center">
+            <svg class="h-8 w-8 text-green-400" fill="currentColor" viewBox="0 0 20 20">
+              <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+            </svg>
+          </div>
+          <h4 class="text-white font-medium mb-2">All recommendations converted!</h4>
+          <p class="text-sm text-gray-400">Great job! All {{ agentName || 'Boss Agent' }} recommendations have been saved as tasks.</p>
         </div>
       </div>
 
@@ -225,8 +236,9 @@
 </template>
 
 <script setup>
-import { computed } from 'vue'
+import { computed, ref } from 'vue'
 import { useAgentSettings } from '../../composables/useAgentSettings'
+import { useRecommendations } from '../../composables/useRecommendations'
 import { useToast } from '../../composables/useToast'
 import { useTasksStore } from '../../stores/tasks'
 
@@ -247,6 +259,16 @@ const emit = defineEmits(['close'])
 const { agentName } = useAgentSettings()
 const tasksStore = useTasksStore()
 const { success, error } = useToast()
+const { addRecommendation, markAsConverted, getRecommendationsBySource } = useRecommendations()
+
+// Track which recommendations have been converted to tasks for this video
+const convertedRecommendations = ref(new Set())
+
+// Get existing recommendations for this video
+const videoRecommendations = computed(() => {
+  if (!props.video) return []
+  return getRecommendationsBySource('video-modal', props.video.id)
+})
 
 // Helper methods
 const formatNumber = (num) => {
@@ -383,7 +405,26 @@ const saveRecommendationAsTask = (type) => {
       notes: `Generated from ${agentName.value || 'Boss Agent'} recommendation for video: ${videoTitle}`
     }
 
-    tasksStore.addTask(taskData)
+    const newTask = tasksStore.addTask(taskData)
+
+    // Add recommendation to global store
+    const recommendationId = addRecommendation({
+      type,
+      title: recommendation.title,
+      description: recommendation.description,
+      category: recommendation.category,
+      priority: recommendation.priority,
+      source: 'video-modal',
+      sourceId: props.video.id,
+      agentId: '0'
+    })
+
+    // Mark as converted immediately
+    markAsConverted(recommendationId, newTask.id)
+
+    // Mark this recommendation as converted in local state (hide it from the UI)
+    convertedRecommendations.value.add(type)
+
     success(`Task created: ${recommendation.title}`)
   } catch (err) {
     console.error('Error creating task:', err)

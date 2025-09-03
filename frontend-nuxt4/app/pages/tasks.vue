@@ -234,6 +234,7 @@
                           <span class="capitalize">{{ task.category }}</span>
                           <span v-if="task.estimatedTime">{{ task.estimatedTime }}m</span>
                           <span v-if="task.tags.includes('agent-generated')" class="text-orange-400">🤖 AI</span>
+                          <span v-if="task.tags.includes('video-optimization')" class="text-blue-400">📹 Video</span>
                         </div>
                         <div class="flex space-x-2">
                           <button
