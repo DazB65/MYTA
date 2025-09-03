@@ -74,6 +74,10 @@
                     selectedDate && day.date.toDateString() === selectedDate.toDateString() ? 'bg-forest-600' : ''
                   ]"
                   @click="selectDate(day.date)"
+                  @dragover.prevent="handleDragOver"
+                  @dragenter.prevent="handleDragEnter"
+                  @dragleave="handleDragLeave"
+                  @drop="handleTaskDrop(day.date, $event)"
                 >
                   <!-- Day Number -->
                   <div class="flex items-center justify-between mb-2">
@@ -98,13 +102,16 @@
                       v-for="item in getTasksForDate(day.date)"
                       :key="`${item.type || 'task'}-${item.id}`"
                       :class="[
-                        'text-xs p-1 rounded truncate cursor-pointer transition-colors',
+                        'text-xs p-1 rounded truncate transition-colors',
                         item.type === 'content' ? getContentColor() :
                         item.type === 'goal' ? getGoalColor() :
                         getTaskColor(),
-                        item.completed ? 'opacity-50 line-through' : ''
+                        item.completed ? 'opacity-50 line-through' : '',
+                        (item.type === 'task' || !item.type) ? 'cursor-move' : 'cursor-pointer'
                       ]"
-                      @click.stop.prevent="item.type === 'content' ? openContentModal(item) : item.type === 'goal' ? openGoalModal(item) : editTask(item)"
+                      :draggable="item.type === 'task' || !item.type"
+                      @dragstart="handleCalendarTaskDragStart(item, $event)"
+                      @click.stop="handleTaskClick(item)"
                       :title="item.type === 'content' ? `${item.title} (${getStageLabel(item.status)})` :
                                item.type === 'goal' ? `Goal: ${item.title} (${Math.round((item.current / item.target) * 100)}%)` :
                                item.title"
@@ -155,97 +162,91 @@
             </div>
           </div>
 
-          <!-- Right Column: Levi Suggestions (1/3 width) -->
+          <!-- Right Column: Tasks to Schedule (1/3 width) -->
           <div class="space-y-6">
-            <!-- Levi Insights (Combined Suggestions & Notifications) -->
+            <!-- Tasks to Schedule -->
             <div class="rounded-xl bg-forest-800 p-6">
               <div class="mb-6 flex items-center justify-between">
                 <div class="flex items-center space-x-3">
-                  <div class="flex h-10 w-10 items-center justify-center rounded-lg overflow-hidden" style="background-color: #FFEAA720;">
-                    <img
-                      src="/optimized/Agent2.jpg"
-                      alt="Levi"
-                      class="h-full w-full object-cover rounded-lg"
-                    />
+                  <div class="flex h-10 w-10 items-center justify-center rounded-lg bg-orange-500/20">
+                    <svg class="h-6 w-6 text-orange-400" fill="currentColor" viewBox="0 0 20 20">
+                      <path fill-rule="evenodd" d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z" clip-rule="evenodd"/>
+                    </svg>
                   </div>
                   <div>
-                    <h3 class="text-lg font-semibold text-white">Levi Insights</h3>
-                    <p class="text-sm text-gray-400">Smart recommendations & updates</p>
+                    <h3 class="text-lg font-semibold text-white">Tasks to Schedule</h3>
+                    <p class="text-sm text-gray-400">Drag tasks to calendar or set due dates</p>
                   </div>
                 </div>
 
-                <!-- Unread Count Badge -->
-                <div v-if="unreadInsightsCount > 0" class="flex items-center space-x-2">
-                  <span class="px-2 py-1 bg-yellow-500/20 text-yellow-400 text-xs rounded-full font-medium">
-                    {{ unreadInsightsCount }} new
+                <!-- Task Count Badge -->
+                <div v-if="unscheduledTasks.length > 0" class="flex items-center space-x-2">
+                  <span class="px-2 py-1 bg-orange-500/20 text-orange-400 text-xs rounded-full font-medium">
+                    {{ unscheduledTasks.length }} tasks
                   </span>
-                  <button
-                    @click="markAllInsightsAsRead"
-                    class="text-xs text-yellow-400 hover:text-yellow-300 underline"
-                  >
-                    Mark all read
-                  </button>
                 </div>
               </div>
 
-              <!-- Combined Insights List -->
-              <div v-if="combinedInsights.length > 0" class="space-y-4">
+              <!-- Unscheduled Tasks List -->
+              <div v-if="unscheduledTasks.length > 0" class="space-y-3">
                 <div
-                  v-for="insight in combinedInsights"
-                  :key="`${insight.type}-${insight.id}`"
-                  class="rounded-lg p-4 transition-colors"
-                  :class="insight.is_read ? 'bg-forest-700 hover:bg-forest-600' : 'bg-yellow-500/10 border border-yellow-500/20 hover:bg-yellow-500/15'"
-                  @click="markInsightAsRead(insight)"
+                  v-for="task in unscheduledTasks"
+                  :key="task.id"
+                  class="rounded-lg p-4 bg-forest-700 hover:bg-forest-600 transition-colors cursor-pointer border border-forest-600/30"
+                  draggable="true"
+                  @dragstart="startDragTask(task, $event)"
+                  @click="scheduleTask(task)"
                 >
                   <div class="flex items-start space-x-3">
-                    <!-- Icon -->
-                    <div class="w-8 h-8 rounded-lg flex items-center justify-center bg-yellow-500/20 flex-shrink-0">
-                      <span class="text-sm">{{ insight.icon }}</span>
-                    </div>
+                    <!-- Priority Indicator -->
+                    <div
+                      class="w-3 h-3 rounded-full flex-shrink-0 mt-1"
+                      :class="{
+                        'bg-red-500': task.priority === 'urgent',
+                        'bg-orange-500': task.priority === 'high',
+                        'bg-yellow-500': task.priority === 'medium',
+                        'bg-green-500': task.priority === 'low'
+                      }"
+                    ></div>
 
-                    <!-- Content -->
-                    <div class="flex-1">
+                    <!-- Task Content -->
+                    <div class="flex-1 min-w-0">
                       <div class="flex items-start justify-between mb-2">
-                        <h4 class="font-medium text-white">{{ insight.title }}</h4>
-                        <div class="flex items-center space-x-2 ml-2">
-                          <span
-                            class="px-2 py-1 rounded-full text-xs font-medium"
-                            :class="{
-                              'bg-red-500/20 text-red-400': insight.priority === 'high',
-                              'bg-yellow-500/20 text-yellow-400': insight.priority === 'medium',
-                              'bg-green-500/20 text-green-400': insight.priority === 'low'
-                            }"
-                          >
-                            {{ insight.priority }}
-                          </span>
-                          <span v-if="insight.created_at" class="text-xs text-gray-500">{{ formatNotificationTime(insight.created_at) }}</span>
-                          <div v-if="!insight.is_read" class="w-2 h-2 bg-yellow-500 rounded-full"></div>
-                        </div>
+                        <h4 class="font-medium text-white text-sm truncate">{{ task.title }}</h4>
+                        <span
+                          class="px-2 py-1 rounded-full text-xs font-medium ml-2 flex-shrink-0"
+                          :class="{
+                            'bg-red-500/20 text-red-400': task.priority === 'urgent',
+                            'bg-orange-500/20 text-orange-400': task.priority === 'high',
+                            'bg-yellow-500/20 text-yellow-400': task.priority === 'medium',
+                            'bg-green-500/20 text-green-400': task.priority === 'low'
+                          }"
+                        >
+                          {{ task.priority }}
+                        </span>
                       </div>
 
-                      <p class="text-sm text-gray-400 mb-3">{{ insight.description || insight.message }}</p>
+                      <p class="text-xs text-gray-400 mb-3 line-clamp-2">{{ task.description }}</p>
 
-                      <!-- Action Buttons for All Insights -->
+                      <!-- Task Meta Info -->
                       <div class="flex items-center justify-between">
-                        <div class="flex items-center space-x-4 text-xs text-gray-400">
-                          <span v-if="insight.category">{{ insight.category }}</span>
-                          <span v-if="insight.estimatedTime">{{ insight.estimatedTime }}</span>
-                          <span v-if="insight.type === 'notification'">{{ insight.type }}</span>
+                        <div class="flex items-center space-x-3 text-xs text-gray-500">
+                          <span class="capitalize">{{ task.category }}</span>
+                          <span v-if="task.estimatedTime">{{ task.estimatedTime }}m</span>
+                          <span v-if="task.tags.includes('agent-generated')" class="text-orange-400">🤖 AI</span>
                         </div>
                         <div class="flex space-x-2">
                           <button
-                            @click.stop="addInsightAsTask(insight)"
-                            :disabled="insight.isAdding"
-                            class="rounded bg-yellow-500 px-3 py-1 text-xs text-black transition-colors hover:bg-yellow-400 disabled:opacity-50 disabled:cursor-not-allowed"
+                            @click.stop="scheduleTask(task)"
+                            class="rounded bg-orange-500 px-2 py-1 text-xs text-white transition-colors hover:bg-orange-400"
                           >
-                            <span v-if="insight.isAdding">Adding...</span>
-                            <span v-else>Add as Task</span>
+                            Schedule
                           </button>
                           <button
-                            @click.stop="dismissInsight(insight)"
-                            class="rounded bg-gray-600 px-3 py-1 text-xs text-white transition-colors hover:bg-gray-500"
+                            @click.stop="editTask(task)"
+                            class="rounded bg-gray-600 px-2 py-1 text-xs text-white transition-colors hover:bg-gray-500"
                           >
-                            Dismiss
+                            Edit
                           </button>
                         </div>
                       </div>
@@ -256,11 +257,13 @@
 
               <!-- Empty State -->
               <div v-else class="text-center py-8">
-                <svg class="h-12 w-12 text-gray-400 mx-auto mb-3" viewBox="0 0 24 24" fill="currentColor">
-                  <path d="M12 22c1.1 0 2-.9 2-2h-4c0 1.1.89 2 2 2zm6-6v-5c0-3.07-1.64-5.64-4.5-6.32V4c0-.83-.67-1.5-1.5-1.5s-1.5.67-1.5 1.5v.68C7.63 5.36 6 7.92 6 11v5l-2 2v1h16v-1l-2-2z"/>
-                </svg>
-                <p class="text-sm text-gray-400 mb-1">No insights yet</p>
-                <span class="text-xs text-gray-500">You're all caught up!</span>
+                <div class="w-16 h-16 mx-auto mb-4 bg-orange-500/10 rounded-full flex items-center justify-center">
+                  <svg class="h-8 w-8 text-orange-400" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                  </svg>
+                </div>
+                <h4 class="text-white font-medium mb-2">All tasks scheduled!</h4>
+                <p class="text-sm text-gray-400">Great job! All your tasks have due dates assigned.</p>
               </div>
             </div>
 
@@ -1252,6 +1255,26 @@ const unreadInsightsCount = computed(() => {
   return combinedInsights.value.filter(insight => !insight.is_read).length
 })
 
+// Unscheduled tasks - tasks that need to be scheduled into the calendar
+const unscheduledTasks = computed(() => {
+  const today = new Date()
+  today.setHours(0, 0, 0, 0)
+
+  return filteredTasks.value.filter(task => {
+    // Include tasks that:
+    // 1. Are not completed
+    // 2. Have due dates in the past (overdue) or are pending without proper scheduling
+    // 3. Are pending or in progress
+    if (task.completed || task.status === 'completed') return false
+
+    const taskDate = new Date(task.dueDate)
+    taskDate.setHours(0, 0, 0, 0)
+
+    // Include tasks that are overdue OR pending status (indicating they need proper scheduling)
+    return taskDate < today || task.status === 'pending'
+  }).slice(0, 10) // Limit to 10 tasks to avoid overwhelming the UI
+})
+
 const markInsightAsRead = (insight: any) => {
   if (insight.type === 'notification') {
     insight.is_read = true
@@ -1298,6 +1321,112 @@ const dismissInsight = (insight: any) => {
     console.log(`🗑️ Removed insight "${insight.title}" from list (index: ${index})`)
   } else {
     console.warn(`⚠️ Could not find insight "${insight.title}" to remove`)
+  }
+}
+
+// Task scheduling functions
+const scheduleTask = (task: any) => {
+  // When manually scheduling a task, also update its status to remove from unscheduled list
+  tasksStore.updateTask({
+    id: task.id,
+    status: 'in_progress' // Change from 'pending' to 'in_progress' to remove from unscheduled list
+  })
+
+  // Open task modal for editing with focus on due date
+  editTask(task)
+}
+
+const startDragTask = (task: any, event: DragEvent) => {
+  if (event.dataTransfer) {
+    event.dataTransfer.setData('application/json', JSON.stringify({
+      type: 'task',
+      task: task
+    }))
+    event.dataTransfer.effectAllowed = 'move'
+  }
+}
+
+const startDragCalendarTask = (task: any, event: DragEvent) => {
+  if (event.dataTransfer) {
+    event.dataTransfer.setData('application/json', JSON.stringify({
+      type: 'calendar-task',
+      task: task
+    }))
+    event.dataTransfer.effectAllowed = 'move'
+  }
+}
+
+const handleCalendarTaskDragStart = (item: any, event: DragEvent) => {
+  // Only allow dragging for tasks (not content or goals)
+  if (item.type === 'task' || !item.type) {
+    startDragCalendarTask(item, event)
+  } else {
+    event.preventDefault()
+  }
+}
+
+const handleTaskClick = (item: any) => {
+  if (item.type === 'content') {
+    openContentModal(item)
+  } else if (item.type === 'goal') {
+    openGoalModal(item)
+  } else {
+    editTask(item)
+  }
+}
+
+// Drag feedback handlers
+const handleDragOver = (event: DragEvent) => {
+  event.preventDefault()
+  event.dataTransfer!.dropEffect = 'move'
+}
+
+const handleDragEnter = (event: DragEvent) => {
+  event.preventDefault()
+  const target = event.currentTarget as HTMLElement
+  target.classList.add('bg-orange-500/20', 'border-orange-500')
+}
+
+const handleDragLeave = (event: DragEvent) => {
+  const target = event.currentTarget as HTMLElement
+  target.classList.remove('bg-orange-500/20', 'border-orange-500')
+}
+
+const handleTaskDrop = (date: Date, event: DragEvent) => {
+  event.preventDefault()
+
+  // Remove visual feedback
+  const target = event.currentTarget as HTMLElement
+  target.classList.remove('bg-orange-500/20', 'border-orange-500')
+
+  if (!event.dataTransfer) return
+
+  try {
+    const data = JSON.parse(event.dataTransfer.getData('application/json'))
+
+    if ((data.type === 'task' || data.type === 'calendar-task') && data.task) {
+      if (data.type === 'task') {
+        // From "Tasks to Schedule" - update due date and change status to in_progress
+        // This will remove it from the "Tasks to Schedule" list
+        tasksStore.updateTask({
+          id: data.task.id,
+          dueDate: date,
+          status: 'in_progress' // Change from 'pending' to 'in_progress' to remove from unscheduled list
+        })
+
+        console.log(`📅 Scheduled task "${data.task.title}" to ${date.toDateString()}`)
+      } else if (data.type === 'calendar-task') {
+        // From calendar - just update the due date (move between calendar days)
+        tasksStore.updateTask({
+          id: data.task.id,
+          dueDate: date
+        })
+
+        console.log(`📅 Moved task "${data.task.title}" to ${date.toDateString()}`)
+      }
+    }
+  } catch (error) {
+    console.error('Error handling task drop:', error)
   }
 }
 
