@@ -10,9 +10,9 @@ import logging
 from datetime import datetime
 
 # Import authentication and utilities
-from backend.App.auth import get_current_user
-from backend.App.rate_limiting import limiter, get_rate_limit
-from backend.App.response_utils import create_success_response, create_error_response
+from backend.App.auth_middleware import get_current_user
+from backend.App.rate_limiter import limiter, get_rate_limit
+from backend.App.api_models import create_success_response, create_error_response
 
 # Import AI services
 from backend.App.model_integrations import create_agent_call_to_integration, generate_agent_response

@@ -469,6 +469,10 @@
           </div>
         </div>
 
+        <!-- Usage Tracking Panel -->
+        <div class="mt-6">
+          <UsageTrackingPanel />
+        </div>
 
       </div>
     </div>
@@ -479,6 +483,9 @@
 // Import team collaboration components
 
 // Import VidIQ-inspired components
+
+// Import usage tracking component
+// UsageTrackingPanel will be auto-imported by Nuxt
 
 // Page metadata
 definePageMeta({

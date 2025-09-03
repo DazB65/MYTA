@@ -7,6 +7,7 @@ export interface SubscriptionPlan {
   description: string
   price_monthly: number
   price_yearly: number
+  price_per_seat?: number
   features: string[]
   limits: {
     ai_conversations: number
@@ -15,8 +16,10 @@ export interface SubscriptionPlan {
     goals: number
     competitors: number
     team_members: number
+    max_team_members?: number
     research_projects: number
     video_analysis: number
+    team_collaboration: boolean
   }
   popular?: boolean
   trial_days?: number
@@ -32,10 +35,31 @@ export interface UserSubscription {
 }
 
 export interface UsageStats {
-  ai_requests: number
-  video_analysis: number
   period_start: string
   period_end: string
+  plan_id: string
+  usage: {
+    [key: string]: {
+      current_usage: number
+      limit: number
+      cost: number
+      percentage_used: number
+      remaining: number
+    }
+  }
+  total_cost: number
+}
+
+export interface UsageAlert {
+  id: string
+  usage_type: string
+  alert_type: 'warning' | 'limit_reached' | 'overage'
+  current_usage: number
+  usage_limit: number
+  percentage_used: number
+  message: string
+  is_read: boolean
+  created_at: string
 }
 
 export interface BillingHistoryItem {
@@ -56,6 +80,7 @@ export const useSubscriptionStore = defineStore('subscription', () => {
   const currentSubscription = ref<UserSubscription | null>(null)
   const availablePlans = ref<SubscriptionPlan[]>([])
   const usage = ref<UsageStats | null>(null)
+  const usageAlerts = ref<UsageAlert[]>([])
   const billingHistory = ref<BillingHistoryItem[]>([])
   const loading = ref(false)
   const error = ref<string | null>(null)
@@ -168,18 +193,30 @@ export const useSubscriptionStore = defineStore('subscription', () => {
     }
   }
 
-  const createCheckoutSession = async (planId: string, billingCycle: 'monthly' | 'yearly' = 'monthly') => {
+  const createCheckoutSession = async (
+    planId: string,
+    billingCycle: 'monthly' | 'yearly' = 'monthly',
+    teamSeats: number = 1
+  ) => {
     try {
       loading.value = true
       error.value = null
 
-      // Use Stripe composable for checkout
-      // For demo purposes, use mock checkout
-      // In production, replace with real Stripe integration
-      const result = await stripe.mockCheckoutSession(planId, billingCycle)
+      const { $api } = useNuxtApp()
+      const result = await $api('/api/subscription/checkout', {
+        method: 'POST',
+        body: {
+          plan_id: planId,
+          billing_cycle: billingCycle,
+          team_seats: teamSeats
+        }
+      })
 
       if (result.success) {
-        // Simulate successful subscription update
+        // Redirect to checkout URL
+        if (result.data.checkout_url) {
+          window.location.href = result.data.checkout_url
+        }
         await fetchCurrentSubscription()
       }
 
@@ -190,6 +227,24 @@ export const useSubscriptionStore = defineStore('subscription', () => {
       throw err
     } finally {
       loading.value = false
+    }
+  }
+
+  const calculateTeamPrice = async (teamSeats: number, billingCycle: 'monthly' | 'yearly' = 'monthly') => {
+    try {
+      const { $api } = useNuxtApp()
+      const result = await $api('/api/subscription/calculate-team-price', {
+        method: 'POST',
+        body: {
+          team_seats: teamSeats,
+          billing_cycle: billingCycle
+        }
+      })
+
+      return result.data
+    } catch (err: any) {
+      console.error('Error calculating team price:', err)
+      throw err
     }
   }
 
@@ -245,21 +300,71 @@ export const useSubscriptionStore = defineStore('subscription', () => {
     }
   }
 
-  const trackUsage = async (usageType: 'ai_request' | 'video_analysis', amount: number = 1) => {
+  const trackUsage = async (
+    usageType: string,
+    amount: number = 1,
+    costEstimate: number = 0,
+    metadata: Record<string, any> = {}
+  ) => {
     try {
       const { $api } = useNuxtApp()
       await $api('/api/subscription/track-usage', {
         method: 'POST',
         body: {
           usage_type: usageType,
-          amount
+          amount,
+          cost_estimate: costEstimate,
+          metadata
         }
       })
-      
+
       // Refresh usage data
       await fetchUsage()
     } catch (err: any) {
       console.error('Error tracking usage:', err)
+      throw err
+    }
+  }
+
+  const checkUsageLimit = async (usageType: string) => {
+    try {
+      const { $api } = useNuxtApp()
+      const result = await $api(`/api/subscription/check-limit/${usageType}`)
+      return result.data
+    } catch (err: any) {
+      console.error('Error checking usage limit:', err)
+      throw err
+    }
+  }
+
+  const fetchUsageAlerts = async (unreadOnly: boolean = true) => {
+    try {
+      const { $api } = useNuxtApp()
+      const result = await $api('/api/subscription/alerts', {
+        method: 'GET',
+        query: { unread_only: unreadOnly }
+      })
+
+      usageAlerts.value = result.data.alerts
+      return result.data.alerts
+    } catch (err: any) {
+      console.error('Error fetching usage alerts:', err)
+      throw err
+    }
+  }
+
+  const markAlertRead = async (alertId: string) => {
+    try {
+      const { $api } = useNuxtApp()
+      await $api(`/api/subscription/alerts/${alertId}/read`, {
+        method: 'POST'
+      })
+
+      // Refresh alerts
+      await fetchUsageAlerts()
+    } catch (err: any) {
+      console.error('Error marking alert as read:', err)
+      throw err
     }
   }
 
@@ -268,6 +373,7 @@ export const useSubscriptionStore = defineStore('subscription', () => {
       fetchPlans(),
       fetchCurrentSubscription(),
       fetchUsage(),
+      fetchUsageAlerts(),
       fetchBillingHistory()
     ])
   }
@@ -277,25 +383,30 @@ export const useSubscriptionStore = defineStore('subscription', () => {
     currentSubscription,
     availablePlans,
     usage,
+    usageAlerts,
     billingHistory,
     loading,
     error,
-    
+
     // Getters
     isSubscribed,
     currentPlan,
     usagePercentage,
     isUsageLimitReached,
-    
+
     // Actions
     fetchPlans,
     fetchCurrentSubscription,
     fetchUsage,
+    fetchUsageAlerts,
     fetchBillingHistory,
     createCheckoutSession,
     createPortalSession,
     cancelSubscription,
     trackUsage,
+    checkUsageLimit,
+    markAlertRead,
+    calculateTeamPrice,
     initializeSubscription
   }
 })

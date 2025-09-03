@@ -460,7 +460,24 @@
               </div>
             </div>
 
-
+            <!-- Team Notes Section -->
+            <div class="bg-gradient-to-r from-blue-500/10 to-purple-500/10 border border-blue-500/20 rounded-xl p-4">
+              <label class="block text-sm font-medium text-gray-300 mb-3">
+                <span class="inline-flex items-center">
+                  <span class="bg-gradient-to-r from-blue-500 to-purple-500 text-white text-sm font-bold px-3 py-2 rounded-full mr-3 shadow-lg">👥</span>
+                  <span class="text-lg font-semibold text-blue-300">Team Notes</span>
+                </span>
+              </label>
+              <textarea
+                v-model="form.teamNotes"
+                placeholder="Add notes for your team members about this content piece..."
+                rows="4"
+                class="w-full px-4 py-3 bg-forest-700 border border-forest-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
+              />
+              <div class="mt-2 text-xs text-gray-400">
+                Share important details, deadlines, or collaboration notes with your team
+              </div>
+            </div>
 
             <!-- Form Actions -->
             <div class="flex items-center justify-end space-x-3 pt-6 border-t border-forest-700">
@@ -1736,6 +1753,7 @@ const form = ref({
   tags: '',
   hashtags: '',
   script: '',
+  teamNotes: '',
   stageDueDates: {
     ideas: '',
     planning: '',
@@ -1764,6 +1782,7 @@ const initializeForm = () => {
       tags: props.content.tags || '',
       hashtags: props.content.hashtags || '',
       script: props.content.script || '',
+      teamNotes: props.content.teamNotes || '',
       stageDueDates: props.content.stageDueDates || {
         ideas: '',
         planning: '',
@@ -2303,6 +2322,7 @@ const handleSubmit = () => {
     tags: form.value.tags.trim(),
     hashtags: form.value.hashtags.trim(),
     script: form.value.script.trim(),
+    teamNotes: form.value.teamNotes.trim(),
     stageDueDates: form.value.stageDueDates,
     stageCompletions: form.value.stageCompletions,
     createdAt: props.content?.createdAt || new Date().toISOString(),

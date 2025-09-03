@@ -273,6 +273,9 @@
             </div>
           </div>
 
+          <!-- Team Seat Management (only for Teams plan) -->
+          <SeatManagement v-if="currentPlan.id === 'teams'" />
+
           <!-- Payment Method -->
           <div class="rounded-xl bg-forest-800 p-6">
             <div class="mb-6 flex items-center justify-between">
@@ -469,6 +472,9 @@
                 <span class="text-gray-400">
                   /{{ billingCycle === 'yearly' ? 'year' : 'month' }}
                 </span>
+                <div v-if="plan.price.per_seat" class="text-sm text-gray-400 mt-1">
+                  + ${{ plan.price.per_seat }}/seat/month
+                </div>
               </div>
               <div v-if="billingCycle === 'yearly'" class="text-sm text-green-400">
                 Save ${{ (plan.price.monthly * 12) - plan.price.yearly }} per year
@@ -532,6 +538,7 @@ import { useRoute } from 'vue-router'
 import { useAgentSettings } from '../../composables/useAgentSettings'
 import { useModals } from '../../composables/useModals'
 
+import SeatManagement from '../../components/subscription/SeatManagement.vue'
 import { useToast } from '../../composables/useToast'
 import { useAuthStore } from '../../stores/auth'
 import { useSubscriptionStore } from '../../stores/subscription'
@@ -578,100 +585,103 @@ const tabs = [
 
 // Subscription data
 const currentPlan = ref({
-  id: 'creator',
-  name: 'Creator',
-  billing: '$19/month',
+  id: 'teams',
+  name: 'Teams',
+  billing: '$29.99/month',
   features: [
-    'All 5 AI Agents with full personalities',
-    '100 AI conversations/month',
-    'Advanced analytics with engagement insights',
+    '250 AI conversations/month (shared across team)',
     'Unlimited content pillars',
-    'Smart task management with AI suggestions',
+    'Advanced task management (unlimited)',
     'Unlimited goal tracking',
-    'Research Workspace PRO with templates',
-    'Competitor analysis (3 competitors)',
-    'Video performance analysis (50/month)',
-    'Daily trending alerts',
-    'Priority email support (24-48h response)'
+    '50 video analyses/month (shared across team)',
+    'Unlimited research projects',
+    'Team collaboration features',
+    'Team notes and shared workspaces',
+    'Role-based permissions',
+    'Advanced team analytics',
+    'Priority support (12h response)',
+    'Custom integrations'
   ],
   limits: {
-    aiConversations: 100,
+    aiConversations: 250,
     agentsCount: 5,
     contentPillars: -1,
     goals: -1,
     competitors: 3,
-    researchProjects: 10,
-    videoAnalysis: 50
+    researchProjects: -1,
+    videoAnalysis: 50,
+    teamMembers: 20
   }
 })
 
 const usage = ref({
-  aiConversations: 34,
+  aiConversations: 87,
   agentsCount: 5,
-  contentPillars: 12,
-  goals: 4,
+  contentPillars: 18,
+  goals: 8,
   competitors: 2,
-  researchProjects: 3,
-  videoAnalysis: 18
+  researchProjects: 5,
+  videoAnalysis: 23,
+  teamMembers: 3
 })
 
 // Available plans for upgrade modal
 const availablePlans = ref([
   {
-    id: 'starter',
-    name: 'Starter',
+    id: 'solo',
+    name: 'Solo Creator',
     description: 'Perfect for new YouTubers getting started',
-    price: { monthly: 7, yearly: 70 },
+    price: { monthly: 4.99, yearly: 49.99 },
     popular: false,
     features: [
       'All 5 AI Agents with full personalities',
-      '30 AI conversations/month',
-      '4 content pillars',
+      '25 AI conversations/month',
+      'Basic content pillars (up to 10)',
       'Task management (up to 25 tasks)',
-      'Goal tracking (2 goals)',
-      'Weekly trending alerts',
-      'Email support (72h response)'
+      'Goal tracking (3 goals)',
+      '5 video analyses/month',
+      '3 research projects/month',
+      'Email support (48h response)'
     ]
   },
   {
-    id: 'creator',
-    name: 'Creator',
+    id: 'solo_pro',
+    name: 'Solo Pro',
     description: 'For serious creators ready to scale',
-    price: { monthly: 19, yearly: 190 },
+    price: { monthly: 14.99, yearly: 149.99 },
     popular: true,
     features: [
-      'All of Starter, plus:',
-      '70 additional AI conversations/month (100 total)',
-      '4 additional content pillars (8 total)',
-      '3 additional goal tracking (5 total)',
-      'Research Workspace PRO with templates'
+      'All 5 AI Agents with full personalities',
+      '100 AI conversations/month',
+      'Unlimited content pillars',
+      'Advanced task management (unlimited)',
+      'Unlimited goal tracking',
+      '25 video analyses/month',
+      'Unlimited research projects',
+      'Advanced analytics and insights',
+      'Priority support (24h response)',
+      'Custom agent personalities'
     ]
   },
   {
-    id: 'pro',
-    name: 'Pro',
-    description: 'For established creators maximizing revenue',
-    price: { monthly: 39, yearly: 390 },
-    popular: false,
-    features: [
-      'All of Creator, plus:',
-      '200 additional AI conversations/month (300 total)',
-      'Unlimited content pillars (vs 8)',
-      'Unlimited goal tracking (vs 5)',
-
-    ]
-  },
-  {
-    id: 'enterprise',
-    name: 'Enterprise',
+    id: 'teams',
+    name: 'Teams',
     description: 'For agencies and multi-channel operations',
-    price: { monthly: 99, yearly: 990 },
+    price: { monthly: 29.99, yearly: 299.99, per_seat: 9.99 },
     popular: false,
     features: [
-      '500 AI conversations/month',
-      'Advanced analytics and reporting',
-      'Dedicated account management',
-      'Priority feature development'
+      '250 AI conversations/month (shared across team)',
+      'Unlimited content pillars',
+      'Advanced task management (unlimited)',
+      'Unlimited goal tracking',
+      '50 video analyses/month (shared across team)',
+      'Unlimited research projects',
+      'Team collaboration features',
+      'Team notes and shared workspaces',
+      'Role-based permissions',
+      'Advanced team analytics',
+      'Priority support (12h response)',
+      'Custom integrations'
     ]
   }
 ])

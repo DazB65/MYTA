@@ -57,6 +57,7 @@ from .security_dashboard_router import router as security_router
 from .team_router import router as team_router
 from .youtube_channel_endpoints import router as youtube_channel_router
 from .content_router import router as content_router
+from .usage_router import router as usage_router
 from .request_logging import log_request_middleware
 from .error_handler import create_error_response, MYTAError
 
@@ -408,6 +409,11 @@ setup_csrf_protection(app, settings.boss_agent_secret_key or "fallback-secret")
 # Add monitoring middleware (before CORS for complete request tracking)
 setup_monitoring_middleware(app)
 
+# Add usage tracking middleware (after monitoring, before session)
+# TODO: Enable after fixing import issues
+# from .usage_middleware import UsageTrackingMiddleware
+# app.add_middleware(UsageTrackingMiddleware)
+
 # Add Redis session middleware (after monitoring, before CORS)
 app.add_middleware(SessionMiddleware)
 
@@ -499,6 +505,9 @@ app.include_router(youtube_channel_router)
 
 # Include content router (handles AI-powered content generation)
 app.include_router(content_router)
+
+# Include usage router (handles usage tracking and limits)
+app.include_router(usage_router)
 
 # =============================================================================
 # Global Exception Handlers

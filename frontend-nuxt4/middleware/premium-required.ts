@@ -25,15 +25,18 @@ export default defineNuxtRouteMiddleware((to, from) => {
 
 function checkPremiumAccess(subscription: any, feature: string): boolean {
   if (!subscription) return false
-  
+
   const premiumFeatures = {
-    'research-workspace': ['growth', 'pro'],
-    'specialized-agents': ['growth', 'pro'],
-    'advanced-analytics': ['pro'],
-    'competitor-tracking': ['growth', 'pro'],
-    'trend-analysis': ['growth', 'pro']
+    'research-workspace': ['solo_pro', 'teams'],
+    'specialized-agents': ['solo_pro', 'teams'],
+    'advanced-analytics': ['solo_pro', 'teams'],
+    'competitor-tracking': ['solo_pro', 'teams'],
+    'trend-analysis': ['solo_pro', 'teams'],
+    'team-collaboration': ['teams'],
+    'unlimited-content': ['solo_pro', 'teams'],
+    'unlimited-goals': ['solo_pro', 'teams']
   }
-  
+
   const requiredPlans = premiumFeatures[feature] || []
   return requiredPlans.includes(subscription.plan)
 }

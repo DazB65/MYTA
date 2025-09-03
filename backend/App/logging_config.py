@@ -48,6 +48,7 @@ class LogCategory(Enum):
     PAYMENT = "payment"
     NOTIFICATIONS = "notifications"
     ANALYTICS = "analytics"
+    BUSINESS = "business"
     SCHEDULER = "scheduler"
 
 
