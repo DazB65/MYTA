@@ -383,91 +383,8 @@
 
       <!-- Main Dashboard Content -->
       <div class="mb-6">
-        <!-- Channel Tasks - Full Width -->
-        <div class="rounded-xl bg-forest-800 p-6 mb-6">
-          <div class="flex items-center justify-between mb-6">
-            <h2 class="text-xl font-semibold text-white">Channel Tasks</h2>
-            <div class="flex items-center space-x-3">
-              <NuxtLink
-                to="/tasks"
-                class="rounded-lg bg-forest-600 px-4 py-2 text-sm font-medium text-white hover:bg-forest-500 transition-colors"
-              >
-                View All Tasks
-              </NuxtLink>
-              <button
-                @click="handleAddTask"
-                class="rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 transition-colors"
-              >
-                Add Task
-              </button>
-            </div>
-          </div>
-          
-          <div class="space-y-4">
-            <!-- Task Items - exact same structure as Tasks page -->
-            <div
-              v-for="task in tasks"
-              :key="task.id"
-              class="flex items-center justify-between rounded-lg bg-forest-700 p-4 hover:bg-forest-600 transition-all duration-300 hover:scale-[1.02] hover:shadow-lg cursor-pointer"
-              :class="{
-                'border-l-4 border-red-500': isOverdue(task),
-                'border-l-4 border-yellow-500': isDueToday(task),
-              }"
-            >
-              <div class="flex items-center space-x-3">
-                <input
-                  :checked="task.completed"
-                  type="checkbox"
-                  class="rounded border-forest-600 bg-forest-700 text-orange-500 focus:ring-orange-500"
-                  @change="toggleTaskCompletion(task.id)"
-                />
-                <div class="flex-1">
-                  <h4
-                    class="font-medium"
-                    :class="task.completed ? 'line-through text-gray-500' : 'text-white'"
-                  >
-                    {{ task.title }}
-                  </h4>
-                  <p
-                    v-if="task.description"
-                    class="text-sm mt-1"
-                    :class="task.completed ? 'text-gray-500' : 'text-gray-400'"
-                  >
-                    {{ task.description }}
-                  </p>
-                  <div class="mt-2 flex items-center space-x-2">
-                    <span class="rounded bg-forest-600 px-2 py-1 text-xs text-gray-300">
-                      {{ formatCategory(task.category) }}
-                    </span>
-                    <span
-                      class="rounded px-2 py-1 text-xs"
-                      :class="getPriorityClass(task.priority)"
-                    >
-                      {{ formatPriority(task.priority) }}
-                    </span>
-                    <span class="text-xs text-gray-400">
-                      {{ formatDueDate(task.dueDate) }}
-                    </span>
-                  </div>
-                </div>
-              </div>
-              <div class="flex items-center space-x-2">
-                <button
-                  class="text-gray-400 hover:text-white transition-colors p-2"
-                  @click="editTask(task)"
-                >
-                  ✏️
-                </button>
-                <button
-                  class="text-gray-400 hover:text-red-400 transition-colors p-2"
-                  @click="deleteTask(task.id)"
-                >
-                  🗑️
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
+        <!-- Recent Video Performance - Full Width -->
+        <RecentVideoPerformance />
 
         <!-- Usage Tracking Panel -->
         <div class="mt-6">
@@ -494,7 +411,7 @@ definePageMeta({
 })
 
 // Use the modal composable
-const { openGoalSetting, openTask } = useModals()
+const { openGoalSetting } = useModals()
 
 // Metric data mapping
 const metricData = {
@@ -679,145 +596,13 @@ const getGoalText = (metricId) => {
   }
 }
 
-// Task management - using proper Task interface structure
-const tasks = ref([
-  {
-    id: '1',
-    title: 'Create thumbnail for latest video',
-    description: 'Design and create an eye-catching thumbnail for the latest video upload',
-    status: 'pending',
-    priority: 'high',
-    category: 'content',
-    dueDate: new Date(Date.now() + 24 * 60 * 60 * 1000), // Tomorrow
-    createdAt: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000), // 2 days ago
-    updatedAt: new Date(Date.now() - 1 * 60 * 60 * 1000), // 1 hour ago
-    completed: false,
-    tags: ['design', 'thumbnail', 'video'],
-    estimatedTime: 60, // 1 hour
-    notes: 'Use bright colors and clear text'
-  },
-  {
-    id: '2',
-    title: 'Write script for next video',
-    description: 'Research and write a comprehensive script for the upcoming video',
-    status: 'in_progress',
-    priority: 'medium',
-    category: 'content',
-    dueDate: new Date(Date.now() + 2 * 24 * 60 * 60 * 1000), // Day after tomorrow
-    createdAt: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000), // 3 days ago
-    updatedAt: new Date(Date.now() - 2 * 60 * 60 * 1000), // 2 hours ago
-    completed: false,
-    tags: ['script', 'writing', 'content'],
-    estimatedTime: 120, // 2 hours
-    notes: 'Include call-to-action at the end'
-  },
-  {
-    id: '3',
-    title: 'Upload video to YouTube',
-    description: 'Upload the finished video with proper tags and description',
-    status: 'completed',
-    priority: 'high',
-    category: 'content',
-    dueDate: new Date(Date.now() - 24 * 60 * 60 * 1000), // Yesterday (completed)
-    createdAt: new Date(Date.now() - 4 * 24 * 60 * 60 * 1000), // 4 days ago
-    updatedAt: new Date(Date.now() - 24 * 60 * 60 * 1000), // Yesterday
-    completed: true,
-    tags: ['upload', 'youtube', 'publishing'],
-    estimatedTime: 30, // 30 minutes
-    actualTime: 25, // Completed in 25 minutes
-    notes: 'Remember to add end screen'
-  },
-  {
-    id: '4',
-    title: 'Research trending topics',
-    description: 'Analyze current trends and identify potential video topics',
-    status: 'pending',
-    priority: 'low',
-    category: 'research',
-    dueDate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // Next week
-    createdAt: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000), // Yesterday
-    updatedAt: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000), // Yesterday
-    completed: false,
-    tags: ['research', 'trends', 'planning'],
-    estimatedTime: 90, // 1.5 hours
-    notes: 'Check YouTube trending page and Google Trends'
-  }
-])
 
-// Task functions - same as Tasks page
-const editTask = (task) => {
-  console.log('✏️ Dashboard: editTask called with:', task)
-  openTask(task)
-}
 
-const handleAddTask = () => {
-  console.log('➕ Add task clicked')
-  openTask(null) // Open modal for new task
-}
 
-const deleteTask = (taskId) => {
-  if (confirm('Are you sure you want to delete this task?')) {
-    const index = tasks.value.findIndex(t => t.id === taskId)
-    if (index > -1) {
-      tasks.value.splice(index, 1)
-      console.log(`🗑️ Deleted task with ID: ${taskId}`)
-    }
-  }
-}
 
-const toggleTaskCompletion = (taskId) => {
-  const task = tasks.value.find(t => t.id === taskId)
-  if (task) {
-    task.completed = !task.completed
-    console.log(`✅ Task ${taskId} completion toggled:`, task.completed)
-  }
-}
 
-// Utility functions - same as Tasks page
-const formatCategory = (category) => {
-  return category.charAt(0).toUpperCase() + category.slice(1).replace('_', ' ')
-}
 
-const formatPriority = (priority) => {
-  return priority.charAt(0).toUpperCase() + priority.slice(1)
-}
 
-const getPriorityClass = (priority) => {
-  switch (priority) {
-    case 'urgent': return 'bg-red-500 text-white'
-    case 'high': return 'bg-orange-500 text-white'
-    case 'medium': return 'bg-yellow-500 text-black'
-    case 'low': return 'bg-green-500 text-white'
-    default: return 'bg-gray-500 text-white'
-  }
-}
-
-const formatDueDate = (date) => {
-  const now = new Date()
-  const dueDate = new Date(date)
-  const diffTime = dueDate.getTime() - now.getTime()
-  const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24))
-
-  if (diffDays < 0) return 'Overdue'
-  if (diffDays === 0) return 'Due today'
-  if (diffDays === 1) return 'Due tomorrow'
-  if (diffDays <= 7) return `Due in ${diffDays} days`
-  return dueDate.toLocaleDateString()
-}
-
-const isOverdue = (task) => {
-  if (task.completed) return false
-  const now = new Date()
-  const dueDate = new Date(task.dueDate)
-  return dueDate < now
-}
-
-const isDueToday = (task) => {
-  if (task.completed) return false
-  const now = new Date()
-  const dueDate = new Date(task.dueDate)
-  return dueDate.toDateString() === now.toDateString()
-}
 
 // Listen for goal updates
 onMounted(() => {

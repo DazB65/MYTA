@@ -495,6 +495,43 @@
               </div>
             </div>
 
+            <!-- Seat Selection for Teams Plan -->
+            <div v-if="plan.id === 'teams' && currentPlan.id !== plan.id" class="mb-4">
+              <label class="block text-sm font-medium text-white mb-2">Number of Team Members</label>
+              <div class="flex items-center space-x-3">
+                <button
+                  @click="decreaseSeats(plan.id)"
+                  :disabled="getSelectedSeats(plan.id) <= 1"
+                  class="w-8 h-8 rounded-full bg-forest-600 text-white flex items-center justify-center hover:bg-forest-500 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12H4"/>
+                  </svg>
+                </button>
+                <div class="flex-1 text-center">
+                  <div class="text-lg font-bold text-white">{{ getSelectedSeats(plan.id) }}</div>
+                  <div class="text-xs text-gray-400">seats</div>
+                </div>
+                <button
+                  @click="increaseSeats(plan.id)"
+                  :disabled="getSelectedSeats(plan.id) >= 20"
+                  class="w-8 h-8 rounded-full bg-forest-600 text-white flex items-center justify-center hover:bg-forest-500 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
+                  </svg>
+                </button>
+              </div>
+              <div class="mt-2 text-center">
+                <div class="text-sm text-gray-300">
+                  Total: <span class="font-semibold text-white">${{ calculateTeamsTotal(plan, getSelectedSeats(plan.id)) }}</span>/month
+                </div>
+                <div class="text-xs text-gray-400">
+                  Base ${{ plan.price.monthly }} + {{ Math.max(0, getSelectedSeats(plan.id) - 1) }} additional seats × ${{ plan.price.per_seat }}
+                </div>
+              </div>
+            </div>
+
             <!-- Action Button -->
             <button
               v-if="currentPlan.id !== plan.id"
@@ -585,44 +622,40 @@ const tabs = [
 
 // Subscription data
 const currentPlan = ref({
-  id: 'teams',
-  name: 'Teams',
-  billing: '$29.99/month',
+  id: 'solo_pro',
+  name: 'Solo Pro',
+  billing: '$14.99/month',
   features: [
-    '250 AI conversations/month (shared across team)',
-    'Unlimited content pillars',
+    'Full AI agent access with advanced insights',
+    '100 AI conversations/month',
+    'Content pillars (up to 10)',
     'Advanced task management (unlimited)',
     'Unlimited goal tracking',
-    '50 video analyses/month (shared across team)',
+    '25 video analyses/month',
     'Unlimited research projects',
-    'Team collaboration features',
-    'Team notes and shared workspaces',
-    'Role-based permissions',
-    'Advanced team analytics',
-    'Priority support (12h response)',
-    'Custom integrations'
+    'Advanced analytics and insights',
+    'Priority support (24h response)',
+    'Custom agent personalities'
   ],
   limits: {
-    aiConversations: 250,
+    aiConversations: 100,
     agentsCount: 5,
-    contentPillars: -1,
+    contentPillars: 10,
     goals: -1,
     competitors: 3,
     researchProjects: -1,
-    videoAnalysis: 50,
-    teamMembers: 20
+    videoAnalysis: 25
   }
 })
 
 const usage = ref({
-  aiConversations: 87,
+  aiConversations: 34,
   agentsCount: 5,
-  contentPillars: 18,
-  goals: 8,
+  contentPillars: 8,
+  goals: 4,
   competitors: 2,
-  researchProjects: 5,
-  videoAnalysis: 23,
-  teamMembers: 3
+  researchProjects: 3,
+  videoAnalysis: 8
 })
 
 // Available plans for upgrade modal
@@ -634,9 +667,9 @@ const availablePlans = ref([
     price: { monthly: 4.99, yearly: 49.99 },
     popular: false,
     features: [
-      'All 5 AI Agents with full personalities',
+      'Basic AI agent insights (limited features)',
       '25 AI conversations/month',
-      'Basic content pillars (up to 10)',
+      'Basic content pillars (up to 4)',
       'Task management (up to 25 tasks)',
       'Goal tracking (3 goals)',
       '5 video analyses/month',
@@ -651,9 +684,9 @@ const availablePlans = ref([
     price: { monthly: 14.99, yearly: 149.99 },
     popular: true,
     features: [
-      'All 5 AI Agents with full personalities',
+      'Full AI agent access with advanced insights',
       '100 AI conversations/month',
-      'Unlimited content pillars',
+      'Content pillars (up to 10)',
       'Advanced task management (unlimited)',
       'Unlimited goal tracking',
       '25 video analyses/month',
@@ -670,8 +703,9 @@ const availablePlans = ref([
     price: { monthly: 29.99, yearly: 299.99, per_seat: 9.99 },
     popular: false,
     features: [
+      'Full AI agent access with team collaboration',
       '250 AI conversations/month (shared across team)',
-      'Unlimited content pillars',
+      'Content pillars (up to 10)',
       'Advanced task management (unlimited)',
       'Unlimited goal tracking',
       '50 video analyses/month (shared across team)',
@@ -719,6 +753,11 @@ const billingHistory = ref([
 const showPlansModal = ref(false)
 const showPaymentModal = ref(false)
 const showCancelModal = ref(false)
+
+// Seat selection for Teams plan
+const selectedSeats = ref({
+  teams: 3 // Default to 3 seats for Teams plan
+})
 
 
 
@@ -780,11 +819,35 @@ const selectPlan = async (planId) => {
     const selectedPlan = availablePlans.value.find(plan => plan.id === planId)
     if (!selectedPlan) return
 
+    // Prepare checkout data
+    const checkoutData = {
+      planId,
+      billingCycle: billingCycle.value
+    }
+
+    // Add seat information for Teams plan
+    if (planId === 'teams') {
+      const seats = getSelectedSeats(planId)
+      checkoutData.seats = seats
+      checkoutData.totalCost = calculateTeamsTotal(selectedPlan, seats)
+
+      // Show confirmation for Teams plan with seat details
+      const confirmMessage = `You're about to purchase the Teams plan with ${seats} seat${seats > 1 ? 's' : ''} for $${checkoutData.totalCost}/month.\n\nThis includes:\n• Base plan: $${selectedPlan.price.monthly}/month\n• Additional seats: ${Math.max(0, seats - 1)} × $${selectedPlan.price.per_seat}/month\n\nProceed with checkout?`
+
+      if (!confirm(confirmMessage)) {
+        return
+      }
+    }
+
     // Use Stripe integration through subscription store
-    const result = await subscriptionStore.createCheckoutSession(planId, billingCycle.value)
+    const result = await subscriptionStore.createCheckoutSession(checkoutData.planId, checkoutData.billingCycle, checkoutData.seats)
 
     if (result.success) {
-      success('Checkout Initiated', result.message)
+      const message = planId === 'teams'
+        ? `Checkout initiated for Teams plan with ${checkoutData.seats} seats ($${checkoutData.totalCost}/month)`
+        : 'Checkout Initiated'
+
+      success('Checkout Initiated', message)
 
       // Close modal
       showPlansModal.value = false
@@ -795,6 +858,30 @@ const selectPlan = async (planId) => {
   } catch (err) {
     error('Plan Selection Failed', 'Failed to select plan. Please try again.')
   }
+}
+
+// Seat selection methods
+const getSelectedSeats = (planId) => {
+  return selectedSeats.value[planId] || 1
+}
+
+const increaseSeats = (planId) => {
+  if (selectedSeats.value[planId] < 20) {
+    selectedSeats.value[planId] = (selectedSeats.value[planId] || 1) + 1
+  }
+}
+
+const decreaseSeats = (planId) => {
+  if (selectedSeats.value[planId] > 1) {
+    selectedSeats.value[planId] = (selectedSeats.value[planId] || 1) - 1
+  }
+}
+
+const calculateTeamsTotal = (plan, seats) => {
+  const baseCost = plan.price.monthly
+  const additionalSeats = Math.max(0, seats - 1)
+  const additionalCost = additionalSeats * plan.price.per_seat
+  return (baseCost + additionalCost).toFixed(2)
 }
 
 // Manage billing portal function

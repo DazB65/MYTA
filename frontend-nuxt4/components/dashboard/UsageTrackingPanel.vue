@@ -107,7 +107,7 @@
           <div class="flex items-start justify-between">
             <div class="flex-1">
               <div class="text-sm font-medium text-red-400">
-                {{ formatUsageType(alert.usage_type) }} {{ alert.alert_type.replace('_', ' ') }}
+                {{ formatUsageType(alert.usage_type) }} {{ alert.alert_type?.replace('_', ' ') || '' }}
               </div>
               <div class="text-xs text-gray-300 mt-1">
                 {{ alert.message }}
