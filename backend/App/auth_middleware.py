@@ -14,6 +14,7 @@ from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from pydantic.v1 import BaseModel
 
 from backend.App.security_config import get_security_config
+from .enhanced_jwt import enhanced_jwt_service
 
 logger = logging.getLogger(__name__)
 
@@ -42,71 +43,51 @@ class AuthenticationMiddleware:
         self.blacklisted_tokens = set()  # In production, use Redis
         self.security = HTTPBearer(auto_error=False)
         
-    def generate_auth_token(self, user_id: str, session_id: str, 
+    def generate_auth_token(self, user_id: str, session_id: str,
                            permissions: list[str] = None) -> str:
-        """Generate JWT authentication token for user"""
+        """Generate JWT authentication token for user using enhanced JWT service"""
         try:
-            now = datetime.utcnow()
-            expires_at = now + timedelta(hours=8)  # 8 hour sessions
-            
-            payload = {
-                'user_id': user_id,
-                'session_id': session_id,
-                'iat': now.timestamp(),
-                'exp': expires_at.timestamp(),
-                'permissions': permissions or ['read', 'write'],
-                'iss': 'Vidalytics_API',
-                'aud': 'Vidalytics_Users'
-            }
-            
-            secret_key = self.security_config.get_boss_agent_secret()
-            token = jwt.encode(payload, secret_key, algorithm='HS256')
-            
-            logger.info(f"Generated auth token for user {user_id}")
+            token = enhanced_jwt_service.create_access_token(
+                user_id=user_id,
+                permissions=permissions or ['read', 'write'],
+                session_id=session_id
+            )
+
+            logger.info(f"Generated enhanced auth token for user {user_id}")
             return token
-            
+
         except Exception as e:
             logger.error(f"Failed to generate auth token: {e}")
             raise HTTPException(status_code=500, detail="Token generation failed")
     
     def verify_auth_token(self, token: str) -> AuthToken:
-        """Verify and decode authentication token"""
+        """Verify and decode authentication token using enhanced JWT service"""
         try:
             # Check if token is blacklisted
             if self.is_token_blacklisted(token):
                 raise HTTPException(status_code=401, detail="Token has been revoked")
 
-            secret_key = self.security_config.get_boss_agent_secret()
-            payload = jwt.decode(
-                token,
-                secret_key,
-                algorithms=['HS256'],
-                audience='Vidalytics_Users'
-            )
-
-            # Check expiration
-            if datetime.utcnow().timestamp() > payload['exp']:
-                raise HTTPException(status_code=401, detail="Token expired")
+            # Use enhanced JWT service for verification
+            payload = enhanced_jwt_service.verify_token(token, 'access')
+            if not payload:
+                raise HTTPException(status_code=401, detail="Invalid or expired token")
 
             return AuthToken(
-                user_id=payload['user_id'],
-                session_id=payload['session_id'],
+                user_id=payload['sub'],  # Enhanced JWT uses 'sub' for user ID
+                session_id=payload.get('session_id'),
                 issued_at=datetime.fromtimestamp(payload['iat']),
                 expires_at=datetime.fromtimestamp(payload['exp']),
                 permissions=payload.get('permissions', [])
             )
-            
-        except jwt.ExpiredSignatureError:
-            # Log expired token attempt
-            log_auth_failure, _ = get_security_monitor()
-            log_auth_failure("unknown", "unknown", "unknown", {"error": "expired_token"})
-            raise HTTPException(status_code=401, detail="Token expired")
-        except jwt.InvalidTokenError as e:
+
+        except HTTPException:
+            raise
+        except Exception as e:
             # Log invalid token attempt
             log_auth_failure, _ = get_security_monitor()
-            log_auth_failure("unknown", "unknown", "unknown", {"error": "invalid_token", "details": str(e)})
-            logger.warning(f"Invalid token: {e}")
-            raise HTTPException(status_code=401, detail="Invalid token")
+            log_auth_failure("unknown", "unknown", "unknown", {"error": "token_verification_error", "details": str(e)})
+            logger.warning(f"Token verification error: {e}")
+            raise HTTPException(status_code=401, detail="Token verification failed")
         except Exception as e:
             # Log general authentication failure
             log_auth_failure, _ = get_security_monitor()

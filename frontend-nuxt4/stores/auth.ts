@@ -1,10 +1,9 @@
 import { defineStore } from 'pinia'
 import { computed, readonly, ref } from 'vue'
 
-// Storage keys for persistence
-const TOKEN_KEY = 'myta_auth_token'
+// Note: Tokens are now stored in secure httpOnly cookies
+// Only user data is stored in localStorage for UI purposes
 const USER_KEY = 'myta_user_data'
-const REFRESH_TOKEN_KEY = 'myta_refresh_token'
 
 export interface User {
   id: string
@@ -23,19 +22,13 @@ export const useAuthStore = defineStore('auth', () => {
   const isAuthenticated = ref(false)
   const loading = ref(false)
   const error = ref<string | null>(null)
-  const token = ref<string | null>(null)
-  const refreshToken = ref<string | null>(null)
-  const tokenExpiry = ref<Date | null>(null)
+  // Note: tokens are now stored in secure httpOnly cookies, not in state
 
   // Getters
-  const isLoggedIn = computed(() => isAuthenticated.value && user.value !== null && token.value !== null)
+  const isLoggedIn = computed(() => isAuthenticated.value && user.value !== null)
   const userRole = computed(() => user.value?.subscription_tier || 'free')
   const hasYouTubeAccess = computed(() => user.value?.youtube_connected || false)
   const userId = computed(() => user.value?.id || null)
-  const isTokenExpired = computed(() => {
-    if (!tokenExpiry.value) return false
-    return new Date() >= tokenExpiry.value
-  })
 
   // Storage utilities
   const saveToStorage = (key: string, value: any) => {
@@ -72,42 +65,40 @@ export const useAuthStore = defineStore('auth', () => {
   }
 
   // Actions
-  const login = async (credentials: { email: string; password: string }) => {
+  const login = async (credentials: { email: string; password: string; remember_me?: boolean }) => {
     loading.value = true
     error.value = null
 
     try {
-      // Mock login for demo
-      await new Promise(resolve => setTimeout(resolve, 1000))
+      const { $api } = useNuxtApp()
 
-      const mockUser = {
-        id: '1',
-        email: credentials.email,
-        name: 'Demo User',
-        subscription_tier: 'team' as const,
-        youtube_connected: true,
-        created_at: new Date(),
+      // Call secure login endpoint
+      const response = await $api('/api/auth/login', {
+        method: 'POST',
+        body: {
+          email: credentials.email,
+          password: credentials.password,
+          remember_me: credentials.remember_me || false
+        },
+        credentials: 'include' // Include cookies in request
+      })
+
+      if (response.status === 'success') {
+        // Update state with user data (token is in httpOnly cookie)
+        user.value = response.user
+        isAuthenticated.value = true
+
+        // Only persist user data to localStorage (not tokens)
+        saveToStorage(USER_KEY, response.user)
+
+        console.log('Login successful for:', credentials.email)
+        return response.user
+      } else {
+        throw new Error(response.error || 'Login failed')
       }
-
-      const mockToken = 'demo-token-' + Date.now()
-      const mockRefreshToken = 'refresh-token-' + Date.now()
-      const expiry = new Date(Date.now() + 24 * 60 * 60 * 1000) // 24 hours
-
-      // Set state
-      user.value = mockUser
-      token.value = mockToken
-      refreshToken.value = mockRefreshToken
-      tokenExpiry.value = expiry
-      isAuthenticated.value = true
-
-      // Persist to storage
-      saveToStorage(USER_KEY, mockUser)
-      saveToStorage(TOKEN_KEY, mockToken)
-      saveToStorage(REFRESH_TOKEN_KEY, mockRefreshToken)
-
-      return { user: mockUser, token: mockToken }
     } catch (err: any) {
-      error.value = err.message
+      console.error('Login failed:', err)
+      error.value = err.message || 'Login failed'
       throw err
     } finally {
       loading.value = false
@@ -115,18 +106,26 @@ export const useAuthStore = defineStore('auth', () => {
   }
 
   const logout = async () => {
+    try {
+      const { $api } = useNuxtApp()
+
+      // Call secure logout endpoint
+      await $api('/api/auth/logout', {
+        method: 'POST',
+        credentials: 'include' // Include cookies in request
+      })
+    } catch (error) {
+      console.warn('Logout API call failed:', error)
+      // Continue with local logout even if API call fails
+    }
+
     // Clear state
     user.value = null
-    token.value = null
-    refreshToken.value = null
-    tokenExpiry.value = null
     isAuthenticated.value = false
     error.value = null
 
-    // Clear storage
+    // Clear storage (only user data, tokens are httpOnly cookies)
     removeFromStorage(USER_KEY)
-    removeFromStorage(TOKEN_KEY)
-    removeFromStorage(REFRESH_TOKEN_KEY)
   }
 
   const initializeAuth = async () => {
@@ -139,33 +138,36 @@ export const useAuthStore = defineStore('auth', () => {
     loading.value = true
 
     try {
-      // Try to restore session from storage
+      // Try to restore user data from storage
       const storedUser = getFromStorage(USER_KEY)
-      const storedToken = getFromStorage(TOKEN_KEY)
-      const storedRefreshToken = getFromStorage(REFRESH_TOKEN_KEY)
 
-      if (storedUser && storedToken) {
-        // Restore user session
-        user.value = storedUser
-        token.value = storedToken
-        refreshToken.value = storedRefreshToken
-        isAuthenticated.value = true
+      if (storedUser) {
+        // Validate session with backend using httpOnly cookie
+        try {
+          const { $api } = useNuxtApp()
+          const response = await $api('/api/auth/verify-token', {
+            method: 'POST',
+            credentials: 'include'
+          })
 
-        // Set token expiry (assume 24 hours if not stored)
-        tokenExpiry.value = new Date(Date.now() + 24 * 60 * 60 * 1000)
-
-        console.log('Session restored from storage for user:', storedUser.email)
-
-        // Optionally validate token with backend here
-        // await validateToken(storedToken)
+          if (response.status === 'success') {
+            // Session is valid, restore user state
+            user.value = storedUser
+            isAuthenticated.value = true
+            console.log('Session restored for user:', storedUser.email)
+          } else {
+            // Session invalid, clear stored data
+            await logout()
+          }
+        } catch (error) {
+          console.warn('Session validation failed:', error)
+          await logout()
+        }
       } else {
-        console.log('No stored session found - user needs to login')
+        console.log('No stored user data found - user needs to login')
         // Ensure clean state
         user.value = null
-        token.value = null
-        refreshToken.value = null
         isAuthenticated.value = false
-        tokenExpiry.value = null
       }
     } catch (error) {
       console.warn('Failed to initialize auth:', error)
@@ -176,48 +178,19 @@ export const useAuthStore = defineStore('auth', () => {
     }
   }
 
-  const refreshSession = async () => {
-    if (!refreshToken.value) {
-      throw new Error('No refresh token available')
-    }
-
-    loading.value = true
-
+  const validateSession = async () => {
     try {
-      // Mock refresh for demo
-      await new Promise(resolve => setTimeout(resolve, 500))
+      const { $api } = useNuxtApp()
+      const response = await $api('/api/auth/verify-token', {
+        method: 'POST',
+        credentials: 'include'
+      })
 
-      const newToken = 'refreshed-token-' + Date.now()
-      const newExpiry = new Date(Date.now() + 24 * 60 * 60 * 1000)
-
-      token.value = newToken
-      tokenExpiry.value = newExpiry
-
-      // Update storage
-      saveToStorage(TOKEN_KEY, newToken)
-
-      console.log('Session refreshed successfully')
-      return newToken
+      return response.status === 'success'
     } catch (error) {
-      console.error('Failed to refresh session:', error)
-      // If refresh fails, logout user
-      await logout()
-      throw error
-    } finally {
-      loading.value = false
+      console.warn('Session validation failed:', error)
+      return false
     }
-  }
-
-  const checkAndRefreshToken = async () => {
-    if (isTokenExpired.value && refreshToken.value) {
-      try {
-        await refreshSession()
-      } catch (error) {
-        console.error('Auto-refresh failed:', error)
-        return false
-      }
-    }
-    return true
   }
 
   return {
@@ -226,22 +199,17 @@ export const useAuthStore = defineStore('auth', () => {
     isAuthenticated: readonly(isAuthenticated),
     loading: readonly(loading),
     error: readonly(error),
-    token: readonly(token),
-    refreshToken: readonly(refreshToken),
-    tokenExpiry: readonly(tokenExpiry),
 
     // Getters
     isLoggedIn,
     userRole,
     hasYouTubeAccess,
     userId,
-    isTokenExpired,
 
     // Actions
     login,
     logout,
     initializeAuth,
-    refreshSession,
-    checkAndRefreshToken,
+    validateSession,
   }
 })

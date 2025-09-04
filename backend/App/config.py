@@ -50,9 +50,29 @@ class Settings(BaseSettings):
     database_echo: bool = Field(default=False, description="Echo SQL queries")
     
     # Security Configuration
-    cors_origins: List[str] = Field(default=["http://localhost:3000"], description="CORS allowed origins")
+    cors_origins: List[str] = Field(default_factory=lambda: [], description="CORS allowed origins")
     security_headers_strict: bool = Field(default=True, description="Strict security headers")
     csrf_protection_strict: bool = Field(default=True, description="Strict CSRF protection")
+
+    @property
+    def allowed_origins(self) -> List[str]:
+        """Get environment-specific CORS origins"""
+        if self.environment == "production":
+            # Production origins - replace with your actual domain
+            production_origins = os.getenv("CORS_ORIGINS", "").split(",")
+            return [origin.strip() for origin in production_origins if origin.strip()]
+        elif self.environment == "development":
+            # Development origins
+            return [
+                "http://localhost:3000",
+                "http://localhost:5173",
+                "http://localhost:8080",
+                "http://127.0.0.1:3000",
+                "http://127.0.0.1:5173"
+            ]
+        else:
+            # Testing or other environments
+            return ["http://localhost:3000"]
     
     # API Keys (loaded from secrets)
     openai_api_key: Optional[str] = Field(default=None, description="OpenAI API key")
@@ -152,14 +172,27 @@ class Settings(BaseSettings):
         }
     
     def get_cors_config(self) -> Dict[str, Any]:
-        """Get CORS configuration"""
-        # In tests, expect to return exactly what was provided
-        origins = self.cors_origins
+        """Get environment-specific CORS configuration"""
+        origins = self.allowed_origins
+
+        # More restrictive headers for production
+        allowed_headers = [
+            "Accept",
+            "Accept-Language",
+            "Content-Language",
+            "Content-Type",
+            "Authorization",
+            "X-Requested-With",
+            "X-CSRF-Token"
+        ] if self.is_production() else ["*"]
+
         return {
             "allow_origins": origins,
             "allow_credentials": True,
-            "allow_methods": ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-            "allow_headers": ["*"],
+            "allow_methods": ["GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"],
+            "allow_headers": allowed_headers,
+            "expose_headers": ["X-Total-Count", "X-Rate-Limit-Remaining"],
+            "max_age": 86400 if self.is_production() else 3600  # Cache preflight for 24h in prod, 1h in dev
         }
     
     def get_rate_limit_config(self) -> Dict[str, Any]:

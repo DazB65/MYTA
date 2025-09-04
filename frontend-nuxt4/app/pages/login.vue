@@ -2,10 +2,10 @@
   <div class="min-h-screen bg-gradient-to-br from-forest-900 via-forest-800 to-forest-900">
     <!-- Background Pattern -->
     <div class="absolute inset-0 bg-[url('/grid-pattern.svg')] opacity-10" />
-    
-    <!-- Logo in Top Left -->
-    <div class="absolute top-0 left-0 z-20">
-      <img src="/MY YT AGENT.png" alt="MYTA Logo" class="w-96 h-96">
+
+    <!-- Logo in Top Right -->
+    <div class="absolute -top-24 right-0 z-20">
+      <img src="/MY YT AGENT.png" alt="MYTA Logo" class="w-128 h-128">
     </div>
 
     <!-- Content Container -->
@@ -14,10 +14,10 @@
       <div class="w-full max-w-md">
         <!-- Welcome Section -->
         <div class="mb-8 text-center">
-          <h1 class="text-3xl font-bold text-white mb-2">Welcome Back</h1>
+          <h1 class="text-3xl font-bold text-white">Welcome Back</h1>
           <p class="text-gray-400">Sign in to your MYTA account</p>
         </div>
-        
+
         <!-- Login Form -->
         <div class="rounded-2xl bg-white/10 backdrop-blur-lg p-8 border border-white/20">
           <form @submit.prevent="handleLogin" class="space-y-6">
@@ -117,30 +117,30 @@
             </div>
           </form>
         </div>
-        
+
         <!-- Sign Up Link -->
         <div class="mt-8 text-center">
           <p class="text-gray-400">
             Don't have an account?
             <NuxtLink
-              to="/create-profile"
+              to="/signup"
               class="text-orange-400 hover:text-orange-300 transition-colors font-semibold"
             >
               Sign up here
             </NuxtLink>
           </p>
         </div>
-        
+
         <!-- Footer -->
         <div class="mt-8 text-center text-sm text-gray-400">
           <p>&copy; 2025 MYTA. All rights reserved.</p>
         </div>
       </div>
     </div>
-    
+
     <!-- Full Screen Agent Background -->
     <div class="absolute inset-0 pointer-events-none">
-      <img src="/agent1.png" alt="Agent 1" class="w-full h-full object-cover opacity-10">
+      <img src="/Agent1.png" alt="Agent 1" class="w-full h-full object-cover opacity-10">
     </div>
   </div>
 </template>

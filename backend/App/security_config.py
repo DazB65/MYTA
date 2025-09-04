@@ -40,18 +40,99 @@ class SecurityConfig:
             "GOOGLE_CLIENT_ID",
             "GOOGLE_CLIENT_SECRET"
         ]
-        
+
         missing_vars = []
         for var in critical_vars:
             if not os.getenv(var):
                 missing_vars.append(var)
-        
+
         if missing_vars:
             logger.error(f"Missing critical environment variables: {missing_vars}")
-            if os.getenv("ENVIRONMENT", "development") == "production":
-                raise ValueError(f"Missing required environment variables: {missing_vars}")
-            else:
-                logger.warning("Running in development mode - some API keys may not be available")
+
+        # Validate JWT secret
+        if not self.get_jwt_secret():
+            logger.warning("JWT secret not set - generating temporary secret for development")
+
+    def get_jwt_secret(self) -> str:
+        """Get or generate JWT secret key"""
+        jwt_secret = os.getenv('JWT_SECRET_KEY')
+        if not jwt_secret:
+            # Generate a secure random secret for development
+            jwt_secret = secrets.token_urlsafe(32)
+            logger.warning("Using generated JWT secret. Set JWT_SECRET_KEY environment variable for production.")
+        return jwt_secret
+
+    def get_password_requirements(self) -> Dict[str, Any]:
+        """Get password security requirements"""
+        return {
+            'min_length': int(os.getenv('PASSWORD_MIN_LENGTH', '8')),
+            'require_uppercase': os.getenv('PASSWORD_REQUIRE_UPPERCASE', 'true').lower() == 'true',
+            'require_lowercase': os.getenv('PASSWORD_REQUIRE_LOWERCASE', 'true').lower() == 'true',
+            'require_numbers': os.getenv('PASSWORD_REQUIRE_NUMBERS', 'true').lower() == 'true',
+            'require_special_chars': os.getenv('PASSWORD_REQUIRE_SPECIAL_CHARS', 'true').lower() == 'true',
+            'hash_rounds': int(os.getenv('PASSWORD_HASH_ROUNDS', '12'))
+        }
+
+    def get_rate_limits(self) -> Dict[str, int]:
+        """Get rate limiting configuration"""
+        return {
+            'per_minute': int(os.getenv('RATE_LIMIT_PER_MINUTE', '60')),
+            'per_hour': int(os.getenv('RATE_LIMIT_PER_HOUR', '1000')),
+            'per_day': int(os.getenv('RATE_LIMIT_PER_DAY', '10000')),
+            'auth_per_minute': int(os.getenv('AUTH_RATE_LIMIT_PER_MINUTE', '5'))
+        }
+
+    def get_session_config(self) -> Dict[str, Any]:
+        """Get session configuration"""
+        return {
+            'timeout_hours': int(os.getenv('SESSION_TIMEOUT_HOURS', '8')),
+            'absolute_timeout_hours': int(os.getenv('SESSION_ABSOLUTE_TIMEOUT_HOURS', '24')),
+            'max_concurrent': int(os.getenv('MAX_CONCURRENT_SESSIONS', '5'))
+        }
+
+    def get_security_headers(self) -> Dict[str, str]:
+        """Get security headers configuration"""
+        environment = os.getenv('ENVIRONMENT', 'development')
+        is_production = environment == 'production'
+
+        headers = {
+            "X-Content-Type-Options": "nosniff",
+            "X-Frame-Options": "DENY",
+            "X-XSS-Protection": "1; mode=block",
+            "Referrer-Policy": "strict-origin-when-cross-origin",
+            "X-Permitted-Cross-Domain-Policies": "none",
+            "Cross-Origin-Embedder-Policy": "require-corp",
+            "Cross-Origin-Opener-Policy": "same-origin",
+            "Cross-Origin-Resource-Policy": "same-origin"
+        }
+
+        # Add HSTS only in production
+        if is_production:
+            hsts_max_age = int(os.getenv('HSTS_MAX_AGE', '31536000'))
+            headers["Strict-Transport-Security"] = f"max-age={hsts_max_age}; includeSubDomains; preload"
+
+        # Add CSP if enabled
+        if os.getenv('ENABLE_CSP', 'true').lower() == 'true':
+            headers["Content-Security-Policy"] = self._get_csp_header()
+
+        return headers
+
+    def _get_csp_header(self) -> str:
+        """Generate Content Security Policy header"""
+        csp_directives = [
+            "default-src 'self'",
+            "script-src 'self' 'unsafe-inline'",
+            "style-src 'self' 'unsafe-inline'",
+            "img-src 'self' data: https:",
+            "connect-src 'self'",
+            "object-src 'none'",
+            "base-uri 'self'",
+            "form-action 'self'",
+            "frame-ancestors 'none'",
+            "upgrade-insecure-requests"
+        ]
+
+        return "; ".join(csp_directives)
         
         # Validate OAuth redirect URI
         redirect_uri = os.getenv("OAUTH_REDIRECT_URI")

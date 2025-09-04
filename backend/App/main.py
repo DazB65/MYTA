@@ -58,6 +58,7 @@ from .team_router import router as team_router
 from .youtube_channel_endpoints import router as youtube_channel_router
 from .content_router import router as content_router
 from .usage_router import router as usage_router
+from .auth_router import router as auth_router
 from .request_logging import log_request_middleware
 from .error_handler import create_error_response, MYTAError
 
@@ -427,6 +428,9 @@ app.add_middleware(CORSMiddleware, **cors_config)
 # =============================================================================
 # Include Routers
 # =============================================================================
+
+# Include authentication router (handles user registration, login, logout)
+app.include_router(auth_router)
 
 # Include agent router (handles chat, quick actions, specialized agents)
 app.include_router(agent_router)

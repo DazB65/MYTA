@@ -32,7 +32,7 @@ if [ -d ".venv" ]; then
 elif [ -d "venv" ]; then
   source venv/bin/activate
 fi
-uvicorn backend.App.main:app --reload --host 0.0.0.0 --port 8888 &
+python3 -m uvicorn backend.App.main:app --reload --host 0.0.0.0 --port 8888 &
 BACKEND_PID=$!
 
 echo "⏳ Waiting for servers to start..."

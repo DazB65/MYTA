@@ -14,26 +14,34 @@ export default defineNuxtPlugin(async () => {
     console.warn('Auth plugin: Failed to initialize auth:', error)
   }
   
-  // Set up automatic token refresh
+  // Set up automatic session validation
   if (process.client) {
-    // Check token expiry every 5 minutes
+    // Validate session every 10 minutes
     setInterval(async () => {
       if (authStore.isLoggedIn) {
         try {
-          await authStore.checkAndRefreshToken()
+          const isValid = await authStore.validateSession()
+          if (!isValid) {
+            await authStore.logout()
+            await navigateTo('/login')
+          }
         } catch (error) {
-          console.warn('Background token refresh failed:', error)
+          console.warn('Background session validation failed:', error)
         }
       }
-    }, 5 * 60 * 1000) // 5 minutes
-    
-    // Check token on page visibility change
+    }, 10 * 60 * 1000) // 10 minutes
+
+    // Validate session on page visibility change
     document.addEventListener('visibilitychange', async () => {
       if (!document.hidden && authStore.isLoggedIn) {
         try {
-          await authStore.checkAndRefreshToken()
+          const isValid = await authStore.validateSession()
+          if (!isValid) {
+            await authStore.logout()
+            await navigateTo('/login')
+          }
         } catch (error) {
-          console.warn('Token refresh on visibility change failed:', error)
+          console.warn('Session validation on visibility change failed:', error)
         }
       }
     })

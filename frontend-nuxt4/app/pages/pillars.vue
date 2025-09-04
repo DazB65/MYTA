@@ -3,62 +3,125 @@
     <!-- Main Content Area -->
     <div class="p-6 pt-24">
       <!-- Header -->
-      <div class="mb-6 flex items-center justify-between">
-        <div class="flex items-center space-x-4">
-          <h1 class="text-2xl font-bold text-white">Content Pillars & Strategy</h1>
-          <span class="text-gray-400">•</span>
-          <p class="text-gray-400">AI team collaboration for strategic content planning</p>
-        </div>
-        <div class="flex items-center space-x-4">
-          <div class="text-sm text-gray-400">{{ totalVideos }} total videos</div>
-          <button
-            class="flex items-center space-x-2 rounded-lg bg-orange-500 px-4 py-2 text-white transition-colors hover:bg-orange-600"
-            @click="handleAddPillar"
-          >
-            <svg class="h-4 w-4" fill="currentColor" viewBox="0 0 20 20">
-              <path
-                fill-rule="evenodd"
-                d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z"
-                clip-rule="evenodd"
-              />
-            </svg>
-            <span>Add Pillar</span>
-          </button>
+      <div class="mb-6">
+        <h1 class="text-2xl font-bold text-white">Content Pillars & Strategy</h1>
+        <p class="text-gray-400">AI team collaboration for strategic content planning</p>
+      </div>
+
+      <!-- Tab Navigation -->
+      <div class="mb-6">
+        <div class="border-b border-forest-600">
+          <nav class="-mb-px flex space-x-8">
+            <button
+              @click="activeTab = 'pillars'"
+              :class="[
+                'py-2 px-1 border-b-2 font-medium text-sm transition-colors',
+                activeTab === 'pillars'
+                  ? 'border-orange-500 text-orange-400'
+                  : 'border-transparent text-gray-400 hover:text-gray-300 hover:border-gray-300'
+              ]"
+            >
+              My Pillars
+            </button>
+            <button
+              @click="activeTab = 'strategy'"
+              :class="[
+                'py-2 px-1 border-b-2 font-medium text-sm transition-colors flex items-center space-x-2',
+                activeTab === 'strategy'
+                  ? 'border-orange-500 text-orange-400'
+                  : 'border-transparent text-gray-400 hover:text-gray-300 hover:border-gray-300'
+              ]"
+            >
+              <span>Strategic Planning</span>
+              <span class="text-xs bg-orange-500 text-white px-2 py-0.5 rounded-full">PRO</span>
+            </button>
+          </nav>
         </div>
       </div>
 
-      <!-- Strategic Planning Dashboard -->
-      <div class="mb-8">
-        <StrategicPlanningDashboard />
-      </div>
+      <!-- Tab Content -->
+      <div class="tab-content">
+        <!-- My Pillars Tab -->
+        <div v-show="activeTab === 'pillars'" class="space-y-6">
+          <!-- Header with Add Button -->
+          <div class="flex items-center justify-between">
+            <div class="flex items-center space-x-4">
+              <div class="text-sm text-gray-400">{{ totalVideos }} total videos</div>
+            </div>
+            <button
+              class="flex items-center space-x-2 rounded-lg bg-orange-500 px-4 py-2 text-white transition-colors hover:bg-orange-600"
+              @click="handleAddPillar"
+            >
+              <svg class="h-4 w-4" fill="currentColor" viewBox="0 0 20 20">
+                <path
+                  fill-rule="evenodd"
+                  d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z"
+                  clip-rule="evenodd"
+                />
+              </svg>
+              <span>Add Pillar</span>
+            </button>
+          </div>
 
-      <!-- Pillar Cards Grid -->
-      <div class="grid grid-cols-1 gap-6 lg:grid-cols-2">
-        <!-- Dynamic Pillar Cards -->
-        <PillarCard
-          v-for="pillar in pillars"
-          :key="pillar.id"
-          :pillar="pillar"
-        />
-      </div>
+          <!-- Pillar Cards Grid -->
+          <div class="grid grid-cols-1 gap-6 lg:grid-cols-2">
+            <!-- Dynamic Pillar Cards -->
+            <PillarCard
+              v-for="pillar in pillars"
+              :key="pillar.id"
+              :pillar="pillar"
+            />
+          </div>
 
-      <!-- Summary Stats -->
-      <div class="mt-8 grid grid-cols-1 gap-4 md:grid-cols-4">
-        <div class="rounded-lg bg-forest-800 p-4">
-          <div class="text-2xl font-bold text-white">{{ totalVideos }}</div>
-          <div class="text-sm text-gray-400">Total Videos</div>
+          <!-- Summary Stats -->
+          <div class="mt-8 grid grid-cols-1 gap-4 md:grid-cols-4">
+            <div class="rounded-lg bg-forest-800 p-4">
+              <div class="text-2xl font-bold text-white">{{ totalVideos }}</div>
+              <div class="text-sm text-gray-400">Total Videos</div>
+            </div>
+            <div class="rounded-lg bg-forest-800 p-4">
+              <div class="text-2xl font-bold text-white">{{ activePillars.length }}</div>
+              <div class="text-sm text-gray-400">Active Pillars</div>
+            </div>
+            <div class="rounded-lg bg-forest-800 p-4">
+              <div class="text-2xl font-bold text-white">{{ formatViews(totalViews) }}</div>
+              <div class="text-sm text-gray-400">Total Views</div>
+            </div>
+            <div class="rounded-lg bg-forest-800 p-4">
+              <div class="text-2xl font-bold text-white">{{ totalIdeas }}</div>
+              <div class="text-sm text-gray-400">Content Ideas</div>
+            </div>
+          </div>
         </div>
-        <div class="rounded-lg bg-forest-800 p-4">
-          <div class="text-2xl font-bold text-white">{{ activePillars.length }}</div>
-          <div class="text-sm text-gray-400">Active Pillars</div>
-        </div>
-        <div class="rounded-lg bg-forest-800 p-4">
-          <div class="text-2xl font-bold text-white">{{ formatViews(totalViews) }}</div>
-          <div class="text-sm text-gray-400">Total Views</div>
-        </div>
-        <div class="rounded-lg bg-forest-800 p-4">
-          <div class="text-2xl font-bold text-white">{{ totalIdeas }}</div>
-          <div class="text-sm text-gray-400">Content Ideas</div>
+
+        <!-- Strategic Planning Tab -->
+        <div v-show="activeTab === 'strategy'" class="space-y-6">
+          <div v-if="hasPremiumAccess" class="relative">
+            <StrategicPlanningDashboard />
+          </div>
+
+          <!-- Premium Upgrade Prompt -->
+          <div v-else class="relative">
+            <div class="absolute inset-0 bg-gradient-to-r from-orange-500/10 to-purple-500/10 rounded-xl border border-orange-500/20 backdrop-blur-sm z-10 flex items-center justify-center">
+              <div class="text-center p-8">
+                <div class="inline-flex items-center justify-center w-16 h-16 bg-orange-500/20 rounded-full mb-4">
+                  <svg class="w-8 h-8 text-orange-400" fill="currentColor" viewBox="0 0 20 20">
+                    <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                  </svg>
+                </div>
+                <h3 class="text-xl font-semibold text-white mb-2">Strategic Planning Dashboard</h3>
+                <p class="text-gray-300 mb-4 max-w-md">Unlock AI-powered strategic insights, cross-pillar opportunities, and long-term planning with our premium features.</p>
+                <button class="px-6 py-3 bg-gradient-to-r from-orange-500 to-purple-500 text-white font-medium rounded-lg hover:from-orange-600 hover:to-purple-600 transition-all duration-200">
+                  Upgrade to Pro
+                </button>
+              </div>
+            </div>
+
+            <!-- Blurred Preview -->
+            <div class="filter blur-sm opacity-50 pointer-events-none">
+              <StrategicPlanningDashboard />
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -159,8 +222,19 @@ definePageMeta({
 // Use pillars composable
 const { pillars, totalVideos, totalViews, activePillars, addPillar } = usePillars()
 
+// Auth store for premium access
+const authStore = useAuthStore()
+
+// Premium access check
+const hasPremiumAccess = computed(() => {
+  // For demo purposes, you can set this to true/false
+  // In production, this would check the user's subscription tier
+  return authStore.user?.subscription_tier === 'pro' || authStore.user?.subscription_tier === 'teams'
+})
+
 // Local state
 const showAddModal = ref(false)
+const activeTab = ref('pillars')
 
 // New pillar form data
 const newPillar = ref({

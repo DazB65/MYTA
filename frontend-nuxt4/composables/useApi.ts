@@ -28,6 +28,27 @@ export const useApi = () => {
   const loading = ref(false)
   const error = ref<string | null>(null)
 
+  // CSRF token helper
+  const getCsrfToken = (): string | null => {
+    if (process.client) {
+      // Try to get CSRF token from meta tag first
+      const metaTag = document.querySelector('meta[name="csrf-token"]')
+      if (metaTag) {
+        return metaTag.getAttribute('content')
+      }
+
+      // Fallback to cookie
+      const cookies = document.cookie.split(';')
+      for (const cookie of cookies) {
+        const [name, value] = cookie.trim().split('=')
+        if (name === 'csrf_token') {
+          return decodeURIComponent(value)
+        }
+      }
+    }
+    return null
+  }
+
   const apiCall = async <T = any>(
     endpoint: string,
     options: ApiOptions = {}
@@ -61,13 +82,18 @@ export const useApi = () => {
           'Content-Type': 'application/json',
           ...headers,
         },
+        credentials: 'include', // Always include cookies for authentication
       }
 
-      // Add authentication header if available
-      if (authStore.token) {
-        requestOptions.headers = {
-          ...requestOptions.headers,
-          Authorization: `Bearer ${authStore.token}`,
+      // Add CSRF protection for state-changing requests
+      if (['POST', 'PUT', 'PATCH', 'DELETE'].includes(method)) {
+        // Get CSRF token from meta tag or cookie
+        const csrfToken = getCsrfToken()
+        if (csrfToken) {
+          requestOptions.headers = {
+            ...requestOptions.headers,
+            'X-CSRF-Token': csrfToken,
+          }
         }
       }
 
@@ -77,7 +103,7 @@ export const useApi = () => {
       }
 
       // Build full URL
-      const baseUrl = config.public.apiBaseUrl || 'http://localhost:8000'
+      const baseUrl = config.public.apiBase || 'http://localhost:8000'
       const url = endpoint.startsWith('http') ? endpoint : `${baseUrl}${endpoint}`
 
       let lastError: Error | null = null

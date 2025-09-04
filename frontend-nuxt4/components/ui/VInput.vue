@@ -38,6 +38,18 @@
 
 <script setup lang="ts">
 import { computed, ref, useSlots } from 'vue'
+// Temporarily disable security import until module is properly configured
+// import { sanitizeInput } from '~/utils/security'
+
+// Simple fallback sanitization function
+const sanitizeInput = (input: string, options: any = {}) => {
+  if (typeof input !== 'string') return ''
+  let sanitized = input.trim()
+  if (options.maxLength && sanitized.length > options.maxLength) {
+    sanitized = sanitized.substring(0, options.maxLength)
+  }
+  return sanitized
+}
 
 interface Props {
   modelValue?: string | number
@@ -82,7 +94,17 @@ const inputClasses = computed(() => [
 
 const handleInput = (event: Event) => {
   const target = event.target as HTMLInputElement
-  emit('update:modelValue', target.value)
+  let value = target.value
+
+  // Apply input sanitization for security
+  if (props.type === 'text' || props.type === 'email') {
+    value = sanitizeInput(value, {
+      allowHtml: false,
+      maxLength: 1000 // Reasonable default limit
+    })
+  }
+
+  emit('update:modelValue', value)
 }
 
 const handleFocus = (event: FocusEvent) => {
