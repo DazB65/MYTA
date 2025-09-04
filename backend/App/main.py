@@ -58,6 +58,7 @@ from .team_router import router as team_router
 from .youtube_channel_endpoints import router as youtube_channel_router
 from .content_router import router as content_router
 from .usage_router import router as usage_router
+from .api.videos import router as videos_router
 from .auth_router import router as auth_router
 from .request_logging import log_request_middleware
 from .error_handler import create_error_response, MYTAError
@@ -512,6 +513,9 @@ app.include_router(content_router)
 
 # Include usage router (handles usage tracking and limits)
 app.include_router(usage_router)
+
+# Include videos router (handles optimized video data management)
+app.include_router(videos_router)
 
 # =============================================================================
 # Global Exception Handlers

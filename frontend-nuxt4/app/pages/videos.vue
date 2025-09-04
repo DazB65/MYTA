@@ -15,6 +15,7 @@
         <div class="flex items-center space-x-4">
           <div class="relative">
             <input
+              v-model="searchQuery"
               type="text"
               placeholder="Search videos..."
               class="w-64 rounded-lg bg-forest-800 px-4 py-2 pl-10 text-white focus:outline-none focus:ring-2 focus:ring-orange-500"
@@ -124,6 +125,70 @@
             <p class="text-xs text-gray-400">{{ formatNumber(video.detailedStats?.views || 0) }} views • {{ formatDate(video.date) }}</p>
           </div>
         </div>
+
+        <!-- Pagination Controls -->
+        <div v-if="totalPages > 1" class="mt-8 flex items-center justify-between">
+          <div class="text-sm text-gray-400">
+            Showing {{ ((currentPage - 1) * perPage) + 1 }} to {{ Math.min(currentPage * perPage, totalCount) }} of {{ totalCount }} videos
+          </div>
+
+          <div class="flex items-center space-x-2">
+            <!-- Previous Button -->
+            <button
+              @click="prevPage"
+              :disabled="!hasPrev"
+              class="flex items-center px-3 py-2 text-sm font-medium text-gray-300 bg-forest-800 rounded-lg hover:bg-forest-700 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              <svg class="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clip-rule="evenodd" />
+              </svg>
+              Previous
+            </button>
+
+            <!-- Page Numbers -->
+            <div class="flex items-center space-x-1">
+              <template v-for="page in getPageNumbers()" :key="page">
+                <button
+                  v-if="page !== '...'"
+                  @click="goToPage(page)"
+                  :class="[
+                    'px-3 py-2 text-sm font-medium rounded-lg',
+                    page === currentPage
+                      ? 'bg-orange-500 text-white'
+                      : 'text-gray-300 bg-forest-800 hover:bg-forest-700'
+                  ]"
+                >
+                  {{ page }}
+                </button>
+                <span v-else class="px-2 text-gray-400">...</span>
+              </template>
+            </div>
+
+            <!-- Next Button -->
+            <button
+              @click="nextPage"
+              :disabled="!hasNext"
+              class="flex items-center px-3 py-2 text-sm font-medium text-gray-300 bg-forest-800 rounded-lg hover:bg-forest-700 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              Next
+              <svg class="w-4 h-4 ml-1" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd" />
+              </svg>
+            </button>
+          </div>
+        </div>
+
+        <!-- Load More Button (alternative to pagination) -->
+        <div v-if="hasNext && totalPages <= 5" class="mt-8 text-center">
+          <button
+            @click="loadMore"
+            :disabled="loading"
+            class="px-6 py-3 bg-orange-500 text-white rounded-lg hover:bg-orange-600 disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            <span v-if="loading">Loading...</span>
+            <span v-else>Load More Videos</span>
+          </button>
+        </div>
       </div>
 
 
@@ -139,7 +204,7 @@
 </template>
 
 <script setup>
-import { computed, ref } from 'vue'
+import { computed, onMounted, ref, watch } from 'vue'
 
 // Protect this route with authentication
 definePageMeta({
@@ -158,8 +223,27 @@ const selectedVideo = ref(null)
 const selectedPillar = ref('all')
 const sortBy = ref('recent')
 
-// Sample video data with detailed stats
-const videos = ref([
+// Reactive state for videos and pagination
+const videos = ref([])
+const loading = ref(false)
+const error = ref(null)
+
+// Pagination state
+const currentPage = ref(1)
+const perPage = ref(24)
+const totalCount = ref(0)
+const totalPages = ref(0)
+const hasNext = ref(false)
+const hasPrev = ref(false)
+
+// Filter state
+const searchQuery = ref('')
+const selectedTier = ref('')
+const dateFrom = ref('')
+const dateTo = ref('')
+
+// Sample video data with detailed stats (fallback for development)
+const mockVideos = ref([
   {
     id: 1,
     title: "10 YouTube Growth Hacks That Actually Work in 2024",
@@ -381,6 +465,672 @@ const videos = ref([
       ]
     },
     suggestedKeywords: ["camera review", "content creation", "tech gear"]
+  },
+  {
+    id: 7,
+    title: "How I Edit My YouTube Videos: Complete Workflow",
+    thumbnail: "https://img.youtube.com/vi/dQw4w9WgXcQ/mqdefault.jpg",
+    duration: "19:33",
+    date: "2024-01-01",
+    pillar: "Content Creation",
+    category: "Tutorial",
+    performance: "Excellent",
+    youtubeUrl: "https://youtube.com/watch?v=dQw4w9WgXcQ",
+    detailedStats: {
+      views: 52300,
+      viewsGrowth: 18.9,
+      likes: 2615,
+      likeRatio: 8.7,
+      comments: 1047,
+      engagement: 7.3,
+      watchTime: "12:45",
+      retention: 65,
+      ctr: 8.7,
+      trafficSources: [
+        { name: "YouTube Search", percentage: 41 },
+        { name: "Suggested Videos", percentage: 29 },
+        { name: "Browse Features", percentage: 16 },
+        { name: "External", percentage: 9 },
+        { name: "Direct", percentage: 5 }
+      ],
+      topCountries: [
+        { name: "United States", percentage: 38 },
+        { name: "United Kingdom", percentage: 18 },
+        { name: "Canada", percentage: 15 },
+        { name: "Australia", percentage: 11 },
+        { name: "Germany", percentage: 9 }
+      ]
+    },
+    suggestedKeywords: ["video editing", "workflow", "tutorial"]
+  },
+  {
+    id: 8,
+    title: "React vs Vue: Which Framework Should You Choose in 2024?",
+    thumbnail: "https://img.youtube.com/vi/dQw4w9WgXcQ/mqdefault.jpg",
+    duration: "21:15",
+    date: "2023-12-28",
+    pillar: "Tech Tutorials",
+    category: "Comparison",
+    performance: "Good",
+    youtubeUrl: "https://youtube.com/watch?v=dQw4w9WgXcQ",
+    detailedStats: {
+      views: 34700,
+      viewsGrowth: 11.2,
+      likes: 1735,
+      likeRatio: 7.4,
+      comments: 693,
+      engagement: 6.1,
+      watchTime: "13:20",
+      retention: 58,
+      ctr: 7.4,
+      trafficSources: [
+        { name: "YouTube Search", percentage: 44 },
+        { name: "Suggested Videos", percentage: 26 },
+        { name: "Browse Features", percentage: 14 },
+        { name: "External", percentage: 11 },
+        { name: "Direct", percentage: 5 }
+      ],
+      topCountries: [
+        { name: "United States", percentage: 42 },
+        { name: "India", percentage: 16 },
+        { name: "United Kingdom", percentage: 14 },
+        { name: "Canada", percentage: 12 },
+        { name: "Germany", percentage: 8 }
+      ]
+    },
+    suggestedKeywords: ["react", "vue", "javascript", "framework comparison"]
+  },
+  {
+    id: 9,
+    title: "Building My Dream Gaming Setup on a Budget",
+    thumbnail: "https://img.youtube.com/vi/dQw4w9WgXcQ/mqdefault.jpg",
+    duration: "17:42",
+    date: "2023-12-25",
+    pillar: "Gaming Reviews",
+    category: "Setup",
+    performance: "Average",
+    youtubeUrl: "https://youtube.com/watch?v=dQw4w9WgXcQ",
+    detailedStats: {
+      views: 19800,
+      viewsGrowth: -2.1,
+      likes: 990,
+      likeRatio: 5.9,
+      comments: 396,
+      engagement: 4.8,
+      watchTime: "9:30",
+      retention: 47,
+      ctr: 5.9,
+      trafficSources: [
+        { name: "Suggested Videos", percentage: 38 },
+        { name: "YouTube Search", percentage: 32 },
+        { name: "Browse Features", percentage: 18 },
+        { name: "External", percentage: 7 },
+        { name: "Direct", percentage: 5 }
+      ],
+      topCountries: [
+        { name: "United States", percentage: 35 },
+        { name: "United Kingdom", percentage: 19 },
+        { name: "Canada", percentage: 16 },
+        { name: "Australia", percentage: 13 },
+        { name: "Germany", percentage: 10 }
+      ]
+    },
+    suggestedKeywords: ["gaming setup", "budget build", "pc gaming"]
+  },
+  {
+    id: 10,
+    title: "Why I Quit My 9-5 Job to Become a Content Creator",
+    thumbnail: "https://img.youtube.com/vi/dQw4w9WgXcQ/mqdefault.jpg",
+    duration: "13:28",
+    date: "2023-12-22",
+    pillar: "Personal Stories",
+    category: "Vlog",
+    performance: "Excellent",
+    youtubeUrl: "https://youtube.com/watch?v=dQw4w9WgXcQ",
+    detailedStats: {
+      views: 78900,
+      viewsGrowth: 25.6,
+      likes: 3945,
+      likeRatio: 9.3,
+      comments: 1578,
+      engagement: 8.9,
+      watchTime: "10:15",
+      retention: 71,
+      ctr: 9.3,
+      trafficSources: [
+        { name: "Suggested Videos", percentage: 45 },
+        { name: "YouTube Search", percentage: 28 },
+        { name: "Browse Features", percentage: 12 },
+        { name: "External", percentage: 10 },
+        { name: "Direct", percentage: 5 }
+      ],
+      topCountries: [
+        { name: "United States", percentage: 44 },
+        { name: "United Kingdom", percentage: 17 },
+        { name: "Canada", percentage: 15 },
+        { name: "Australia", percentage: 11 },
+        { name: "Germany", percentage: 8 }
+      ]
+    },
+    suggestedKeywords: ["career change", "content creator", "entrepreneurship"]
+  },
+  {
+    id: 11,
+    title: "Top 5 AI Tools Every Creator Needs in 2024",
+    thumbnail: "https://img.youtube.com/vi/dQw4w9WgXcQ/mqdefault.jpg",
+    duration: "16:07",
+    date: "2023-12-20",
+    pillar: "Tech Tutorials",
+    category: "Review",
+    performance: "Good",
+    youtubeUrl: "https://youtube.com/watch?v=dQw4w9WgXcQ",
+    detailedStats: {
+      views: 41200,
+      viewsGrowth: 14.3,
+      likes: 2060,
+      likeRatio: 8.1,
+      comments: 824,
+      engagement: 6.7,
+      watchTime: "11:45",
+      retention: 62,
+      ctr: 8.1,
+      trafficSources: [
+        { name: "YouTube Search", percentage: 39 },
+        { name: "Suggested Videos", percentage: 31 },
+        { name: "Browse Features", percentage: 15 },
+        { name: "External", percentage: 10 },
+        { name: "Direct", percentage: 5 }
+      ],
+      topCountries: [
+        { name: "United States", percentage: 41 },
+        { name: "India", percentage: 18 },
+        { name: "United Kingdom", percentage: 15 },
+        { name: "Canada", percentage: 12 },
+        { name: "Germany", percentage: 9 }
+      ]
+    },
+    suggestedKeywords: ["AI tools", "content creation", "productivity"]
+  },
+  {
+    id: 12,
+    title: "My First Year on YouTube: Lessons Learned",
+    thumbnail: "https://img.youtube.com/vi/dQw4w9WgXcQ/mqdefault.jpg",
+    duration: "20:45",
+    date: "2023-12-18",
+    pillar: "Growth Strategies",
+    category: "Reflection",
+    performance: "Average",
+    youtubeUrl: "https://youtube.com/watch?v=dQw4w9WgXcQ",
+    detailedStats: {
+      views: 23400,
+      viewsGrowth: 3.7,
+      likes: 1170,
+      likeRatio: 6.2,
+      comments: 468,
+      engagement: 5.1,
+      watchTime: "12:30",
+      retention: 53,
+      ctr: 6.2,
+      trafficSources: [
+        { name: "Suggested Videos", percentage: 42 },
+        { name: "YouTube Search", percentage: 29 },
+        { name: "Browse Features", percentage: 16 },
+        { name: "External", percentage: 8 },
+        { name: "Direct", percentage: 5 }
+      ],
+      topCountries: [
+        { name: "United States", percentage: 39 },
+        { name: "United Kingdom", percentage: 18 },
+        { name: "Canada", percentage: 16 },
+        { name: "Australia", percentage: 12 },
+        { name: "Germany", percentage: 10 }
+      ]
+    },
+    suggestedKeywords: ["youtube journey", "creator tips", "lessons learned"]
+  },
+  {
+    id: 13,
+    title: "Coding a Full-Stack App in 24 Hours Challenge",
+    thumbnail: "https://img.youtube.com/vi/dQw4w9WgXcQ/mqdefault.jpg",
+    duration: "25:12",
+    date: "2023-12-15",
+    pillar: "Tech Tutorials",
+    category: "Challenge",
+    performance: "Excellent",
+    youtubeUrl: "https://youtube.com/watch?v=dQw4w9WgXcQ",
+    detailedStats: {
+      views: 89300,
+      viewsGrowth: 31.4,
+      likes: 4465,
+      likeRatio: 9.8,
+      comments: 1786,
+      engagement: 9.2,
+      watchTime: "18:30",
+      retention: 74,
+      ctr: 9.8,
+      trafficSources: [
+        { name: "YouTube Search", percentage: 43 },
+        { name: "Suggested Videos", percentage: 32 },
+        { name: "Browse Features", percentage: 13 },
+        { name: "External", percentage: 8 },
+        { name: "Direct", percentage: 4 }
+      ],
+      topCountries: [
+        { name: "United States", percentage: 45 },
+        { name: "India", percentage: 19 },
+        { name: "United Kingdom", percentage: 13 },
+        { name: "Canada", percentage: 11 },
+        { name: "Germany", percentage: 7 }
+      ]
+    },
+    suggestedKeywords: ["coding challenge", "full stack", "programming"]
+  },
+  {
+    id: 14,
+    title: "The Truth About YouTube Shorts vs Long Form Content",
+    thumbnail: "https://img.youtube.com/vi/dQw4w9WgXcQ/mqdefault.jpg",
+    duration: "14:33",
+    date: "2023-12-12",
+    pillar: "Growth Strategies",
+    category: "Analysis",
+    performance: "Good",
+    youtubeUrl: "https://youtube.com/watch?v=dQw4w9WgXcQ",
+    detailedStats: {
+      views: 36800,
+      viewsGrowth: 9.7,
+      likes: 1840,
+      likeRatio: 7.6,
+      comments: 736,
+      engagement: 6.4,
+      watchTime: "9:45",
+      retention: 59,
+      ctr: 7.6,
+      trafficSources: [
+        { name: "Suggested Videos", percentage: 41 },
+        { name: "YouTube Search", percentage: 33 },
+        { name: "Browse Features", percentage: 14 },
+        { name: "External", percentage: 8 },
+        { name: "Direct", percentage: 4 }
+      ],
+      topCountries: [
+        { name: "United States", percentage: 42 },
+        { name: "United Kingdom", percentage: 17 },
+        { name: "Canada", percentage: 16 },
+        { name: "Australia", percentage: 13 },
+        { name: "Germany", percentage: 8 }
+      ]
+    },
+    suggestedKeywords: ["youtube shorts", "content strategy", "algorithm"]
+  },
+  {
+    id: 15,
+    title: "Unboxing the Latest MacBook Pro M3: First Impressions",
+    thumbnail: "https://img.youtube.com/vi/dQw4w9WgXcQ/mqdefault.jpg",
+    duration: "12:18",
+    date: "2023-12-10",
+    pillar: "Tech Tutorials",
+    category: "Unboxing",
+    performance: "Average",
+    youtubeUrl: "https://youtube.com/watch?v=dQw4w9WgXcQ",
+    detailedStats: {
+      views: 27600,
+      viewsGrowth: 5.2,
+      likes: 1380,
+      likeRatio: 6.8,
+      comments: 552,
+      engagement: 5.3,
+      watchTime: "8:15",
+      retention: 51,
+      ctr: 6.8,
+      trafficSources: [
+        { name: "YouTube Search", percentage: 46 },
+        { name: "Suggested Videos", percentage: 28 },
+        { name: "Browse Features", percentage: 15 },
+        { name: "External", percentage: 7 },
+        { name: "Direct", percentage: 4 }
+      ],
+      topCountries: [
+        { name: "United States", percentage: 40 },
+        { name: "United Kingdom", percentage: 18 },
+        { name: "Canada", percentage: 15 },
+        { name: "Australia", percentage: 12 },
+        { name: "Germany", percentage: 10 }
+      ]
+    },
+    suggestedKeywords: ["macbook pro", "unboxing", "apple", "tech review"]
+  },
+  {
+    id: 16,
+    title: "Day in the Life of a Content Creator: Behind the Scenes",
+    thumbnail: "https://img.youtube.com/vi/dQw4w9WgXcQ/mqdefault.jpg",
+    duration: "18:55",
+    date: "2023-12-08",
+    pillar: "Behind the Scenes",
+    category: "Vlog",
+    performance: "Good",
+    youtubeUrl: "https://youtube.com/watch?v=dQw4w9WgXcQ",
+    detailedStats: {
+      views: 44100,
+      viewsGrowth: 12.8,
+      likes: 2205,
+      likeRatio: 8.3,
+      comments: 882,
+      engagement: 7.1,
+      watchTime: "13:20",
+      retention: 64,
+      ctr: 8.3,
+      trafficSources: [
+        { name: "Suggested Videos", percentage: 39 },
+        { name: "YouTube Search", percentage: 31 },
+        { name: "Browse Features", percentage: 17 },
+        { name: "External", percentage: 9 },
+        { name: "Direct", percentage: 4 }
+      ],
+      topCountries: [
+        { name: "United States", percentage: 41 },
+        { name: "United Kingdom", percentage: 19 },
+        { name: "Canada", percentage: 16 },
+        { name: "Australia", percentage: 12 },
+        { name: "Germany", percentage: 8 }
+      ]
+    },
+    suggestedKeywords: ["day in the life", "content creator", "behind the scenes"]
+  },
+  {
+    id: 17,
+    title: "How to Optimize Your YouTube Thumbnails for More Clicks",
+    thumbnail: "https://img.youtube.com/vi/dQw4w9WgXcQ/mqdefault.jpg",
+    duration: "11:42",
+    date: "2023-12-05",
+    pillar: "Growth Strategies",
+    category: "Tutorial",
+    performance: "Excellent",
+    youtubeUrl: "https://youtube.com/watch?v=dQw4w9WgXcQ",
+    detailedStats: {
+      views: 63700,
+      viewsGrowth: 21.9,
+      likes: 3185,
+      likeRatio: 9.1,
+      comments: 1274,
+      engagement: 8.6,
+      watchTime: "8:45",
+      retention: 69,
+      ctr: 9.1,
+      trafficSources: [
+        { name: "YouTube Search", percentage: 44 },
+        { name: "Suggested Videos", percentage: 29 },
+        { name: "Browse Features", percentage: 14 },
+        { name: "External", percentage: 9 },
+        { name: "Direct", percentage: 4 }
+      ],
+      topCountries: [
+        { name: "United States", percentage: 43 },
+        { name: "United Kingdom", percentage: 16 },
+        { name: "Canada", percentage: 15 },
+        { name: "Australia", percentage: 12 },
+        { name: "Germany", percentage: 9 }
+      ]
+    },
+    suggestedKeywords: ["youtube thumbnails", "click through rate", "youtube tips"]
+  },
+  {
+    id: 18,
+    title: "Building a Mechanical Keyboard from Scratch",
+    thumbnail: "https://img.youtube.com/vi/dQw4w9WgXcQ/mqdefault.jpg",
+    duration: "23:17",
+    date: "2023-12-03",
+    pillar: "Tech Tutorials",
+    category: "DIY",
+    performance: "Average",
+    youtubeUrl: "https://youtube.com/watch?v=dQw4w9WgXcQ",
+    detailedStats: {
+      views: 18900,
+      viewsGrowth: -1.4,
+      likes: 945,
+      likeRatio: 5.7,
+      comments: 378,
+      engagement: 4.6,
+      watchTime: "11:30",
+      retention: 46,
+      ctr: 5.7,
+      trafficSources: [
+        { name: "YouTube Search", percentage: 38 },
+        { name: "Suggested Videos", percentage: 34 },
+        { name: "Browse Features", percentage: 16 },
+        { name: "External", percentage: 8 },
+        { name: "Direct", percentage: 4 }
+      ],
+      topCountries: [
+        { name: "United States", percentage: 37 },
+        { name: "United Kingdom", percentage: 20 },
+        { name: "Canada", percentage: 17 },
+        { name: "Australia", percentage: 13 },
+        { name: "Germany", percentage: 9 }
+      ]
+    },
+    suggestedKeywords: ["mechanical keyboard", "diy", "custom keyboard"]
+  },
+  {
+    id: 19,
+    title: "My Biggest Content Creation Mistakes and How to Avoid Them",
+    thumbnail: "https://img.youtube.com/vi/dQw4w9WgXcQ/mqdefault.jpg",
+    duration: "16:44",
+    date: "2023-12-01",
+    pillar: "Growth Strategies",
+    category: "Education",
+    performance: "Good",
+    youtubeUrl: "https://youtube.com/watch?v=dQw4w9WgXcQ",
+    detailedStats: {
+      views: 38200,
+      viewsGrowth: 13.1,
+      likes: 1910,
+      likeRatio: 7.8,
+      comments: 764,
+      engagement: 6.5,
+      watchTime: "11:20",
+      retention: 61,
+      ctr: 7.8,
+      trafficSources: [
+        { name: "Suggested Videos", percentage: 40 },
+        { name: "YouTube Search", percentage: 32 },
+        { name: "Browse Features", percentage: 15 },
+        { name: "External", percentage: 9 },
+        { name: "Direct", percentage: 4 }
+      ],
+      topCountries: [
+        { name: "United States", percentage: 41 },
+        { name: "United Kingdom", percentage: 18 },
+        { name: "Canada", percentage: 16 },
+        { name: "Australia", percentage: 12 },
+        { name: "Germany", percentage: 9 }
+      ]
+    },
+    suggestedKeywords: ["content creation", "mistakes", "creator tips"]
+  },
+  {
+    id: 20,
+    title: "Testing Viral TikTok Life Hacks: Do They Actually Work?",
+    thumbnail: "https://img.youtube.com/vi/dQw4w9WgXcQ/mqdefault.jpg",
+    duration: "13:29",
+    date: "2023-11-28",
+    pillar: "Content Creation",
+    category: "Entertainment",
+    performance: "Excellent",
+    youtubeUrl: "https://youtube.com/watch?v=dQw4w9WgXcQ",
+    detailedStats: {
+      views: 95600,
+      viewsGrowth: 28.7,
+      likes: 4780,
+      likeRatio: 9.5,
+      comments: 1912,
+      engagement: 9.1,
+      watchTime: "10:15",
+      retention: 73,
+      ctr: 9.5,
+      trafficSources: [
+        { name: "Suggested Videos", percentage: 48 },
+        { name: "YouTube Search", percentage: 26 },
+        { name: "Browse Features", percentage: 12 },
+        { name: "External", percentage: 10 },
+        { name: "Direct", percentage: 4 }
+      ],
+      topCountries: [
+        { name: "United States", percentage: 46 },
+        { name: "United Kingdom", percentage: 16 },
+        { name: "Canada", percentage: 14 },
+        { name: "Australia", percentage: 11 },
+        { name: "Germany", percentage: 8 }
+      ]
+    },
+    suggestedKeywords: ["life hacks", "tiktok", "viral", "testing"]
+  },
+  {
+    id: 21,
+    title: "Setting Up the Perfect Home Office for Productivity",
+    thumbnail: "https://img.youtube.com/vi/dQw4w9WgXcQ/mqdefault.jpg",
+    duration: "15:36",
+    date: "2023-11-25",
+    pillar: "Personal Stories",
+    category: "Lifestyle",
+    performance: "Average",
+    youtubeUrl: "https://youtube.com/watch?v=dQw4w9WgXcQ",
+    detailedStats: {
+      views: 22400,
+      viewsGrowth: 1.8,
+      likes: 1120,
+      likeRatio: 6.1,
+      comments: 448,
+      engagement: 4.9,
+      watchTime: "9:45",
+      retention: 49,
+      ctr: 6.1,
+      trafficSources: [
+        { name: "YouTube Search", percentage: 41 },
+        { name: "Suggested Videos", percentage: 33 },
+        { name: "Browse Features", percentage: 14 },
+        { name: "External", percentage: 8 },
+        { name: "Direct", percentage: 4 }
+      ],
+      topCountries: [
+        { name: "United States", percentage: 38 },
+        { name: "United Kingdom", percentage: 19 },
+        { name: "Canada", percentage: 17 },
+        { name: "Australia", percentage: 13 },
+        { name: "Germany", percentage: 9 }
+      ]
+    },
+    suggestedKeywords: ["home office", "productivity", "workspace setup"]
+  },
+  {
+    id: 22,
+    title: "Learning Python in 30 Days: My Coding Journey",
+    thumbnail: "https://img.youtube.com/vi/dQw4w9WgXcQ/mqdefault.jpg",
+    duration: "22:18",
+    date: "2023-11-22",
+    pillar: "Tech Tutorials",
+    category: "Education",
+    performance: "Good",
+    youtubeUrl: "https://youtube.com/watch?v=dQw4w9WgXcQ",
+    detailedStats: {
+      views: 47300,
+      viewsGrowth: 16.4,
+      likes: 2365,
+      likeRatio: 8.4,
+      comments: 946,
+      engagement: 7.2,
+      watchTime: "15:30",
+      retention: 66,
+      ctr: 8.4,
+      trafficSources: [
+        { name: "YouTube Search", percentage: 45 },
+        { name: "Suggested Videos", percentage: 28 },
+        { name: "Browse Features", percentage: 13 },
+        { name: "External", percentage: 10 },
+        { name: "Direct", percentage: 4 }
+      ],
+      topCountries: [
+        { name: "United States", percentage: 43 },
+        { name: "India", percentage: 20 },
+        { name: "United Kingdom", percentage: 14 },
+        { name: "Canada", percentage: 11 },
+        { name: "Germany", percentage: 8 }
+      ]
+    },
+    suggestedKeywords: ["python", "coding", "programming", "learning"]
+  },
+  {
+    id: 23,
+    title: "The Rise and Fall of My First Startup: Lessons Learned",
+    thumbnail: "https://img.youtube.com/vi/dQw4w9WgXcQ/mqdefault.jpg",
+    duration: "24:51",
+    date: "2023-11-20",
+    pillar: "Personal Stories",
+    category: "Business",
+    performance: "Excellent",
+    youtubeUrl: "https://youtube.com/watch?v=dQw4w9WgXcQ",
+    detailedStats: {
+      views: 72800,
+      viewsGrowth: 24.3,
+      likes: 3640,
+      likeRatio: 9.2,
+      comments: 1456,
+      engagement: 8.7,
+      watchTime: "17:45",
+      retention: 70,
+      ctr: 9.2,
+      trafficSources: [
+        { name: "Suggested Videos", percentage: 42 },
+        { name: "YouTube Search", percentage: 30 },
+        { name: "Browse Features", percentage: 14 },
+        { name: "External", percentage: 10 },
+        { name: "Direct", percentage: 4 }
+      ],
+      topCountries: [
+        { name: "United States", percentage: 44 },
+        { name: "United Kingdom", percentage: 17 },
+        { name: "Canada", percentage: 15 },
+        { name: "Australia", percentage: 12 },
+        { name: "Germany", percentage: 8 }
+      ]
+    },
+    suggestedKeywords: ["startup", "entrepreneurship", "business", "failure"]
+  },
+  {
+    id: 24,
+    title: "Ultimate Guide to Streaming Setup: Hardware and Software",
+    thumbnail: "https://img.youtube.com/vi/dQw4w9WgXcQ/mqdefault.jpg",
+    duration: "19:27",
+    date: "2023-11-18",
+    pillar: "Gaming Reviews",
+    category: "Tutorial",
+    performance: "Average",
+    youtubeUrl: "https://youtube.com/watch?v=dQw4w9WgXcQ",
+    detailedStats: {
+      views: 31500,
+      viewsGrowth: 7.9,
+      likes: 1575,
+      likeRatio: 7.2,
+      comments: 630,
+      engagement: 5.8,
+      watchTime: "12:15",
+      retention: 55,
+      ctr: 7.2,
+      trafficSources: [
+        { name: "YouTube Search", percentage: 42 },
+        { name: "Suggested Videos", percentage: 30 },
+        { name: "Browse Features", percentage: 15 },
+        { name: "External", percentage: 9 },
+        { name: "Direct", percentage: 4 }
+      ],
+      topCountries: [
+        { name: "United States", percentage: 40 },
+        { name: "United Kingdom", percentage: 18 },
+        { name: "Canada", percentage: 16 },
+        { name: "Australia", percentage: 13 },
+        { name: "Germany", percentage: 10 }
+      ]
+    },
+    suggestedKeywords: ["streaming setup", "obs", "twitch", "gaming"]
   }
 ])
 
@@ -460,4 +1210,187 @@ const formatDate = (dateString) => {
   if (diffDays < 30) return `${Math.floor(diffDays / 7)} weeks ago`
   return `${Math.floor(diffDays / 30)} months ago`
 }
+
+// API Functions
+const fetchVideos = async () => {
+  loading.value = true
+  error.value = null
+
+  try {
+    const params = new URLSearchParams({
+      page: currentPage.value.toString(),
+      per_page: perPage.value.toString(),
+      sort_by: sortBy.value === 'recent' ? 'published_at' : 'performance_score',
+      sort_order: sortBy.value === 'recent' ? 'DESC' : 'DESC'
+    })
+
+    // Add filters if they exist
+    if (searchQuery.value) params.append('search', searchQuery.value)
+    if (selectedPillar.value && selectedPillar.value !== 'all') params.append('pillar_id', selectedPillar.value)
+    if (selectedTier.value) params.append('performance_tier', selectedTier.value)
+    if (dateFrom.value) params.append('date_from', dateFrom.value)
+    if (dateTo.value) params.append('date_to', dateTo.value)
+
+    const response = await fetch(`/api/videos?${params}`)
+
+    if (!response.ok) {
+      throw new Error('Failed to fetch videos')
+    }
+
+    const data = await response.json()
+
+    if (data.success) {
+      videos.value = data.data.videos
+      totalCount.value = data.data.pagination.total_count
+      totalPages.value = data.data.pagination.total_pages
+      hasNext.value = data.data.pagination.has_next
+      hasPrev.value = data.data.pagination.has_prev
+    } else {
+      throw new Error('API returned error')
+    }
+
+  } catch (err) {
+    console.error('Error fetching videos:', err)
+    error.value = 'Failed to load videos'
+    // Fallback to mock data for development
+    videos.value = mockVideos.value
+    totalCount.value = mockVideos.value.length
+    totalPages.value = 1
+    hasNext.value = false
+    hasPrev.value = false
+  } finally {
+    loading.value = false
+  }
+}
+
+// Pagination functions
+const goToPage = (page) => {
+  if (page >= 1 && page <= totalPages.value) {
+    currentPage.value = page
+    fetchVideos()
+  }
+}
+
+const nextPage = () => {
+  if (hasNext.value) {
+    goToPage(currentPage.value + 1)
+  }
+}
+
+const prevPage = () => {
+  if (hasPrev.value) {
+    goToPage(currentPage.value - 1)
+  }
+}
+
+// Filter functions
+const applyFilters = () => {
+  currentPage.value = 1 // Reset to first page when filtering
+  fetchVideos()
+}
+
+const clearFilters = () => {
+  searchQuery.value = ''
+  selectedPillar.value = 'all'
+  selectedTier.value = ''
+  dateFrom.value = ''
+  dateTo.value = ''
+  currentPage.value = 1
+  fetchVideos()
+}
+
+// Watch for filter changes
+watch([searchQuery, selectedPillar, selectedTier, dateFrom, dateTo, sortBy], () => {
+  // Debounce search to avoid too many API calls
+  if (searchQuery.value) {
+    setTimeout(() => {
+      applyFilters()
+    }, 500)
+  } else {
+    applyFilters()
+  }
+})
+
+// Pagination helper functions
+const getPageNumbers = () => {
+  const pages = []
+  const maxVisible = 5
+
+  if (totalPages.value <= maxVisible) {
+    for (let i = 1; i <= totalPages.value; i++) {
+      pages.push(i)
+    }
+  } else {
+    // Always show first page
+    pages.push(1)
+
+    // Calculate range around current page
+    let start = Math.max(2, currentPage.value - 1)
+    let end = Math.min(totalPages.value - 1, currentPage.value + 1)
+
+    // Add ellipsis if needed
+    if (start > 2) {
+      pages.push('...')
+    }
+
+    // Add pages around current
+    for (let i = start; i <= end; i++) {
+      if (i !== 1 && i !== totalPages.value) {
+        pages.push(i)
+      }
+    }
+
+    // Add ellipsis if needed
+    if (end < totalPages.value - 1) {
+      pages.push('...')
+    }
+
+    // Always show last page
+    if (totalPages.value > 1) {
+      pages.push(totalPages.value)
+    }
+  }
+
+  return pages
+}
+
+// Load more function (alternative to pagination)
+const loadMore = async () => {
+  if (!hasNext.value || loading.value) return
+
+  const nextPage = currentPage.value + 1
+  loading.value = true
+
+  try {
+    const params = new URLSearchParams({
+      page: nextPage.toString(),
+      per_page: perPage.value.toString(),
+      sort_by: sortBy.value === 'recent' ? 'published_at' : 'performance_score',
+      sort_order: 'DESC'
+    })
+
+    if (searchQuery.value) params.append('search', searchQuery.value)
+    if (selectedPillar.value && selectedPillar.value !== 'all') params.append('pillar_id', selectedPillar.value)
+
+    const response = await fetch(`/api/videos?${params}`)
+    const data = await response.json()
+
+    if (data.success) {
+      videos.value = [...videos.value, ...data.data.videos]
+      currentPage.value = nextPage
+      hasNext.value = data.data.pagination.has_next
+    }
+  } catch (err) {
+    console.error('Error loading more videos:', err)
+  } finally {
+    loading.value = false
+  }
+}
+
+// Load videos on component mount
+onMounted(() => {
+  // Initialize with mock data first, then try to fetch real data
+  videos.value = mockVideos.value
+  fetchVideos()
+})
 </script>

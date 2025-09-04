@@ -112,10 +112,11 @@ class EnhancedSecurityMiddleware(BaseHTTPMiddleware):
         response.headers["Expect-CT"] = "max-age=86400, enforce"
 
         # Remove server identification headers
-        response.headers.pop("Server", None)
-        response.headers.pop("X-Powered-By", None)
-        response.headers.pop("X-AspNet-Version", None)
-        response.headers.pop("X-AspNetMvc-Version", None)
+        # Use del instead of pop() since MutableHeaders doesn't support pop()
+        headers_to_remove = ["Server", "X-Powered-By", "X-AspNet-Version", "X-AspNetMvc-Version"]
+        for header in headers_to_remove:
+            if header in response.headers:
+                del response.headers[header]
 
         # Add security monitoring headers
         response.headers["X-Security-Mode"] = "strict" if self.strict_mode else "standard"
