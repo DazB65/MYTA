@@ -52,7 +52,7 @@
         </div>
 
         <!-- Notification Message -->
-        <p class="text-sm text-gray-200 mb-4 leading-relaxed">{{ notification.content }}</p>
+        <p class="text-sm text-gray-200 mb-4 leading-relaxed">{{ notification.message }}</p>
 
         <!-- Action Buttons -->
         <div v-if="notification.actionButtons && notification.actionButtons.length > 0" 
