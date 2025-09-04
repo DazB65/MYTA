@@ -663,7 +663,7 @@ const { getContextualQuestions } = useSmartQuestions()
 const { saveMessageAsTask, prepareTaskData } = useSaveToTask()
 
 const { success, error } = useToast()
-const { openTask } = useModals()
+const { openTask, openContent } = useModals()
 
 // Refs
 const messagesContainer = ref<HTMLElement>()
@@ -709,7 +709,7 @@ const agentNotifications = ref([
     timestamp: new Date(Date.now() - 2 * 60 * 60 * 1000), // 2 hours ago
     actionButtons: [
       { text: 'Create Content', action: 'create_similar_content' },
-      { text: 'View Analytics', action: 'analyze_success' }
+      { text: 'View Analytics', action: 'view_analytics' }
     ],
     isRead: false,
     priority: 'high'
@@ -739,7 +739,7 @@ const agentNotifications = ref([
     timestamp: new Date(Date.now() - 30 * 60 * 1000), // 30 minutes ago
     actionButtons: [
       { text: 'Create Content', action: 'create_trending_content' },
-      { text: 'View Trends', action: 'view_trending_topics' }
+      { text: 'View Trends', action: 'view_trends' }
     ],
     isRead: false,
     priority: 'high'
@@ -753,8 +753,8 @@ const agentNotifications = ref([
     message: 'I\'ve prepared your weekly content optimization tasks based on your recent performance data. There are 5 high-impact tasks that could boost your channel growth by 15-20% this week.',
     timestamp: new Date(Date.now() - 45 * 60 * 1000), // 45 minutes ago
     actionButtons: [
-      { text: 'View Tasks', action: 'view_weekly_tasks' },
-      { text: 'Start Working', action: 'start_task_workflow' }
+      { text: 'View Tasks', action: 'view_tasks' },
+      { text: 'Start Working', action: 'start_working' }
     ],
     isRead: false,
     priority: 'medium'
@@ -1578,100 +1578,130 @@ const handleNotificationAction = async (data: { action: string; notification: an
   // Mark notification as read when user interacts with it
   markNotificationAsRead(notification.id)
 
-  // Handle different notification actions with navigation
+  // Handle different notification actions with appropriate modals and navigation
   switch (action) {
     case 'review_opportunities':
-      // Send message and navigate to Videos page for optimization
-      await sendMessage(`${notification.agentName}, I'm ready to review the optimization opportunities. Taking me to the videos section now.`)
+      // Navigate to Videos page for optimization
+      await sendMessage(`${notification.agentName}, taking you to the videos section to review optimization opportunities.`)
       setTimeout(() => {
         navigateTo('/videos')
-        // Close chat panel after navigation
         emit('close')
-      }, 1500)
+      }, 1000)
       break
 
     case 'show_optimization_details':
-      // Send message and navigate to specific video optimization
-      await sendMessage(`${notification.agentName}, show me the detailed optimization breakdown for each video.`)
+      // Navigate to specific video optimization
+      await sendMessage(`${notification.agentName}, showing you the detailed optimization breakdown.`)
       setTimeout(() => {
         navigateTo('/videos?tab=optimization')
         emit('close')
-      }, 1500)
+      }, 1000)
       break
 
     case 'create_similar_content':
-      // Send message and navigate to Content Studio
-      await sendMessage(`${notification.agentName}, let's create content similar to my high-performing video. Taking me to the content studio.`)
+    case 'create_trending_content':
+      // Open Content Modal for immediate content creation
+      await sendMessage(`${notification.agentName}, opening the content creation studio for you.`)
       setTimeout(() => {
-        navigateTo('/content-studio')
+        openContent({
+          type: action === 'create_trending_content' ? 'trending' : 'similar',
+          context: notification.title,
+          agentSuggestion: notification.message
+        })
         emit('close')
-      }, 1500)
+      }, 1000)
       break
 
     case 'analyze_success':
-      // Send message and navigate to Analytics/Dashboard
-      await sendMessage(`${notification.agentName}, analyzing the success factors now. Let me show you the performance data.`)
+    case 'view_analytics':
+      // Navigate to Videos page with analytics focus
+      await sendMessage(`${notification.agentName}, analyzing the success factors. Taking you to the performance analytics.`)
       setTimeout(() => {
-        navigateTo('/dashboard?focus=analytics')
+        navigateTo('/videos?focus=analytics')
         emit('close')
-      }, 1500)
+      }, 1000)
       break
 
     case 'view_strategy_analysis':
-      // Send message and navigate to Pillars for strategy
-      await sendMessage(`${notification.agentName}, opening the Q1 strategy analysis. Taking you to the content pillars section.`)
+      // Navigate to Pillars page for strategy
+      await sendMessage(`${notification.agentName}, opening the Q1 strategy analysis in your content pillars.`)
       setTimeout(() => {
-        navigateTo('/pillars')
+        navigateTo('/pillars?focus=strategy')
         emit('close')
-      }, 1500)
+      }, 1000)
       break
 
     case 'implement_strategy':
-      // Send message and navigate to Tasks for implementation
-      await sendMessage(`${notification.agentName}, let's implement the Q1 strategy. I'll create tasks for you to track progress.`)
+    case 'create_tasks':
+      // Open Task Modal for immediate task creation
+      await sendMessage(`${notification.agentName}, creating strategic tasks for you to implement.`)
       setTimeout(() => {
-        navigateTo('/tasks?category=strategy')
+        openTask({
+          title: `Strategy Implementation: ${notification.title}`,
+          description: `Tasks generated from: ${notification.message}`,
+          category: 'strategy',
+          priority: 'high',
+          tags: ['strategy', 'agent-generated', notification.agentName.toLowerCase()]
+        })
         emit('close')
-      }, 1500)
-      break
-
-    case 'create_trending_content':
-      // Send message and navigate to Content Studio with trending focus
-      await sendMessage(`${notification.agentName}, let's create content around this trending topic! Taking you to the content studio.`)
-      setTimeout(() => {
-        navigateTo('/content-studio?focus=trending')
-        emit('close')
-      }, 1500)
+      }, 1000)
       break
 
     case 'view_trending_topics':
-      // Send message and navigate to Dashboard trending section
+      // Navigate to Dashboard trending section
       await sendMessage(`${notification.agentName}, showing you the latest trending topics and opportunities.`)
       setTimeout(() => {
         navigateTo('/dashboard?section=trending')
         emit('close')
-      }, 1500)
+      }, 1000)
       break
 
     case 'view_weekly_tasks':
-      // Send message and navigate to Tasks page
-      await sendMessage(`${notification.agentName}, opening your weekly optimization tasks. Let's get your channel growing!`)
+    case 'view_tasks':
+      // Navigate to Tasks page
+      await sendMessage(`${notification.agentName}, opening your task dashboard.`)
       setTimeout(() => {
         navigateTo('/tasks')
         emit('close')
-      }, 1500)
+      }, 1000)
       break
 
     case 'start_task_workflow':
-      // Send message and navigate to Tasks with workflow focus
-      await sendMessage(`${notification.agentName}, starting your task workflow. I'll guide you through each optimization step.`)
+    case 'start_working':
+      // Open Task Modal with workflow context
+      await sendMessage(`${notification.agentName}, starting your optimization workflow.`)
       setTimeout(() => {
-        navigateTo('/tasks?workflow=optimization')
+        openTask({
+          title: `Workflow: ${notification.title}`,
+          description: notification.message,
+          category: 'optimization',
+          priority: 'medium',
+          tags: ['workflow', 'agent-generated', notification.agentName.toLowerCase()]
+        })
         emit('close')
-      }, 1500)
+      }, 1000)
+      break
+
+    case 'view_analytics':
+      // Navigate to Videos page with analytics focus
+      await sendMessage(`${notification.agentName}, opening your performance analytics.`)
+      setTimeout(() => {
+        navigateTo('/videos?tab=analytics')
+        emit('close')
+      }, 1000)
+      break
+
+    case 'view_trends':
+      // Navigate to Dashboard with trends focus
+      await sendMessage(`${notification.agentName}, showing you the trending topics analysis.`)
+      setTimeout(() => {
+        navigateTo('/dashboard?section=trends')
+        emit('close')
+      }, 1000)
       break
 
     default:
+      // Fallback: send a message asking for more details
       await sendMessage(`${notification.agentName}, tell me more about: ${notification.title}`)
   }
 }
