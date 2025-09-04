@@ -64,7 +64,36 @@
       <!-- Recent Videos Section -->
       <div class="mb-8 rounded-xl bg-forest-800 p-6">
         <div class="mb-6 flex items-center justify-between">
-          <h3 class="text-xl font-bold text-white">Recent Videos</h3>
+          <div class="flex items-center space-x-4">
+            <h3 class="text-xl font-bold text-white">Recent Videos</h3>
+
+            <!-- Compact Pagination Controls -->
+            <div v-if="totalPages > 1" class="flex items-center space-x-2 text-sm">
+              <span class="text-gray-400">Page</span>
+              <button
+                @click="prevPage"
+                :disabled="!hasPrev"
+                class="flex items-center px-2 py-1 text-gray-300 bg-forest-700 rounded hover:bg-forest-600 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
+                  <path fill-rule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clip-rule="evenodd" />
+                </svg>
+              </button>
+              <span class="text-white font-medium">{{ currentPage }}</span>
+              <span class="text-gray-400">of</span>
+              <span class="text-white font-medium">{{ totalPages }}</span>
+              <button
+                @click="nextPage"
+                :disabled="!hasNext"
+                class="flex items-center px-2 py-1 text-gray-300 bg-forest-700 rounded hover:bg-forest-600 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
+                  <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd" />
+                </svg>
+              </button>
+            </div>
+          </div>
+
           <div class="flex items-center space-x-4">
             <!-- Sort by Pillar -->
             <select v-model="selectedPillar" class="rounded-lg bg-forest-700 px-3 py-2 text-sm text-white">
@@ -96,7 +125,7 @@
         </div>
 
         <!-- Video Grid -->
-        <div class="grid grid-cols-6 gap-4">
+        <div class="grid grid-cols-4 gap-6">
           <div v-for="video in filteredAndSortedVideos" :key="video.id" class="group cursor-pointer" @click="openVideoStats(video)">
             <div class="relative mb-3 aspect-video overflow-hidden rounded-lg bg-forest-700">
               <img :src="video.thumbnail" :alt="video.title" class="h-full w-full object-cover" />
@@ -126,68 +155,11 @@
           </div>
         </div>
 
-        <!-- Pagination Controls -->
-        <div v-if="totalPages > 1" class="mt-8 flex items-center justify-between">
+        <!-- Video count info -->
+        <div v-if="totalPages > 1" class="mt-6 text-center">
           <div class="text-sm text-gray-400">
             Showing {{ ((currentPage - 1) * perPage) + 1 }} to {{ Math.min(currentPage * perPage, totalCount) }} of {{ totalCount }} videos
           </div>
-
-          <div class="flex items-center space-x-2">
-            <!-- Previous Button -->
-            <button
-              @click="prevPage"
-              :disabled="!hasPrev"
-              class="flex items-center px-3 py-2 text-sm font-medium text-gray-300 bg-forest-800 rounded-lg hover:bg-forest-700 disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              <svg class="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
-                <path fill-rule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clip-rule="evenodd" />
-              </svg>
-              Previous
-            </button>
-
-            <!-- Page Numbers -->
-            <div class="flex items-center space-x-1">
-              <template v-for="page in getPageNumbers()" :key="page">
-                <button
-                  v-if="page !== '...'"
-                  @click="goToPage(page)"
-                  :class="[
-                    'px-3 py-2 text-sm font-medium rounded-lg',
-                    page === currentPage
-                      ? 'bg-orange-500 text-white'
-                      : 'text-gray-300 bg-forest-800 hover:bg-forest-700'
-                  ]"
-                >
-                  {{ page }}
-                </button>
-                <span v-else class="px-2 text-gray-400">...</span>
-              </template>
-            </div>
-
-            <!-- Next Button -->
-            <button
-              @click="nextPage"
-              :disabled="!hasNext"
-              class="flex items-center px-3 py-2 text-sm font-medium text-gray-300 bg-forest-800 rounded-lg hover:bg-forest-700 disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              Next
-              <svg class="w-4 h-4 ml-1" fill="currentColor" viewBox="0 0 20 20">
-                <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd" />
-              </svg>
-            </button>
-          </div>
-        </div>
-
-        <!-- Load More Button (alternative to pagination) -->
-        <div v-if="hasNext && totalPages <= 5" class="mt-8 text-center">
-          <button
-            @click="loadMore"
-            :disabled="loading"
-            class="px-6 py-3 bg-orange-500 text-white rounded-lg hover:bg-orange-600 disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            <span v-if="loading">Loading...</span>
-            <span v-else>Load More Videos</span>
-          </button>
         </div>
       </div>
 
@@ -230,7 +202,7 @@ const error = ref(null)
 
 // Pagination state
 const currentPage = ref(1)
-const perPage = ref(24)
+const perPage = ref(12)
 const totalCount = ref(0)
 const totalPages = ref(0)
 const hasNext = ref(false)
@@ -1134,7 +1106,7 @@ const mockVideos = ref([
   }
 ])
 
-// Computed property for filtered and sorted videos
+// Computed property for filtered and sorted videos with pagination
 const filteredAndSortedVideos = computed(() => {
   let filtered = videos.value
 
@@ -1144,7 +1116,7 @@ const filteredAndSortedVideos = computed(() => {
   }
 
   // Sort videos
-  return filtered.sort((a, b) => {
+  const sorted = filtered.sort((a, b) => {
     switch (sortBy.value) {
       case 'views':
         return (b.detailedStats?.views || 0) - (a.detailedStats?.views || 0)
@@ -1160,6 +1132,18 @@ const filteredAndSortedVideos = computed(() => {
         return new Date(b.date) - new Date(a.date)
     }
   })
+
+  // Apply pagination - show only current page videos (12 videos = 3 rows × 4 columns)
+  const startIndex = (currentPage.value - 1) * perPage.value
+  const endIndex = startIndex + perPage.value
+
+  // Update total count for pagination controls
+  totalCount.value = sorted.length
+  totalPages.value = Math.ceil(sorted.length / perPage.value)
+  hasNext.value = currentPage.value < totalPages.value
+  hasPrev.value = currentPage.value > 1
+
+  return sorted.slice(startIndex, endIndex)
 })
 
 // Sync with YouTube function

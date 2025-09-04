@@ -33,7 +33,7 @@
               ]"
             >
               <span>Strategic Planning</span>
-              <span class="text-xs bg-orange-500 text-white px-2 py-0.5 rounded-full">PRO</span>
+              <span class="text-xs bg-blue-500 text-white px-2 py-0.5 rounded-full">DEV</span>
             </button>
           </nav>
         </div>
@@ -96,12 +96,13 @@
 
         <!-- Strategic Planning Tab -->
         <div v-show="activeTab === 'strategy'" class="space-y-6">
-          <div v-if="hasPremiumAccess" class="relative">
+          <!-- Development Access - Strategic Planning Dashboard -->
+          <div class="relative">
             <StrategicPlanningDashboard />
           </div>
 
-          <!-- Premium Upgrade Prompt -->
-          <div v-else class="relative">
+          <!-- Premium Upgrade Prompt (Hidden during development) -->
+          <div v-if="false" class="relative">
             <div class="absolute inset-0 bg-gradient-to-r from-orange-500/10 to-purple-500/10 rounded-xl border border-orange-500/20 backdrop-blur-sm z-10 flex items-center justify-center">
               <div class="text-center p-8">
                 <div class="inline-flex items-center justify-center w-16 h-16 bg-orange-500/20 rounded-full mb-4">
