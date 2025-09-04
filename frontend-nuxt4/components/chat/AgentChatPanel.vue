@@ -205,69 +205,95 @@
         </div>
       </div>
 
+      <!-- Tab Navigation -->
+      <div class="border-b border-gray-600/30 bg-gray-800/50">
+        <div class="flex space-x-1 p-2">
+          <button
+            @click="activeTab = 'chat'"
+            :class="[
+              'px-4 py-2 text-sm font-medium rounded-lg transition-all duration-200',
+              activeTab === 'chat'
+                ? 'bg-orange-500/20 text-orange-200 border border-orange-500/30'
+                : 'text-gray-400 hover:text-gray-200 hover:bg-gray-700/50'
+            ]"
+          >
+            Chat
+            <span v-if="unreadChatCount > 0" class="ml-2 px-2 py-0.5 bg-blue-500 text-white text-xs rounded-full">
+              {{ unreadChatCount }}
+            </span>
+          </button>
+          <button
+            @click="activeTab = 'insights'"
+            :class="[
+              'px-4 py-2 text-sm font-medium rounded-lg transition-all duration-200',
+              activeTab === 'insights'
+                ? 'bg-orange-500/20 text-orange-200 border border-orange-500/30'
+                : 'text-gray-400 hover:text-gray-200 hover:bg-gray-700/50'
+            ]"
+          >
+            Insights
+            <span v-if="unreadInsightCount > 0" class="ml-2 px-2 py-0.5 bg-red-500 text-white text-xs rounded-full">
+              {{ unreadInsightCount }}
+            </span>
+          </button>
+        </div>
+      </div>
+
       <!-- Chat Messages Area -->
       <div
         ref="messagesContainer"
         class="flex-1 overflow-y-auto p-4 space-y-4 overscroll-contain"
-        :style="{ height: `calc(100vh - 200px)` }"
+        :style="{ height: `calc(100vh - 250px)` }"
         @wheel.stop
       >
-        <!-- Enhanced Executive Welcome Message -->
-        <div v-if="messages.length === 0" class="text-center py-8 px-4">
-          <!-- Executive Avatar with Orange Styling -->
-          <div class="w-24 h-24 mx-auto mb-6 relative">
-            <div class="w-full h-full rounded-xl overflow-hidden ring-4 ring-orange-400/50 bg-gradient-to-br from-orange-400 to-orange-600 p-1">
-              <img
-                :src="selectedAgentData.image"
-                :alt="selectedAgentData.name"
-                class="w-full h-full object-cover rounded-lg"
-              />
-            </div>
-            <!-- Executive Badge -->
-            <div class="absolute -bottom-2 left-1/2 transform -translate-x-1/2 bg-gradient-to-r from-orange-500 to-orange-600 text-white text-xs font-bold px-3 py-1 rounded-full border-2 border-orange-300">
-              EXECUTIVE
-            </div>
-          </div>
 
-          <!-- Personalized Greeting -->
-          <div class="mb-6">
-            <h3 class="text-2xl font-bold text-white mb-2 bg-gradient-to-r from-orange-300 to-yellow-300 bg-clip-text text-transparent">
-              Welcome back to {{ selectedAgentData.name }}
-            </h3>
-            <p class="text-orange-200 text-sm mb-2 font-medium">{{ selectedAgentData.description }}</p>
-            <p class="text-orange-300/80 text-xs mb-4">{{ selectedAgentData.personality }}</p>
 
-            <!-- Executive Status -->
-            <div class="flex items-center justify-center space-x-4 text-xs">
-              <div class="flex items-center space-x-1 bg-green-500/20 px-3 py-1 rounded-full border border-green-400/30">
-                <div class="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
-                <span class="text-green-300">All Systems Online</span>
+        <!-- Chat Tab Content -->
+        <div v-if="activeTab === 'chat'">
+          <!-- Enhanced Executive Welcome Message -->
+          <div v-if="chatMessages.length === 0" class="text-center py-8 px-4">
+            <!-- Executive Avatar with Orange Styling -->
+            <div class="w-24 h-24 mx-auto mb-6 relative">
+              <div class="w-full h-full rounded-xl overflow-hidden ring-4 ring-orange-400/50 bg-gradient-to-br from-orange-400 to-orange-600 p-1">
+                <img
+                  :src="selectedAgentData.image"
+                  :alt="selectedAgentData.name"
+                  class="w-full h-full object-cover rounded-lg"
+                />
               </div>
-              <div class="flex items-center space-x-1 bg-blue-500/20 px-3 py-1 rounded-full border border-blue-400/30">
-                <span class="text-blue-300">Alex, Levi, Maya, Zara & Kai Ready</span>
+              <!-- Executive Badge -->
+              <div class="absolute -bottom-2 left-1/2 transform -translate-x-1/2 bg-gradient-to-r from-orange-500 to-orange-600 text-white text-xs font-bold px-3 py-1 rounded-full border-2 border-orange-300">
+                EXECUTIVE
               </div>
             </div>
+
+            <!-- Personalized Greeting -->
+            <div class="mb-6">
+              <h3 class="text-2xl font-bold text-white mb-2 bg-gradient-to-r from-orange-300 to-yellow-300 bg-clip-text text-transparent">
+                Welcome back to {{ selectedAgentData.name }}
+              </h3>
+              <p class="text-orange-200 text-sm mb-2 font-medium">{{ selectedAgentData.description }}</p>
+              <p class="text-orange-300/80 text-xs mb-4">{{ selectedAgentData.personality }}</p>
+
+              <!-- Executive Status -->
+              <div class="flex items-center justify-center space-x-4 text-xs">
+                <div class="flex items-center space-x-1 bg-green-500/20 px-3 py-1 rounded-full border border-green-400/30">
+                  <div class="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
+                  <span class="text-green-300">All Systems Online</span>
+                </div>
+                <div class="flex items-center space-x-1 bg-blue-500/20 px-3 py-1 rounded-full border border-blue-400/30">
+                  <span class="text-blue-300">Alex, Levi, Maya, Zara & Kai Ready</span>
+                </div>
+              </div>
+            </div>
+
+            <p class="text-orange-300/80 text-sm font-medium">Ready to strategize your channel's growth? I'm coordinating with my specialist team to provide you with comprehensive insights.</p>
           </div>
 
-
-
-          <p class="text-orange-300/80 text-sm font-medium">Ready to strategize your channel's growth? I'm coordinating with my specialist team to provide you with comprehensive insights.</p>
-        </div>
-
-        <!-- Messages -->
-        <template v-for="message in allMessages" :key="message.id">
-          <!-- Agent Notification Messages -->
-          <div v-if="message.type === 'agent_notification'" class="mb-4">
-            <AgentNotificationBubble
-              :notification="message"
-              @action-click="handleNotificationAction"
-              @mark-read="markNotificationAsRead"
-              @delete-notification="deleteNotification"
-            />
-          </div>
-
-          <!-- Strategic Planning Redirect Messages -->
-          <div v-else-if="message.metadata?.redirect_to === 'strategic_planning'" class="mb-4">
+          <!-- Chat Messages -->
+          <template v-for="message in chatMessages" :key="message.id">
+            <!-- Strategic Planning Redirect Messages -->
+            <div v-if="message.metadata?.redirect_to === 'strategic_planning'" class="mb-4">
             <div class="flex items-start space-x-3">
               <div class="w-10 h-10 rounded-lg overflow-hidden ring-2 ring-indigo-400/50 bg-gradient-to-br from-indigo-400 to-indigo-600 p-0.5">
                 <img
@@ -300,64 +326,107 @@
             </div>
           </div>
 
-          <!-- Regular Chat Messages -->
-          <MessageBubble
-            v-else
-            :message="message"
-            :agent-color="selectedAgentData.color"
-            :agent-image="selectedAgentData.image"
-            :agent-name="selectedAgentData.name"
-            :show-action-buttons="true"
-            @action-click="handleActionClick"
-            @save-as-task="handleSaveAsTask"
-            @delete-message="handleDeleteMessage"
-          />
-        </template>
-
-        <!-- Enhanced Executive Typing Indicator -->
-        <div v-if="isTyping" class="flex items-start space-x-3">
-          <div class="w-10 h-10 rounded-lg overflow-hidden ring-2 ring-orange-400/50 bg-gradient-to-br from-orange-400 to-orange-600 p-0.5">
-            <img
-              :src="selectedAgentData.image"
-              :alt="selectedAgentData.name"
-              class="w-full h-full object-cover rounded-lg"
+            <!-- Regular Chat Messages -->
+            <MessageBubble
+              v-else
+              :message="message"
+              :agent-color="selectedAgentData.color"
+              :agent-image="selectedAgentData.image"
+              :agent-name="selectedAgentData.name"
+              :show-action-buttons="true"
+              @action-click="handleActionClick"
+              @save-as-task="handleSaveAsTask"
+              @delete-message="handleDeleteMessage"
             />
-          </div>
-          <div class="bg-gradient-to-r from-orange-900/60 to-orange-800/60 rounded-xl p-4 border border-orange-500/30 backdrop-blur-sm max-w-md">
-            <div class="flex items-center space-x-3 mb-2">
-              <div class="w-6 h-6 rounded-full bg-gradient-to-r from-orange-400 to-orange-500 flex items-center justify-center text-sm animate-pulse">
-                🧠
-              </div>
-              <span class="text-orange-200 text-sm font-medium">{{ selectedAgentData.name }} is strategizing...</span>
-            </div>
+          </template>
 
-            <!-- Executive Thinking Process -->
-            <div class="space-y-1 text-xs text-orange-300/80">
-              <div class="flex items-center space-x-2" v-if="typingStage >= 1">
-                <div class="w-1 h-1 bg-blue-400 rounded-full animate-pulse"></div>
-                <span>Consulting with {{ currentTypingAgents[0] || 'Alex' }}...</span>
-              </div>
-              <div class="flex items-center space-x-2" v-if="typingStage >= 2">
-                <div class="w-1 h-1 bg-green-400 rounded-full animate-pulse"></div>
-                <span>Coordinating with {{ currentTypingAgents[1] || 'Levi' }} and {{ currentTypingAgents[2] || 'Maya' }}...</span>
-              </div>
-              <div class="flex items-center space-x-2" v-if="typingStage >= 3">
-                <div class="w-1 h-1 bg-purple-400 rounded-full animate-pulse"></div>
-                <span>Finalizing team recommendations...</span>
-              </div>
+          <!-- Enhanced Executive Typing Indicator -->
+          <div v-if="isTyping" class="flex items-start space-x-3">
+            <div class="w-10 h-10 rounded-lg overflow-hidden ring-2 ring-orange-400/50 bg-gradient-to-br from-orange-400 to-orange-600 p-0.5">
+              <img
+                :src="selectedAgentData.image"
+                :alt="selectedAgentData.name"
+                class="w-full h-full object-cover rounded-lg"
+              />
             </div>
+            <div class="bg-gradient-to-r from-orange-900/60 to-orange-800/60 rounded-xl p-4 border border-orange-500/30 backdrop-blur-sm max-w-md">
+              <div class="flex items-center space-x-3 mb-2">
+                <div class="w-6 h-6 rounded-full bg-gradient-to-r from-orange-400 to-orange-500 flex items-center justify-center text-sm animate-pulse">
+                  🧠
+                </div>
+                <span class="text-orange-200 text-sm font-medium">{{ selectedAgentData.name }} is strategizing...</span>
+              </div>
 
-            <!-- Animated Dots -->
-            <div class="flex items-center space-x-1 mt-3">
-              <span class="text-orange-300 text-sm">Preparing executive summary</span>
-              <div class="flex space-x-1">
-                <div class="w-1.5 h-1.5 rounded-full bg-orange-400 animate-pulse"></div>
-                <div class="w-1.5 h-1.5 rounded-full bg-orange-400 animate-pulse" style="animation-delay: 0.2s;"></div>
-                <div class="w-1.5 h-1.5 rounded-full bg-orange-400 animate-pulse" style="animation-delay: 0.4s;"></div>
+              <!-- Executive Thinking Process -->
+              <div class="space-y-1 text-xs text-orange-300/80">
+                <div class="flex items-center space-x-2" v-if="typingStage >= 1">
+                  <div class="w-1 h-1 bg-blue-400 rounded-full animate-pulse"></div>
+                  <span>Consulting with {{ currentTypingAgents[0] || 'Alex' }}...</span>
+                </div>
+                <div class="flex items-center space-x-2" v-if="typingStage >= 2">
+                  <div class="w-1 h-1 bg-green-400 rounded-full animate-pulse"></div>
+                  <span>Coordinating with {{ currentTypingAgents[1] || 'Levi' }} and {{ currentTypingAgents[2] || 'Maya' }}...</span>
+                </div>
+                <div class="flex items-center space-x-2" v-if="typingStage >= 3">
+                  <div class="w-1 h-1 bg-purple-400 rounded-full animate-pulse"></div>
+                  <span>Finalizing team recommendations...</span>
+                </div>
+              </div>
+
+              <!-- Animated Dots -->
+              <div class="flex items-center space-x-1 mt-3">
+                <span class="text-orange-300 text-sm">Preparing executive summary</span>
+                <div class="flex space-x-1">
+                  <div class="w-1.5 h-1.5 rounded-full bg-orange-400 animate-pulse"></div>
+                  <div class="w-1.5 h-1.5 rounded-full bg-orange-400 animate-pulse" style="animation-delay: 0.2s;"></div>
+                  <div class="w-1.5 h-1.5 rounded-full bg-orange-400 animate-pulse" style="animation-delay: 0.4s;"></div>
+                </div>
               </div>
             </div>
           </div>
         </div>
+
+        <!-- Insights Tab Content -->
+        <div v-else-if="activeTab === 'insights'">
+          <!-- Insights Header -->
+          <div v-if="agentNotifications.length === 0" class="text-center py-8 px-4">
+            <div class="w-16 h-16 mx-auto mb-4 rounded-full bg-gradient-to-r from-purple-500/20 to-indigo-500/20 flex items-center justify-center border border-purple-500/30">
+              <span class="text-2xl">💡</span>
+            </div>
+            <h3 class="text-lg font-semibold text-white mb-2">No Insights Yet</h3>
+            <p class="text-gray-400 text-sm">Your AI team will share strategic insights and alerts here.</p>
+          </div>
+
+          <!-- Insights Actions -->
+          <div v-if="agentNotifications.length > 0" class="flex items-center justify-between mb-4 pb-3 border-b border-gray-600/30">
+            <div class="flex items-center space-x-2">
+              <span class="text-sm font-medium text-white">{{ agentNotifications.length }} Insights</span>
+              <span v-if="unreadInsightCount > 0" class="px-2 py-1 bg-red-500/20 text-red-300 text-xs rounded-full border border-red-500/30">
+                {{ unreadInsightCount }} unread
+              </span>
+            </div>
+            <button
+              @click="clearAllInsights"
+              class="text-xs px-3 py-1 rounded-lg bg-red-600/20 hover:bg-red-600/30 text-red-300 hover:text-red-200 transition-all duration-200 border border-red-500/30 hover:border-red-400/50"
+            >
+              Clear All
+            </button>
+          </div>
+
+          <!-- Agent Insights -->
+          <template v-for="notification in agentNotifications" :key="notification.id">
+            <div class="mb-4">
+              <AgentNotificationBubble
+                :notification="notification"
+                @action-click="handleNotificationAction"
+                @mark-read="markNotificationAsRead"
+                @delete-notification="deleteNotification"
+              />
+            </div>
+          </template>
+        </div>
+
+
       </div>
 
       <!-- Enhanced Executive Input Area -->
@@ -573,7 +642,6 @@ import { useSaveToTask } from '../../composables/useSaveToTask';
 import { useSmartQuestions } from '../../composables/useSmartQuestions';
 import { useToast } from '../../composables/useToast';
 import { useChatStore } from '../../stores/chat';
-import AgentNotificationBubble from './AgentNotificationBubble.vue';
 import MessageBubble from './MessageBubble.vue';
 
 // Props
@@ -612,6 +680,7 @@ const typingStage = ref(0)
 const voiceInputActive = ref(false)
 const currentTypingAgents = ref<string[]>(['Alex', 'Levi', 'Maya'])
 const showDeleteConfirmation = ref(false)
+const activeTab = ref('chat')
 
 // Agent Notifications - proactive insights from AI agents
 const agentNotifications = ref([
@@ -732,7 +801,20 @@ const unreadNotificationCount = computed(() => {
   return agentNotifications.value.filter(n => !n.isRead).length
 })
 
-// Combine regular messages with agent notifications for display
+// Separate chat messages from insights
+const chatMessages = computed(() => {
+  return messages.value || []
+})
+
+const unreadChatCount = computed(() => {
+  return chatMessages.value.filter(m => !m.isRead && !m.isFromUser).length
+})
+
+const unreadInsightCount = computed(() => {
+  return agentNotifications.value.filter(n => !n.isRead).length
+})
+
+// Keep the old allMessages for backward compatibility if needed
 const allMessages = computed(() => {
   const regularMessages = messages.value || []
   const notificationMessages = agentNotifications.value.map(notification => ({
@@ -1606,6 +1688,10 @@ const deleteNotification = (notificationId: string) => {
   if (index !== -1) {
     agentNotifications.value.splice(index, 1)
   }
+}
+
+const clearAllInsights = () => {
+  agentNotifications.value = []
 }
 </script>
 
