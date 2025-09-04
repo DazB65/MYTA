@@ -14,22 +14,31 @@
     <!-- Notification Content -->
     <div class="flex-1 max-w-2xl">
       <!-- Notification Header -->
-      <div class="flex items-center space-x-2 mb-2">
+      <div class="flex items-center justify-between mb-2">
         <div class="flex items-center space-x-2">
           <span class="text-sm font-medium text-white">{{ notification.agentName }}</span>
           <div class="w-1 h-1 bg-gray-400 rounded-full"></div>
           <span class="text-xs text-gray-400">{{ formatTimestamp(notification.timestamp) }}</span>
+
+          <!-- Priority Badge -->
+          <div v-if="notification.priority === 'high'"
+               class="px-2 py-0.5 bg-red-500/20 text-red-300 text-xs font-medium rounded-full border border-red-500/30">
+            High Priority
+          </div>
+
+          <!-- Unread Indicator -->
+          <div v-if="!notification.isRead"
+               class="w-2 h-2 bg-blue-400 rounded-full animate-pulse"></div>
         </div>
-        
-        <!-- Priority Badge -->
-        <div v-if="notification.priority === 'high'" 
-             class="px-2 py-0.5 bg-red-500/20 text-red-300 text-xs font-medium rounded-full border border-red-500/30">
-          High Priority
-        </div>
-        
-        <!-- Unread Indicator -->
-        <div v-if="!notification.isRead" 
-             class="w-2 h-2 bg-blue-400 rounded-full animate-pulse"></div>
+
+        <!-- Delete Button -->
+        <button
+          @click="deleteNotification(notification)"
+          class="text-xs p-1.5 rounded-full bg-red-600/20 hover:bg-red-600/40 text-red-300 hover:text-red-200 transition-all duration-200 border border-red-500/30 hover:border-red-400/50"
+          title="Delete this insight"
+        >
+          🗑️
+        </button>
       </div>
 
       <!-- Notification Bubble -->
@@ -74,7 +83,6 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
 
 // Props
 interface Props {
@@ -95,32 +103,32 @@ interface Props {
 const props = defineProps<Props>()
 
 // Emits
-const emit = defineEmits(['action-click', 'mark-read'])
+const emit = defineEmits(['action-click', 'mark-read', 'delete-notification'])
 
 // Agent data mapping
 const agentData = {
   'Alex': {
-    image: '/Alex.png',
+    image: '/optimized/Agent1.jpg',
     color: '#3b82f6', // blue
     gradient: 'from-blue-400 to-blue-600'
   },
   'Levi': {
-    image: '/Levi.png', 
+    image: '/optimized/Agent2.jpg',
     color: '#eab308', // yellow
     gradient: 'from-yellow-400 to-yellow-600'
   },
   'Maya': {
-    image: '/Maya.png',
+    image: '/optimized/Agent3.jpg',
     color: '#ec4899', // pink
     gradient: 'from-pink-400 to-pink-600'
   },
   'Zara': {
-    image: '/Zara.png',
+    image: '/optimized/Agent4.jpg',
     color: '#8b5cf6', // purple
     gradient: 'from-purple-400 to-purple-600'
   },
   'Kai': {
-    image: '/Kai.png',
+    image: '/optimized/Agent5.jpg',
     color: '#10b981', // green
     gradient: 'from-green-400 to-green-600'
   }
@@ -187,6 +195,10 @@ const handleActionClick = (action: string, notification: any) => {
 
 const markAsRead = (notification: any) => {
   emit('mark-read', notification.id)
+}
+
+const deleteNotification = (notification: any) => {
+  emit('delete-notification', notification.id)
 }
 </script>
 

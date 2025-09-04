@@ -94,6 +94,13 @@
                        }">
                     {{ message.metadata.priority.toUpperCase() }}
                   </div>
+                  <button
+                    @click="$emit('delete-message', message.id)"
+                    class="text-xs p-1 rounded-full bg-red-600/20 hover:bg-red-600/40 text-red-300 hover:text-red-200 transition-all duration-200 border border-red-500/30 hover:border-red-400/50"
+                    title="Delete this insight"
+                  >
+                    🗑️
+                  </button>
                 </div>
               </div>
             </div>
@@ -123,10 +130,19 @@
             <div class="flex-1">
               <div class="flex items-center justify-between">
                 <span class="text-sm font-semibold text-emerald-200 uppercase tracking-wide">Strategic Recommendation</span>
-                <div class="flex items-center space-x-2 text-xs text-emerald-300/80">
-                  <span>{{ message.metadata?.timeline || 'Immediate' }}</span>
-                  <span>•</span>
-                  <span class="text-green-400 font-medium">{{ message.metadata?.expectedROI || 'High Impact' }}</span>
+                <div class="flex items-center space-x-2">
+                  <div class="flex items-center space-x-2 text-xs text-emerald-300/80">
+                    <span>{{ message.metadata?.timeline || 'Immediate' }}</span>
+                    <span>•</span>
+                    <span class="text-green-400 font-medium">{{ message.metadata?.expectedROI || 'High Impact' }}</span>
+                  </div>
+                  <button
+                    @click="$emit('delete-message', message.id)"
+                    class="text-xs p-1 rounded-full bg-red-600/20 hover:bg-red-600/40 text-red-300 hover:text-red-200 transition-all duration-200 border border-red-500/30 hover:border-red-400/50"
+                    title="Delete this strategic recommendation"
+                  >
+                    🗑️
+                  </button>
                 </div>
               </div>
             </div>
@@ -168,8 +184,17 @@
             <div class="flex-1">
               <div class="flex items-center justify-between">
                 <span class="text-sm font-semibold text-purple-200 uppercase tracking-wide">Strategic Insight</span>
-                <div v-if="message.metadata?.confidence" class="text-xs text-purple-300/80 bg-purple-600/20 px-2 py-1 rounded-full">
-                  {{ Math.round(message.metadata.confidence * 100) }}% confidence
+                <div class="flex items-center space-x-2">
+                  <div v-if="message.metadata?.confidence" class="text-xs text-purple-300/80 bg-purple-600/20 px-2 py-1 rounded-full">
+                    {{ Math.round(message.metadata.confidence * 100) }}% confidence
+                  </div>
+                  <button
+                    @click="$emit('delete-message', message.id)"
+                    class="text-xs p-1 rounded-full bg-red-600/20 hover:bg-red-600/40 text-red-300 hover:text-red-200 transition-all duration-200 border border-red-500/30 hover:border-red-400/50"
+                    title="Delete this insight"
+                  >
+                    🗑️
+                  </button>
                 </div>
               </div>
             </div>
@@ -201,7 +226,16 @@
             <div class="w-7 h-7 rounded-full bg-gradient-to-r from-amber-400 to-yellow-500 flex items-center justify-center text-sm font-bold">
               🎯
             </div>
-            <span class="text-sm font-semibold text-amber-200 uppercase tracking-wide">Executive Recommendation</span>
+            <div class="flex-1 flex items-center justify-between">
+              <span class="text-sm font-semibold text-amber-200 uppercase tracking-wide">Executive Recommendation</span>
+              <button
+                @click="$emit('delete-message', message.id)"
+                class="text-xs p-1 rounded-full bg-red-600/20 hover:bg-red-600/40 text-red-300 hover:text-red-200 transition-all duration-200 border border-red-500/30 hover:border-red-400/50"
+                title="Delete this recommendation"
+              >
+                🗑️
+              </button>
+            </div>
           </div>
           <p class="text-sm font-medium leading-relaxed">{{ message.content }}</p>
           <div v-if="message.metadata?.actionItems?.length" class="mt-4 space-y-2">
@@ -230,7 +264,16 @@
             <div class="w-7 h-7 rounded-full bg-gradient-to-r from-cyan-400 to-blue-500 flex items-center justify-center text-sm font-bold">
               📊
             </div>
-            <span class="text-sm font-semibold text-cyan-200 uppercase tracking-wide">Data Analysis</span>
+            <div class="flex-1 flex items-center justify-between">
+              <span class="text-sm font-semibold text-cyan-200 uppercase tracking-wide">Data Analysis</span>
+              <button
+                @click="$emit('delete-message', message.id)"
+                class="text-xs p-1 rounded-full bg-red-600/20 hover:bg-red-600/40 text-red-300 hover:text-red-200 transition-all duration-200 border border-red-500/30 hover:border-red-400/50"
+                title="Delete this analysis"
+              >
+                🗑️
+              </button>
+            </div>
           </div>
           <p class="text-sm font-medium leading-relaxed">{{ message.content }}</p>
           <div v-if="message.metadata?.sources?.length" class="mt-4 pt-3 border-t border-cyan-600/30">
@@ -301,8 +344,9 @@
       </div>
 
       <!-- Enhanced Executive Action Buttons -->
-      <div v-if="!message.isFromUser && showActionButtons" class="mt-4 flex items-center space-x-3">
+      <div v-if="showActionButtons" class="mt-4 flex items-center space-x-3">
         <button
+          v-if="!message.isFromUser"
           @click="$emit('save-as-task', message)"
           class="text-sm px-4 py-2 rounded-xl bg-gradient-to-r from-blue-600/80 to-blue-700/80 hover:from-blue-600 hover:to-blue-700 text-white transition-all duration-200 flex items-center space-x-2 shadow-lg border border-blue-500/30 hover:border-blue-400/50 backdrop-blur-sm"
           title="Add to executive task list"
@@ -311,7 +355,14 @@
           <span class="font-medium">Add to Tasks</span>
         </button>
 
-
+        <button
+          @click="$emit('delete-message', message.id)"
+          class="text-sm px-3 py-2 rounded-xl bg-gradient-to-r from-red-600/80 to-red-700/80 hover:from-red-600 hover:to-red-700 text-white transition-all duration-200 flex items-center space-x-2 shadow-lg border border-red-500/30 hover:border-red-400/50 backdrop-blur-sm"
+          title="Delete this message"
+        >
+          <span class="text-base">🗑️</span>
+          <span class="font-medium">Delete</span>
+        </button>
       </div>
 
       <!-- Timestamp -->
@@ -337,6 +388,7 @@ defineProps<Props>()
 defineEmits<{
   'action-click': [action: string]
   'save-as-task': [message: ChatMessage]
+  'delete-message': [messageId: string]
 }>()
 
 const formatTime = (timestamp: Date) => {

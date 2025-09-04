@@ -262,7 +262,42 @@
               :notification="message"
               @action-click="handleNotificationAction"
               @mark-read="markNotificationAsRead"
+              @delete-notification="deleteNotification"
             />
+          </div>
+
+          <!-- Strategic Planning Redirect Messages -->
+          <div v-else-if="message.metadata?.redirect_to === 'strategic_planning'" class="mb-4">
+            <div class="flex items-start space-x-3">
+              <div class="w-10 h-10 rounded-lg overflow-hidden ring-2 ring-indigo-400/50 bg-gradient-to-br from-indigo-400 to-indigo-600 p-0.5">
+                <img
+                  :src="selectedAgentData.image"
+                  :alt="selectedAgentData.name"
+                  class="w-full h-full object-cover rounded-lg"
+                />
+              </div>
+              <div class="bg-gradient-to-r from-indigo-900/60 to-indigo-800/60 rounded-xl p-4 border border-indigo-500/30 backdrop-blur-sm max-w-md">
+                <div class="flex items-center space-x-2 mb-3">
+                  <div class="w-6 h-6 rounded-full bg-gradient-to-r from-indigo-400 to-indigo-500 flex items-center justify-center text-sm">
+                    🎯
+                  </div>
+                  <span class="text-indigo-200 text-sm font-medium">Strategic Planning Redirect</span>
+                  <div class="px-2 py-1 bg-indigo-500/20 rounded-full text-xs text-indigo-300">
+                    {{ Math.round(message.metadata.confidence * 100) }}% confidence
+                  </div>
+                </div>
+                <p class="text-indigo-100 text-sm mb-3">{{ message.content }}</p>
+                <div class="flex items-center justify-between">
+                  <span class="text-xs text-indigo-300/70">Redirecting to Strategic Planning Dashboard...</span>
+                  <button
+                    @click="navigateTo('/strategy')"
+                    class="text-xs px-3 py-1 rounded-lg bg-indigo-500/20 text-indigo-300 hover:bg-indigo-500/30 transition-colors"
+                  >
+                    Go Now
+                  </button>
+                </div>
+              </div>
+            </div>
           </div>
 
           <!-- Regular Chat Messages -->
@@ -275,6 +310,7 @@
             :show-action-buttons="true"
             @action-click="handleActionClick"
             @save-as-task="handleSaveAsTask"
+            @delete-message="handleDeleteMessage"
           />
         </template>
 
@@ -811,26 +847,84 @@ const sendMessage = async () => {
       }, delay)
     })
 
-    // Simulate Agent response (replace with actual API call)
-    setTimeout(async () => {
+    // Call actual Agent API
+    try {
+      const response = await $fetch('/api/agent/chat', {
+        method: 'POST',
+        body: {
+          message: content,
+          user_id: 'demo-user', // TODO: Get from auth store
+          context: {
+            agent_id: selectedAgentData.value.id,
+            conversation_history: chatStore.activeSessionMessages.slice(-5) // Last 5 messages for context
+          }
+        }
+      })
+
       isTyping.value = false
       typingStage.value = 0
 
-      // Generate sophisticated Agent responses based on content
-      const responses = generateExecutiveResponses(content, selectedAgentData.value)
+      // Handle strategic planning redirect
+      if (response.redirect_to === 'strategic_planning') {
+        const redirectMessage = {
+          id: (Date.now() + 1).toString(),
+          agentId: selectedAgentData.value.id,
+          userId: 'demo-user',
+          content: response.response,
+          type: 'text',
+          timestamp: new Date(),
+          isFromUser: false,
+          metadata: {
+            redirect_to: 'strategic_planning',
+            classification: response.classification,
+            confidence: response.confidence
+          }
+        }
 
-      // Add Agent responses to the active session
+        if (chatStore.activeSession) {
+          chatStore.activeSession.messages.push(redirectMessage)
+          chatStore.activeSession.updatedAt = new Date()
+        }
+
+        // Show redirect notification and navigate after a delay
+        setTimeout(() => {
+          navigateTo('/strategy')
+        }, 2000)
+      } else {
+        // Handle normal response
+        const agentMessage = {
+          id: (Date.now() + 1).toString(),
+          agentId: selectedAgentData.value.id,
+          userId: 'demo-user',
+          content: response.response,
+          type: 'text',
+          timestamp: new Date(),
+          isFromUser: false
+        }
+
+        if (chatStore.activeSession) {
+          chatStore.activeSession.messages.push(agentMessage)
+          chatStore.activeSession.updatedAt = new Date()
+        }
+      }
+
+      await scrollToBottom()
+    } catch (error) {
+      console.error('Error calling agent API:', error)
+      isTyping.value = false
+      typingStage.value = 0
+
+      // Fallback to simulated response
+      const responses = generateExecutiveResponses(content, selectedAgentData.value)
       if (chatStore.activeSession) {
         for (const response of responses) {
           chatStore.activeSession.messages.push(response)
-          await new Promise(resolve => setTimeout(resolve, 1000)) // Stagger responses
+          await new Promise(resolve => setTimeout(resolve, 1000))
           await scrollToBottom()
         }
         chatStore.activeSession.updatedAt = new Date()
       }
-
-      await scrollToBottom()
-    }, 2500)
+    }
 
     await scrollToBottom()
   } catch (error) {
@@ -896,26 +990,85 @@ const loadQuickAction = async (actionText: string) => {
       }, delay)
     })
 
-    // Generate executive response
-    setTimeout(async () => {
+    // Call actual Agent API for quick actions
+    try {
+      const response = await $fetch('/api/agent/chat', {
+        method: 'POST',
+        body: {
+          message: actionText,
+          user_id: 'demo-user', // TODO: Get from auth store
+          context: {
+            agent_id: selectedAgentData.value.id,
+            conversation_history: chatStore.activeSessionMessages.slice(-5),
+            is_quick_action: true
+          }
+        }
+      })
+
       isTyping.value = false
       typingStage.value = 0
 
-      // Generate sophisticated Agent responses based on content
-      const responses = generateExecutiveResponses(actionText, selectedAgentData.value)
+      // Handle strategic planning redirect
+      if (response.redirect_to === 'strategic_planning') {
+        const redirectMessage = {
+          id: (Date.now() + 1).toString(),
+          agentId: selectedAgentData.value.id,
+          userId: 'demo-user',
+          content: response.response,
+          type: 'text',
+          timestamp: new Date(),
+          isFromUser: false,
+          metadata: {
+            redirect_to: 'strategic_planning',
+            classification: response.classification,
+            confidence: response.confidence
+          }
+        }
 
-      // Add Agent responses to the active session
+        if (chatStore.activeSession) {
+          chatStore.activeSession.messages.push(redirectMessage)
+          chatStore.activeSession.updatedAt = new Date()
+        }
+
+        // Show redirect notification and navigate after a delay
+        setTimeout(() => {
+          navigateTo('/strategy')
+        }, 2000)
+      } else {
+        // Handle normal response
+        const agentMessage = {
+          id: (Date.now() + 1).toString(),
+          agentId: selectedAgentData.value.id,
+          userId: 'demo-user',
+          content: response.response,
+          type: 'text',
+          timestamp: new Date(),
+          isFromUser: false
+        }
+
+        if (chatStore.activeSession) {
+          chatStore.activeSession.messages.push(agentMessage)
+          chatStore.activeSession.updatedAt = new Date()
+        }
+      }
+
+      await scrollToBottom()
+    } catch (error) {
+      console.error('Error calling agent API for quick action:', error)
+      isTyping.value = false
+      typingStage.value = 0
+
+      // Fallback to simulated response
+      const responses = generateExecutiveResponses(actionText, selectedAgentData.value)
       if (chatStore.activeSession) {
         for (const response of responses) {
           chatStore.activeSession.messages.push(response)
-          await new Promise(resolve => setTimeout(resolve, 1000)) // Stagger responses
+          await new Promise(resolve => setTimeout(resolve, 1000))
           await scrollToBottom()
         }
         chatStore.activeSession.updatedAt = new Date()
       }
-
-      await scrollToBottom()
-    }, 2500)
+    }
 
     await scrollToBottom()
   } catch (error) {
@@ -1256,6 +1409,22 @@ const handleSaveAsTask = (message: ChatMessage) => {
   }
 }
 
+const handleDeleteMessage = (messageId: string) => {
+  try {
+    // Delete the message from the chat store
+    const deleted = chatStore.deleteMessage(messageId)
+
+    if (deleted) {
+      success('Message Deleted', 'The message has been removed from the conversation.')
+    } else {
+      error('Delete Failed', 'Could not delete the message. Please try again.')
+    }
+  } catch (err) {
+    console.error('Failed to delete message:', err)
+    error('Delete Failed', 'There was an error deleting the message. Please try again.')
+  }
+}
+
 
 
 const removeSavedQuestion = (questionId: string) => {
@@ -1429,6 +1598,13 @@ const markNotificationAsRead = (notificationId: string) => {
   const notification = agentNotifications.value.find(n => n.id === notificationId)
   if (notification) {
     notification.isRead = true
+  }
+}
+
+const deleteNotification = (notificationId: string) => {
+  const index = agentNotifications.value.findIndex(n => n.id === notificationId)
+  if (index !== -1) {
+    agentNotifications.value.splice(index, 1)
   }
 }
 </script>

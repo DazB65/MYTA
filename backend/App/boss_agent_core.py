@@ -19,6 +19,7 @@ from backend.App.enhanced_user_context import get_enhanced_context_manager
 from backend.App.realtime_data_pipeline import get_data_pipeline
 from backend.model_integrations import create_agent_call_to_integration
 from backend.logging_config import get_logger, LogCategory
+from backend.App.strategic_content_classifier import get_strategic_content_classifier
 
 logger = get_logger(__name__, LogCategory.AGENT)
 
@@ -170,9 +171,26 @@ class BossAgent:
             
             # Step 1: Parse message and classify intent
             intent, parameters = await self.intent_classifier.classify_intent(message, user_context)
-            
+
             logger.info(f"Classified intent: {intent.value} with parameters: {parameters}")
-            
+
+            # Step 1.5: Check if this should be routed to Strategic Planning
+            strategic_classifier = get_strategic_content_classifier()
+            should_redirect, strategic_analysis = strategic_classifier.should_redirect_to_strategic_planning(message)
+
+            if should_redirect:
+                logger.info(f"🎯 Redirecting to Strategic Planning: {strategic_analysis['classification']} (confidence: {strategic_analysis['confidence']:.2f})")
+                return {
+                    "success": True,
+                    "response": "This appears to be a strategic planning question. I'm redirecting you to the Strategic Planning Dashboard where our team can provide comprehensive long-term insights.",
+                    "redirect_to": "strategic_planning",
+                    "classification": strategic_analysis['classification'],
+                    "confidence": strategic_analysis['confidence'],
+                    "analysis": strategic_analysis['analysis'],
+                    "intent": intent.value,
+                    "agents_used": ["strategic_router"]
+                }
+
             # Step 2: Check cache for existing response
             cached_response = self.cache.get(message, user_context, intent.value)
             if cached_response:
