@@ -1,5 +1,5 @@
 <template>
-  <section class="relative min-h-screen flex items-center justify-center overflow-hidden">
+  <section class="relative min-h-screen flex items-start justify-center overflow-hidden pt-4">
     <!-- Background Effects -->
     <div class="absolute inset-0 bg-gradient-to-br from-forest-900 via-forest-900 to-forest-800/20"></div>
     <div class="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(249,115,22,0.1),transparent_70%)]"></div>
@@ -13,7 +13,7 @@
     <!-- Main Content -->
     <div class="relative z-10 max-w-6xl mx-auto px-6 text-center">
       <!-- Logo -->
-      <div class="mb-4 flex justify-center">
+      <div class="mb-1 flex justify-center">
         <div class="relative">
           <img
             src="/MY YT AGENT.png"
@@ -64,9 +64,314 @@
         </div>
       </div>
 
+      <!-- Agent Team Section -->
+      <div class="mb-12">
+        <!-- Section Header -->
+        <div class="text-center mb-8">
+          <h2 class="text-2xl md:text-3xl font-bold mb-3">
+            Meet your
+            <span class="bg-gradient-to-r from-orange-500 to-forest-400 bg-clip-text text-transparent">
+              agent team
+            </span>
+          </h2>
+        </div>
+
+        <!-- Agents Grid -->
+        <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 max-w-4xl mx-auto">
+          <!-- Fred - Executive Agent -->
+          <div class="group bg-gradient-to-br from-orange-500/10 to-red-500/10 border border-orange-500/20 rounded-lg p-4 hover:border-orange-500/50 transition-all duration-300 hover:transform hover:scale-105 text-center">
+            <div class="relative mb-3 flex justify-center">
+              <img
+                src="/BossAgent.png"
+                alt="Fred - Executive Agent"
+                class="w-12 h-12 rounded-full border-2 border-orange-500"
+              />
+              <div class="absolute -bottom-1 -right-1 w-3 h-3 bg-green-500 rounded-full border-2 border-background"></div>
+            </div>
+            <h3 class="text-sm font-bold text-white mb-1">Fred</h3>
+            <p class="text-orange-400 text-xs font-semibold">Executive</p>
+          </div>
+
+          <!-- Alex - Analytics Expert -->
+          <div class="group bg-gradient-to-br from-blue-500/10 to-cyan-500/10 border border-blue-500/20 rounded-lg p-4 hover:border-blue-500/50 transition-all duration-300 hover:transform hover:scale-105 text-center">
+            <div class="relative mb-3 flex justify-center">
+              <img
+                src="/Agent1.png"
+                alt="Alex - Analytics Expert"
+                class="w-12 h-12 rounded-full border-2 border-blue-500"
+              />
+              <div class="absolute -bottom-1 -right-1 w-3 h-3 bg-green-500 rounded-full border-2 border-background"></div>
+            </div>
+            <h3 class="text-sm font-bold text-white mb-1">Alex</h3>
+            <p class="text-blue-400 text-xs font-semibold">Analytics</p>
+          </div>
+
+          <!-- Maya - Performance Specialist -->
+          <div class="group bg-gradient-to-br from-green-500/10 to-emerald-500/10 border border-green-500/20 rounded-lg p-4 hover:border-green-500/50 transition-all duration-300 hover:transform hover:scale-105 text-center">
+            <div class="relative mb-3 flex justify-center">
+              <img
+                src="/Agent3.png"
+                alt="Maya - Performance Specialist"
+                class="w-12 h-12 rounded-full border-2 border-green-500"
+              />
+              <div class="absolute -bottom-1 -right-1 w-3 h-3 bg-green-500 rounded-full border-2 border-background"></div>
+            </div>
+            <h3 class="text-sm font-bold text-white mb-1">Maya</h3>
+            <p class="text-green-400 text-xs font-semibold">Performance</p>
+          </div>
+
+          <!-- Levi - Strategy Coordinator -->
+          <div class="group bg-gradient-to-br from-yellow-500/10 to-orange-500/10 border border-yellow-500/20 rounded-lg p-4 hover:border-yellow-500/50 transition-all duration-300 hover:transform hover:scale-105 text-center">
+            <div class="relative mb-3 flex justify-center">
+              <img
+                src="/Agent2.png"
+                alt="Levi - Strategy Coordinator"
+                class="w-12 h-12 rounded-full border-2 border-yellow-500"
+              />
+              <div class="absolute -bottom-1 -right-1 w-3 h-3 bg-green-500 rounded-full border-2 border-background"></div>
+            </div>
+            <h3 class="text-sm font-bold text-white mb-1">Levi</h3>
+            <p class="text-yellow-400 text-xs font-semibold">Strategy</p>
+          </div>
+
+          <!-- Kai - Trend Analyst -->
+          <div class="group bg-gradient-to-br from-purple-500/10 to-pink-500/10 border border-purple-500/20 rounded-lg p-4 hover:border-purple-500/50 transition-all duration-300 hover:transform hover:scale-105 text-center">
+            <div class="relative mb-3 flex justify-center">
+              <img
+                src="/Agent5.png"
+                alt="Kai - Trend Analyst"
+                class="w-12 h-12 rounded-full border-2 border-purple-500"
+              />
+              <div class="absolute -bottom-1 -right-1 w-3 h-3 bg-green-500 rounded-full border-2 border-background"></div>
+            </div>
+            <h3 class="text-sm font-bold text-white mb-1">Kai</h3>
+            <p class="text-purple-400 text-xs font-semibold">Trends</p>
+          </div>
+
+          <!-- Zara - Community Manager -->
+          <div class="group bg-gradient-to-br from-pink-500/10 to-rose-500/10 border border-pink-500/20 rounded-lg p-4 hover:border-pink-500/50 transition-all duration-300 hover:transform hover:scale-105 text-center">
+            <div class="relative mb-3 flex justify-center">
+              <img
+                src="/Agent4.png"
+                alt="Zara - Community Manager"
+                class="w-12 h-12 rounded-full border-2 border-pink-500"
+              />
+              <div class="absolute -bottom-1 -right-1 w-3 h-3 bg-green-500 rounded-full border-2 border-background"></div>
+            </div>
+            <h3 class="text-sm font-bold text-white mb-1">Zara</h3>
+            <p class="text-pink-400 text-xs font-semibold">Community</p>
+          </div>
+        </div>
+      </div>
+
       <!-- Waitlist Form -->
       <div id="waitlist" class="max-w-md mx-auto">
         <WaitlistForm />
+      </div>
+
+      <!-- Agent Team Section -->
+      <div class="mt-16 mb-16">
+        <!-- Section Header -->
+        <div class="text-center mb-12">
+          <h2 class="text-3xl md:text-4xl font-bold mb-4">
+            Meet your
+            <span class="bg-gradient-to-r from-orange-500 to-forest-400 bg-clip-text text-transparent">
+              agent team
+            </span>
+          </h2>
+          <p class="text-lg text-gray-300 max-w-2xl mx-auto">
+            Five specialized agents working together to analyze, optimize, and grow your YouTube channel.
+          </p>
+        </div>
+
+        <!-- Agents Grid -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <!-- Fred - Executive Agent -->
+          <div class="group bg-gradient-to-br from-orange-500/10 to-red-500/10 border border-orange-500/20 rounded-xl p-6 hover:border-orange-500/50 transition-all duration-300 hover:transform hover:scale-105">
+            <div class="flex items-center space-x-3 mb-4">
+              <div class="relative">
+                <img
+                  src="/BossAgent.png"
+                  alt="Fred - Executive Agent"
+                  class="w-12 h-12 rounded-full border-2 border-orange-500"
+                />
+                <div class="absolute -bottom-1 -right-1 w-4 h-4 bg-green-500 rounded-full border-2 border-background"></div>
+              </div>
+              <div>
+                <h3 class="text-lg font-bold text-white">Fred</h3>
+                <p class="text-orange-400 text-sm font-semibold">Executive Agent</p>
+              </div>
+            </div>
+            <p class="text-gray-300 text-sm mb-3">
+              Your strategic leader who coordinates the entire agent team and provides executive-level insights.
+            </p>
+            <div class="space-y-1">
+              <div class="flex items-center space-x-2 text-xs text-gray-400">
+                <div class="w-1 h-1 bg-orange-400 rounded-full"></div>
+                <span>Team coordination</span>
+              </div>
+              <div class="flex items-center space-x-2 text-xs text-gray-400">
+                <div class="w-1 h-1 bg-orange-400 rounded-full"></div>
+                <span>Strategic planning</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Alex - Analytics Expert -->
+          <div class="group bg-gradient-to-br from-blue-500/10 to-cyan-500/10 border border-blue-500/20 rounded-xl p-6 hover:border-blue-500/50 transition-all duration-300 hover:transform hover:scale-105">
+            <div class="flex items-center space-x-3 mb-4">
+              <div class="relative">
+                <img
+                  src="/Agent1.png"
+                  alt="Alex - Analytics Expert"
+                  class="w-12 h-12 rounded-full border-2 border-blue-500"
+                />
+                <div class="absolute -bottom-1 -right-1 w-4 h-4 bg-green-500 rounded-full border-2 border-background"></div>
+              </div>
+              <div>
+                <h3 class="text-lg font-bold text-white">Alex</h3>
+                <p class="text-blue-400 text-sm font-semibold">Analytics Expert</p>
+              </div>
+            </div>
+            <p class="text-gray-300 text-sm mb-3">
+              Deep-dives into your channel analytics to identify patterns and optimization strategies.
+            </p>
+            <div class="space-y-1">
+              <div class="flex items-center space-x-2 text-xs text-gray-400">
+                <div class="w-1 h-1 bg-blue-400 rounded-full"></div>
+                <span>Performance analysis</span>
+              </div>
+              <div class="flex items-center space-x-2 text-xs text-gray-400">
+                <div class="w-1 h-1 bg-blue-400 rounded-full"></div>
+                <span>Data visualization</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Maya - Performance Specialist -->
+          <div class="group bg-gradient-to-br from-green-500/10 to-emerald-500/10 border border-green-500/20 rounded-xl p-6 hover:border-green-500/50 transition-all duration-300 hover:transform hover:scale-105">
+            <div class="flex items-center space-x-3 mb-4">
+              <div class="relative">
+                <img
+                  src="/Agent3.png"
+                  alt="Maya - Performance Specialist"
+                  class="w-12 h-12 rounded-full border-2 border-green-500"
+                />
+                <div class="absolute -bottom-1 -right-1 w-4 h-4 bg-green-500 rounded-full border-2 border-background"></div>
+              </div>
+              <div>
+                <h3 class="text-lg font-bold text-white">Maya</h3>
+                <p class="text-green-400 text-sm font-semibold">Performance Specialist</p>
+              </div>
+            </div>
+            <p class="text-gray-300 text-sm mb-3">
+              Monitors your content performance in real-time and provides immediate alerts.
+            </p>
+            <div class="space-y-1">
+              <div class="flex items-center space-x-2 text-xs text-gray-400">
+                <div class="w-1 h-1 bg-green-400 rounded-full"></div>
+                <span>Real-time monitoring</span>
+              </div>
+              <div class="flex items-center space-x-2 text-xs text-gray-400">
+                <div class="w-1 h-1 bg-green-400 rounded-full"></div>
+                <span>Performance alerts</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Levi - Strategy Coordinator -->
+          <div class="group bg-gradient-to-br from-yellow-500/10 to-orange-500/10 border border-yellow-500/20 rounded-xl p-6 hover:border-yellow-500/50 transition-all duration-300 hover:transform hover:scale-105">
+            <div class="flex items-center space-x-3 mb-4">
+              <div class="relative">
+                <img
+                  src="/Agent2.png"
+                  alt="Levi - Strategy Coordinator"
+                  class="w-12 h-12 rounded-full border-2 border-yellow-500"
+                />
+                <div class="absolute -bottom-1 -right-1 w-4 h-4 bg-green-500 rounded-full border-2 border-background"></div>
+              </div>
+              <div>
+                <h3 class="text-lg font-bold text-white">Levi</h3>
+                <p class="text-yellow-400 text-sm font-semibold">Strategy Coordinator</p>
+              </div>
+            </div>
+            <p class="text-gray-300 text-sm mb-3">
+              Develops comprehensive content strategies and plans your content calendar.
+            </p>
+            <div class="space-y-1">
+              <div class="flex items-center space-x-2 text-xs text-gray-400">
+                <div class="w-1 h-1 bg-yellow-400 rounded-full"></div>
+                <span>Content strategy</span>
+              </div>
+              <div class="flex items-center space-x-2 text-xs text-gray-400">
+                <div class="w-1 h-1 bg-yellow-400 rounded-full"></div>
+                <span>Calendar planning</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Kai - Trend Analyst -->
+          <div class="group bg-gradient-to-br from-purple-500/10 to-pink-500/10 border border-purple-500/20 rounded-xl p-6 hover:border-purple-500/50 transition-all duration-300 hover:transform hover:scale-105">
+            <div class="flex items-center space-x-3 mb-4">
+              <div class="relative">
+                <img
+                  src="/Agent5.png"
+                  alt="Kai - Trend Analyst"
+                  class="w-12 h-12 rounded-full border-2 border-purple-500"
+                />
+                <div class="absolute -bottom-1 -right-1 w-4 h-4 bg-green-500 rounded-full border-2 border-background"></div>
+              </div>
+              <div>
+                <h3 class="text-lg font-bold text-white">Kai</h3>
+                <p class="text-purple-400 text-sm font-semibold">Trend Analyst</p>
+              </div>
+            </div>
+            <p class="text-gray-300 text-sm mb-3">
+              Identifies trending topics and viral content opportunities in your niche.
+            </p>
+            <div class="space-y-1">
+              <div class="flex items-center space-x-2 text-xs text-gray-400">
+                <div class="w-1 h-1 bg-purple-400 rounded-full"></div>
+                <span>Trend identification</span>
+              </div>
+              <div class="flex items-center space-x-2 text-xs text-gray-400">
+                <div class="w-1 h-1 bg-purple-400 rounded-full"></div>
+                <span>Viral content analysis</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Zara - Community Manager -->
+          <div class="group bg-gradient-to-br from-pink-500/10 to-rose-500/10 border border-pink-500/20 rounded-xl p-6 hover:border-pink-500/50 transition-all duration-300 hover:transform hover:scale-105">
+            <div class="flex items-center space-x-3 mb-4">
+              <div class="relative">
+                <img
+                  src="/Agent4.png"
+                  alt="Zara - Community Manager"
+                  class="w-12 h-12 rounded-full border-2 border-pink-500"
+                />
+                <div class="absolute -bottom-1 -right-1 w-4 h-4 bg-green-500 rounded-full border-2 border-background"></div>
+              </div>
+              <div>
+                <h3 class="text-lg font-bold text-white">Zara</h3>
+                <p class="text-pink-400 text-sm font-semibold">Community Manager</p>
+              </div>
+            </div>
+            <p class="text-gray-300 text-sm mb-3">
+              Analyzes audience sentiment and helps you build stronger relationships with viewers.
+            </p>
+            <div class="space-y-1">
+              <div class="flex items-center space-x-2 text-xs text-gray-400">
+                <div class="w-1 h-1 bg-pink-400 rounded-full"></div>
+                <span>Audience analysis</span>
+              </div>
+              <div class="flex items-center space-x-2 text-xs text-gray-400">
+                <div class="w-1 h-1 bg-pink-400 rounded-full"></div>
+                <span>Community growth</span>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
 
       <!-- Social Proof -->

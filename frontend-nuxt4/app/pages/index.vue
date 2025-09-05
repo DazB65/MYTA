@@ -29,9 +29,6 @@ useHead({
     <!-- Features Grid -->
     <FeatureGrid />
 
-    <!-- Agent Showcase -->
-    <AgentShowcase />
-
     <!-- Footer -->
     <FooterSection />
 
