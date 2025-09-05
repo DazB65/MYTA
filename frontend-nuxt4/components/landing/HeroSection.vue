@@ -1,15 +1,5 @@
 <template>
-  <section class="relative min-h-screen flex items-start justify-center overflow-hidden">
-    <!-- Background Effects -->
-    <div class="absolute inset-0 bg-gradient-to-br from-forest-900 via-forest-900 to-forest-800/20"></div>
-    <div class="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(249,115,22,0.1),transparent_70%)]"></div>
-
-    <!-- Animated Background Elements -->
-    <div class="absolute inset-0 overflow-hidden">
-      <div class="absolute -top-40 -right-40 w-80 h-80 bg-orange-500/10 rounded-full blur-3xl animate-pulse"></div>
-      <div class="absolute -bottom-40 -left-40 w-80 h-80 bg-forest-500/10 rounded-full blur-3xl animate-pulse delay-1000"></div>
-    </div>
-
+  <section class="relative min-h-screen flex items-start justify-center">
     <!-- Main Content -->
     <div class="relative z-10 max-w-6xl mx-auto px-6 text-center -mt-40">
       <!-- Logo -->
@@ -24,6 +14,8 @@
           <div class="absolute inset-0 bg-gradient-to-r from-orange-500/20 to-forest-400/20 blur-3xl scale-110 -z-10"></div>
         </div>
       </div>
+
+
 
       <!-- Meet your MYTA Agent Team Section -->
       <div class="mb-8 -mt-28">
@@ -285,22 +277,7 @@
         <WaitlistForm />
       </div>
 
-      <!-- Social Proof -->
-      <div class="mt-12 text-center">
-        <p class="text-gray-400 text-sm mb-4">Join {{ waitlistCount.toLocaleString() }}+ creators already on the waitlist</p>
-        <div class="flex justify-center items-center space-x-8 opacity-60">
-          <!-- Creator Avatars -->
-          <div class="flex -space-x-2">
-            <div class="w-8 h-8 bg-gradient-to-r from-pink-500 to-purple-500 rounded-full border-2 border-background"></div>
-            <div class="w-8 h-8 bg-gradient-to-r from-blue-500 to-cyan-500 rounded-full border-2 border-background"></div>
-            <div class="w-8 h-8 bg-gradient-to-r from-green-500 to-emerald-500 rounded-full border-2 border-background"></div>
-            <div class="w-8 h-8 bg-gradient-to-r from-orange-500 to-red-500 rounded-full border-2 border-background"></div>
-            <div class="w-8 h-8 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full border-2 border-background flex items-center justify-center text-xs font-bold">
-              +
-            </div>
-          </div>
-        </div>
-      </div>
+
 
       <!-- Scroll Indicator -->
       <div class="absolute bottom-8 left-1/2 transform -translate-x-1/2 animate-bounce">

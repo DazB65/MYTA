@@ -28,7 +28,7 @@
           type="email"
           placeholder="Enter your email address"
           required
-          class="w-full px-6 py-4 bg-forest-800/50 border border-forest-700 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all"
+          class="w-full px-6 py-4 bg-gray-800/50 border border-gray-700 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-transparent transition-all"
           :class="{ 'border-red-500': emailError }"
         />
         <div v-if="emailError" class="absolute -bottom-6 left-0 text-red-400 text-sm">
@@ -42,7 +42,7 @@
           v-model="channelName"
           type="text"
           placeholder="YouTube channel name (optional)"
-          class="w-full px-6 py-4 bg-forest-800/50 border border-forest-700 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all"
+          class="w-full px-6 py-4 bg-gray-800/50 border border-gray-700 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-transparent transition-all"
         />
       </div>
 
@@ -50,7 +50,7 @@
       <div class="relative">
         <select
           v-model="subscriberRange"
-          class="w-full px-6 py-4 bg-forest-800/50 border border-forest-700 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all"
+          class="w-full px-6 py-4 bg-gray-800/50 border border-gray-700 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-transparent transition-all"
         >
           <option value="">Subscriber count (optional)</option>
           <option value="0-100">0 - 100 subscribers</option>
@@ -66,7 +66,7 @@
       <button
         type="submit"
         :disabled="isLoading || !email"
-        class="w-full bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 disabled:from-gray-600 disabled:to-gray-700 text-white px-8 py-4 rounded-lg font-semibold transition-all duration-200 transform hover:scale-105 disabled:scale-100 disabled:cursor-not-allowed flex items-center justify-center space-x-2"
+        class="w-full bg-gradient-to-r from-pink-500 to-purple-600 hover:from-pink-600 hover:to-purple-700 disabled:from-gray-600 disabled:to-gray-700 text-white px-8 py-4 rounded-lg font-semibold transition-all duration-200 transform hover:scale-105 disabled:scale-100 disabled:cursor-not-allowed flex items-center justify-center space-x-2"
       >
         <span v-if="!isLoading">Join Waitlist</span>
         <span v-else class="flex items-center space-x-2">
@@ -85,24 +85,7 @@
       </p>
     </form>
 
-    <!-- Additional CTAs -->
-    <div v-if="!isSubmitted" class="mt-8 text-center">
-      <p class="text-gray-400 text-sm mb-4">Want to learn more first?</p>
-      <div class="flex flex-col sm:flex-row gap-3 justify-center">
-        <button
-          @click="scrollToFeatures"
-          class="text-orange-400 hover:text-orange-300 transition-colors text-sm"
-        >
-          See Features →
-        </button>
-        <button
-          @click="scrollToAgents"
-          class="text-forest-400 hover:text-forest-300 transition-colors text-sm"
-        >
-          Meet the Agent Team →
-        </button>
-      </div>
-    </div>
+
   </div>
 </template>
 

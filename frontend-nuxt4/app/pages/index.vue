@@ -22,19 +22,27 @@ useHead({
 </script>
 
 <template>
-  <div>
-    <!-- Hero Section -->
-    <HeroSection />
+  <div class="relative min-h-screen overflow-hidden">
+    <!-- Background Effects -->
+    <div class="absolute inset-0 bg-gradient-to-br from-forest-900 via-forest-900 to-forest-800/20"></div>
+    <div class="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(249,115,22,0.1),transparent_70%)]"></div>
 
-    <!-- Features Grid -->
-    <FeatureGrid />
+    <!-- Animated Background Elements -->
+    <div class="absolute inset-0 overflow-hidden">
+      <div class="absolute -top-40 -right-40 w-80 h-80 bg-orange-500/10 rounded-full blur-3xl animate-pulse"></div>
+      <div class="absolute -bottom-40 -left-40 w-80 h-80 bg-forest-500/10 rounded-full blur-3xl animate-pulse delay-1000"></div>
+    </div>
 
-    <!-- Footer -->
-    <FooterSection />
+    <!-- Content -->
+    <div class="relative z-10">
+      <!-- Hero Section -->
+      <HeroSection />
 
-    <!-- Additional sections can be added here -->
-    <!-- <PricingSection /> -->
-    <!-- <TestimonialsSection /> -->
-    <!-- <FAQSection /> -->
+      <!-- Spacer -->
+      <div class="h-32"></div>
+
+      <!-- Footer -->
+      <FooterSection />
+    </div>
   </div>
 </template>

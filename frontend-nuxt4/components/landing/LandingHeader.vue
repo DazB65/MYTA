@@ -1,15 +1,15 @@
 <template>
-  <header class="fixed top-0 left-0 right-0 z-50 bg-forest-900/90 backdrop-blur-md border-b border-forest-700">
+  <header class="fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-md border-b border-gray-800">
     <div class="max-w-7xl mx-auto px-6 py-4">
       <div class="flex items-center justify-between">
         <!-- Logo -->
         <div class="flex items-center space-x-3">
-          <img
-            src="/MY YT AGENT.png"
-            alt="MYTA Logo"
-            class="h-12 w-auto"
+          <img 
+            src="/MY YT AGENT.png" 
+            alt="MYTA Logo" 
+            class="h-8 w-auto"
           />
-          <span class="text-xl font-bold bg-gradient-to-r from-orange-500 to-forest-400 bg-clip-text text-transparent">
+          <span class="text-xl font-bold bg-gradient-to-r from-pink-500 to-purple-600 bg-clip-text text-transparent">
             MYTA
           </span>
         </div>
@@ -41,9 +41,9 @@
           </button>
           
           <!-- Main CTA -->
-          <button
+          <button 
             @click="scrollToWaitlist"
-            class="bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white px-6 py-2 rounded-lg font-semibold transition-all duration-200 transform hover:scale-105"
+            class="bg-gradient-to-r from-pink-500 to-purple-600 hover:from-pink-600 hover:to-purple-700 text-white px-6 py-2 rounded-lg font-semibold transition-all duration-200 transform hover:scale-105"
           >
             Join Waitlist
           </button>

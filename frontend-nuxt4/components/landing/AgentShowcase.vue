@@ -5,7 +5,7 @@
       <div class="text-center mb-16">
         <h2 class="text-4xl md:text-5xl font-bold mb-6">
           Meet your
-          <span class="bg-gradient-to-r from-orange-500 to-forest-400 bg-clip-text text-transparent">
+          <span class="bg-gradient-to-r from-pink-500 to-purple-600 bg-clip-text text-transparent">
             agent team
           </span>
         </h2>
@@ -235,7 +235,7 @@
       </div>
 
       <!-- Team Collaboration Highlight -->
-      <div class="text-center bg-gradient-to-r from-forest-800/50 to-forest-700/50 rounded-2xl p-8 border border-forest-600">
+      <div class="text-center bg-gradient-to-r from-gray-800/50 to-gray-700/50 rounded-2xl p-8 border border-gray-600">
         <h3 class="text-2xl font-bold text-white mb-4">
           They work together, so you don't have to work alone
         </h3>
