@@ -14,9 +14,9 @@
     <div class="relative z-10 max-w-6xl mx-auto px-6 text-center">
       <!-- Main Headline -->
       <h1 class="text-5xl md:text-7xl font-bold mb-6 leading-tight">
-        Your 
+        Your
         <span class="bg-gradient-to-r from-pink-500 via-purple-500 to-pink-500 bg-clip-text text-transparent animate-gradient">
-          AI Team
+          Agent Team
         </span>
         <br />
         for YouTube Growth
@@ -24,18 +24,18 @@
 
       <!-- Subheadline -->
       <p class="text-xl md:text-2xl text-gray-300 mb-8 max-w-3xl mx-auto leading-relaxed">
-        Get early access to the AI-powered platform that helps creators 
-        <span class="text-pink-400 font-semibold">optimize content</span>, 
-        <span class="text-purple-400 font-semibold">analyze performance</span>, and 
-        <span class="text-pink-400 font-semibold">scale their channels</span> 
-        with a team of specialized AI agents.
+        Join the waitlist for the agent-powered platform that helps creators
+        <span class="text-pink-400 font-semibold">optimize content</span>,
+        <span class="text-purple-400 font-semibold">analyze performance</span>, and
+        <span class="text-pink-400 font-semibold">scale their channels</span>
+        with a team of specialized agents.
       </p>
 
       <!-- Key Benefits -->
       <div class="flex flex-wrap justify-center gap-4 mb-12">
         <div class="flex items-center space-x-2 bg-gray-800/50 px-4 py-2 rounded-full">
           <div class="w-2 h-2 bg-green-400 rounded-full"></div>
-          <span class="text-sm text-gray-300">5 AI Specialists</span>
+          <span class="text-sm text-gray-300">5 Agent Specialists</span>
         </div>
         <div class="flex items-center space-x-2 bg-gray-800/50 px-4 py-2 rounded-full">
           <div class="w-2 h-2 bg-blue-400 rounded-full"></div>

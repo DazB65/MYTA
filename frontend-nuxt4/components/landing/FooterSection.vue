@@ -15,7 +15,7 @@
             </span>
           </div>
           <p class="text-gray-400 max-w-md mb-6">
-            Your AI team for YouTube growth. Get early access to the platform that helps creators 
+            Your agent team for YouTube growth. Join the waitlist for the platform that helps creators
             optimize content, analyze performance, and scale their channels.
           </p>
           <div class="flex space-x-4">
@@ -48,7 +48,7 @@
           <h4 class="text-white font-semibold mb-4">Product</h4>
           <ul class="space-y-2">
             <li><a href="#features" class="text-gray-400 hover:text-white transition-colors">Features</a></li>
-            <li><a href="#agents" class="text-gray-400 hover:text-white transition-colors">AI Team</a></li>
+            <li><a href="#agents" class="text-gray-400 hover:text-white transition-colors">Agent Team</a></li>
             <li><a href="#pricing" class="text-gray-400 hover:text-white transition-colors">Pricing</a></li>
             <li><a href="/login" class="text-gray-400 hover:text-white transition-colors">Sign In</a></li>
           </ul>

@@ -4,13 +4,13 @@
       <!-- Section Header -->
       <div class="text-center mb-16">
         <h2 class="text-4xl md:text-5xl font-bold mb-6">
-          Meet your 
+          Meet your
           <span class="bg-gradient-to-r from-pink-500 to-purple-600 bg-clip-text text-transparent">
-            AI team
+            agent team
           </span>
         </h2>
         <p class="text-xl text-gray-300 max-w-3xl mx-auto">
-          Five specialized AI agents working together to analyze, optimize, and grow your YouTube channel. 
+          Five specialized agents working together to analyze, optimize, and grow your YouTube channel.
           Each agent brings unique expertise to help you succeed.
         </p>
       </div>
@@ -34,7 +34,7 @@
             </div>
           </div>
           <p class="text-gray-300 mb-4">
-            Your strategic leader who coordinates the entire AI team and provides executive-level insights 
+            Your strategic leader who coordinates the entire agent team and provides executive-level insights
             for channel growth and business development.
           </p>
           <div class="space-y-2">
@@ -240,7 +240,7 @@
           They work together, so you don't have to work alone
         </h3>
         <p class="text-gray-300 max-w-2xl mx-auto">
-          Your AI team collaborates seamlessly, sharing insights and coordinating strategies 
+          Your agent team collaborates seamlessly, sharing insights and coordinating strategies
           to provide you with comprehensive, actionable recommendations for channel growth.
         </p>
       </div>

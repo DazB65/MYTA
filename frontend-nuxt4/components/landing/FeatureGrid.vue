@@ -10,7 +10,7 @@
           </span>
         </h2>
         <p class="text-xl text-gray-300 max-w-3xl mx-auto">
-          MYTA combines the power of AI analytics, content optimization, and strategic planning 
+          MYTA combines the power of agent analytics, content optimization, and strategic planning
           to help creators achieve sustainable YouTube growth.
         </p>
       </div>
@@ -24,10 +24,10 @@
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
             </svg>
           </div>
-          <h3 class="text-xl font-bold text-white mb-4">AI-Powered Analytics</h3>
+          <h3 class="text-xl font-bold text-white mb-4">Agent-Powered Analytics</h3>
           <p class="text-gray-300 mb-4">
-            Get deep insights into your channel performance with real-time analytics, 
-            trend detection, and predictive modeling powered by advanced AI.
+            Get deep insights into your channel performance with real-time analytics,
+            trend detection, and predictive modeling powered by advanced agents.
           </p>
           <ul class="text-sm text-gray-400 space-y-2">
             <li class="flex items-center space-x-2">
@@ -54,7 +54,7 @@
           </div>
           <h3 class="text-xl font-bold text-white mb-4">Content Optimization</h3>
           <p class="text-gray-300 mb-4">
-            Optimize your thumbnails, titles, and descriptions with AI suggestions 
+            Optimize your thumbnails, titles, and descriptions with agent suggestions
             that are proven to increase click-through rates and engagement.
           </p>
           <ul class="text-sm text-gray-400 space-y-2">

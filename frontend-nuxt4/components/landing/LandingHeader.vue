@@ -20,7 +20,7 @@
             Features
           </a>
           <a href="#agents" class="text-gray-300 hover:text-white transition-colors">
-            AI Team
+            Agent Team
           </a>
           <a href="#pricing" class="text-gray-300 hover:text-white transition-colors">
             Pricing
@@ -67,7 +67,7 @@
             Features
           </a>
           <a href="#agents" @click="closeMobileMenu" class="text-gray-300 hover:text-white transition-colors">
-            AI Team
+            Agent Team
           </a>
           <a href="#pricing" @click="closeMobileMenu" class="text-gray-300 hover:text-white transition-colors">
             Pricing
