@@ -18,7 +18,7 @@
           <img
             src="/MY YT AGENT.png"
             alt="MYTA Logo"
-            class="h-32 md:h-40 w-auto drop-shadow-2xl"
+            class="h-64 md:h-80 w-auto drop-shadow-2xl"
           />
           <!-- Glow effect behind logo -->
           <div class="absolute inset-0 bg-gradient-to-r from-orange-500/20 to-forest-400/20 blur-3xl scale-110 -z-10"></div>
