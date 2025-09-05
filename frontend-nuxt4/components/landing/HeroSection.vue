@@ -12,6 +12,19 @@
 
     <!-- Main Content -->
     <div class="relative z-10 max-w-6xl mx-auto px-6 text-center">
+      <!-- Logo -->
+      <div class="mb-8 flex justify-center">
+        <div class="relative">
+          <img
+            src="/MY YT AGENT.png"
+            alt="MYTA Logo"
+            class="h-32 md:h-40 w-auto drop-shadow-2xl"
+          />
+          <!-- Glow effect behind logo -->
+          <div class="absolute inset-0 bg-gradient-to-r from-orange-500/20 to-forest-400/20 blur-3xl scale-110 -z-10"></div>
+        </div>
+      </div>
+
       <!-- Main Headline -->
       <h1 class="text-5xl md:text-7xl font-bold mb-6 leading-tight">
         Your
