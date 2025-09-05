@@ -1,13 +1,13 @@
 <template>
   <section class="relative min-h-screen flex items-center justify-center overflow-hidden">
     <!-- Background Effects -->
-    <div class="absolute inset-0 bg-gradient-to-br from-background via-background to-purple-900/20"></div>
-    <div class="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(236,72,153,0.1),transparent_70%)]"></div>
-    
+    <div class="absolute inset-0 bg-gradient-to-br from-forest-900 via-forest-900 to-forest-800/20"></div>
+    <div class="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(249,115,22,0.1),transparent_70%)]"></div>
+
     <!-- Animated Background Elements -->
     <div class="absolute inset-0 overflow-hidden">
-      <div class="absolute -top-40 -right-40 w-80 h-80 bg-pink-500/10 rounded-full blur-3xl animate-pulse"></div>
-      <div class="absolute -bottom-40 -left-40 w-80 h-80 bg-purple-500/10 rounded-full blur-3xl animate-pulse delay-1000"></div>
+      <div class="absolute -top-40 -right-40 w-80 h-80 bg-orange-500/10 rounded-full blur-3xl animate-pulse"></div>
+      <div class="absolute -bottom-40 -left-40 w-80 h-80 bg-forest-500/10 rounded-full blur-3xl animate-pulse delay-1000"></div>
     </div>
 
     <!-- Main Content -->
@@ -15,7 +15,7 @@
       <!-- Main Headline -->
       <h1 class="text-5xl md:text-7xl font-bold mb-6 leading-tight">
         Your
-        <span class="bg-gradient-to-r from-pink-500 via-purple-500 to-pink-500 bg-clip-text text-transparent animate-gradient">
+        <span class="bg-gradient-to-r from-orange-500 via-forest-400 to-orange-500 bg-clip-text text-transparent animate-gradient">
           Agent Team
         </span>
         <br />
@@ -25,9 +25,9 @@
       <!-- Subheadline -->
       <p class="text-xl md:text-2xl text-gray-300 mb-8 max-w-3xl mx-auto leading-relaxed">
         Join the waitlist for the agent-powered platform that helps creators
-        <span class="text-pink-400 font-semibold">optimize content</span>,
-        <span class="text-purple-400 font-semibold">analyze performance</span>, and
-        <span class="text-pink-400 font-semibold">scale their channels</span>
+        <span class="text-orange-400 font-semibold">optimize content</span>,
+        <span class="text-forest-400 font-semibold">analyze performance</span>, and
+        <span class="text-orange-400 font-semibold">scale their channels</span>
         with a team of specialized agents.
       </p>
 
@@ -37,16 +37,16 @@
           <div class="w-2 h-2 bg-green-400 rounded-full"></div>
           <span class="text-sm text-gray-300">5 Agent Specialists</span>
         </div>
-        <div class="flex items-center space-x-2 bg-gray-800/50 px-4 py-2 rounded-full">
-          <div class="w-2 h-2 bg-blue-400 rounded-full"></div>
+        <div class="flex items-center space-x-2 bg-forest-800/50 px-4 py-2 rounded-full">
+          <div class="w-2 h-2 bg-forest-400 rounded-full"></div>
           <span class="text-sm text-gray-300">Real-time Analytics</span>
         </div>
-        <div class="flex items-center space-x-2 bg-gray-800/50 px-4 py-2 rounded-full">
-          <div class="w-2 h-2 bg-purple-400 rounded-full"></div>
+        <div class="flex items-center space-x-2 bg-forest-800/50 px-4 py-2 rounded-full">
+          <div class="w-2 h-2 bg-orange-400 rounded-full"></div>
           <span class="text-sm text-gray-300">Content Optimization</span>
         </div>
-        <div class="flex items-center space-x-2 bg-gray-800/50 px-4 py-2 rounded-full">
-          <div class="w-2 h-2 bg-pink-400 rounded-full"></div>
+        <div class="flex items-center space-x-2 bg-forest-800/50 px-4 py-2 rounded-full">
+          <div class="w-2 h-2 bg-forest-400 rounded-full"></div>
           <span class="text-sm text-gray-300">Strategy Planning</span>
         </div>
       </div>

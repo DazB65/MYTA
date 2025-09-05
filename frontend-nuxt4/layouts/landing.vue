@@ -1,5 +1,5 @@
 <template>
-  <div class="min-h-screen bg-background text-white">
+  <div class="min-h-screen bg-forest-900 text-white">
     <!-- Landing Page Header -->
     <LandingHeader />
     

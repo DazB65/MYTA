@@ -1,5 +1,5 @@
 <template>
-  <footer class="bg-gray-900 border-t border-gray-800 py-12 px-6">
+  <footer class="bg-forest-800 border-t border-forest-700 py-12 px-6">
     <div class="max-w-7xl mx-auto">
       <div class="grid grid-cols-1 md:grid-cols-4 gap-8 mb-8">
         <!-- Brand -->
@@ -10,7 +10,7 @@
               alt="MYTA Logo" 
               class="h-8 w-auto"
             />
-            <span class="text-xl font-bold bg-gradient-to-r from-pink-500 to-purple-600 bg-clip-text text-transparent">
+            <span class="text-xl font-bold bg-gradient-to-r from-orange-500 to-forest-400 bg-clip-text text-transparent">
               MYTA
             </span>
           </div>
@@ -67,7 +67,7 @@
       </div>
 
       <!-- Bottom Bar -->
-      <div class="border-t border-gray-800 pt-8 flex flex-col md:flex-row justify-between items-center">
+      <div class="border-t border-forest-700 pt-8 flex flex-col md:flex-row justify-between items-center">
         <div class="text-gray-400 text-sm mb-4 md:mb-0">
           © 2024 MYTA. All rights reserved.
         </div>
