@@ -53,8 +53,7 @@ const templates = {
             </div>
 
             <div style="text-align: center; margin: 30px 0;">
-                <a href="https://myytagent.app" class="btn">Learn More About MYTA</a>
-                <a href="https://myta-waitlist.vercel.app" class="btn">Visit Our Waitlist</a>
+                <a href="https://x.com/myytagent" class="btn">Follow Us on X</a>
             </div>
 
             <p>Questions? Just reply to this email - we read every message!</p>
@@ -88,8 +87,7 @@ MYTA is your AI-powered YouTube Agent Team that handles everything from content 
 • You'll get exclusive early access when we launch
 • Special founder pricing just for waitlist members
 
-Learn more: https://myytagent.app
-Visit waitlist: https://myta-waitlist.vercel.app
+Follow us: https://x.com/myytagent
 
 Questions? Just reply to this email - we read every message!
 
@@ -167,8 +165,7 @@ Unsubscribe: ${
             </div>
 
             <div style="text-align: center; margin: 30px 0;">
-                <a href="https://myytagent.app" class="btn">Learn More</a>
-                <a href="https://myta-waitlist.vercel.app" class="btn">Visit Waitlist</a>
+                <a href="https://x.com/myytagent" class="btn">Follow Us on X</a>
             </div>
 
             <p><strong>Early Access Coming Soon!</strong> Waitlist members will get first access in the next few weeks.</p>
@@ -212,8 +209,7 @@ Development Progress: 75% Complete - We're in the final stretch!
 
 Early Access Coming Soon! Waitlist members will get first access in the next few weeks.
 
-Learn More: https://myytagent.app
-Visit Waitlist: https://myta-waitlist.vercel.app
+Follow us: https://x.com/myytagent
 
 Stay tuned for more updates!
 
@@ -287,9 +283,7 @@ Unsubscribe: ${
             </div>
 
             <div style="text-align: center; margin: 30px 0;">
-                <a href="https://myytagent.app/early-access?code=EARLY-${
-                  data.waitlist_id?.slice(-8).toUpperCase() || "ACCESS"
-                }" class="btn">🚀 Start Using MYTA Now</a>
+                <a href="https://x.com/myytagent" class="btn">Follow Us on X</a>
             </div>
 
             <p><strong>Need help getting started?</strong> Our team is standing by to help you set up your first AI agent team.</p>
@@ -330,9 +324,7 @@ Use this code during signup for founder pricing.
 • Exclusive founder badge
 • Direct access to our development team
 
-Start using MYTA: https://myytagent.app/early-access?code=EARLY-${
-      data.waitlist_id?.slice(-8).toUpperCase() || "ACCESS"
-    }
+Follow us: https://x.com/myytagent
 
 Need help getting started? Our team is standing by to help you set up your first AI agent team.
 
