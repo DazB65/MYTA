@@ -66,7 +66,8 @@
       <button
         type="submit"
         :disabled="isLoading || !email"
-        class="w-full bg-gradient-to-r from-pink-500 to-purple-600 hover:from-pink-600 hover:to-purple-700 disabled:from-gray-600 disabled:to-gray-700 text-white px-8 py-4 rounded-lg font-semibold transition-all duration-200 transform hover:scale-105 disabled:scale-100 disabled:cursor-not-allowed flex items-center justify-center space-x-2"
+        style="background: #F97316 !important; background-color: #F97316 !important;"
+        class="w-full text-white px-8 py-4 rounded-lg font-semibold transition-all duration-200 transform hover:scale-105 disabled:scale-100 disabled:cursor-not-allowed flex items-center justify-center space-x-2"
       >
         <span v-if="!isLoading">Join Waitlist</span>
         <span v-else class="flex items-center space-x-2">
