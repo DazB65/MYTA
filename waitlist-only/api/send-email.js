@@ -370,7 +370,7 @@ export default async function handler(req, res) {
     const emailTemplate = templates[template];
 
     const { data, error } = await resend.emails.send({
-      from: "MYTA Team <hello@myta.ai>",
+      from: "MYTA Team <onboarding@resend.dev>",
       to: [email],
       subject: emailTemplate.subject,
       html: emailTemplate.html(templateData),
