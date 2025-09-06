@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MYTA Waitlist Dashboard</title>
+    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #111827;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: #1f2937;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+            overflow: hidden;
+            border: 1px solid #374151;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #f97316 0%, #10b981 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            opacity: 0.9;
+            font-size: 1.1rem;
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            padding: 30px;
+            background: #111827;
+        }
+
+        .stat-card {
+            background: #374151;
+            padding: 20px;
+            border-radius: 15px;
+            text-align: center;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            border: 1px solid #4b5563;
+        }
+
+        .stat-number {
+            font-size: 2rem;
+            font-weight: bold;
+            background: linear-gradient(135deg, #f97316 0%, #10b981 100%);
+            background-clip: text;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            color: #d1d5db;
+            font-size: 0.9rem;
+        }
+
+        .content {
+            padding: 30px;
+            background: #1f2937;
+        }
+
+        .controls {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .refresh-btn {
+            background: linear-gradient(135deg, #f97316 0%, #10b981 100%);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: all 0.3s;
+            font-weight: 500;
+        }
+
+        .refresh-btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 5px 15px rgba(249, 115, 22, 0.3);
+        }
+
+        .search-box {
+            padding: 10px 15px;
+            border: 2px solid #4b5563;
+            border-radius: 8px;
+            font-size: 1rem;
+            width: 300px;
+            background: #374151;
+            color: #f9fafb;
+        }
+
+        .search-box:focus {
+            outline: none;
+            border-color: #f97316;
+        }
+
+        .table-container {
+            overflow-x: auto;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: #374151;
+        }
+
+        th, td {
+            padding: 15px;
+            text-align: left;
+            border-bottom: 1px solid #4b5563;
+        }
+
+        th {
+            background: #111827;
+            font-weight: 600;
+            color: #f9fafb;
+        }
+
+        tr:hover {
+            background: #4b5563;
+        }
+
+        td {
+            color: #d1d5db;
+        }
+
+        .status-badge {
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 500;
+        }
+
+        .status-active {
+            background: #10b981;
+            color: #ffffff;
+        }
+
+        .email-sent {
+            color: #10b981;
+            font-weight: 500;
+        }
+
+        .email-not-sent {
+            color: #f97316;
+            font-weight: 500;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #9ca3af;
+        }
+
+        .error {
+            background: #7f1d1d;
+            color: #fecaca;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            border: 1px solid #991b1b;
+        }
+
+        @media (max-width: 768px) {
+            .controls {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            
+            .search-box {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🚀 MYTA Waitlist Dashboard</h1>
+            <p>Monitor your waitlist signups and email performance</p>
+        </div>
+
+        <div class="stats">
+            <div class="stat-card">
+                <div class="stat-number" id="totalSignups">-</div>
+                <div class="stat-label">Total Signups</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="emailsSent">-</div>
+                <div class="stat-label">Emails Sent</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="successRate">-</div>
+                <div class="stat-label">Success Rate</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="todaySignups">-</div>
+                <div class="stat-label">Today's Signups</div>
+            </div>
+        </div>
+
+        <div class="content">
+            <div class="controls">
+                <button class="refresh-btn" onclick="loadWaitlistData()">🔄 Refresh Data</button>
+                <input type="text" class="search-box" placeholder="Search by email or name..." id="searchBox" onkeyup="filterTable()">
+            </div>
+
+            <div id="errorMessage"></div>
+            <div id="loadingMessage" class="loading">Loading waitlist data...</div>
+
+            <div class="table-container" id="tableContainer" style="display: none;">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Email</th>
+                            <th>Name</th>
+                            <th>Signup Date</th>
+                            <th>Welcome Email</th>
+                            <th>YouTube Channel</th>
+                            <th>Subscribers</th>
+                            <th>Content Niche</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody id="waitlistTableBody">
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Initialize Supabase client
+        const supabaseUrl = 'https://eaqwlsnstnobjwfsqrxa.supabase.co';
+        const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVhcXdsc25zdG5vYmp3ZnNxcnhhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTE1NzUyNDYsImV4cCI6MjA2NzE1MTI0Nn0.fY71cSRnsDlsjgj9N7aqUsmkeJXGJBX0oCwdY4MAGSM';
+        const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
+
+        let waitlistData = [];
+
+        async function loadWaitlistData() {
+            const loadingEl = document.getElementById('loadingMessage');
+            const errorEl = document.getElementById('errorMessage');
+            const tableEl = document.getElementById('tableContainer');
+            
+            loadingEl.style.display = 'block';
+            errorEl.innerHTML = '';
+            tableEl.style.display = 'none';
+
+            try {
+                const { data, error } = await supabase
+                    .from('waitlist')
+                    .select('*')
+                    .order('created_at', { ascending: false });
+
+                if (error) throw error;
+
+                waitlistData = data;
+                updateStats(data);
+                renderTable(data);
+                
+                loadingEl.style.display = 'none';
+                tableEl.style.display = 'block';
+            } catch (error) {
+                console.error('Error loading data:', error);
+                errorEl.innerHTML = `<div class="error">Error loading waitlist data: ${error.message}</div>`;
+                loadingEl.style.display = 'none';
+            }
+        }
+
+        function updateStats(data) {
+            const total = data.length;
+            const emailsSent = data.filter(item => item.welcome_email_sent).length;
+            const successRate = total > 0 ? ((emailsSent / total) * 100).toFixed(1) : 0;
+            
+            const today = new Date().toDateString();
+            const todaySignups = data.filter(item => 
+                new Date(item.created_at).toDateString() === today
+            ).length;
+
+            document.getElementById('totalSignups').textContent = total;
+            document.getElementById('emailsSent').textContent = emailsSent;
+            document.getElementById('successRate').textContent = successRate + '%';
+            document.getElementById('todaySignups').textContent = todaySignups;
+        }
+
+        function renderTable(data) {
+            const tbody = document.getElementById('waitlistTableBody');
+            tbody.innerHTML = '';
+
+            data.forEach(item => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${item.email}</td>
+                    <td>${item.name || 'Not provided'}</td>
+                    <td>${new Date(item.created_at).toLocaleDateString()} ${new Date(item.created_at).toLocaleTimeString()}</td>
+                    <td class="${item.welcome_email_sent ? 'email-sent' : 'email-not-sent'}">
+                        ${item.welcome_email_sent ? '✅ Sent' : '❌ Not sent'}
+                        ${item.welcome_email_sent_at ? `<br><small>${new Date(item.welcome_email_sent_at).toLocaleString()}</small>` : ''}
+                    </td>
+                    <td>${item.youtube_channel_name || '-'}</td>
+                    <td>${item.subscriber_range || '-'}</td>
+                    <td>${item.content_niche || '-'}</td>
+                    <td><span class="status-badge status-${item.status}">${item.status}</span></td>
+                `;
+                tbody.appendChild(row);
+            });
+        }
+
+        function filterTable() {
+            const searchTerm = document.getElementById('searchBox').value.toLowerCase();
+            const filteredData = waitlistData.filter(item => 
+                item.email.toLowerCase().includes(searchTerm) ||
+                (item.name && item.name.toLowerCase().includes(searchTerm)) ||
+                (item.youtube_channel_name && item.youtube_channel_name.toLowerCase().includes(searchTerm))
+            );
+            renderTable(filteredData);
+        }
+
+        // Load data when page loads
+        document.addEventListener('DOMContentLoaded', loadWaitlistData);
+
+        // Auto-refresh every 30 seconds
+        setInterval(loadWaitlistData, 30000);
+    </script>
+</body>
+</html>
