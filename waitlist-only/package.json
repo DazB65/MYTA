@@ -1,8 +1,16 @@
 {
   "name": "myta-waitlist",
   "version": "1.0.0",
+  "type": "module",
   "description": "MYTA Waitlist Landing Page",
   "scripts": {
-    "build": "mkdir -p public && cp index.html public/ && cp -r assets public/ 2>/dev/null || true"
+    "build": "mkdir -p public && cp index.html public/ && cp -r assets public/ 2>/dev/null || true",
+    "test": "node test-setup.js",
+    "dev": "vercel dev",
+    "setup-db": "node setup-database.js"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "^2.38.0",
+    "resend": "^3.2.0"
   }
 }

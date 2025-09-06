@@ -311,8 +311,9 @@
                         <option value="0-1k">0 - 1K subscribers</option>
                         <option value="1k-10k">1K - 10K subscribers</option>
                         <option value="10k-100k">10K - 100K subscribers</option>
-                        <option value="100k-1m">100K - 1M subscribers</option>
-                        <option value="1m+">1M+ subscribers</option>
+                        <option value="100k-1M">100K - 1M subscribers</option>
+                        <option value="1M+">1M+ subscribers</option>
+                        <option value="prefer_not_to_say">Prefer not to say</option>
                     </select>
 
                     <!-- Submit Button -->
@@ -367,32 +368,68 @@
     </section>
 
     <script>
-        document.getElementById('waitlistForm').addEventListener('submit', function(e) {
+        document.getElementById('waitlistForm').addEventListener('submit', async function(e) {
             e.preventDefault();
-            
+
             const email = document.getElementById('email').value;
             const channelName = document.getElementById('channelName').value;
             const subscriberCount = document.getElementById('subscriberCount').value;
-            
+
             // Show loading state
-            document.getElementById('buttonText').textContent = 'Joining...';
-            
-            // Simulate API call (replace with your actual endpoint)
-            setTimeout(() => {
-                // Hide form, show success
-                document.getElementById('waitlistForm').style.display = 'none';
-                document.getElementById('successMessage').classList.remove('hidden');
-                
-                // Here you would normally send to your backend
-                console.log('Waitlist signup:', { email, channelName, subscriberCount });
-            }, 1000);
+            const buttonText = document.getElementById('buttonText');
+            const originalText = buttonText.textContent;
+            buttonText.textContent = 'Joining...';
+
+            try {
+                // Submit to API
+                const response = await fetch('/api/waitlist', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        email: email,
+                        youtube_channel_name: channelName,
+                        subscriber_range: subscriberCount,
+                        signup_source: 'landing_page',
+                        utm_source: new URLSearchParams(window.location.search).get('utm_source'),
+                        utm_medium: new URLSearchParams(window.location.search).get('utm_medium'),
+                        utm_campaign: new URLSearchParams(window.location.search).get('utm_campaign')
+                    })
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    // Hide form, show success
+                    document.getElementById('waitlistForm').style.display = 'none';
+                    document.getElementById('successMessage').classList.remove('hidden');
+
+                    // Update success message if it's a duplicate
+                    if (result.message.includes('already on our waitlist')) {
+                        document.querySelector('#successMessage h3').textContent = 'Already on the list!';
+                        document.querySelector('#successMessage p').textContent = result.message;
+                    }
+                } else {
+                    throw new Error(result.message || 'Failed to join waitlist');
+                }
+
+            } catch (error) {
+                console.error('Error joining waitlist:', error);
+                alert('Sorry, there was an error joining the waitlist. Please try again.');
+                buttonText.textContent = originalText;
+            }
         });
-        
+
         function resetForm() {
             document.getElementById('waitlistForm').style.display = 'block';
             document.getElementById('successMessage').classList.add('hidden');
             document.getElementById('waitlistForm').reset();
             document.getElementById('buttonText').textContent = 'Join Waitlist';
+
+            // Reset success message to default
+            document.querySelector('#successMessage h3').textContent = 'You\'re on the list!';
+            document.querySelector('#successMessage p').textContent = 'We\'ll notify you as soon as MYTA is ready. Get ready to supercharge your YouTube growth!';
         }
     </script>
 </body>
