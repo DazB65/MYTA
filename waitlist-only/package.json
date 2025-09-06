@@ -3,6 +3,6 @@
   "version": "1.0.0",
   "description": "MYTA Waitlist Landing Page",
   "scripts": {
-    "build": "echo 'No build needed - static HTML'"
+    "build": "mkdir -p public && cp index.html public/ && cp -r assets public/ 2>/dev/null || true"
   }
 }
