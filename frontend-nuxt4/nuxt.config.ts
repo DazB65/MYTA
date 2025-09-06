@@ -145,7 +145,7 @@ export default defineNuxtConfig({
             'AI-powered YouTube analytics and content optimization platform. Track performance, get insights, and grow your channel.',
         },
         { property: 'og:image', content: '/MY YT AGENT.png' },
-        { property: 'og:url', content: 'https://myta.app' },
+        { property: 'og:url', content: 'https://myytagent.app' },
         { property: 'og:site_name', content: 'MYTA' },
 
         // Twitter Card
@@ -185,7 +185,7 @@ export default defineNuxtConfig({
         { rel: 'manifest', href: '/site.webmanifest' },
 
         // Canonical URL
-        { rel: 'canonical', href: 'https://myta.app' },
+        { rel: 'canonical', href: 'https://myytagent.app' },
       ],
 
       // Structured data for SEO
@@ -197,7 +197,7 @@ export default defineNuxtConfig({
             '@type': 'SoftwareApplication',
             name: 'MYTA',
             description: 'AI-powered YouTube analytics and content optimization platform',
-            url: 'https://myta.app',
+            url: 'https://myytagent.app',
             applicationCategory: 'BusinessApplication',
             operatingSystem: 'Web',
             offers: {
@@ -208,7 +208,7 @@ export default defineNuxtConfig({
             creator: {
               '@type': 'Organization',
               name: 'MYTA',
-              url: 'https://myta.app',
+              url: 'https://myytagent.app',
             },
           }),
         },
@@ -261,12 +261,12 @@ export default defineNuxtConfig({
   robots: {
     UserAgent: '*',
     Allow: '/',
-    Sitemap: 'https://myta.app/sitemap.xml'
+    Sitemap: 'https://myytagent.app/sitemap.xml'
   },
 
   // Sitemap configuration
   sitemap: {
-    hostname: 'https://myta.app',
+    hostname: 'https://myytagent.app',
     gzip: true,
     routes: [
       '/dashboard',

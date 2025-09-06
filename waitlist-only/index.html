@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MYTA - Join the Waitlist</title>
+    <meta name="description" content="Join the waitlist for MYTA - Your AI Agent Team for YouTube Growth">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @keyframes gradient {
+            0%, 100% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+        }
+        .animate-gradient {
+            background-size: 200% 200%;
+            animation: gradient 3s ease infinite;
+        }
+    </style>
+</head>
+<body class="bg-gray-900 text-white min-h-screen">
+    <div class="min-h-screen flex items-center justify-center px-6">
+        <div class="max-w-2xl mx-auto text-center">
+            <!-- Logo -->
+            <div class="mb-8">
+                <img src="/MY YT AGENT.png" alt="MYTA Logo" class="h-32 w-auto mx-auto mb-6">
+            </div>
+
+            <!-- Headline -->
+            <h1 class="text-4xl md:text-6xl font-bold mb-4 leading-tight">
+                Your
+                <span class="bg-gradient-to-r from-orange-500 via-green-400 to-orange-500 bg-clip-text text-transparent animate-gradient">
+                    Agent Team
+                </span>
+                <br />
+                for YouTube Growth
+            </h1>
+
+            <!-- Subheadline -->
+            <p class="text-xl text-gray-300 mb-8 max-w-3xl mx-auto">
+                Join the waitlist for the agent-powered platform that helps creators
+                <span class="text-orange-400">optimize content</span>, 
+                <span class="text-green-400">analyze performance</span>, and 
+                <span class="text-orange-400">scale their channels</span>
+                with a team of specialized agents.
+            </p>
+
+            <!-- Features -->
+            <div class="flex flex-wrap justify-center gap-6 mb-12 text-sm">
+                <div class="flex items-center">
+                    <div class="w-2 h-2 bg-green-500 rounded-full mr-3"></div>
+                    5 Agent Specialists
+                </div>
+                <div class="flex items-center">
+                    <div class="w-2 h-2 bg-green-500 rounded-full mr-3"></div>
+                    Real-time Analytics
+                </div>
+                <div class="flex items-center">
+                    <div class="w-2 h-2 bg-orange-500 rounded-full mr-3"></div>
+                    Content Optimization
+                </div>
+            </div>
+
+            <!-- Waitlist Form -->
+            <div class="bg-gray-800/50 backdrop-blur-sm border border-gray-700 rounded-2xl p-8 max-w-md mx-auto">
+                <form id="waitlistForm" class="space-y-4">
+                    <!-- Email Input -->
+                    <input
+                        type="email"
+                        id="email"
+                        placeholder="Enter your email address"
+                        required
+                        class="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-3 text-white placeholder-gray-400 focus:outline-none focus:border-orange-500 transition-colors"
+                    />
+
+                    <!-- Channel Name Input -->
+                    <input
+                        type="text"
+                        id="channelName"
+                        placeholder="YouTube channel name (optional)"
+                        class="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-3 text-white placeholder-gray-400 focus:outline-none focus:border-orange-500 transition-colors"
+                    />
+
+                    <!-- Subscriber Count -->
+                    <select
+                        id="subscriberCount"
+                        class="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-orange-500 transition-colors"
+                    >
+                        <option value="">Subscriber count (optional)</option>
+                        <option value="0-1k">0 - 1K subscribers</option>
+                        <option value="1k-10k">1K - 10K subscribers</option>
+                        <option value="10k-100k">10K - 100K subscribers</option>
+                        <option value="100k-1m">100K - 1M subscribers</option>
+                        <option value="1m+">1M+ subscribers</option>
+                    </select>
+
+                    <!-- Submit Button -->
+                    <button
+                        type="submit"
+                        style="background: #F97316 !important;"
+                        class="w-full text-white px-8 py-4 rounded-lg font-semibold transition-all duration-200 transform hover:scale-105 hover:brightness-110"
+                    >
+                        <span id="buttonText">Join Waitlist</span>
+                    </button>
+
+                    <!-- Privacy Notice -->
+                    <p class="text-xs text-gray-400 text-center">
+                        By joining, you agree to receive updates about MYTA.
+                        <br />
+                        <a href="mailto:myytagent@icloud.com" class="text-orange-400 hover:text-orange-300">Contact us</a>
+                    </p>
+                </form>
+
+                <!-- Success Message -->
+                <div id="successMessage" class="hidden text-center">
+                    <div class="text-4xl mb-4">🎉</div>
+                    <h3 class="text-2xl font-bold text-white mb-2">You're on the list!</h3>
+                    <p class="text-gray-300 mb-6">
+                        We'll notify you as soon as MYTA is ready. Get ready to supercharge your YouTube growth!
+                    </p>
+                    <button onclick="resetForm()" class="text-orange-400 hover:text-orange-300 transition-colors">
+                        Join another email →
+                    </button>
+                </div>
+            </div>
+
+            <!-- Footer -->
+            <div class="mt-12 flex flex-col md:flex-row items-center justify-center gap-6 text-sm text-gray-400">
+                <div class="flex items-center gap-4">
+                    <a href="#" class="hover:text-orange-400 transition-colors">
+                        <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
+                        </svg>
+                    </a>
+                    <a href="#" class="hover:text-orange-400 transition-colors">
+                        <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/>
+                        </svg>
+                    </a>
+                    <a href="mailto:myytagent@icloud.com" class="hover:text-white transition-colors">Contact</a>
+                </div>
+                <div>© 2025 MYTA. All rights reserved.</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('waitlistForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const email = document.getElementById('email').value;
+            const channelName = document.getElementById('channelName').value;
+            const subscriberCount = document.getElementById('subscriberCount').value;
+            
+            // Show loading state
+            document.getElementById('buttonText').textContent = 'Joining...';
+            
+            // Simulate API call (replace with your actual endpoint)
+            setTimeout(() => {
+                // Hide form, show success
+                document.getElementById('waitlistForm').style.display = 'none';
+                document.getElementById('successMessage').classList.remove('hidden');
+                
+                // Here you would normally send to your backend
+                console.log('Waitlist signup:', { email, channelName, subscriberCount });
+            }, 1000);
+        });
+        
+        function resetForm() {
+            document.getElementById('waitlistForm').style.display = 'block';
+            document.getElementById('successMessage').classList.add('hidden');
+            document.getElementById('waitlistForm').reset();
+            document.getElementById('buttonText').textContent = 'Join Waitlist';
+        }
+    </script>
+</body>
+</html>
