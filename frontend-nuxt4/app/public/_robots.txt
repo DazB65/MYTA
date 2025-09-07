@@ -1,0 +1,18 @@
+User-agent: *
+Allow: /
+
+# Only disallow admin routes in development
+Disallow: /admin/
+
+# Allow all other routes including assets and API for development
+Allow: /api/
+Allow: /_nuxt/
+Allow: /dashboard
+Allow: /videos
+Allow: /tasks
+Allow: /pillars
+Allow: /content-studio
+Allow: /settings
+
+# Sitemap location
+Sitemap: https://myta.app/sitemap.xml

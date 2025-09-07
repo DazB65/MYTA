@@ -6,12 +6,12 @@
       <!-- Top Navigation Bar -->
       <div class="flex items-center justify-between mb-2 h-8">
         <!-- Left: Logo -->
-        <div class="flex items-center overflow-visible -ml-8">
+        <div class="flex items-center overflow-visible ml-2">
           <NuxtLink to="/dashboard" class="flex items-center">
             <img
               src="/MY YT AGENT.png"
               alt="MY YT AGENT"
-              class="h-20 w-auto"
+              class="h-72 w-auto mt-12"
             />
           </NuxtLink>
         </div>
