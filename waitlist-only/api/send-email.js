@@ -363,7 +363,7 @@ export default async function handler(req, res) {
 
     const { data, error } = await resend.emails.send({
       from: "MYTA Team <onboarding@resend.dev>",
-      to: ["myytagent@icloud.com"], // Temporary: only send to verified email for testing
+      to: [email],
       subject: emailTemplate.subject,
       html: emailTemplate.html(templateData),
       text: emailTemplate.text(templateData),
