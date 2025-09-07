@@ -2,7 +2,7 @@
   <header class="fixed top-0 left-0 right-0 z-50">
     <div>
       <!-- Header Container -->
-      <div class="bg-forest-800 p-4">
+      <div class="bg-teal-800 p-4">
       <!-- Top Navigation Bar -->
       <div class="flex items-center justify-between mb-2 h-8">
         <!-- Left: Logo -->

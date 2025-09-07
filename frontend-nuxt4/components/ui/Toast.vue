@@ -124,8 +124,8 @@ const emit = defineEmits<{
 const isVisible = ref(true)
 
 const toastClasses = computed(() => {
-  const baseClasses = 'bg-forest-800/90 border-forest-600'
-  
+  const baseClasses = 'bg-teal-800/90 border-teal-600'
+
   switch (props.type) {
     case 'success':
       return `${baseClasses} border-green-500/30`

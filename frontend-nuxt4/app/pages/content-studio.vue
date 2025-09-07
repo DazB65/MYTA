@@ -54,7 +54,7 @@
           <div class="flex flex-col bg-forest-800/30 rounded-lg p-4 border border-forest-600/20">
             <div class="flex items-center justify-between -m-4 mb-4 p-4 bg-forest-700/50 rounded-t-lg">
               <div class="flex items-center space-x-2">
-                <div class="h-3 w-3 rounded-full bg-orange-500"/>
+                <div class="h-3 w-3 rounded-full bg-blue-500"/>
                 <h3 class="font-semibold text-white">Ideas</h3>
                 <span class="rounded-full bg-forest-700 px-2 py-1 text-xs text-gray-300">{{
                   getColumnCount('ideas')
@@ -78,7 +78,7 @@
               <div
                 v-for="item in getColumnItems('ideas')"
                 :key="item.id"
-                class="cursor-pointer rounded-lg bg-forest-700 p-4 transition-all duration-300 hover:bg-forest-600 hover:scale-[1.02] hover:shadow-lg w-full relative"
+                :class="getCardClasses(item.status)"
                 draggable="true"
                 @dragstart="onDragStart($event, item)"
                 @click="openEditModal(item)"
@@ -214,7 +214,7 @@
               <div
                 v-for="item in getColumnItems('planning')"
                 :key="item.id"
-                class="cursor-pointer rounded-lg bg-forest-700 p-4 transition-all duration-300 hover:bg-forest-600 hover:scale-[1.02] hover:shadow-lg w-full relative"
+                :class="getCardClasses(item.status)"
                 draggable="true"
                 @dragstart="onDragStart($event, item)"
                 @click="openEditModal(item)"
@@ -327,7 +327,7 @@
               <div
                 v-for="item in getColumnItems('in-progress')"
                 :key="item.id"
-                class="cursor-pointer rounded-lg bg-forest-700 p-4 transition-all duration-300 hover:bg-forest-600 hover:scale-[1.02] hover:shadow-lg w-full relative"
+                :class="getCardClasses(item.status)"
                 draggable="true"
                 @dragstart="onDragStart($event, item)"
                 @click="openEditModal(item)"
@@ -422,7 +422,7 @@
           <div class="flex flex-col bg-forest-800/30 rounded-lg p-4 border border-forest-600/20">
             <div class="flex items-center justify-between -m-4 mb-4 p-4 bg-forest-700/50 rounded-t-lg">
               <div class="flex items-center space-x-2">
-                <div class="h-3 w-3 rounded-full bg-green-500"/>
+                <div class="h-3 w-3 rounded-full bg-teal-500"/>
                 <h3 class="font-semibold text-white">Published</h3>
                 <span class="rounded-full bg-forest-700 px-2 py-1 text-xs text-gray-300">{{
                   getColumnCount('published')
@@ -446,7 +446,7 @@
               <div
                 v-for="item in getColumnItems('published')"
                 :key="item.id"
-                class="cursor-pointer rounded-lg bg-forest-700 p-4 transition-all duration-300 hover:bg-forest-600 hover:scale-[1.02] hover:shadow-lg w-full relative"
+                :class="getCardClasses(item.status)"
                 draggable="true"
                 @dragstart="onDragStart($event, item)"
                 @click="openEditModal(item)"
@@ -1708,5 +1708,23 @@ const getColumnItems = status => {
 
 const getColumnCount = status => {
   return getColumnItems(status).length
+}
+
+// Get card classes based on status for different colors
+const getCardClasses = (status) => {
+  const baseClasses = "cursor-pointer rounded-lg p-4 transition-all duration-300 hover:scale-[1.02] hover:shadow-lg w-full relative"
+
+  switch (status) {
+    case 'ideas':
+      return `${baseClasses} bg-blue-900/30 border border-blue-600/20 hover:bg-blue-800/40`
+    case 'planning':
+      return `${baseClasses} bg-yellow-900/30 border border-yellow-600/20 hover:bg-yellow-800/40`
+    case 'in-progress':
+      return `${baseClasses} bg-orange-900/30 border border-orange-600/20 hover:bg-orange-800/40`
+    case 'published':
+      return `${baseClasses} bg-teal-900/30 border border-teal-600/20 hover:bg-teal-800/40`
+    default:
+      return `${baseClasses} bg-forest-700 hover:bg-forest-600`
+  }
 }
 </script>
