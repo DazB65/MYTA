@@ -109,6 +109,31 @@
             box-shadow: 0 5px 15px rgba(249, 115, 22, 0.3);
         }
 
+        .remove-btn {
+            background: #dc2626;
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.875rem;
+            transition: all 0.3s;
+            font-weight: 500;
+        }
+
+        .remove-btn:hover {
+            background: #b91c1c;
+            transform: translateY(-1px);
+            box-shadow: 0 3px 10px rgba(220, 38, 38, 0.3);
+        }
+
+        .remove-btn:disabled {
+            background: #6b7280;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
         .search-box {
             padding: 10px 15px;
             border: 2px solid #4b5563;
@@ -252,6 +277,7 @@
                             <th>Subscribers</th>
                             <th>Content Niche</th>
                             <th>Status</th>
+                            <th>Actions</th>
                         </tr>
                     </thead>
                     <tbody id="waitlistTableBody">
@@ -333,6 +359,12 @@
                     <td>${item.subscriber_range || '-'}</td>
                     <td>${item.content_niche || '-'}</td>
                     <td><span class="status-badge status-${item.status}">${item.status}</span></td>
+                    <td>
+                        <button class="remove-btn" onclick="removeFromWaitlist('${item.id}', '${item.email}')"
+                                title="Remove ${item.email} from waitlist">
+                            🗑️ Remove
+                        </button>
+                    </td>
                 `;
                 tbody.appendChild(row);
             });
@@ -340,12 +372,47 @@
 
         function filterTable() {
             const searchTerm = document.getElementById('searchBox').value.toLowerCase();
-            const filteredData = waitlistData.filter(item => 
+            const filteredData = waitlistData.filter(item =>
                 item.email.toLowerCase().includes(searchTerm) ||
                 (item.name && item.name.toLowerCase().includes(searchTerm)) ||
                 (item.youtube_channel_name && item.youtube_channel_name.toLowerCase().includes(searchTerm))
             );
             renderTable(filteredData);
+        }
+
+        async function removeFromWaitlist(id, email) {
+            // Confirm before deleting
+            if (!confirm(`Are you sure you want to remove "${email}" from the waitlist?\n\nThis action cannot be undone.`)) {
+                return;
+            }
+
+            // Disable the button to prevent double-clicks
+            const button = event.target;
+            button.disabled = true;
+            button.textContent = 'Removing...';
+
+            try {
+                const { error } = await supabase
+                    .from('waitlist')
+                    .delete()
+                    .eq('id', id);
+
+                if (error) throw error;
+
+                // Show success message
+                alert(`Successfully removed "${email}" from the waitlist.`);
+
+                // Reload the data to refresh the table
+                loadWaitlistData();
+
+            } catch (error) {
+                console.error('Error removing from waitlist:', error);
+                alert(`Error removing "${email}" from waitlist: ${error.message}`);
+
+                // Re-enable the button
+                button.disabled = false;
+                button.textContent = '🗑️ Remove';
+            }
         }
 
         // Load data when page loads
