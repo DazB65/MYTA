@@ -16,6 +16,8 @@
   },
   "dependencies": {
     "@nuxt/image": "^1.8.0",
+    "@nuxtjs/robots": "^5.5.1",
+    "@nuxtjs/sitemap": "^7.4.3",
     "@nuxtjs/tailwindcss": "^6.12.1",
     "@pinia/nuxt": "^0.5.5",
     "@stripe/stripe-js": "^7.8.0",

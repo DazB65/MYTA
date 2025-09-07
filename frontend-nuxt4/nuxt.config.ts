@@ -2,6 +2,9 @@
 export default defineNuxtConfig({
   compatibilityDate: '2025-07-15',
 
+  // Use app/ directory for Nuxt 4 structure
+  srcDir: 'app/',
+
   // Modern build configuration
   nitro: {
     compressPublicAssets: true,

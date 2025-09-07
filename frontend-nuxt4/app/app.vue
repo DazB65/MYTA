@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="min-h-screen w-full">
     <!-- Main Application -->
     <NuxtLayout>
       <NuxtPage />
@@ -13,7 +13,7 @@
   </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 // Global app configuration
 useHead({
   title: 'MYTA - Your AI Team for YouTube Growth',
@@ -55,12 +55,26 @@ onErrorCaptured((error, instance, info) => {
 /* Global styles */
 html {
   scroll-behavior: smooth;
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  height: 100%;
 }
 
 body {
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  margin: 0;
+  padding: 0;
+  overflow-x: hidden;
+  width: 100%;
+  min-height: 100vh;
+}
+
+#__nuxt {
+  width: 100%;
+  min-height: 100vh;
 }
 
 /* Custom scrollbar */

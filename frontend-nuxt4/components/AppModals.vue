@@ -79,7 +79,7 @@
   </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { onMounted, onUnmounted, watch } from 'vue'
 import { useModals } from '../composables/useModals.js'
 import { useToast } from '../composables/useToast'

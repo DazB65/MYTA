@@ -1,8 +1,8 @@
 <template>
   <header class="fixed top-0 left-0 right-0 z-50">
-    <div class="p-4">
+    <div>
       <!-- Header Container -->
-      <div class="rounded-xl bg-forest-800 p-3">
+      <div class="bg-forest-800 p-4">
       <!-- Top Navigation Bar -->
       <div class="flex items-center justify-between mb-2 h-8">
         <!-- Left: Logo -->
@@ -11,7 +11,7 @@
             <img
               src="/MY YT AGENT.png"
               alt="MY YT AGENT"
-              class="h-72 w-72 rounded mt-8"
+              class="h-20 w-auto"
             />
           </NuxtLink>
         </div>

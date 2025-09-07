@@ -1,7 +1,7 @@
-<script setup>
-// Use landing layout instead of default
+<script setup lang="ts">
+// Use default layout
 definePageMeta({
-  layout: 'landing'
+  layout: 'default'
 })
 
 // SEO for landing page

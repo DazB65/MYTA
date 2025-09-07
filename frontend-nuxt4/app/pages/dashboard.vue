@@ -1,15 +1,15 @@
 <template>
   <div class="min-h-screen bg-forest-900 text-white">
     <!-- Header -->
-    <div class="p-6 pt-24">
+    <div class="pt-24">
       <!-- Page Header -->
-      <div class="mb-4">
+      <div class="mb-4 px-4">
         <h1 class="text-2xl font-bold text-white">Dashboard</h1>
         <p class="text-gray-400">Welcome back! Here's your channel overview.</p>
       </div>
 
       <!-- Channel Statistics -->
-      <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6 px-4">
         <!-- Subscribers -->
         <div
           class="relative overflow-hidden rounded-xl bg-gradient-to-br from-red-500 to-red-600 p-4 transition-all duration-300 hover:scale-105 hover:shadow-xl cursor-pointer group"
@@ -382,7 +382,7 @@
 
 
       <!-- Main Dashboard Content -->
-      <div class="mb-6">
+      <div class="mb-6 px-4">
         <!-- Recent Video Performance - Full Width -->
         <RecentVideoPerformance />
 
