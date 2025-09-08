@@ -60,7 +60,7 @@ const textClass = computed(() => {
     lg: 'text-base',
     xl: 'text-lg'
   }
-  return `${textSizes[props.size]} text-gray-400`
+  return `${textSizes[props.size]} text-text-secondary`
 })
 
 const containerClass = computed(() => {
