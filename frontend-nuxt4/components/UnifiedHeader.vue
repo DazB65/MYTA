@@ -6,7 +6,7 @@
       <!-- Top Navigation Bar -->
       <div class="flex items-center justify-between mb-2 h-8">
         <!-- Left: Logo -->
-        <div class="flex items-center overflow-visible ml-2">
+        <div class="flex items-center overflow-visible -ml-12">
           <NuxtLink to="/dashboard" class="flex items-center">
             <img
               src="/MY YT AGENT.png"
