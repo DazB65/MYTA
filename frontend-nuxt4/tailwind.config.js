@@ -12,33 +12,33 @@ export default {
     extend: {
       // Custom color palette based on existing CSS variables
       colors: {
-        // Background colors - Teal Theme
+        // Background colors - Gray/Slate Theme
         background: {
-          DEFAULT: '#134e4a', // deep teal
-          card: '#115e59', // teal card
-          elevated: '#0f766e', // elevated teal
-          overlay: 'rgba(19, 78, 74, 0.9)', // teal overlay
+          DEFAULT: '#0f172a', // deep slate
+          card: '#1e293b', // slate card
+          elevated: '#334155', // elevated slate
+          overlay: 'rgba(15, 23, 42, 0.9)', // slate overlay
         },
 
         // Surface colors
         surface: {
-          1: '#134e4a', // deep teal
-          2: '#115e59', // teal
-          3: '#0f766e', // light teal
+          1: '#0f172a', // deep slate
+          2: '#1e293b', // slate
+          3: '#334155', // light slate
         },
 
-        // Forest color palette (now teal-based)
+        // Forest color palette (now gray-based)
         forest: {
-          50: '#f0fdfa',
-          100: '#ccfbf1',
-          200: '#99f6e4',
-          300: '#5eead4',
-          400: '#2dd4bf',
-          500: '#14b8a6',
-          600: '#0d9488',
-          700: '#0f766e', // Main interactive elements
-          800: '#115e59', // Main containers
-          900: '#134e4a', // Background
+          50: '#f8fafc',
+          100: '#f1f5f9',
+          200: '#e2e8f0',
+          300: '#cbd5e1',
+          400: '#94a3b8',
+          500: '#64748b',
+          600: '#475569',
+          700: '#334155', // Main interactive elements
+          800: '#1e293b', // Main containers
+          900: '#0f172a', // Background
         },
 
         // Text colors

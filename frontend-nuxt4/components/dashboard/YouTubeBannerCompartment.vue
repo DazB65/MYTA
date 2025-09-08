@@ -1,5 +1,5 @@
 <template>
-  <div class="relative flex h-24 items-center justify-between overflow-hidden rounded-xl bg-gradient-to-r from-forest-600 via-forest-700 to-forest-800 px-6">
+  <div class="relative flex h-24 items-center justify-between overflow-hidden rounded-xl bg-gradient-to-r from-gray-600 via-gray-700 to-gray-800 px-6">
     <!-- Banner Background Image -->
     <div
       v-if="displayBanner"

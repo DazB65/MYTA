@@ -1,6 +1,6 @@
 <template>
   <div
-    class="rounded-xl bg-forest-800 p-6 cursor-pointer transition-all duration-300 hover:bg-forest-700 hover:scale-[1.02]"
+    class="rounded-xl bg-gray-800 p-6 cursor-pointer transition-all duration-300 hover:scale-[1.02]"
     @click="openPillarModal"
   >
     <!-- Header -->

@@ -1,5 +1,5 @@
 <template>
-  <div class="min-h-screen bg-forest-900 text-white">
+  <div class="min-h-screen bg-slate-900 text-white">
 
     <!-- Main Content Area -->
     <div class="p-6 pt-24">
@@ -48,11 +48,11 @@
 
 
       <!-- Kanban Board -->
-      <div class="rounded-xl bg-forest-800 p-6">
+      <div class="rounded-xl bg-slate-800 p-6">
         <div class="grid grid-cols-4 gap-4 pb-6">
           <!-- Ideas Column -->
-          <div class="flex flex-col bg-forest-800/30 rounded-lg p-4 border border-forest-600/20">
-            <div class="flex items-center justify-between -m-4 mb-4 p-4 bg-forest-700/50 rounded-t-lg">
+          <div class="flex flex-col bg-slate-800/30 rounded-lg p-4 border border-slate-600/20">
+            <div class="flex items-center justify-between -m-4 mb-4 p-4 bg-slate-700/50 rounded-t-lg">
               <div class="flex items-center space-x-2">
                 <div class="h-3 w-3 rounded-full bg-blue-500"/>
                 <h3 class="font-semibold text-white">Ideas</h3>
@@ -187,10 +187,10 @@
           </div>
 
           <!-- Planning Column -->
-          <div class="flex flex-col bg-forest-800/30 rounded-lg p-4 border border-forest-600/20">
-            <div class="flex items-center justify-between -m-4 mb-4 p-4 bg-forest-700/50 rounded-t-lg">
+          <div class="flex flex-col bg-slate-800/30 rounded-lg p-4 border border-slate-600/20">
+            <div class="flex items-center justify-between -m-4 mb-4 p-4 bg-slate-700/50 rounded-t-lg">
               <div class="flex items-center space-x-2">
-                <div class="h-3 w-3 rounded-full bg-orange-500"/>
+                <div class="h-3 w-3 rounded-full bg-orange-400"/>
                 <h3 class="font-semibold text-white">Planning</h3>
                 <span class="rounded-full bg-forest-700 px-2 py-1 text-xs text-gray-300">{{
                   getColumnCount('planning')
@@ -300,10 +300,10 @@
           </div>
 
           <!-- In Progress Column -->
-          <div class="flex flex-col bg-forest-800/30 rounded-lg p-4 border border-forest-600/20">
-            <div class="flex items-center justify-between -m-4 mb-4 p-4 bg-forest-700/50 rounded-t-lg">
+          <div class="flex flex-col bg-slate-800/30 rounded-lg p-4 border border-slate-600/20">
+            <div class="flex items-center justify-between -m-4 mb-4 p-4 bg-slate-700/50 rounded-t-lg">
               <div class="flex items-center space-x-2">
-                <div class="h-3 w-3 rounded-full bg-orange-500"/>
+                <div class="h-3 w-3 rounded-full bg-red-400"/>
                 <h3 class="font-semibold text-white">In Progress</h3>
                 <span class="rounded-full bg-forest-700 px-2 py-1 text-xs text-gray-300">{{
                   getColumnCount('in-progress')
@@ -419,10 +419,10 @@
           </div>
 
           <!-- Published Column -->
-          <div class="flex flex-col bg-forest-800/30 rounded-lg p-4 border border-forest-600/20">
-            <div class="flex items-center justify-between -m-4 mb-4 p-4 bg-forest-700/50 rounded-t-lg">
+          <div class="flex flex-col bg-slate-800/30 rounded-lg p-4 border border-slate-600/20">
+            <div class="flex items-center justify-between -m-4 mb-4 p-4 bg-slate-700/50 rounded-t-lg">
               <div class="flex items-center space-x-2">
-                <div class="h-3 w-3 rounded-full bg-teal-500"/>
+                <div class="h-3 w-3 rounded-full bg-yellow-400"/>
                 <h3 class="font-semibold text-white">Published</h3>
                 <span class="rounded-full bg-forest-700 px-2 py-1 text-xs text-gray-300">{{
                   getColumnCount('published')
@@ -1716,15 +1716,15 @@ const getCardClasses = (status) => {
 
   switch (status) {
     case 'ideas':
-      return `${baseClasses} bg-blue-900/30 border border-blue-600/20 hover:bg-blue-800/40`
+      return `${baseClasses} bg-gray-800/50 border border-blue-600/20`
     case 'planning':
-      return `${baseClasses} bg-yellow-900/30 border border-yellow-600/20 hover:bg-yellow-800/40`
+      return `${baseClasses} bg-gray-800/50 border border-purple-600/20`
     case 'in-progress':
-      return `${baseClasses} bg-orange-900/30 border border-orange-600/20 hover:bg-orange-800/40`
+      return `${baseClasses} bg-gray-800/50 border border-green-600/20`
     case 'published':
-      return `${baseClasses} bg-teal-900/30 border border-teal-600/20 hover:bg-teal-800/40`
+      return `${baseClasses} bg-gray-800/50 border border-cyan-600/20`
     default:
-      return `${baseClasses} bg-forest-700 hover:bg-forest-600`
+      return `${baseClasses} bg-gray-800`
   }
 }
 </script>

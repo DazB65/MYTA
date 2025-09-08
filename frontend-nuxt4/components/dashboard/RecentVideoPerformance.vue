@@ -1,11 +1,11 @@
 <template>
-  <div class="rounded-xl bg-forest-800 p-6 mb-6">
+  <div class="rounded-xl bg-gray-800 p-6 mb-6">
     <div class="flex items-center justify-between mb-6">
       <h2 class="text-xl font-semibold text-white">Recent Video Performance</h2>
       <div class="flex items-center space-x-3">
         <NuxtLink
           to="/videos"
-          class="rounded-lg bg-forest-600 px-4 py-2 text-sm font-medium text-white hover:bg-forest-500 transition-colors"
+          class="rounded-lg bg-gray-600 px-4 py-2 text-sm font-medium text-white hover:bg-gray-500 transition-colors"
         >
           View All Videos
         </NuxtLink>
@@ -24,7 +24,7 @@
       <div
         v-for="video in recentVideos"
         :key="video.id"
-        class="flex items-center justify-between rounded-lg bg-forest-700 p-4 hover:bg-forest-600 transition-all duration-300 hover:scale-[1.01] hover:shadow-lg cursor-pointer"
+        class="flex items-center justify-between rounded-lg bg-gray-700 p-4 transition-all duration-300 hover:scale-[1.01] hover:shadow-lg cursor-pointer"
         @click="analyzeVideo(video)"
       >
         <!-- Video Info -->

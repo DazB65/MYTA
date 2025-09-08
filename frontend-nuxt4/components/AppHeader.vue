@@ -1,5 +1,5 @@
 <template>
-  <header class="fixed top-0 left-0 right-0 z-50 bg-teal-800/95 backdrop-blur-sm border-b border-teal-700">
+  <header class="fixed top-0 left-0 right-0 z-50 bg-gray-700/95 backdrop-blur-sm border-b border-gray-600">
     <div class="px-6 py-3">
       <div class="flex items-center justify-between">
         <!-- Left: Logo and Navigation -->

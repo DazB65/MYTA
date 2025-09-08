@@ -102,7 +102,7 @@
 const { toasts, removeToast } = useToast()
 
 const getToastClasses = (type?: string) => {
-  const baseClasses = 'bg-teal-800/90 border-teal-600'
+  const baseClasses = 'bg-gray-800/90 border-gray-600'
 
   switch (type) {
     case 'success':

@@ -1,5 +1,5 @@
 <template>
-  <div class="min-h-screen bg-forest-900 text-white">
+  <div class="min-h-screen bg-slate-900 text-white">
     <!-- Header -->
     <div class="pt-24">
       <!-- Page Header -->
@@ -12,7 +12,7 @@
       <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6 px-4">
         <!-- Subscribers -->
         <div
-          class="relative overflow-hidden rounded-xl bg-gradient-to-br from-red-500 to-red-600 p-4 transition-all duration-300 hover:scale-105 hover:shadow-xl cursor-pointer group"
+          class="relative overflow-hidden rounded-xl bg-gradient-to-br from-red-700 to-red-800 p-4 transition-all duration-300 hover:scale-105 hover:shadow-xl cursor-pointer group"
           @click="handleMetricClick('subscribers')"
         >
           <!-- Background Pattern -->
@@ -58,7 +58,7 @@
 
         <!-- Views -->
         <div
-          class="relative overflow-hidden rounded-xl bg-gradient-to-br from-blue-500 to-blue-600 p-4 transition-all duration-300 hover:scale-105 hover:shadow-xl cursor-pointer group"
+          class="relative overflow-hidden rounded-xl bg-gradient-to-br from-blue-700 to-blue-800 p-4 transition-all duration-300 hover:scale-105 hover:shadow-xl cursor-pointer group"
           @click="handleMetricClick('views')"
         >
           <!-- Background Pattern -->
@@ -104,7 +104,7 @@
 
         <!-- Watch Time -->
         <div
-          class="relative overflow-hidden rounded-xl bg-gradient-to-br from-purple-500 to-purple-600 p-4 transition-all duration-300 hover:scale-105 hover:shadow-xl cursor-pointer group"
+          class="relative overflow-hidden rounded-xl bg-gradient-to-br from-purple-700 to-purple-800 p-4 transition-all duration-300 hover:scale-105 hover:shadow-xl cursor-pointer group"
           @click="handleMetricClick('watchTime')"
         >
           <!-- Background Pattern -->
@@ -150,7 +150,7 @@
 
         <!-- Revenue -->
         <div
-          class="relative overflow-hidden rounded-xl bg-gradient-to-br from-green-500 to-green-600 p-4 transition-all duration-300 hover:scale-105 hover:shadow-xl cursor-pointer group"
+          class="relative overflow-hidden rounded-xl bg-gradient-to-br from-green-700 to-green-800 p-4 transition-all duration-300 hover:scale-105 hover:shadow-xl cursor-pointer group"
           @click="handleMetricClick('revenue')"
         >
           <!-- Background Pattern -->
@@ -196,7 +196,7 @@
 
         <!-- Engagement Rate -->
         <div
-          class="relative overflow-hidden rounded-xl bg-gradient-to-br from-yellow-500 to-yellow-600 p-4 transition-all duration-300 hover:scale-105 hover:shadow-xl cursor-pointer group"
+          class="relative overflow-hidden rounded-xl bg-gradient-to-br from-yellow-700 to-yellow-800 p-4 transition-all duration-300 hover:scale-105 hover:shadow-xl cursor-pointer group"
           @click="handleMetricClick('engagement')"
         >
           <!-- Background Pattern -->
@@ -242,7 +242,7 @@
 
         <!-- Click-Through Rate -->
         <div
-          class="relative overflow-hidden rounded-xl bg-gradient-to-br from-orange-500 to-orange-600 p-4 transition-all duration-300 hover:scale-105 hover:shadow-xl cursor-pointer group"
+          class="relative overflow-hidden rounded-xl bg-gradient-to-br from-orange-700 to-orange-800 p-4 transition-all duration-300 hover:scale-105 hover:shadow-xl cursor-pointer group"
           @click="handleMetricClick('ctr')"
         >
           <!-- Background Pattern -->
@@ -288,7 +288,7 @@
 
         <!-- Average View Duration -->
         <div
-          class="relative overflow-hidden rounded-xl bg-gradient-to-br from-indigo-500 to-indigo-600 p-4 transition-all duration-300 hover:scale-105 hover:shadow-xl cursor-pointer group"
+          class="relative overflow-hidden rounded-xl bg-gradient-to-br from-indigo-700 to-indigo-800 p-4 transition-all duration-300 hover:scale-105 hover:shadow-xl cursor-pointer group"
           @click="handleMetricClick('avgDuration')"
         >
           <!-- Background Pattern -->
@@ -334,7 +334,7 @@
 
         <!-- Retention Rate -->
         <div
-          class="relative overflow-hidden rounded-xl bg-gradient-to-br from-pink-500 to-pink-600 p-4 transition-all duration-300 hover:scale-105 hover:shadow-xl cursor-pointer group"
+          class="relative overflow-hidden rounded-xl bg-gradient-to-br from-pink-700 to-pink-800 p-4 transition-all duration-300 hover:scale-105 hover:shadow-xl cursor-pointer group"
           @click="handleMetricClick('retention')"
         >
           <!-- Background Pattern -->

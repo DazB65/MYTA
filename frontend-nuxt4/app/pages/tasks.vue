@@ -431,12 +431,12 @@
         </div>
 
         <!-- Task List -->
-        <div class="rounded-xl bg-forest-800 p-6">
+        <div class="rounded-xl bg-gray-800 p-6">
           <div class="space-y-3">
             <div
               v-for="task in filteredTasks"
               :key="task.id"
-              class="flex items-center justify-between rounded-lg bg-forest-700 p-4 hover:bg-forest-600 transition-colors"
+              class="flex items-center justify-between rounded-lg bg-gray-700 p-4 transition-colors"
               :class="{
                 'border-l-4 border-red-500': isOverdue(task),
                 'border-l-4 border-yellow-500': isDueToday(task),
@@ -446,7 +446,7 @@
                 <input
                   :checked="task.completed"
                   type="checkbox"
-                  class="rounded border-forest-600 bg-forest-700 text-orange-500 focus:ring-orange-500"
+                  class="rounded border-gray-600 bg-gray-700 text-orange-500 focus:ring-orange-500"
                   @change="toggleTaskCompletion(task.id)"
                 />
                 <div class="flex-1">

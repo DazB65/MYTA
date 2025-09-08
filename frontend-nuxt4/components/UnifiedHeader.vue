@@ -2,7 +2,7 @@
   <header class="fixed top-0 left-0 right-0 z-50">
     <div>
       <!-- Header Container -->
-      <div class="bg-teal-800 p-4">
+      <div class="bg-gray-700 p-4">
       <!-- Top Navigation Bar -->
       <div class="flex items-center justify-between mb-2 h-8">
         <!-- Left: Logo -->
@@ -21,7 +21,7 @@
           <!-- Settings -->
           <NuxtLink
             to="/settings"
-            class="p-2 rounded-lg text-gray-400 hover:text-white hover:bg-forest-700 transition-colors"
+            class="p-2 rounded-lg text-gray-400 hover:text-white hover:bg-gray-700 transition-colors"
             title="Settings"
           >
             <svg class="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
@@ -36,7 +36,7 @@
           <!-- Logout Button -->
           <button
             @click="handleLogout"
-            class="p-2 rounded-lg text-gray-400 hover:text-white hover:bg-forest-700 transition-colors"
+            class="p-2 rounded-lg text-gray-400 hover:text-white hover:bg-gray-700 transition-colors"
             title="Logout"
             :disabled="authStore.loading"
           >

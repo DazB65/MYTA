@@ -8,21 +8,21 @@
 :root {
   /* ===== COLOR PALETTE ===== */
 
-  /* Background Colors - Teal Theme */
-  --color-bg: #134e4a; /* teal-900 - deep teal */
-  --color-bg-card: #115e59; /* teal-800 - teal card */
-  --color-bg-elevated: #0f766e; /* teal-700 - elevated teal */
-  --color-bg-overlay: rgba(19, 78, 74, 0.9); /* teal overlay */
+  /* Background Colors - Gray/Slate Theme */
+  --color-bg: #0f172a; /* slate-900 - deep slate */
+  --color-bg-card: #1e293b; /* slate-800 - slate card */
+  --color-bg-elevated: #334155; /* slate-700 - elevated slate */
+  --color-bg-overlay: rgba(15, 23, 42, 0.9); /* slate overlay */
 
   /* Surface Colors */
-  --color-surface-1: #134e4a; /* deep teal */
-  --color-surface-2: #115e59; /* teal */
-  --color-surface-3: #0f766e; /* light teal */
+  --color-surface-1: #0f172a; /* deep slate */
+  --color-surface-2: #1e293b; /* slate */
+  --color-surface-3: #334155; /* light slate */
 
   /* Border Colors */
-  --color-border: #0d9488; /* teal-600 - teal border */
-  --color-border-light: #14b8a6; /* teal-500 - lighter teal */
-  --color-border-dark: #115e59; /* teal-800 - dark teal */
+  --color-border: #475569; /* slate-600 - slate border */
+  --color-border-light: #64748b; /* slate-500 - lighter slate */
+  --color-border-dark: #1e293b; /* slate-800 - dark slate */
 
   /* Text Colors */
   --color-text-primary: #ffffff;
@@ -471,16 +471,11 @@ button:active:not(:disabled),
 .card:hover,
 .rounded-xl:hover {
   transform: translateY(-2px);
-  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
-  /* Override any bright green background with subtle forest hover */
-  background-color: var(--color-bg-elevated) !important;
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.25);
+  /* No background color change - just subtle elevation effect */
 }
 
-/* Prevent bright hover effects on containers */
-.bg-forest-800:hover,
-.bg-forest-700:hover {
-  background-color: #0f766e !important; /* teal-700 - subtle hover */
-}
+/* Prevent background color changes on hover - removed for clean hover effects */
 
 /* Ensure text remains readable on hover */
 .rounded-xl:hover * {

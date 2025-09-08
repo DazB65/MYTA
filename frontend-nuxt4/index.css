@@ -5,11 +5,11 @@
 /* Design System & Global Styles      */
 /* ---------------------------------- */
 :root {
-  /* Colors - Teal Theme */
-  --color-bg: #134e4a;
-  --color-surface-1: #115e59;
-  --color-surface-2: #0f766e;
-  --color-border: #0d9488;
+  /* Colors - Gray/Slate Theme */
+  --color-bg: #0f172a;
+  --color-surface-1: #1e293b;
+  --color-surface-2: #334155;
+  --color-border: #475569;
   --color-text-primary: #ffffff;
   --color-text-secondary: #d1d5db;
   --color-text-tertiary: #9ca3af;

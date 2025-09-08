@@ -2,7 +2,7 @@
   <div v-if="show" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
     <div class="bg-white rounded-lg shadow-xl w-full max-w-4xl max-h-[90vh] overflow-hidden">
       <!-- Modal Header -->
-      <div class="bg-forest-800 text-white p-4 flex items-center justify-between">
+      <div class="bg-gray-800 text-white p-4 flex items-center justify-between">
         <div class="flex items-center space-x-3">
           <div class="h-8 w-8 rounded-lg bg-orange-500 flex items-center justify-center">
             <svg class="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
@@ -151,7 +151,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref } from 'vue';
 
 interface Props {
   show: boolean

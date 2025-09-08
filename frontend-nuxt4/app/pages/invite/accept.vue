@@ -1,8 +1,8 @@
 <template>
-  <div class="min-h-screen bg-forest-900 flex items-center justify-center p-4">
+  <div class="min-h-screen bg-slate-900 flex items-center justify-center p-4">
     <div class="max-w-md w-full">
       <!-- Loading State -->
-      <div v-if="loading" class="bg-forest-800 rounded-xl p-8 text-center">
+      <div v-if="loading" class="bg-gray-800 rounded-xl p-8 text-center">
         <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto mb-4"></div>
         <h2 class="text-xl font-semibold text-white mb-2">Processing Invitation...</h2>
         <p class="text-gray-400">Please wait while we verify your invitation.</p>
@@ -100,7 +100,7 @@
 
           <button
             @click="goToSignup"
-            class="w-full bg-forest-700 text-gray-300 py-3 px-4 rounded-lg font-medium hover:bg-forest-600 transition-colors"
+            class="w-full bg-gray-700 text-gray-300 py-3 px-4 rounded-lg font-medium hover:bg-gray-600 transition-colors"
           >
             Create Account
           </button>

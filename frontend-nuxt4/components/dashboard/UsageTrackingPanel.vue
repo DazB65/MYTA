@@ -1,5 +1,5 @@
 <template>
-  <div class="rounded-xl bg-forest-800 p-6">
+  <div class="rounded-xl bg-gray-800 p-6">
     <!-- Header -->
     <div class="flex items-center justify-between mb-6">
       <div class="flex items-center space-x-3">
@@ -29,7 +29,7 @@
         <div 
           v-for="(usageData, usageType) in usage.usage" 
           :key="usageType"
-          class="bg-forest-700/50 rounded-lg p-4"
+          class="bg-gray-700/50 rounded-lg p-4"
         >
           <div class="flex items-center justify-between mb-2">
             <div class="flex items-center space-x-2">
@@ -52,7 +52,7 @@
           </div>
 
           <!-- Progress Bar (only for limited usage) -->
-          <div v-if="usageData.limit > 0" class="w-full bg-forest-600 rounded-full h-2">
+          <div v-if="usageData.limit > 0" class="w-full bg-gray-600 rounded-full h-2">
             <div 
               class="h-2 rounded-full transition-all duration-300"
               :class="getProgressBarColor(usageData.percentage_used)"

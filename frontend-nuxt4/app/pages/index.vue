@@ -24,13 +24,13 @@ useHead({
 <template>
   <div class="relative min-h-screen overflow-hidden">
     <!-- Background Effects -->
-    <div class="absolute inset-0 bg-gradient-to-br from-forest-900 via-forest-900 to-forest-800/20"></div>
+    <div class="absolute inset-0 bg-gradient-to-br from-slate-900 via-slate-900 to-slate-800/20"></div>
     <div class="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(249,115,22,0.1),transparent_70%)]"></div>
 
     <!-- Animated Background Elements -->
     <div class="absolute inset-0 overflow-hidden">
       <div class="absolute -top-40 -right-40 w-80 h-80 bg-orange-500/10 rounded-full blur-3xl animate-pulse"></div>
-      <div class="absolute -bottom-40 -left-40 w-80 h-80 bg-forest-500/10 rounded-full blur-3xl animate-pulse delay-1000"></div>
+      <div class="absolute -bottom-40 -left-40 w-80 h-80 bg-slate-500/10 rounded-full blur-3xl animate-pulse delay-1000"></div>
     </div>
 
     <!-- Content -->
