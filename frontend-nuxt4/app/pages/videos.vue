@@ -98,10 +98,10 @@
             <!-- Sort by Pillar -->
             <select v-model="selectedPillar" class="rounded-lg bg-gray-700 px-3 py-2 text-sm text-white">
               <option value="all">All Pillars</option>
-              <option value="Gaming Reviews">Gaming Reviews</option>
+              <option value="Game Development">Game Development</option>
+              <option value="Game Reviews">Game Reviews</option>
               <option value="Tech Tutorials">Tech Tutorials</option>
-              <option value="Product Reviews">Product Reviews</option>
-              <option value="Industry News">Industry News</option>
+              <option value="Productivity Tips">Productivity Tips</option>
             </select>
 
             <!-- Sort by Performance -->
@@ -121,6 +121,31 @@
                 />
               </svg>
             </button>
+          </div>
+        </div>
+
+        <!-- Pillar Legend -->
+        <div class="mb-4 flex items-center justify-center">
+          <div class="flex items-center space-x-6 rounded-lg bg-gray-800/60 px-4 py-2 border border-gray-600/30">
+            <span class="text-sm font-medium text-gray-300">Pillar Colors:</span>
+            <div class="flex items-center space-x-4">
+              <div class="flex items-center space-x-2">
+                <div class="w-3 h-3 rounded border-2 border-orange-500"></div>
+                <span class="text-xs text-gray-400">Game Development</span>
+              </div>
+              <div class="flex items-center space-x-2">
+                <div class="w-3 h-3 rounded border-2 border-blue-500"></div>
+                <span class="text-xs text-gray-400">Game Reviews</span>
+              </div>
+              <div class="flex items-center space-x-2">
+                <div class="w-3 h-3 rounded border-2 border-purple-500"></div>
+                <span class="text-xs text-gray-400">Tech Tutorials</span>
+              </div>
+              <div class="flex items-center space-x-2">
+                <div class="w-3 h-3 rounded border-2 border-green-500"></div>
+                <span class="text-xs text-gray-400">Productivity Tips</span>
+              </div>
+            </div>
           </div>
         </div>
 
