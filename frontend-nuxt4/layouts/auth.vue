@@ -17,7 +17,7 @@
         </div>
         
         <!-- Auth Content -->
-        <div class="rounded-2xl bg-gray-800/50 p-8 backdrop-blur-sm border border-gray-700/50">
+        <div class="rounded-2xl bg-gray-900/80 p-8 backdrop-blur-sm border border-gray-700/50">
           <slot />
         </div>
         

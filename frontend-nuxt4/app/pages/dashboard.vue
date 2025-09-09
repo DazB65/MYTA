@@ -1,5 +1,5 @@
 <template>
-  <div class="min-h-screen bg-slate-900 text-white">
+  <div class="min-h-screen bg-gradient-to-b from-slate-800 via-gray-850 to-gray-900 text-white">
     <!-- Header -->
     <div class="pt-24">
       <!-- Page Header -->
@@ -9,7 +9,9 @@
       </div>
 
       <!-- Channel Statistics -->
-      <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6 px-4">
+      <div class="mb-6 px-4">
+        <div class="rounded-xl bg-gray-900/80 backdrop-blur-sm border border-gray-700/50 p-6">
+          <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
         <!-- Subscribers -->
         <div
           class="relative overflow-hidden rounded-xl bg-gradient-to-br from-red-700 to-red-800 p-4 transition-all duration-300 hover:scale-105 hover:shadow-xl cursor-pointer group"
@@ -376,6 +378,8 @@
 
           <!-- Hover Glow Effect -->
           <div class="absolute inset-0 bg-gradient-to-r from-white/0 via-white/5 to-white/0 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+        </div>
+          </div>
         </div>
       </div>
 

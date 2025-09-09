@@ -1,5 +1,5 @@
 <template>
-  <div class="min-h-screen bg-slate-900 text-white">
+  <div class="min-h-screen bg-gradient-to-b from-slate-800 via-gray-850 to-gray-900 text-white">
 
     <!-- Main Content Area -->
     <div class="p-6 pt-24">
@@ -15,7 +15,7 @@
             <input
               type="text"
               placeholder="Search content..."
-              class="w-64 rounded-lg bg-forest-800 px-4 py-2 pl-10 text-white focus:outline-none focus:ring-2 focus:ring-orange-500"
+              class="w-64 rounded-lg bg-gray-800 px-4 py-2 pl-10 text-white focus:outline-none focus:ring-2 focus:ring-orange-500"
             />
             <svg
               class="absolute left-3 top-2.5 h-5 w-5 text-gray-400"
@@ -48,15 +48,15 @@
 
 
       <!-- Kanban Board -->
-      <div class="rounded-xl bg-slate-800 p-6">
+      <div class="rounded-xl bg-gray-900/80 backdrop-blur-sm border border-gray-700/50 p-6">
         <div class="grid grid-cols-4 gap-4 pb-6">
           <!-- Ideas Column -->
-          <div class="flex flex-col bg-slate-800/30 rounded-lg p-4 border border-slate-600/20">
+          <div class="flex flex-col bg-gray-900/80 backdrop-blur-sm rounded-lg p-4 border border-gray-700/50">
             <div class="flex items-center justify-between -m-4 mb-4 p-4 bg-slate-700/50 rounded-t-lg">
               <div class="flex items-center space-x-2">
                 <div class="h-3 w-3 rounded-full bg-blue-500"/>
                 <h3 class="font-semibold text-white">Ideas</h3>
-                <span class="rounded-full bg-forest-700 px-2 py-1 text-xs text-gray-300">{{
+                <span class="rounded-full bg-gray-700 px-2 py-1 text-xs text-gray-300">{{
                   getColumnCount('ideas')
                 }}</span>
               </div>
@@ -99,17 +99,17 @@
                     <!-- Dropdown Menu -->
                     <div
                       v-if="showDropdownMenu === item.id"
-                      class="absolute right-0 top-6 z-50 w-32 rounded-md bg-forest-600 shadow-lg border border-forest-500"
+                      class="absolute right-0 top-6 z-50 w-32 rounded-md bg-gray-600 shadow-lg border border-gray-500"
                     >
                       <button
                         @click.stop="openEditModal(item)"
-                        class="block w-full px-3 py-2 text-left text-sm text-gray-300 hover:bg-forest-500 hover:text-white rounded-t-md transition-colors duration-150"
+                        class="block w-full px-3 py-2 text-left text-sm text-gray-300 hover:bg-gray-500 hover:text-white rounded-t-md transition-colors duration-150"
                       >
                         Edit
                       </button>
                       <button
                         @click.stop="openDeleteModal(item)"
-                        class="block w-full px-3 py-2 text-left text-sm text-red-400 hover:bg-forest-500 hover:text-red-300 rounded-b-md transition-colors duration-150"
+                        class="block w-full px-3 py-2 text-left text-sm text-red-400 hover:bg-gray-500 hover:text-red-300 rounded-b-md transition-colors duration-150"
                       >
                         Delete
                       </button>
@@ -119,14 +119,14 @@
                 <p class="mb-3 text-xs text-gray-300">{{ item.description }}</p>
                 <!-- Pillar Badge -->
                 <div v-if="item.pillar" class="mb-3">
-                  <span class="inline-flex items-center space-x-1 rounded-full bg-forest-600 px-2 py-1 text-xs text-gray-300">
+                  <span class="inline-flex items-center space-x-1 rounded-full bg-gray-600 px-2 py-1 text-xs text-gray-300">
                     <span>{{ item.pillar.icon }}</span>
                     <span>{{ item.pillar.name }}</span>
                   </span>
                 </div>
 
                 <!-- Performance Predictions -->
-                <div v-if="item.status !== 'published'" class="mb-3 p-3 bg-forest-600/50 rounded-lg border border-forest-500/30">
+                <div v-if="item.status !== 'published'" class="mb-3 p-3 bg-gray-900/80 backdrop-blur-sm rounded-lg border border-gray-700/50">
                   <div class="flex items-center justify-between mb-2">
                     <h6 class="text-xs font-medium text-blue-300">📈 Performance Forecast</h6>
                     <span class="text-xs text-green-300">{{ getConfidence(item) }}% confidence</span>
@@ -187,12 +187,12 @@
           </div>
 
           <!-- Planning Column -->
-          <div class="flex flex-col bg-slate-800/30 rounded-lg p-4 border border-slate-600/20">
+          <div class="flex flex-col bg-gray-900/80 backdrop-blur-sm rounded-lg p-4 border border-gray-700/50">
             <div class="flex items-center justify-between -m-4 mb-4 p-4 bg-slate-700/50 rounded-t-lg">
               <div class="flex items-center space-x-2">
                 <div class="h-3 w-3 rounded-full bg-orange-400"/>
                 <h3 class="font-semibold text-white">Planning</h3>
-                <span class="rounded-full bg-forest-700 px-2 py-1 text-xs text-gray-300">{{
+                <span class="rounded-full bg-gray-700 px-2 py-1 text-xs text-gray-300">{{
                   getColumnCount('planning')
                 }}</span>
               </div>
@@ -235,17 +235,17 @@
                   <!-- Dropdown Menu -->
                   <div
                     v-if="showDropdownMenu === item.id"
-                    class="absolute right-0 top-6 z-50 w-32 rounded-md bg-forest-600 shadow-lg border border-forest-500"
+                    class="absolute right-0 top-6 z-50 w-32 rounded-md bg-gray-600 shadow-lg border border-gray-500"
                   >
                     <button
                       @click.stop="openEditModal(item)"
-                      class="block w-full px-3 py-2 text-left text-sm text-gray-300 hover:bg-forest-500 hover:text-white rounded-t-md transition-colors duration-150"
+                      class="block w-full px-3 py-2 text-left text-sm text-gray-300 hover:bg-gray-500 hover:text-white rounded-t-md transition-colors duration-150"
                     >
                       Edit
                     </button>
                     <button
                       @click.stop="openDeleteModal(item)"
-                      class="block w-full px-3 py-2 text-left text-sm text-red-400 hover:bg-forest-500 hover:text-red-300 rounded-b-md transition-colors duration-150"
+                      class="block w-full px-3 py-2 text-left text-sm text-red-400 hover:bg-gray-500 hover:text-red-300 rounded-b-md transition-colors duration-150"
                     >
                       Delete
                     </button>
@@ -255,7 +255,7 @@
                 <p class="mb-3 text-xs text-gray-300">{{ item.description }}</p>
                 <!-- Pillar Badge -->
                 <div v-if="item.pillar" class="mb-3">
-                  <span class="inline-flex items-center space-x-1 rounded-full bg-forest-600 px-2 py-1 text-xs text-gray-300">
+                  <span class="inline-flex items-center space-x-1 rounded-full bg-gray-600 px-2 py-1 text-xs text-gray-300">
                     <span>{{ item.pillar.icon }}</span>
                     <span>{{ item.pillar.name }}</span>
                   </span>
@@ -300,12 +300,12 @@
           </div>
 
           <!-- In Progress Column -->
-          <div class="flex flex-col bg-slate-800/30 rounded-lg p-4 border border-slate-600/20">
+          <div class="flex flex-col bg-gray-900/80 backdrop-blur-sm rounded-lg p-4 border border-gray-700/50">
             <div class="flex items-center justify-between -m-4 mb-4 p-4 bg-slate-700/50 rounded-t-lg">
               <div class="flex items-center space-x-2">
                 <div class="h-3 w-3 rounded-full bg-red-400"/>
                 <h3 class="font-semibold text-white">In Progress</h3>
-                <span class="rounded-full bg-forest-700 px-2 py-1 text-xs text-gray-300">{{
+                <span class="rounded-full bg-gray-700 px-2 py-1 text-xs text-gray-300">{{
                   getColumnCount('in-progress')
                 }}</span>
               </div>
@@ -348,17 +348,17 @@
                     <!-- Dropdown Menu -->
                     <div
                       v-if="showDropdownMenu === item.id"
-                      class="absolute right-0 top-6 z-50 w-32 rounded-md bg-forest-600 shadow-lg border border-forest-500"
+                      class="absolute right-0 top-6 z-50 w-32 rounded-md bg-gray-600 shadow-lg border border-gray-500"
                     >
                       <button
                         @click.stop="openEditModal(item)"
-                        class="block w-full px-3 py-2 text-left text-sm text-gray-300 hover:bg-forest-500 hover:text-white rounded-t-md transition-colors duration-150"
+                        class="block w-full px-3 py-2 text-left text-sm text-gray-300 hover:bg-gray-500 hover:text-white rounded-t-md transition-colors duration-150"
                       >
                         Edit
                       </button>
                       <button
                         @click.stop="openDeleteModal(item)"
-                        class="block w-full px-3 py-2 text-left text-sm text-red-400 hover:bg-forest-500 hover:text-red-300 rounded-b-md transition-colors duration-150"
+                        class="block w-full px-3 py-2 text-left text-sm text-red-400 hover:bg-gray-500 hover:text-red-300 rounded-b-md transition-colors duration-150"
                       >
                         Delete
                       </button>
@@ -368,7 +368,7 @@
                 <p class="mb-3 text-xs text-gray-300">{{ item.description }}</p>
                 <!-- Pillar Badge -->
                 <div v-if="item.pillar" class="mb-3">
-                  <span class="inline-flex items-center space-x-1 rounded-full bg-forest-600 px-2 py-1 text-xs text-gray-300">
+                  <span class="inline-flex items-center space-x-1 rounded-full bg-gray-600 px-2 py-1 text-xs text-gray-300">
                     <span>{{ item.pillar.icon }}</span>
                     <span>{{ item.pillar.name }}</span>
                   </span>
@@ -408,7 +408,7 @@
                     </div>
                   </div>
                 </div>
-                <div v-if="item.progress" class="h-2 w-full rounded-full bg-forest-600">
+                <div v-if="item.progress" class="h-2 w-full rounded-full bg-gray-600">
                   <div
                     class="h-2 rounded-full bg-orange-500"
                     :style="`width: ${item.progress}%`"
@@ -419,12 +419,12 @@
           </div>
 
           <!-- Published Column -->
-          <div class="flex flex-col bg-slate-800/30 rounded-lg p-4 border border-slate-600/20">
+          <div class="flex flex-col bg-gray-900/80 backdrop-blur-sm rounded-lg p-4 border border-gray-700/50">
             <div class="flex items-center justify-between -m-4 mb-4 p-4 bg-slate-700/50 rounded-t-lg">
               <div class="flex items-center space-x-2">
                 <div class="h-3 w-3 rounded-full bg-yellow-400"/>
                 <h3 class="font-semibold text-white">Published</h3>
-                <span class="rounded-full bg-forest-700 px-2 py-1 text-xs text-gray-300">{{
+                <span class="rounded-full bg-gray-700 px-2 py-1 text-xs text-gray-300">{{
                   getColumnCount('published')
                 }}</span>
               </div>
@@ -467,17 +467,17 @@
                     <!-- Dropdown Menu -->
                     <div
                       v-if="showDropdownMenu === item.id"
-                      class="absolute right-0 top-6 z-50 w-32 rounded-md bg-forest-600 shadow-lg border border-forest-500"
+                      class="absolute right-0 top-6 z-50 w-32 rounded-md bg-gray-600 shadow-lg border border-gray-500"
                     >
                       <button
                         @click.stop="openEditModal(item)"
-                        class="block w-full px-3 py-2 text-left text-sm text-gray-300 hover:bg-forest-500 hover:text-white rounded-t-md transition-colors duration-150"
+                        class="block w-full px-3 py-2 text-left text-sm text-gray-300 hover:bg-gray-500 hover:text-white rounded-t-md transition-colors duration-150"
                       >
                         Edit
                       </button>
                       <button
                         @click.stop="openDeleteModal(item)"
-                        class="block w-full px-3 py-2 text-left text-sm text-red-400 hover:bg-forest-500 hover:text-red-300 rounded-b-md transition-colors duration-150"
+                        class="block w-full px-3 py-2 text-left text-sm text-red-400 hover:bg-gray-500 hover:text-red-300 rounded-b-md transition-colors duration-150"
                       >
                         Delete
                       </button>
@@ -487,7 +487,7 @@
                 <p class="mb-3 text-xs text-gray-300">{{ item.description }}</p>
                 <!-- Pillar Badge -->
                 <div v-if="item.pillar" class="mb-3">
-                  <span class="inline-flex items-center space-x-1 rounded-full bg-forest-600 px-2 py-1 text-xs text-gray-300">
+                  <span class="inline-flex items-center space-x-1 rounded-full bg-gray-600 px-2 py-1 text-xs text-gray-300">
                     <span>{{ item.pillar.icon }}</span>
                     <span>{{ item.pillar.name }}</span>
                   </span>
@@ -530,7 +530,7 @@
 
 
       <!-- Agent Content Suggestions -->
-      <div class="mt-6 rounded-xl bg-forest-800 p-6">
+      <div class="mt-6 rounded-xl bg-gray-900/80 backdrop-blur-sm border border-gray-700/50 p-6">
         <div class="mb-6 flex items-center justify-between">
           <div class="flex items-center space-x-3">
             <div class="flex h-10 w-10 items-center justify-center rounded-lg overflow-hidden bg-purple-600/20">
@@ -549,7 +549,7 @@
               <p class="text-sm text-gray-400">Personalized recommendations to boost your content strategy</p>
             </div>
           </div>
-          <button class="flex items-center space-x-2 rounded-lg bg-forest-700 px-4 py-2 text-sm text-white hover:bg-forest-600 transition-colors">
+          <button class="flex items-center space-x-2 rounded-lg bg-gray-700 px-4 py-2 text-sm text-white hover:bg-gray-600 transition-colors">
             <svg class="h-4 w-4" fill="currentColor" viewBox="0 0 20 20">
               <path fill-rule="evenodd" d="M4 2a1 1 0 011 1v2.101a7.002 7.002 0 0111.601 2.566 1 1 0 11-1.885.666A5.002 5.002 0 005.999 7H9a1 1 0 010 2H4a1 1 0 01-1-1V3a1 1 0 011-1zm.008 9.057a1 1 0 011.276.61A5.002 5.002 0 0014.001 13H11a1 1 0 110-2h5a1 1 0 011 1v5a1 1 0 11-2 0v-2.101a7.002 7.002 0 01-11.601-2.566 1 1 0 01.61-1.276z" clip-rule="evenodd"/>
             </svg>
@@ -560,7 +560,7 @@
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
 
           <!-- Trending Topics -->
-          <div class="rounded-lg bg-forest-700/50 p-4 border border-forest-600/20">
+          <div class="rounded-lg bg-gray-900/80 backdrop-blur-sm p-4 border border-gray-700/50">
             <div class="mb-3 flex items-center justify-between">
               <div class="flex items-center space-x-2">
                 <div class="h-2 w-2 rounded-full bg-red-500"></div>
@@ -573,7 +573,7 @@
                 v-for="trending in contentSuggestions.trendingTopics"
                 :key="trending.id"
                 @click="handleSuggestionClick(trending)"
-                class="cursor-pointer rounded-md bg-forest-700 p-3 hover:bg-forest-600 transition-all duration-300 hover:scale-[1.02] hover:shadow-md group"
+                class="cursor-pointer rounded-md bg-gray-700 p-3 hover:bg-gray-600 transition-all duration-300 hover:scale-[1.02] hover:shadow-md group"
               >
                 <div class="flex items-center justify-between">
                   <div>
@@ -591,7 +591,7 @@
           </div>
 
           <!-- Content Ideas -->
-          <div class="rounded-lg bg-forest-700/50 p-4 border border-forest-600/20">
+          <div class="rounded-lg bg-gray-900/80 backdrop-blur-sm p-4 border border-gray-700/50">
             <div class="mb-3 flex items-center justify-between">
               <div class="flex items-center space-x-2">
                 <div class="h-2 w-2 rounded-full bg-blue-500"></div>
@@ -604,7 +604,7 @@
                 v-for="suggestion in contentSuggestions.contentIdeas"
                 :key="suggestion.id"
                 @click="handleSuggestionClick(suggestion)"
-                class="cursor-pointer rounded-md bg-forest-700 p-3 hover:bg-forest-600 transition-all duration-300 hover:scale-[1.02] hover:shadow-md group"
+                class="cursor-pointer rounded-md bg-gray-700 p-3 hover:bg-gray-600 transition-all duration-300 hover:scale-[1.02] hover:shadow-md group"
               >
                 <div class="flex items-center justify-between">
                   <div>
@@ -622,7 +622,7 @@
           </div>
 
           <!-- Optimization Tips -->
-          <div class="rounded-lg bg-forest-700/50 p-4 border border-forest-600/20">
+          <div class="rounded-lg bg-gray-900/80 backdrop-blur-sm p-4 border border-gray-700/50">
             <div class="mb-3 flex items-center justify-between">
               <div class="flex items-center space-x-2">
                 <div class="h-2 w-2 rounded-full bg-green-500"></div>
@@ -635,7 +635,7 @@
                 v-for="suggestion in contentSuggestions.optimizationTips"
                 :key="suggestion.id"
                 @click="handleSuggestionClick(suggestion)"
-                class="cursor-pointer rounded-md bg-forest-700 p-3 hover:bg-forest-600 transition-all duration-300 hover:scale-[1.02] hover:shadow-md group"
+                class="cursor-pointer rounded-md bg-gray-700 p-3 hover:bg-gray-600 transition-all duration-300 hover:scale-[1.02] hover:shadow-md group"
               >
                 <div class="flex items-center justify-between">
                   <div>
@@ -661,13 +661,13 @@
             </svg>
             <span>Add to Ideas</span>
           </button>
-          <button class="flex items-center space-x-2 rounded-lg bg-forest-700 px-4 py-2 text-sm text-white hover:bg-forest-600 transition-colors">
+          <button class="flex items-center space-x-2 rounded-lg bg-gray-700 px-4 py-2 text-sm text-white hover:bg-gray-600 transition-colors">
             <svg class="h-4 w-4" fill="currentColor" viewBox="0 0 20 20">
               <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z"/>
             </svg>
             <span>Customize Suggestions</span>
           </button>
-          <button class="flex items-center space-x-2 rounded-lg bg-forest-700 px-4 py-2 text-sm text-white hover:bg-forest-600 transition-colors">
+          <button class="flex items-center space-x-2 rounded-lg bg-gray-700 px-4 py-2 text-sm text-white hover:bg-gray-600 transition-colors">
             <svg class="h-4 w-4" fill="currentColor" viewBox="0 0 20 20">
               <path d="M3 4a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-1 1H4a1 1 0 01-1-1V4zM3 10a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H4a1 1 0 01-1-1v-6zM14 9a1 1 0 00-1 1v6a1 1 0 001 1h2a1 1 0 001-1v-6a1 1 0 00-1-1h-2z"/>
             </svg>
@@ -685,7 +685,7 @@
 
     <!-- Delete Confirmation Modal -->
     <div v-if="showDeleteConfirmModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
-      <div class="bg-forest-800 rounded-xl p-6 w-full max-w-md mx-4">
+      <div class="bg-gray-900/80 backdrop-blur-sm border border-gray-700/50 rounded-xl p-6 w-full max-w-md mx-4">
         <div class="flex items-center justify-between mb-4">
           <h3 class="text-lg font-semibold text-white">Delete Content</h3>
           <button @click="showDeleteConfirmModal = false" class="text-gray-400 hover:text-white">
@@ -1716,15 +1716,15 @@ const getCardClasses = (status) => {
 
   switch (status) {
     case 'ideas':
-      return `${baseClasses} bg-gray-800/50 border border-blue-600/20`
+      return `${baseClasses} bg-gray-900/70 backdrop-blur-sm border border-blue-600/30`
     case 'planning':
-      return `${baseClasses} bg-gray-800/50 border border-purple-600/20`
+      return `${baseClasses} bg-gray-900/70 backdrop-blur-sm border border-purple-600/30`
     case 'in-progress':
-      return `${baseClasses} bg-gray-800/50 border border-green-600/20`
+      return `${baseClasses} bg-gray-900/70 backdrop-blur-sm border border-green-600/30`
     case 'published':
-      return `${baseClasses} bg-gray-800/50 border border-cyan-600/20`
+      return `${baseClasses} bg-gray-900/80 backdrop-blur-sm border border-cyan-600/30`
     default:
-      return `${baseClasses} bg-gray-800`
+      return `${baseClasses} bg-gray-900/80 backdrop-blur-sm border border-gray-700/50`
   }
 }
 </script>

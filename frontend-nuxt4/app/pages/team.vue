@@ -1,5 +1,5 @@
 <template>
-  <div class="min-h-screen bg-forest-900 text-white">
+  <div class="min-h-screen bg-gradient-to-b from-slate-800 via-gray-850 to-gray-900 text-white">
     <!-- Header -->
     <div class="p-6 pt-24">
       <!-- Page Header -->
@@ -11,17 +11,17 @@
 
 
       <!-- Tabbed Interface -->
-      <div class="bg-forest-800 rounded-xl overflow-hidden">
+      <div class="bg-gray-900/80 backdrop-blur-sm border border-gray-700/50 rounded-xl overflow-hidden">
         <!-- Tab Navigation -->
-        <div class="flex border-b border-forest-600">
+        <div class="flex border-b border-gray-700">
           <button
             v-for="tab in tabs"
             :key="tab.id"
             @click="activeTab = tab.id"
             class="flex items-center space-x-2 px-6 py-4 text-sm font-medium transition-colors duration-200"
             :class="activeTab === tab.id
-              ? 'bg-forest-700 text-white border-b-2 border-blue-500'
-              : 'text-gray-400 hover:text-white hover:bg-forest-700/50'"
+              ? 'bg-gray-700 text-white border-b-2 border-blue-500'
+              : 'text-gray-400 hover:text-white hover:bg-gray-700/50'"
           >
             <span class="text-lg">{{ tab.icon }}</span>
             <span>{{ tab.name }}</span>
@@ -43,7 +43,7 @@
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 h-full">
               <!-- Tabbed Chat Interface - Takes up 2 columns -->
               <div class="lg:col-span-2 h-full">
-                <div class="rounded-xl bg-forest-700 h-full flex flex-col">
+                <div class="rounded-xl bg-gray-700 h-full flex flex-col">
                   <TabbedChatInterface ref="tabbedChatRef" :team-id="'demo_team_123'" />
                 </div>
               </div>
@@ -61,7 +61,7 @@
           <div v-if="activeTab === 'analytics'" class="space-y-6">
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               <!-- Team Performance Metrics -->
-              <div class="bg-forest-700 rounded-xl p-6">
+              <div class="bg-gray-700 rounded-xl p-6">
                 <div class="flex items-center space-x-3 mb-4">
                   <div class="w-10 h-10 bg-blue-500/20 rounded-lg flex items-center justify-center">
                     <span class="text-blue-400 text-lg">📊</span>
@@ -88,7 +88,7 @@
               </div>
 
               <!-- Communication Stats -->
-              <div class="bg-forest-700 rounded-xl p-6">
+              <div class="bg-gray-700 rounded-xl p-6">
                 <div class="flex items-center space-x-3 mb-4">
                   <div class="w-10 h-10 bg-green-500/20 rounded-lg flex items-center justify-center">
                     <span class="text-green-400 text-lg">💬</span>
@@ -115,7 +115,7 @@
               </div>
 
               <!-- AI Agent Activity -->
-              <div class="bg-forest-700 rounded-xl p-6">
+              <div class="bg-gray-700 rounded-xl p-6">
                 <div class="flex items-center space-x-3 mb-4">
                   <div class="w-10 h-10 bg-purple-500/20 rounded-lg flex items-center justify-center">
                     <span class="text-purple-400 text-lg">🤖</span>
@@ -149,7 +149,7 @@
       <div class="mt-8 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         <button
           @click="createTeamProject"
-          class="p-4 rounded-xl bg-forest-800 hover:bg-forest-700 transition-colors text-left"
+          class="p-4 rounded-xl bg-gray-800 hover:bg-gray-700 transition-colors text-left"
         >
           <div class="flex items-center space-x-3">
             <div class="w-8 h-8 rounded-lg bg-green-500/20 flex items-center justify-center">
@@ -164,7 +164,7 @@
 
         <button
           @click="viewTeamAnalytics"
-          class="p-4 rounded-xl bg-forest-800 hover:bg-forest-700 transition-colors text-left"
+          class="p-4 rounded-xl bg-gray-800 hover:bg-gray-700 transition-colors text-left"
         >
           <div class="flex items-center space-x-3">
             <div class="w-8 h-8 rounded-lg bg-blue-500/20 flex items-center justify-center">
@@ -179,7 +179,7 @@
 
         <button
           @click="managePermissions"
-          class="p-4 rounded-xl bg-forest-800 hover:bg-forest-700 transition-colors text-left"
+          class="p-4 rounded-xl bg-gray-800 hover:bg-gray-700 transition-colors text-left"
         >
           <div class="flex items-center space-x-3">
             <div class="w-8 h-8 rounded-lg bg-orange-500/20 flex items-center justify-center">

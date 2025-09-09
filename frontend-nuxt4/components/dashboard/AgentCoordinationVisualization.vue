@@ -1,5 +1,5 @@
 <template>
-  <div class="rounded-xl bg-forest-800 p-6">
+  <div class="rounded-xl bg-gray-900/80 backdrop-blur-sm border border-gray-700/50 p-6">
     <!-- Header -->
     <div class="flex items-center justify-between mb-6">
       <div class="flex items-center space-x-3">
@@ -32,12 +32,12 @@
 
     <!-- Coordination Network Visualization -->
     <div class="relative mb-6">
-      <div class="bg-forest-900 rounded-lg p-6 min-h-[300px] relative overflow-hidden">
+      <div class="bg-gray-900/80 backdrop-blur-sm border border-gray-700/50 rounded-lg p-6 min-h-[300px] relative overflow-hidden">
         <!-- Central Hub (Boss Agent) -->
         <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
           <div class="relative">
             <div 
-              class="w-16 h-16 rounded-full border-4 border-orange-400 bg-forest-700 flex items-center justify-center"
+              class="w-16 h-16 rounded-full border-4 border-orange-400 bg-gray-700 flex items-center justify-center"
               :class="{ 'animate-pulse': isLiveMode }"
             >
               <img 
@@ -237,7 +237,7 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue'
+import { computed, ref } from 'vue'
 import { useAgentsStore } from '../../stores/agents'
 
 const agentsStore = useAgentsStore()

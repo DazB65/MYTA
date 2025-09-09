@@ -156,7 +156,8 @@
 
 body {
   font-family: var(--font-family-main);
-  background-color: var(--color-bg);
+  background-color: #0f172a !important; /* Force consistent slate-900 */
+  background-image: none !important; /* Remove any gradients */
   color: var(--color-text-primary);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;

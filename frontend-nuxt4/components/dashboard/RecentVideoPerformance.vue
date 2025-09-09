@@ -1,5 +1,5 @@
 <template>
-  <div class="rounded-xl bg-gray-800 p-6 mb-6">
+  <div class="rounded-xl bg-gray-900/80 backdrop-blur-sm border border-gray-700/50 p-6 mb-6">
     <div class="flex items-center justify-between mb-6">
       <h2 class="text-xl font-semibold text-white">Recent Video Performance</h2>
       <div class="flex items-center space-x-3">
@@ -50,7 +50,7 @@
               Published {{ formatDate(video.publishedAt) }}
             </p>
             <div class="flex items-center space-x-2 mt-2">
-              <span class="text-xs text-gray-300 bg-forest-600 px-2 py-1 rounded">
+              <span class="text-xs text-gray-300 bg-gray-600 px-2 py-1 rounded">
                 {{ video.category }}
               </span>
               <span

@@ -1,5 +1,5 @@
 <template>
-  <div class="rounded-xl bg-gray-800 p-6">
+  <div class="rounded-xl bg-gray-900/80 backdrop-blur-sm border border-gray-700/50 p-6">
     <!-- Header -->
     <div class="flex items-center justify-between mb-6">
       <div class="flex items-center space-x-3">

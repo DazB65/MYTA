@@ -69,7 +69,7 @@
                 <p class="text-gray-300 text-sm">Use the floating "+" button to add research notes. Document what you want to replicate or avoid.</p>
               </div>
             </div>
-            <div class="flex items-start space-x-4 p-4 bg-forest-800 border border-forest-600 rounded-lg">
+            <div class="flex items-start space-x-4 p-4 bg-gray-900/80 backdrop-blur-sm border border-gray-700/50 rounded-lg">
               <div class="h-8 w-8 rounded-full bg-orange-500 text-white flex items-center justify-center text-sm font-bold flex-shrink-0">D</div>
               <div>
                 <h4 class="font-semibold text-white">Organize & Export</h4>

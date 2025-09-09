@@ -639,11 +639,11 @@ const chatMessages = ref(null)
 }
 
 .explore-btn {
-  @apply bg-forest-700 text-gray-300 border border-forest-500;
+  @apply bg-gray-700 text-gray-300 border border-gray-500;
 }
 
 .explore-btn:hover {
-  @apply bg-forest-600;
+  @apply bg-gray-600;
 }
 
 .export-btn {
@@ -660,7 +660,7 @@ const chatMessages = ref(null)
 }
 
 .chat-container {
-  @apply bg-forest-800 border border-forest-600 rounded-lg overflow-hidden;
+  @apply bg-gray-900/80 backdrop-blur-sm border border-gray-700/50 rounded-lg overflow-hidden;
 }
 
 .chat-messages {

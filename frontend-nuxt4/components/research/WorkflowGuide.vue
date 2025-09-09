@@ -111,7 +111,7 @@
           v-for="template in availableTemplates"
           :key="template.id"
           @click="startTemplate(template)"
-          class="flex items-center space-x-3 p-3 bg-forest-700 rounded-lg hover:bg-forest-600 transition-colors text-left"
+          class="flex items-center space-x-3 p-3 bg-gray-900/80 backdrop-blur-sm border border-gray-700/50 rounded-lg hover:bg-gray-600 transition-colors text-left"
         >
           <div class="w-8 h-8 rounded-lg flex items-center justify-center" :style="{ backgroundColor: template.color }">
             {{ template.icon }}

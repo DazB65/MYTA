@@ -1,5 +1,5 @@
 <template>
-  <div class="min-h-screen bg-slate-900 text-white">
+  <div class="min-h-screen bg-gradient-to-b from-slate-800 via-gray-850 to-gray-900 text-white">
 
 
 
@@ -18,7 +18,7 @@
               v-model="searchQuery"
               type="text"
               placeholder="Search videos..."
-              class="w-64 rounded-lg bg-forest-800 px-4 py-2 pl-10 text-white focus:outline-none focus:ring-2 focus:ring-orange-500"
+              class="w-64 rounded-lg bg-gray-800 px-4 py-2 pl-10 text-white focus:outline-none focus:ring-2 focus:ring-orange-500"
             />
             <svg
               class="absolute left-3 top-2.5 h-5 w-5 text-gray-400"
@@ -62,7 +62,7 @@
       </div>
 
       <!-- Recent Videos Section -->
-      <div class="mb-8 rounded-xl bg-forest-800 p-6">
+      <div class="mb-8 rounded-xl bg-gray-900/80 backdrop-blur-sm border border-gray-700/50 p-6">
         <div class="mb-6 flex items-center justify-between">
           <div class="flex items-center space-x-4">
             <h3 class="text-xl font-bold text-white">Recent Videos</h3>
@@ -73,7 +73,7 @@
               <button
                 @click="prevPage"
                 :disabled="!hasPrev"
-                class="flex items-center px-2 py-1 text-gray-300 bg-forest-700 rounded hover:bg-forest-600 disabled:opacity-50 disabled:cursor-not-allowed"
+                class="flex items-center px-2 py-1 text-gray-300 bg-gray-700 rounded hover:bg-gray-600 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
                   <path fill-rule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clip-rule="evenodd" />
@@ -85,7 +85,7 @@
               <button
                 @click="nextPage"
                 :disabled="!hasNext"
-                class="flex items-center px-2 py-1 text-gray-300 bg-forest-700 rounded hover:bg-forest-600 disabled:opacity-50 disabled:cursor-not-allowed"
+                class="flex items-center px-2 py-1 text-gray-300 bg-gray-700 rounded hover:bg-gray-600 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
                   <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd" />
@@ -96,7 +96,7 @@
 
           <div class="flex items-center space-x-4">
             <!-- Sort by Pillar -->
-            <select v-model="selectedPillar" class="rounded-lg bg-forest-700 px-3 py-2 text-sm text-white">
+            <select v-model="selectedPillar" class="rounded-lg bg-gray-700 px-3 py-2 text-sm text-white">
               <option value="all">All Pillars</option>
               <option value="Gaming Reviews">Gaming Reviews</option>
               <option value="Tech Tutorials">Tech Tutorials</option>
@@ -105,7 +105,7 @@
             </select>
 
             <!-- Sort by Performance -->
-            <select v-model="sortBy" class="rounded-lg bg-forest-700 px-3 py-2 text-sm text-white">
+            <select v-model="sortBy" class="rounded-lg bg-gray-700 px-3 py-2 text-sm text-white">
               <option value="recent">Most Recent</option>
               <option value="views">Most Views</option>
               <option value="engagement">Best Engagement</option>
@@ -127,7 +127,7 @@
         <!-- Video Grid -->
         <div class="grid grid-cols-4 gap-6">
           <div v-for="video in filteredAndSortedVideos" :key="video.id" class="group cursor-pointer" @click="openVideoStats(video)">
-            <div class="relative mb-3 aspect-video overflow-hidden rounded-lg bg-forest-700">
+            <div class="relative mb-3 aspect-video overflow-hidden rounded-lg bg-gray-700">
               <img :src="video.thumbnail" :alt="video.title" class="h-full w-full object-cover" />
               <div
                 class="absolute inset-0 flex items-center justify-center bg-black bg-opacity-0 transition-all duration-200 group-hover:bg-opacity-30"

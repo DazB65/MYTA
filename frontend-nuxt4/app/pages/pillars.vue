@@ -1,5 +1,5 @@
 <template>
-  <div class="min-h-screen bg-slate-900 text-white">
+  <div class="min-h-screen bg-gradient-to-b from-slate-800 via-gray-850 to-gray-900 text-white">
     <!-- Main Content Area -->
     <div class="p-6 pt-24">
       <!-- Header -->
@@ -10,7 +10,7 @@
 
       <!-- Tab Navigation -->
       <div class="mb-6">
-        <div class="border-b border-forest-600">
+        <div class="border-b border-gray-600">
           <nav class="-mb-px flex space-x-8">
             <button
               @click="activeTab = 'pillars'"
@@ -40,7 +40,8 @@
       </div>
 
       <!-- Tab Content -->
-      <div class="tab-content">
+      <div class="rounded-xl bg-gray-900/80 backdrop-blur-sm border border-gray-700/50 p-6">
+        <div class="tab-content">
         <!-- My Pillars Tab -->
         <div v-show="activeTab === 'pillars'" class="space-y-6">
           <!-- Header with Add Button -->
@@ -75,19 +76,19 @@
 
           <!-- Summary Stats -->
           <div class="mt-8 grid grid-cols-1 gap-4 md:grid-cols-4">
-            <div class="rounded-lg bg-forest-800 p-4">
+            <div class="rounded-lg bg-gray-900/80 backdrop-blur-sm border border-gray-700/50 p-4">
               <div class="text-2xl font-bold text-white">{{ totalVideos }}</div>
               <div class="text-sm text-gray-400">Total Videos</div>
             </div>
-            <div class="rounded-lg bg-forest-800 p-4">
+            <div class="rounded-lg bg-gray-900/80 backdrop-blur-sm border border-gray-700/50 p-4">
               <div class="text-2xl font-bold text-white">{{ activePillars.length }}</div>
               <div class="text-sm text-gray-400">Active Pillars</div>
             </div>
-            <div class="rounded-lg bg-forest-800 p-4">
+            <div class="rounded-lg bg-gray-900/80 backdrop-blur-sm border border-gray-700/50 p-4">
               <div class="text-2xl font-bold text-white">{{ formatViews(totalViews) }}</div>
               <div class="text-sm text-gray-400">Total Views</div>
             </div>
-            <div class="rounded-lg bg-forest-800 p-4">
+            <div class="rounded-lg bg-gray-900/80 backdrop-blur-sm border border-gray-700/50 p-4">
               <div class="text-2xl font-bold text-white">{{ totalIdeas }}</div>
               <div class="text-sm text-gray-400">Content Ideas</div>
             </div>
@@ -124,12 +125,13 @@
             </div>
           </div>
         </div>
+        </div>
       </div>
     </div>
 
     <!-- Add Pillar Modal -->
     <div v-if="showAddModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
-      <div class="rounded-xl bg-forest-800 p-6 w-full max-w-md mx-4">
+      <div class="rounded-xl bg-gray-900/80 backdrop-blur-sm border border-gray-700/50 p-6 w-full max-w-md mx-4">
         <div class="mb-4 flex items-center justify-between">
           <h3 class="text-lg font-semibold text-white">Add New Pillar</h3>
           <button @click="showAddModal = false" class="text-gray-400 hover:text-white">
@@ -148,7 +150,7 @@
                 v-model="newPillar.name"
                 type="text"
                 required
-                class="w-full rounded-lg bg-forest-700 border border-forest-600 px-3 py-2 text-white focus:outline-none focus:ring-2 focus:ring-orange-500"
+                class="w-full rounded-lg bg-gray-700 border border-gray-600 px-3 py-2 text-white focus:outline-none focus:ring-2 focus:ring-orange-500"
                 placeholder="e.g., Gaming Tutorials, Tech Reviews..."
               />
             </div>
@@ -159,7 +161,7 @@
               <textarea
                 v-model="newPillar.description"
                 rows="3"
-                class="w-full rounded-lg bg-forest-700 border border-forest-600 px-3 py-2 text-white focus:outline-none focus:ring-2 focus:ring-orange-500"
+                class="w-full rounded-lg bg-gray-700 border border-gray-600 px-3 py-2 text-white focus:outline-none focus:ring-2 focus:ring-orange-500"
                 placeholder="Describe what type of content this pillar will focus on..."
               ></textarea>
             </div>
@@ -177,7 +179,7 @@
                     'p-3 rounded-lg border-2 transition-colors',
                     newPillar.icon === icon.value
                       ? 'border-orange-500 bg-orange-500/20'
-                      : 'border-forest-600 bg-forest-700 hover:border-orange-400'
+                      : 'border-gray-600 bg-gray-700 hover:border-orange-400'
                   ]"
                 >
                   <svg class="h-5 w-5 text-white mx-auto" fill="currentColor" viewBox="0 0 20 20">

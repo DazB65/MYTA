@@ -1,5 +1,5 @@
 <template>
-  <div class="min-h-screen bg-forest-900 text-white">
+  <div class="min-h-screen bg-gradient-to-b from-slate-800 via-gray-850 to-gray-900 text-white">
     <!-- Settings Content -->
     <div class="p-6 pt-24">
       <!-- Page Header -->
@@ -15,8 +15,8 @@
       </div>
 
       <!-- Settings Tabs -->
-      <div class="mb-6 rounded-xl bg-forest-800 p-6">
-        <div class="border-b border-forest-600">
+      <div class="mb-6 rounded-xl bg-gray-900/80 backdrop-blur-sm border border-gray-700/50 p-6">
+        <div class="border-b border-gray-700">
           <nav class="flex space-x-8">
             <button
               v-for="tab in tabs"
@@ -39,7 +39,7 @@
       <!-- Tab Content -->
       <div>
         <!-- Agent Customization Tab -->
-        <div v-if="activeTab === 'agent'" class="mb-6 rounded-xl bg-forest-800 p-6">
+        <div v-if="activeTab === 'agent'" class="mb-6 rounded-xl bg-gray-900/80 backdrop-blur-sm border border-gray-700/50 p-6">
           <div class="mb-6 flex items-center space-x-3">
             <div class="flex h-10 w-10 items-center justify-center rounded-lg bg-orange-500">
               <svg class="h-6 w-6 text-white" fill="currentColor" viewBox="0 0 20 20">
@@ -62,7 +62,7 @@
                 v-model="agentName"
                 type="text"
                 placeholder="Enter your Boss Agent's name"
-                class="w-full rounded-lg border border-forest-600 bg-forest-700 px-4 py-3 text-white placeholder-gray-400 focus:border-orange-500 focus:outline-none focus:ring-2 focus:ring-orange-500"
+                class="w-full rounded-lg border border-gray-600 bg-gray-700 px-4 py-3 text-white placeholder-gray-400 focus:border-orange-500 focus:outline-none focus:ring-2 focus:ring-orange-500"
               />
               <p class="mt-1 text-xs text-gray-400">
                 Your Boss Agent coordinates with specialized agents behind the scenes
@@ -76,7 +76,7 @@
                 Your Boss Agent coordinates with all specialists behind the scenes.
               </p>
               <div class="mb-6 text-center">
-                <div class="mx-auto mb-4 h-48 w-48 overflow-hidden rounded-xl bg-forest-700 ring-4 ring-orange-500 ring-opacity-50">
+                <div class="mx-auto mb-4 h-48 w-48 overflow-hidden rounded-xl bg-gray-700 ring-4 ring-orange-500 ring-opacity-50">
                   <img :src="selectedAgent.image" :alt="selectedAgent.name" class="h-full w-full object-cover" />
                 </div>
                 <div class="text-xl font-semibold text-white">{{ agentName || selectedAgent.name }}</div>
@@ -94,9 +94,9 @@
                 <div
                   v-for="agent in specialistAgents"
                   :key="agent.id"
-                  class="text-center p-3 rounded-lg bg-forest-700"
+                  class="text-center p-3 rounded-lg bg-gray-700"
                 >
-                  <div class="mx-auto mb-2 h-12 w-12 overflow-hidden rounded-lg bg-forest-600">
+                  <div class="mx-auto mb-2 h-12 w-12 overflow-hidden rounded-lg bg-gray-600">
                     <img :src="agent.image" :alt="agent.name" class="h-full w-full object-cover" />
                   </div>
                   <div class="text-xs font-medium text-gray-300">{{ agent.name }}</div>
@@ -107,10 +107,10 @@
           </div>
 
           <!-- Preview Section -->
-          <div class="mt-8 rounded-lg bg-forest-700 p-4">
+          <div class="mt-8 rounded-lg bg-gray-700 p-4">
             <h4 class="mb-3 text-sm font-medium text-white">Preview</h4>
             <div class="flex items-center space-x-3">
-              <div class="h-12 w-12 overflow-hidden rounded-lg bg-forest-600">
+              <div class="h-12 w-12 overflow-hidden rounded-lg bg-gray-600">
                 <img
                   :src="selectedAgent.image"
                   :alt="selectedAgent.name"
@@ -139,9 +139,9 @@
         </div>
 
         <!-- General Settings Tab -->
-        <div v-if="activeTab === 'general'" class="rounded-xl bg-forest-800 p-6">
+        <div v-if="activeTab === 'general'" class="rounded-xl bg-gray-900/80 backdrop-blur-sm border border-gray-700/50 p-6">
           <div class="mb-6 flex items-center space-x-3">
-            <div class="flex h-10 w-10 items-center justify-center rounded-lg bg-forest-700">
+            <div class="flex h-10 w-10 items-center justify-center rounded-lg bg-gray-700">
               <svg class="h-6 w-6 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
                 <path
                   fill-rule="evenodd"
@@ -159,7 +159,7 @@
           <div class="py-8 text-center">
             <p class="mb-4 text-gray-400">More settings will be available in future updates</p>
             <button
-              class="rounded-lg bg-forest-700 px-4 py-2 text-gray-300 transition-colors hover:bg-forest-600"
+              class="rounded-lg bg-gray-700 px-4 py-2 text-gray-300 transition-colors hover:bg-gray-600"
             >
               Request Features
             </button>
@@ -171,7 +171,7 @@
         <!-- Subscription Tab -->
         <div v-if="activeTab === 'subscription'" class="space-y-6">
           <!-- Current Plan -->
-          <div class="rounded-xl bg-forest-800 p-6">
+          <div class="rounded-xl bg-gray-900/80 backdrop-blur-sm border border-gray-700/50 p-6">
             <div class="mb-6 flex items-center justify-between">
               <div class="flex items-center space-x-3">
                 <div class="flex h-10 w-10 items-center justify-center rounded-lg bg-orange-500">
@@ -194,7 +194,7 @@
             <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
               <!-- Plan Details -->
               <div class="md:col-span-2">
-                <div class="rounded-lg bg-forest-700 p-4">
+                <div class="rounded-lg bg-gray-700 p-4">
                   <h4 class="font-medium text-white mb-3">Plan Features</h4>
                   <div class="space-y-2">
                     <div v-for="feature in currentPlan.features" :key="feature" class="flex items-center space-x-2">
@@ -209,7 +209,7 @@
 
               <!-- Usage Stats -->
               <div>
-                <div class="rounded-lg bg-forest-700 p-4">
+                <div class="rounded-lg bg-gray-700 p-4">
                   <h4 class="font-medium text-white mb-3">Usage This Month</h4>
                   <div class="space-y-3">
                     <div>
@@ -217,7 +217,7 @@
                         <span class="text-gray-400">AI Conversations</span>
                         <span class="text-white">{{ usage.aiConversations }}/{{ currentPlan.limits.aiConversations }}</span>
                       </div>
-                      <div class="w-full bg-forest-600 rounded-full h-2">
+                      <div class="w-full bg-gray-600 rounded-full h-2">
                         <div class="bg-orange-500 h-2 rounded-full" :style="{ width: (usage.aiConversations / currentPlan.limits.aiConversations * 100) + '%' }"></div>
                       </div>
                     </div>
@@ -226,7 +226,7 @@
                         <span class="text-gray-400">Content Pillars</span>
                         <span class="text-white">{{ usage.contentPillars }}/{{ currentPlan.limits.contentPillars }}</span>
                       </div>
-                      <div class="w-full bg-forest-600 rounded-full h-2">
+                      <div class="w-full bg-gray-600 rounded-full h-2">
                         <div class="bg-blue-500 h-2 rounded-full" :style="{ width: (usage.contentPillars / currentPlan.limits.contentPillars * 100) + '%' }"></div>
                       </div>
                     </div>
@@ -235,7 +235,7 @@
                         <span class="text-gray-400">Goals</span>
                         <span class="text-white">{{ usage.goals }}/{{ currentPlan.limits.goals }}</span>
                       </div>
-                      <div class="w-full bg-forest-600 rounded-full h-2">
+                      <div class="w-full bg-gray-600 rounded-full h-2">
                         <div class="bg-green-500 h-2 rounded-full" :style="{ width: (usage.goals / currentPlan.limits.goals * 100) + '%' }"></div>
                       </div>
                     </div>
@@ -258,7 +258,7 @@
                   Cancel Plan
                 </button>
                 <button
-                  class="px-6 py-2 bg-forest-600 text-white rounded-lg hover:bg-forest-500 transition-colors"
+                  class="px-6 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-500 transition-colors"
                   @click="manageBilling"
                 >
                   Manage Billing

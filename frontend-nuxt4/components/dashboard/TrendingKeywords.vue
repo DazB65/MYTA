@@ -122,7 +122,7 @@
     </div>
 
     <!-- Quick Actions -->
-    <div class="mt-4 pt-4 border-t border-forest-600/30">
+    <div class="mt-4 pt-4 border-t border-gray-600/30">
       <div class="flex space-x-2">
         <button
           @click="generateContentIdeas"

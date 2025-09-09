@@ -1,5 +1,5 @@
 <template>
-  <div class="min-h-screen bg-forest-900 text-white">
+  <div class="min-h-screen bg-gradient-to-b from-slate-800 via-gray-850 to-gray-900 text-white">
     <div class="p-6 pt-24">
       <div class="space-y-8">
       <!-- Page Header -->
@@ -12,13 +12,13 @@
 
         <div class="flex items-center space-x-3">
           <button
-            :class="currentView === 'dashboard' ? 'rounded-lg bg-orange-500 px-4 py-2 text-sm text-white' : 'rounded-lg bg-forest-700 px-4 py-2 text-sm text-gray-300 hover:bg-forest-600'"
+            :class="currentView === 'dashboard' ? 'rounded-lg bg-orange-500 px-4 py-2 text-sm text-white' : 'rounded-lg bg-gray-700 px-4 py-2 text-sm text-gray-300 hover:bg-gray-600'"
             @click="currentView = 'dashboard'"
           >
             📅 Calendar
           </button>
           <button
-            :class="currentView === 'manager' ? 'rounded-lg bg-orange-500 px-4 py-2 text-sm text-white' : 'rounded-lg bg-forest-700 px-4 py-2 text-sm text-gray-300 hover:bg-forest-600'"
+            :class="currentView === 'manager' ? 'rounded-lg bg-orange-500 px-4 py-2 text-sm text-white' : 'rounded-lg bg-gray-700 px-4 py-2 text-sm text-gray-300 hover:bg-gray-600'"
             @click="currentView = 'manager'"
           >
             📋 Task Manager
@@ -33,17 +33,17 @@
           <!-- Left Column: Calendar (2/3 width) -->
           <div class="lg:col-span-2">
             <!-- Calendar Container -->
-            <div class="rounded-xl bg-forest-800 p-6">
+            <div class="rounded-xl bg-gray-900/80 backdrop-blur-sm border border-gray-700/50 p-6">
               <!-- Calendar Header -->
               <div class="mb-6 flex items-center justify-between">
                 <div class="flex items-center space-x-4">
-                  <button @click="previousMonth" class="p-2 rounded-lg bg-forest-700 hover:bg-forest-600 text-white">
+                  <button @click="previousMonth" class="p-2 rounded-lg bg-gray-700 hover:bg-gray-600 text-white">
                     <svg class="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
                       <path fill-rule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clip-rule="evenodd"/>
                     </svg>
                   </button>
                   <h2 class="text-xl font-bold text-white">{{ currentMonthYear }}</h2>
-                  <button @click="nextMonth" class="p-2 rounded-lg bg-forest-700 hover:bg-forest-600 text-white">
+                  <button @click="nextMonth" class="p-2 rounded-lg bg-gray-700 hover:bg-gray-600 text-white">
                     <svg class="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
                       <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"/>
                     </svg>
@@ -68,10 +68,10 @@
                   v-for="day in calendarDays"
                   :key="`${day.date.getFullYear()}-${day.date.getMonth()}-${day.date.getDate()}`"
                   :class="[
-                    'min-h-[120px] p-2 border border-forest-700 rounded-lg cursor-pointer transition-colors',
-                    day.isCurrentMonth ? 'bg-forest-800 hover:bg-forest-700' : 'bg-forest-900 opacity-50',
+                    'min-h-[120px] p-2 border border-gray-700 rounded-lg cursor-pointer transition-colors',
+                    day.isCurrentMonth ? 'bg-gray-800 hover:bg-gray-700' : 'bg-gray-900 opacity-50',
                     day.isToday ? 'ring-2 ring-orange-500' : '',
-                    selectedDate && day.date.toDateString() === selectedDate.toDateString() ? 'bg-forest-600' : ''
+                    selectedDate && day.date.toDateString() === selectedDate.toDateString() ? 'bg-gray-600' : ''
                   ]"
                   @click="selectDate(day.date)"
                   @dragover.prevent="handleDragOver"
@@ -138,7 +138,7 @@
               </div>
 
               <!-- Calendar Legend -->
-              <div class="mt-4 pt-4 border-t border-forest-700">
+              <div class="mt-4 pt-4 border-t border-gray-700">
                 <div class="flex items-center justify-between text-xs">
                   <div class="flex items-center space-x-6">
                     <div class="flex items-center space-x-2">
@@ -165,7 +165,7 @@
           <!-- Right Column: Tasks to Schedule (1/3 width) -->
           <div class="space-y-6">
             <!-- Tasks to Schedule -->
-            <div class="rounded-xl bg-forest-800 p-6">
+            <div class="rounded-xl bg-gray-900/80 backdrop-blur-sm border border-gray-700/50 p-6">
               <div class="mb-6 flex items-center justify-between">
                 <div class="flex items-center space-x-3">
                   <div class="flex h-10 w-10 items-center justify-center rounded-lg bg-orange-500/20">
@@ -192,7 +192,7 @@
                 <div
                   v-for="task in unscheduledTasks"
                   :key="task.id"
-                  class="rounded-lg p-4 bg-forest-700 hover:bg-forest-600 transition-colors cursor-pointer border border-forest-600/30"
+                  class="rounded-lg p-4 bg-gray-700 hover:bg-gray-600 transition-colors cursor-pointer border border-gray-600/30"
                   draggable="true"
                   @dragstart="startDragTask(task, $event)"
                   @click="scheduleTask(task)"
@@ -275,7 +275,7 @@
         <!-- Task Details Sidebar (when date selected) -->
         <div v-if="selectedDate" class="grid grid-cols-1 lg:grid-cols-3 gap-6">
           <!-- Selected Date Tasks -->
-          <div class="lg:col-span-2 rounded-xl bg-forest-800 p-6">
+          <div class="lg:col-span-2 rounded-xl bg-gray-900/80 backdrop-blur-sm border border-gray-700/50 p-6">
             <div class="mb-4 flex items-center justify-between">
               <h3 class="text-lg font-semibold text-white">
                 Tasks for {{ formatDate(selectedDate) }}
@@ -294,9 +294,9 @@
                 :key="`${item.type || 'task'}-${item.id}`"
                 :class="[
                   'flex items-center justify-between rounded-lg p-4',
-                  item.type === 'content' ? 'bg-forest-700/50 border border-forest-600/30' :
-                  item.type === 'goal' ? 'bg-forest-700/30 border border-forest-600/20' :
-                  'bg-forest-700'
+                  item.type === 'content' ? 'bg-gray-700/50 border border-gray-600/30' :
+                  item.type === 'goal' ? 'bg-gray-700/30 border border-gray-600/20' :
+                  'bg-gray-700'
                 ]"
               >
                 <div class="flex items-center space-x-3">
@@ -374,7 +374,7 @@
           </div>
 
           <!-- Quick Stats -->
-          <div class="rounded-xl bg-forest-800 p-6">
+          <div class="rounded-xl bg-gray-900/80 backdrop-blur-sm border border-gray-700/50 p-6">
             <h3 class="text-lg font-semibold text-white mb-4">Quick Stats</h3>
             <div class="space-y-4">
               <div class="flex items-center justify-between">
@@ -401,13 +401,13 @@
       <!-- Task Manager View -->
       <div v-if="currentView === 'manager'" class="space-y-6">
         <!-- Filters and Search -->
-        <div class="rounded-xl bg-forest-800 p-6">
+        <div class="rounded-xl bg-gray-900/80 backdrop-blur-sm border border-gray-700/50 p-6">
           <div class="flex flex-col md:flex-row gap-4 items-center justify-between">
             <div class="flex flex-wrap gap-2">
               <button
                 v-for="filter in filters"
                 :key="filter.value"
-                :class="activeFilter === filter.value ? 'rounded-full bg-orange-500 px-4 py-2 text-sm text-white' : 'rounded-full bg-forest-700 px-4 py-2 text-sm text-gray-300 hover:bg-forest-600'"
+                :class="activeFilter === filter.value ? 'rounded-full bg-orange-500 px-4 py-2 text-sm text-white' : 'rounded-full bg-gray-700 px-4 py-2 text-sm text-gray-300 hover:bg-gray-600'"
                 @click="activeFilter = filter.value"
               >
                 {{ filter.label }}
@@ -418,7 +418,7 @@
                 v-model="searchQuery"
                 type="text"
                 placeholder="Search tasks..."
-                class="rounded-lg bg-forest-700 border border-forest-600 px-3 py-2 text-sm text-white placeholder-gray-400 focus:border-orange-500 focus:outline-none"
+                class="rounded-lg bg-gray-700 border border-gray-600 px-3 py-2 text-sm text-white placeholder-gray-400 focus:border-orange-500 focus:outline-none"
               />
               <button
                 class="rounded-lg bg-orange-500 px-4 py-2 text-sm text-white hover:bg-orange-600"
@@ -431,7 +431,7 @@
         </div>
 
         <!-- Task List -->
-        <div class="rounded-xl bg-gray-800 p-6">
+        <div class="rounded-xl bg-gray-900/80 backdrop-blur-sm border border-gray-700/50 p-6">
           <div class="space-y-3">
             <div
               v-for="task in filteredTasks"
@@ -464,7 +464,7 @@
                     {{ task.description }}
                   </p>
                   <div class="mt-2 flex items-center space-x-2">
-                    <span class="rounded bg-forest-600 px-2 py-1 text-xs text-gray-300">
+                    <span class="rounded bg-gray-600 px-2 py-1 text-xs text-gray-300">
                       {{ formatCategory(task.category) }}
                     </span>
                     <span
@@ -825,7 +825,7 @@ const getPriorityClass = (priority: TaskPriority) => {
     case 'high': return 'bg-orange-500 text-white'
     case 'medium': return 'bg-yellow-500 text-black'
     case 'low': return 'bg-green-500 text-white'
-    default: return 'bg-forest-600 text-white'
+    default: return 'bg-gray-600 text-white'
   }
 }
 
@@ -1200,7 +1200,7 @@ const getPriorityColor = (priority: TaskPriority) => {
     case 'high': return 'bg-orange-500 text-white'
     case 'medium': return 'bg-yellow-500 text-black'
     case 'low': return 'bg-green-500 text-white'
-    default: return 'bg-forest-600 text-white'
+    default: return 'bg-gray-600 text-white'
   }
 }
 
