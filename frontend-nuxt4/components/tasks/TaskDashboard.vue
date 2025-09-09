@@ -78,7 +78,7 @@
         <div
           v-for="task in upcomingTasks.slice(0, 5)"
           :key="task.id"
-          class="flex items-center justify-between p-3 rounded-lg bg-background-elevated hover:bg-background-card transition-colors cursor-pointer"
+          :class="getTaskCardClasses(task.priority)"
           @click="$emit('edit-task', task)"
         >
           <div class="flex items-center space-x-3">
@@ -90,7 +90,10 @@
               @change="toggleTaskCompletion(task.id)"
             />
             <div>
-              <div class="font-medium text-text-primary">{{ task.title }}</div>
+              <div class="flex items-center space-x-2">
+                <span class="text-sm" :class="getPriorityIconColor(task.priority)">📋</span>
+                <div class="font-medium text-text-primary">{{ task.title }}</div>
+              </div>
               <div class="text-sm text-text-muted">
                 {{ formatCategory(task.category) }} • {{ formatPriority(task.priority) }}
               </div>
@@ -186,9 +189,9 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
-import { useTasksStore } from '../../stores/tasks'
-import type { Task, TaskCategory, TaskPriority, TaskStatus } from '../../types/tasks'
+import { computed } from 'vue';
+import { useTasksStore } from '../../stores/tasks';
+import type { Task, TaskCategory, TaskPriority, TaskStatus } from '../../types/tasks';
 
 const emit = defineEmits<{
   'view-all': []
@@ -292,6 +295,40 @@ const getCategoryColor = (category: TaskCategory) => {
     general: '#6b7280',
   }
   return colors[category] || colors.general
+}
+
+// Get task card classes based on priority for enhanced borders
+const getTaskCardClasses = (priority: TaskPriority) => {
+  const baseClasses = "flex items-center justify-between p-3 rounded-lg transition-all duration-300 hover:scale-[1.01] hover:shadow-lg cursor-pointer"
+
+  switch (priority) {
+    case 'urgent':
+      return `${baseClasses} bg-gray-900/70 backdrop-blur-sm border-2 border-red-600/60 shadow-red-600/20 shadow-sm`
+    case 'high':
+      return `${baseClasses} bg-gray-900/70 backdrop-blur-sm border-2 border-orange-600/60 shadow-orange-600/20 shadow-sm`
+    case 'medium':
+      return `${baseClasses} bg-gray-900/70 backdrop-blur-sm border-2 border-blue-600/60 shadow-blue-600/20 shadow-sm`
+    case 'low':
+      return `${baseClasses} bg-gray-900/70 backdrop-blur-sm border-2 border-green-600/60 shadow-green-600/20 shadow-sm`
+    default:
+      return `${baseClasses} bg-background-elevated hover:bg-background-card border border-border`
+  }
+}
+
+// Get priority icon color to match border colors
+const getPriorityIconColor = (priority: TaskPriority) => {
+  switch (priority) {
+    case 'urgent':
+      return 'text-red-300'
+    case 'high':
+      return 'text-orange-300'
+    case 'medium':
+      return 'text-blue-300'
+    case 'low':
+      return 'text-green-300'
+    default:
+      return 'text-gray-300'
+  }
 }
 
 const getCategoryIcon = (category: TaskCategory) => {

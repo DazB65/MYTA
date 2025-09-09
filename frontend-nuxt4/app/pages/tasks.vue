@@ -101,14 +101,7 @@
                     <div
                       v-for="item in getTasksForDate(day.date)"
                       :key="`${item.type || 'task'}-${item.id}`"
-                      :class="[
-                        'text-xs p-1 rounded truncate transition-colors',
-                        item.type === 'content' ? getContentColor() :
-                        item.type === 'goal' ? getGoalColor() :
-                        getTaskColor(),
-                        item.completed ? 'opacity-50 line-through' : '',
-                        (item.type === 'task' || !item.type) ? 'cursor-move' : 'cursor-pointer'
-                      ]"
+                      :class="getCalendarItemClasses(item)"
                       :draggable="item.type === 'task' || !item.type"
                       @dragstart="handleCalendarTaskDragStart(item, $event)"
                       @click.stop="handleTaskClick(item)"
@@ -137,25 +130,54 @@
                 </div>
               </div>
 
-              <!-- Calendar Legend -->
+              <!-- Enhanced Calendar Legend -->
               <div class="mt-4 pt-4 border-t border-gray-700">
-                <div class="flex items-center justify-between text-xs">
-                  <div class="flex items-center space-x-6">
-                    <div class="flex items-center space-x-2">
-                      <div class="w-3 h-3 rounded bg-blue-500/20 border border-blue-500/40"></div>
-                      <span class="text-gray-400">📄 Content</span>
-                    </div>
-                    <div class="flex items-center space-x-2">
-                      <div class="w-3 h-3 rounded bg-orange-500/20 border border-orange-500/40"></div>
-                      <span class="text-gray-400">📋 Tasks</span>
-                    </div>
-                    <div class="flex items-center space-x-2">
-                      <div class="w-3 h-3 rounded bg-green-500/20 border border-green-500/40"></div>
-                      <span class="text-gray-400">🎯 Goals</span>
+                <div class="space-y-3">
+                  <!-- Header -->
+                  <div class="flex items-center justify-between">
+                    <h4 class="text-sm font-medium text-white">Color Legend</h4>
+                    <span class="text-xs text-gray-500">Enhanced Border System</span>
+                  </div>
+
+                  <!-- Task Priority Colors -->
+                  <div class="flex items-center space-x-4">
+                    <div class="text-xs font-medium text-gray-300">📋 Task Priority</div>
+                    <div class="flex items-center space-x-4 text-xs">
+                      <div class="flex items-center space-x-2">
+                        <div class="w-4 h-3 rounded bg-red-900/70 border-2 border-red-600/60 shadow-red-600/20 shadow-sm"></div>
+                        <span class="text-red-300">🔴 Urgent</span>
+                      </div>
+                      <div class="flex items-center space-x-2">
+                        <div class="w-4 h-3 rounded bg-orange-900/70 border-2 border-orange-600/60 shadow-orange-600/20 shadow-sm"></div>
+                        <span class="text-orange-300">🟠 High</span>
+                      </div>
+                      <div class="flex items-center space-x-2">
+                        <div class="w-4 h-3 rounded bg-blue-900/70 border-2 border-blue-600/60 shadow-blue-600/20 shadow-sm"></div>
+                        <span class="text-blue-300">🔵 Medium</span>
+                      </div>
+                      <div class="flex items-center space-x-2">
+                        <div class="w-4 h-3 rounded bg-green-900/70 border-2 border-green-600/60 shadow-green-600/20 shadow-sm"></div>
+                        <span class="text-green-300">🟢 Low</span>
+                      </div>
                     </div>
                   </div>
-                  <div class="text-gray-500">
-                    Unified Calendar View
+
+                  <!-- Content -->
+                  <div class="flex items-center space-x-4">
+                    <div class="text-xs font-medium text-gray-300">🎬 Content</div>
+                    <div class="flex items-center space-x-2 text-xs">
+                      <div class="w-4 h-3 rounded bg-purple-900/70 border-2 border-purple-600/60 shadow-purple-600/20 shadow-sm"></div>
+                      <span class="text-purple-300">Video Content Ideas</span>
+                    </div>
+                  </div>
+
+                  <!-- Goals -->
+                  <div class="flex items-center space-x-4">
+                    <div class="text-xs font-medium text-gray-300">🎯 Goals</div>
+                    <div class="flex items-center space-x-2 text-xs">
+                      <div class="w-4 h-3 rounded bg-cyan-900/70 border-2 border-cyan-600/60 shadow-cyan-600/20 shadow-sm"></div>
+                      <span class="text-cyan-300">Goals Tracking</span>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -436,11 +458,7 @@
             <div
               v-for="task in filteredTasks"
               :key="task.id"
-              class="flex items-center justify-between rounded-lg bg-gray-700 p-4 transition-colors"
-              :class="{
-                'border-l-4 border-red-500': isOverdue(task),
-                'border-l-4 border-yellow-500': isDueToday(task),
-              }"
+              :class="getTaskCardClasses(task)"
             >
               <div class="flex items-center space-x-3">
                 <input
@@ -450,12 +468,15 @@
                   @change="toggleTaskCompletion(task.id)"
                 />
                 <div class="flex-1">
-                  <h4
-                    class="font-medium"
-                    :class="task.completed ? 'line-through text-gray-500' : 'text-white'"
-                  >
-                    {{ task.title }}
-                  </h4>
+                  <div class="flex items-center space-x-2">
+                    <span class="text-sm" :class="getPriorityIconColor(task.priority)">📋</span>
+                    <h4
+                      class="font-medium"
+                      :class="task.completed ? 'line-through text-gray-500' : 'text-white'"
+                    >
+                      {{ task.title }}
+                    </h4>
+                  </div>
                   <p
                     v-if="task.description"
                     class="text-sm mt-1"
@@ -1147,6 +1168,41 @@ const getTasksForDate = (date: Date) => {
   return [...tasks, ...contentForDate, ...goalsForDate]
 }
 
+// Enhanced calendar item classes with colored borders
+const getCalendarItemClasses = (item: any) => {
+  const baseClasses = 'text-xs p-2 rounded transition-all duration-300 hover:scale-[1.02] hover:shadow-sm cursor-move'
+  const completedClasses = item.completed ? 'opacity-50 line-through' : ''
+  const cursorClasses = (item.type === 'task' || !item.type) ? 'cursor-move' : 'cursor-pointer'
+
+  let typeClasses = ''
+
+  if (item.type === 'content') {
+    typeClasses = 'bg-purple-900/70 backdrop-blur-sm border-2 border-purple-600/60 text-purple-100 shadow-purple-600/20 shadow-sm'
+  } else if (item.type === 'goal') {
+    typeClasses = 'bg-cyan-900/70 backdrop-blur-sm border-2 border-cyan-600/60 text-cyan-100 shadow-cyan-600/20 shadow-sm'
+  } else {
+    // For tasks, use priority-based colors
+    switch (item.priority) {
+      case 'urgent':
+        typeClasses = 'bg-red-900/70 backdrop-blur-sm border-2 border-red-600/60 text-red-100 shadow-red-600/20 shadow-sm'
+        break
+      case 'high':
+        typeClasses = 'bg-orange-900/70 backdrop-blur-sm border-2 border-orange-600/60 text-orange-100 shadow-orange-600/20 shadow-sm'
+        break
+      case 'medium':
+        typeClasses = 'bg-blue-900/70 backdrop-blur-sm border-2 border-blue-600/60 text-blue-100 shadow-blue-600/20 shadow-sm'
+        break
+      case 'low':
+        typeClasses = 'bg-green-900/70 backdrop-blur-sm border-2 border-green-600/60 text-green-100 shadow-green-600/20 shadow-sm'
+        break
+      default:
+        typeClasses = 'bg-gray-700/70 border border-gray-600/50 text-gray-300'
+    }
+  }
+
+  return `${baseClasses} ${typeClasses} ${completedClasses} ${cursorClasses}`
+}
+
 // Content-specific helper functions
 const getContentColor = () => {
   return 'bg-blue-500/20 border border-blue-500/40 text-blue-300'
@@ -1428,6 +1484,56 @@ const handleTaskDrop = (date: Date, event: DragEvent) => {
     }
   } catch (error) {
     console.error('Error handling task drop:', error)
+  }
+}
+
+// Get task card classes based on priority for enhanced borders
+const getTaskCardClasses = (task: Task) => {
+  const baseClasses = "flex items-center justify-between rounded-lg p-4 transition-all duration-300 hover:scale-[1.01] hover:shadow-lg"
+
+  // Priority-based border colors
+  let priorityClasses = ""
+  switch (task.priority) {
+    case 'urgent':
+      priorityClasses = "bg-gray-900/70 backdrop-blur-sm border-2 border-red-600/60 shadow-red-600/20 shadow-sm"
+      break
+    case 'high':
+      priorityClasses = "bg-gray-900/70 backdrop-blur-sm border-2 border-orange-600/60 shadow-orange-600/20 shadow-sm"
+      break
+    case 'medium':
+      priorityClasses = "bg-gray-900/70 backdrop-blur-sm border-2 border-blue-600/60 shadow-blue-600/20 shadow-sm"
+      break
+    case 'low':
+      priorityClasses = "bg-gray-900/70 backdrop-blur-sm border-2 border-green-600/60 shadow-green-600/20 shadow-sm"
+      break
+    default:
+      priorityClasses = "bg-gray-700 border border-gray-600/50"
+  }
+
+  // Add left border for due dates (keeping existing functionality)
+  let dueDateClasses = ""
+  if (isOverdue(task)) {
+    dueDateClasses = "border-l-4 border-red-500"
+  } else if (isDueToday(task)) {
+    dueDateClasses = "border-l-4 border-yellow-500"
+  }
+
+  return `${baseClasses} ${priorityClasses} ${dueDateClasses}`
+}
+
+// Get priority icon color to match border colors
+const getPriorityIconColor = (priority: TaskPriority) => {
+  switch (priority) {
+    case 'urgent':
+      return 'text-red-300'
+    case 'high':
+      return 'text-orange-300'
+    case 'medium':
+      return 'text-blue-300'
+    case 'low':
+      return 'text-green-300'
+    default:
+      return 'text-gray-300'
   }
 }
 

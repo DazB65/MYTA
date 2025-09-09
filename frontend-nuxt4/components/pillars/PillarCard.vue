@@ -1,6 +1,6 @@
 <template>
   <div
-    class="rounded-xl bg-gray-800 p-6 cursor-pointer transition-all duration-300 hover:scale-[1.02]"
+    :class="getPillarCardClasses(pillar.icon)"
     @click="openPillarModal"
   >
     <!-- Header -->
@@ -217,6 +217,20 @@ const getPillarButtonColor = (icon) => {
     'TechIcon': 'bg-purple-600 hover:bg-purple-700', // Purple for Tech
     'ProductivityIcon': 'bg-green-600 hover:bg-green-700', // Green for Productivity
     'default': 'bg-orange-500 hover:bg-orange-600' // Default orange
+  }
+  return colorMap[icon] || colorMap.default
+}
+
+// Get pillar card classes with enhanced colored borders
+const getPillarCardClasses = (icon) => {
+  const baseClasses = "rounded-xl p-6 cursor-pointer transition-all duration-300 hover:scale-[1.02] hover:shadow-lg"
+
+  const colorMap = {
+    'GameIcon': `${baseClasses} bg-blue-900/70 backdrop-blur-sm border-2 border-blue-600/60 shadow-blue-600/20 shadow-sm`,
+    'ReviewIcon': `${baseClasses} bg-yellow-900/70 backdrop-blur-sm border-2 border-yellow-600/60 shadow-yellow-600/20 shadow-sm`,
+    'TechIcon': `${baseClasses} bg-purple-900/70 backdrop-blur-sm border-2 border-purple-600/60 shadow-purple-600/20 shadow-sm`,
+    'ProductivityIcon': `${baseClasses} bg-green-900/70 backdrop-blur-sm border-2 border-green-600/60 shadow-green-600/20 shadow-sm`,
+    'default': `${baseClasses} bg-orange-900/70 backdrop-blur-sm border-2 border-orange-600/60 shadow-orange-600/20 shadow-sm`
   }
   return colorMap[icon] || colorMap.default
 }

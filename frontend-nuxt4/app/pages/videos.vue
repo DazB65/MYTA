@@ -126,7 +126,7 @@
 
         <!-- Video Grid -->
         <div class="grid grid-cols-4 gap-6">
-          <div v-for="video in filteredAndSortedVideos" :key="video.id" class="group cursor-pointer" @click="openVideoStats(video)">
+          <div v-for="video in filteredAndSortedVideos" :key="video.id" :class="getVideoCardClasses(calculatePerformance(video))" @click="openVideoStats(video)">
             <div class="relative mb-3 aspect-video overflow-hidden rounded-lg bg-gray-700">
               <img :src="video.thumbnail" :alt="video.title" class="h-full w-full object-cover" />
               <div
@@ -149,8 +149,17 @@
               >
                 {{ video.duration }}
               </div>
+              <!-- Performance Badge -->
+              <div class="absolute top-2 left-2">
+                <span :class="getPerformanceBadgeClasses(calculatePerformance(video))" class="px-2 py-1 text-xs font-medium rounded-full">
+                  {{ calculatePerformance(video) }}
+                </span>
+              </div>
             </div>
-            <h4 class="mb-1 line-clamp-2 text-sm font-medium text-white">{{ video.title }}</h4>
+            <div class="flex items-start space-x-2 mb-1">
+              <span class="text-purple-300 text-sm mt-0.5">🎬</span>
+              <h4 class="line-clamp-2 text-sm font-medium text-white">{{ video.title }}</h4>
+            </div>
             <p class="text-xs text-gray-400">{{ formatNumber(video.detailedStats?.views || 0) }} views • {{ formatDate(video.date) }}</p>
           </div>
         </div>
@@ -1368,6 +1377,90 @@ const loadMore = async () => {
     console.error('Error loading more videos:', err)
   } finally {
     loading.value = false
+  }
+}
+
+// Get video card classes - all video content items use purple borders
+const getVideoCardClasses = (performance) => {
+  const baseClasses = "group cursor-pointer rounded-lg p-3 transition-all duration-300 hover:scale-[1.02] hover:shadow-lg"
+
+  // All video content items use purple borders for consistency
+  return `${baseClasses} bg-purple-900/70 backdrop-blur-sm border-2 border-purple-600/60 shadow-purple-600/20 shadow-sm`
+}
+
+// Calculate performance level based on video metrics
+const calculatePerformance = (video) => {
+  if (!video.detailedStats) return 'Unknown'
+
+  const stats = video.detailedStats
+  let score = 0
+  let maxScore = 100
+
+  // CTR Score (30% weight) - Based on YouTube industry standards
+  const ctr = stats.ctr || 0
+  let ctrScore = 0
+  if (ctr >= 10) ctrScore = 30      // Exceptional (10%+)
+  else if (ctr >= 8) ctrScore = 27  // Excellent (8-10%)
+  else if (ctr >= 6) ctrScore = 22  // Very Good (6-8%)
+  else if (ctr >= 4) ctrScore = 16  // Good (4-6%)
+  else if (ctr >= 2) ctrScore = 8   // Below Average (2-4%)
+  else ctrScore = 2                 // Poor (<2%)
+
+  // Retention Score (40% weight) - Average View Percentage
+  const retention = stats.retention || 0
+  let retentionScore = 0
+  if (retention >= 70) retentionScore = 40      // Exceptional (70%+)
+  else if (retention >= 60) retentionScore = 35 // Excellent (60-70%)
+  else if (retention >= 50) retentionScore = 28 // Very Good (50-60%)
+  else if (retention >= 40) retentionScore = 20 // Good (40-50%)
+  else if (retention >= 30) retentionScore = 10 // Below Average (30-40%)
+  else retentionScore = 3                       // Poor (<30%)
+
+  // Engagement Score (20% weight) - Likes + Comments relative to views
+  const engagement = stats.engagement || 0
+  let engagementScore = 0
+  if (engagement >= 8) engagementScore = 20      // Exceptional (8%+)
+  else if (engagement >= 6) engagementScore = 17 // Excellent (6-8%)
+  else if (engagement >= 4) engagementScore = 14 // Very Good (4-6%)
+  else if (engagement >= 2) engagementScore = 10 // Good (2-4%)
+  else if (engagement >= 1) engagementScore = 5  // Below Average (1-2%)
+  else engagementScore = 1                       // Poor (<1%)
+
+  // Views Performance (10% weight) - Relative to channel average
+  const views = stats.views || 0
+  const channelAverage = 25000 // This could be calculated from all videos
+  let viewsScore = 0
+  const viewsRatio = views / channelAverage
+  if (viewsRatio >= 2.0) viewsScore = 10      // 200%+ of average
+  else if (viewsRatio >= 1.5) viewsScore = 8  // 150-200% of average
+  else if (viewsRatio >= 1.0) viewsScore = 6  // 100-150% of average
+  else if (viewsRatio >= 0.7) viewsScore = 4  // 70-100% of average
+  else if (viewsRatio >= 0.5) viewsScore = 2  // 50-70% of average
+  else viewsScore = 1                         // <50% of average
+
+  // Calculate total score
+  score = ctrScore + retentionScore + engagementScore + viewsScore
+
+  // Convert to performance level
+  if (score >= 85) return 'Excellent'      // 85-100
+  else if (score >= 70) return 'Good'      // 70-84
+  else if (score >= 50) return 'Average'   // 50-69
+  else return 'Poor'                       // <50
+}
+
+// Get performance badge classes
+const getPerformanceBadgeClasses = (performance) => {
+  switch (performance?.toLowerCase()) {
+    case 'excellent':
+      return 'bg-green-600/80 text-green-100 border border-green-500/50'
+    case 'good':
+      return 'bg-blue-600/80 text-blue-100 border border-blue-500/50'
+    case 'average':
+      return 'bg-yellow-600/80 text-yellow-100 border border-yellow-500/50'
+    case 'poor':
+      return 'bg-red-600/80 text-red-100 border border-red-500/50'
+    default:
+      return 'bg-gray-600/80 text-gray-100 border border-gray-500/50'
   }
 }
 

@@ -24,7 +24,7 @@
       <div
         v-for="video in recentVideos"
         :key="video.id"
-        class="flex items-center justify-between rounded-lg bg-gray-700 p-4 transition-all duration-300 hover:scale-[1.01] hover:shadow-lg cursor-pointer"
+        :class="getVideoCardClasses(calculatePerformance(video))"
         @click="analyzeVideo(video)"
       >
         <!-- Video Info -->
@@ -43,9 +43,12 @@
 
           <!-- Video Details -->
           <div class="flex-1 min-w-0">
-            <h4 class="font-medium text-white truncate">
-              {{ video.title }}
-            </h4>
+            <div class="flex items-center space-x-2">
+              <span class="text-purple-300">🎬</span>
+              <h4 class="font-medium text-white truncate">
+                {{ video.title }}
+              </h4>
+            </div>
             <p class="text-sm text-gray-400 mt-1">
               Published {{ formatDate(video.publishedAt) }}
             </p>
@@ -61,9 +64,9 @@
               </span>
               <span
                 class="text-xs px-2 py-1 rounded"
-                :class="getPerformanceClass(video.performance)"
+                :class="getPerformanceClass(calculatePerformance(video))"
               >
-                {{ video.performance }}
+                {{ calculatePerformance(video) }}
               </span>
             </div>
           </div>
@@ -243,6 +246,90 @@ const recentVideos = ref([
     engagementTrend: -2.1
   }
 ])
+
+// Calculate performance level based on video metrics
+const calculatePerformance = (video) => {
+  // Create detailedStats from available data if not present
+  const stats = video.detailedStats || {
+    views: video.views,
+    ctr: video.ctr,
+    engagement: video.engagement,
+    retention: video.retention || (video.engagement * 10) // Estimate retention from engagement
+  }
+
+  if (!stats.views) return 'Unknown'
+
+  let score = 0
+
+  // CTR Score (30% weight)
+  const ctr = stats.ctr || 0
+  let ctrScore = 0
+  if (ctr >= 10) ctrScore = 30
+  else if (ctr >= 8) ctrScore = 27
+  else if (ctr >= 6) ctrScore = 22
+  else if (ctr >= 4) ctrScore = 16
+  else if (ctr >= 2) ctrScore = 8
+  else ctrScore = 2
+
+  // Retention Score (40% weight)
+  const retention = stats.retention || 0
+  let retentionScore = 0
+  if (retention >= 70) retentionScore = 40
+  else if (retention >= 60) retentionScore = 35
+  else if (retention >= 50) retentionScore = 28
+  else if (retention >= 40) retentionScore = 20
+  else if (retention >= 30) retentionScore = 10
+  else retentionScore = 3
+
+  // Engagement Score (20% weight)
+  const engagement = stats.engagement || 0
+  let engagementScore = 0
+  if (engagement >= 8) engagementScore = 20
+  else if (engagement >= 6) engagementScore = 17
+  else if (engagement >= 4) engagementScore = 14
+  else if (engagement >= 2) engagementScore = 10
+  else if (engagement >= 1) engagementScore = 5
+  else engagementScore = 1
+
+  // Views Performance (10% weight)
+  const views = stats.views || 0
+  const channelAverage = 25000
+  let viewsScore = 0
+  const viewsRatio = views / channelAverage
+  if (viewsRatio >= 2.0) viewsScore = 10
+  else if (viewsRatio >= 1.5) viewsScore = 8
+  else if (viewsRatio >= 1.0) viewsScore = 6
+  else if (viewsRatio >= 0.7) viewsScore = 4
+  else if (viewsRatio >= 0.5) viewsScore = 2
+  else viewsScore = 1
+
+  // Calculate total score
+  score = ctrScore + retentionScore + engagementScore + viewsScore
+
+  // Convert to performance level
+  if (score >= 85) return 'Excellent'
+  else if (score >= 70) return 'Good'
+  else if (score >= 50) return 'Average'
+  else return 'Poor'
+}
+
+// Get video card classes based on performance for enhanced borders
+const getVideoCardClasses = (performance) => {
+  const baseClasses = "flex items-center justify-between rounded-lg p-4 transition-all duration-300 hover:scale-[1.01] hover:shadow-lg cursor-pointer"
+
+  switch (performance?.toLowerCase()) {
+    case 'excellent':
+      return `${baseClasses} bg-gray-900/70 backdrop-blur-sm border-2 border-green-600/60 shadow-green-600/20 shadow-sm`
+    case 'good':
+      return `${baseClasses} bg-gray-900/70 backdrop-blur-sm border-2 border-blue-600/60 shadow-blue-600/20 shadow-sm`
+    case 'average':
+      return `${baseClasses} bg-gray-900/70 backdrop-blur-sm border-2 border-yellow-600/60 shadow-yellow-600/20 shadow-sm`
+    case 'poor':
+      return `${baseClasses} bg-gray-900/70 backdrop-blur-sm border-2 border-red-600/60 shadow-red-600/20 shadow-sm`
+    default:
+      return `${baseClasses} bg-gray-700 border border-gray-600/50`
+  }
+}
 
 // Methods
 const formatNumber = (num) => {

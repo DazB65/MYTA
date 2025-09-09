@@ -78,13 +78,16 @@
               <div
                 v-for="item in getColumnItems('ideas')"
                 :key="item.id"
-                :class="getCardClasses(item.status)"
+                :class="getCardClasses(item.status, item.pillar)"
                 draggable="true"
                 @dragstart="onDragStart($event, item)"
                 @click="openEditModal(item)"
               >
                 <div class="mb-2 flex items-start justify-between">
-                  <h4 class="text-sm font-medium text-white">{{ item.title }}</h4>
+                  <div class="flex items-center space-x-2">
+                    <span class="text-purple-300">🎬</span>
+                    <h4 class="text-sm font-medium text-white">{{ item.title }}</h4>
+                  </div>
                   <div class="relative">
                     <button
                       @click.stop="toggleDropdown(item.id)"
@@ -220,7 +223,10 @@
                 @click="openEditModal(item)"
               >
                 <div class="mb-2 flex items-start justify-between">
-                  <h4 class="text-sm font-medium text-white">{{ item.title }}</h4>
+                  <div class="flex items-center space-x-2">
+                    <span class="text-purple-300">🎬</span>
+                    <h4 class="text-sm font-medium text-white">{{ item.title }}</h4>
+                  </div>
                   <div class="relative">
                     <button
                       @click.stop="toggleDropdown(item.id)"
@@ -333,7 +339,10 @@
                 @click="openEditModal(item)"
               >
                 <div class="mb-2 flex items-start justify-between">
-                  <h4 class="text-sm font-medium text-white">{{ item.title }}</h4>
+                  <div class="flex items-center space-x-2">
+                    <span class="text-purple-300">🎬</span>
+                    <h4 class="text-sm font-medium text-white">{{ item.title }}</h4>
+                  </div>
                   <div class="relative">
                     <button
                       @click.stop="toggleDropdown(item.id)"
@@ -452,7 +461,10 @@
                 @click="openEditModal(item)"
               >
                 <div class="mb-2 flex items-start justify-between">
-                  <h4 class="text-sm font-medium text-white">{{ item.title }}</h4>
+                  <div class="flex items-center space-x-2">
+                    <span class="text-purple-300">🎬</span>
+                    <h4 class="text-sm font-medium text-white">{{ item.title }}</h4>
+                  </div>
                   <div class="relative">
                     <button
                       @click.stop="toggleDropdown(item.id)"
@@ -1710,21 +1722,66 @@ const getColumnCount = status => {
   return getColumnItems(status).length
 }
 
-// Get card classes based on status for different colors
-const getCardClasses = (status) => {
+// Get card classes based on pillar for content items
+const getCardClasses = (status, pillar) => {
   const baseClasses = "cursor-pointer rounded-lg p-4 transition-all duration-300 hover:scale-[1.02] hover:shadow-lg w-full relative"
+
+  // Get pillar-based colors
+  const pillarColors = getPillarCardColors(pillar?.icon)
 
   switch (status) {
     case 'ideas':
-      return `${baseClasses} bg-gray-900/70 backdrop-blur-sm border border-blue-600/30`
+      return `${baseClasses} ${pillarColors.bg} backdrop-blur-sm border-2 ${pillarColors.border} ${pillarColors.shadow} shadow-sm`
     case 'planning':
-      return `${baseClasses} bg-gray-900/70 backdrop-blur-sm border border-purple-600/30`
+      return `${baseClasses} ${pillarColors.bg} backdrop-blur-sm border-2 ${pillarColors.border} ${pillarColors.shadow} shadow-sm`
     case 'in-progress':
-      return `${baseClasses} bg-gray-900/70 backdrop-blur-sm border border-green-600/30`
+      return `${baseClasses} ${pillarColors.bg} backdrop-blur-sm border-2 ${pillarColors.border} ${pillarColors.shadow} shadow-sm`
     case 'published':
-      return `${baseClasses} bg-gray-900/80 backdrop-blur-sm border border-cyan-600/30`
+      return `${baseClasses} ${pillarColors.bgDark} backdrop-blur-sm border-2 ${pillarColors.border} ${pillarColors.shadow} shadow-sm`
     default:
       return `${baseClasses} bg-gray-900/80 backdrop-blur-sm border border-gray-700/50`
   }
+}
+
+// Get pillar-based card colors
+const getPillarCardColors = (pillarIcon) => {
+  const colorMap = {
+    'GameIcon': {
+      bg: 'bg-blue-900/70',
+      bgDark: 'bg-blue-900/80',
+      border: 'border-blue-600/60',
+      shadow: 'shadow-blue-600/20',
+      text: 'text-blue-300'
+    },
+    'ReviewIcon': {
+      bg: 'bg-yellow-900/70',
+      bgDark: 'bg-yellow-900/80',
+      border: 'border-yellow-600/60',
+      shadow: 'shadow-yellow-600/20',
+      text: 'text-yellow-300'
+    },
+    'TechIcon': {
+      bg: 'bg-purple-900/70',
+      bgDark: 'bg-purple-900/80',
+      border: 'border-purple-600/60',
+      shadow: 'shadow-purple-600/20',
+      text: 'text-purple-300'
+    },
+    'ProductivityIcon': {
+      bg: 'bg-green-900/70',
+      bgDark: 'bg-green-900/80',
+      border: 'border-green-600/60',
+      shadow: 'shadow-green-600/20',
+      text: 'text-green-300'
+    },
+    'default': {
+      bg: 'bg-orange-900/70',
+      bgDark: 'bg-orange-900/80',
+      border: 'border-orange-600/60',
+      shadow: 'shadow-orange-600/20',
+      text: 'text-orange-300'
+    }
+  }
+  return colorMap[pillarIcon] || colorMap.default
 }
 </script>
