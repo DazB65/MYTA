@@ -102,7 +102,7 @@
                       v-for="item in getTasksForDate(day.date)"
                       :key="`${item.type || 'task'}-${item.id}`"
                       :class="getCalendarItemClasses(item)"
-                      :draggable="item.type === 'task' || !item.type"
+                      :draggable="item.type === 'task' || item.type === 'goal' || !item.type"
                       @dragstart="handleCalendarTaskDragStart(item, $event)"
                       @click.stop="handleTaskClick(item)"
                       :title="item.type === 'content' ? `${item.title} (${getStageLabel(item.status)})` :
@@ -1403,19 +1403,19 @@ const startDragTask = (task: any, event: DragEvent) => {
   }
 }
 
-const startDragCalendarTask = (task: any, event: DragEvent) => {
+const startDragCalendarTask = (item: any, event: DragEvent) => {
   if (event.dataTransfer) {
     event.dataTransfer.setData('application/json', JSON.stringify({
       type: 'calendar-task',
-      task: task
+      task: item
     }))
     event.dataTransfer.effectAllowed = 'move'
   }
 }
 
 const handleCalendarTaskDragStart = (item: any, event: DragEvent) => {
-  // Only allow dragging for tasks (not content or goals)
-  if (item.type === 'task' || !item.type) {
+  // Allow dragging for tasks and goals (not content)
+  if (item.type === 'task' || item.type === 'goal' || !item.type) {
     startDragCalendarTask(item, event)
   } else {
     event.preventDefault()
@@ -1473,13 +1473,21 @@ const handleTaskDrop = (date: Date, event: DragEvent) => {
 
         console.log(`📅 Scheduled task "${data.task.title}" to ${date.toDateString()}`)
       } else if (data.type === 'calendar-task') {
-        // From calendar - just update the due date (move between calendar days)
-        tasksStore.updateTask({
-          id: data.task.id,
-          dueDate: date
-        })
-
-        console.log(`📅 Moved task "${data.task.title}" to ${date.toDateString()}`)
+        // Check if it's a goal or task
+        if (data.task.type === 'goal') {
+          // Update goal deadline
+          analyticsStore.updateGoal(data.task.id, {
+            deadline: date
+          })
+          console.log(`🎯 Moved goal "${data.task.title}" deadline to ${date.toDateString()}`)
+        } else {
+          // From calendar - just update the due date (move between calendar days)
+          tasksStore.updateTask({
+            id: data.task.id,
+            dueDate: date
+          })
+          console.log(`📅 Moved task "${data.task.title}" to ${date.toDateString()}`)
+        }
       }
     }
   } catch (error) {

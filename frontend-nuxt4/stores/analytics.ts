@@ -175,6 +175,24 @@ export const useAnalyticsStore = defineStore('analytics', () => {
     }
   }
 
+  const updateGoal = (goalId: string, updates: Partial<ChannelGoal>) => {
+    try {
+      const goal = goals.value.find(g => g.id === goalId)
+      if (!goal) {
+        throw new Error(`Goal with id ${goalId} not found`)
+      }
+
+      // Update the goal with the provided updates
+      Object.assign(goal, updates)
+    } catch (err) {
+      error.value = `Failed to update goal: ${err instanceof Error ? err.message : 'Unknown error'}`
+      if (process.env.NODE_ENV === 'development') {
+        console.error('Error updating goal:', err)
+      }
+      throw err
+    }
+  }
+
   const removeGoal = (goalId: string) => {
     const index = goals.value.findIndex(g => g.id === goalId)
     if (index !== -1) {
@@ -209,6 +227,7 @@ export const useAnalyticsStore = defineStore('analytics', () => {
     formatPercentage,
     getHealthColor,
     updateGoalProgress,
+    updateGoal,
     addGoal,
     removeGoal,
   }

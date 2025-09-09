@@ -114,8 +114,27 @@ const handleTaskSave = (data) => {
   closeModal('task')
 }
 
-const handleGoalSave = (data) => {
+const handleGoalSave = async (data) => {
   console.log('🔥 Goal saved:', data)
+
+  try {
+    // Import analytics store dynamically
+    const { useAnalyticsStore } = await import('../stores/analytics')
+    const analyticsStore = useAnalyticsStore()
+
+    if (goalData.value && goalData.value.id) {
+      // Update existing goal
+      analyticsStore.updateGoal(goalData.value.id, data)
+      console.log('🔥 Updated existing goal:', goalData.value.id)
+    } else {
+      // Add new goal
+      analyticsStore.addGoal(data)
+      console.log('🔥 Added new goal')
+    }
+  } catch (error) {
+    console.error('Failed to save goal:', error)
+  }
+
   closeModal('goal')
 }
 
