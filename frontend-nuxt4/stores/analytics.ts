@@ -43,22 +43,32 @@ export const useAnalyticsStore = defineStore('analytics', () => {
     {
       id: '1',
       type: 'views',
-      title: 'Views',
+      title: 'Reach 10K Views',
       target: 10000,
       current: 7500,
-      deadline: new Date('2025-12-31'),
+      deadline: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // 7 days from now
       color: 'from-orange-400 to-pink-500',
       icon: '👁️',
     },
     {
       id: '2',
       type: 'subscribers',
-      title: 'Subscribers',
-      target: 10000,
-      current: 7500,
-      deadline: new Date('2025-12-31'),
+      title: 'Get 1K Subscribers',
+      target: 1000,
+      current: 750,
+      deadline: new Date(Date.now() + 14 * 24 * 60 * 60 * 1000), // 14 days from now
       color: 'from-blue-400 to-cyan-500',
       icon: '👥',
+    },
+    {
+      id: '3',
+      type: 'revenue',
+      title: 'Earn $500 Revenue',
+      target: 500,
+      current: 320,
+      deadline: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000), // 3 days from now
+      color: 'from-green-400 to-emerald-500',
+      icon: '💰',
     },
   ])
 

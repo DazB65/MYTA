@@ -1164,8 +1164,15 @@ const getTasksForDate = (date: Date) => {
     )
   }).map(goal => ({ ...goal, type: 'goal' }))
 
+  // Debug logging
+  if (goalsForDate.length > 0) {
+    console.log(`🎯 Found ${goalsForDate.length} goals for ${date.toDateString()}:`, goalsForDate.map(g => g.title))
+  }
+
   // Combine tasks, content items, and goals
-  return [...tasks, ...contentForDate, ...goalsForDate]
+  const allItems = [...tasks, ...contentForDate, ...goalsForDate]
+  console.log(`📅 Total items for ${date.toDateString()}:`, allItems.length, 'items')
+  return allItems
 }
 
 // Enhanced calendar item classes with colored borders
@@ -1414,20 +1421,27 @@ const startDragCalendarTask = (item: any, event: DragEvent) => {
 }
 
 const handleCalendarTaskDragStart = (item: any, event: DragEvent) => {
+  console.log('🔥 Drag start for item:', item.type, item.title)
   // Allow dragging for tasks and goals (not content)
   if (item.type === 'task' || item.type === 'goal' || !item.type) {
+    console.log('✅ Allowing drag for:', item.type)
     startDragCalendarTask(item, event)
   } else {
+    console.log('❌ Preventing drag for:', item.type)
     event.preventDefault()
   }
 }
 
 const handleTaskClick = (item: any) => {
+  console.log('🔥 Click on item:', item.type, item.title)
   if (item.type === 'content') {
+    console.log('📄 Opening content modal')
     openContentModal(item)
   } else if (item.type === 'goal') {
+    console.log('🎯 Opening goal modal')
     openGoalModal(item)
   } else {
+    console.log('📝 Opening task modal')
     editTask(item)
   }
 }
@@ -1473,9 +1487,11 @@ const handleTaskDrop = (date: Date, event: DragEvent) => {
 
         console.log(`📅 Scheduled task "${data.task.title}" to ${date.toDateString()}`)
       } else if (data.type === 'calendar-task') {
+        console.log('🔥 Calendar task drop - item type:', data.task.type, 'title:', data.task.title)
         // Check if it's a goal or task
         if (data.task.type === 'goal') {
           // Update goal deadline
+          console.log('🎯 Updating goal deadline for:', data.task.id)
           analyticsStore.updateGoal(data.task.id, {
             deadline: date
           })
