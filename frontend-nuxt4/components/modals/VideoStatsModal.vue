@@ -50,7 +50,7 @@
             <div v-if="video?.pillar" class="flex items-center justify-between">
               <span class="text-gray-300">Pillar</span>
               <span class="text-sm px-2 py-1 rounded" :class="getPillarClass(video.pillar)">
-                📌 {{ video.pillar }}
+                📌 {{ getPillarDisplayName(video.pillar) }}
               </span>
             </div>
             <div v-if="video?.category" class="flex items-center justify-between">
@@ -238,6 +238,7 @@
 <script setup>
 import { computed, ref } from 'vue'
 import { useAgentSettings } from '../../composables/useAgentSettings'
+import { usePillars } from '../../composables/usePillars'
 import { useRecommendations } from '../../composables/useRecommendations'
 import { useToast } from '../../composables/useToast'
 import { useTasksStore } from '../../stores/tasks'
@@ -260,6 +261,7 @@ const { agentName } = useAgentSettings()
 const tasksStore = useTasksStore()
 const { success, error } = useToast()
 const { addRecommendation, markAsConverted, getRecommendationsBySource } = useRecommendations()
+const { pillars } = usePillars()
 
 // Track which recommendations have been converted to tasks for this video
 const convertedRecommendations = ref(new Set())
@@ -310,19 +312,30 @@ const getVideoStat = (statName) => {
   return 0
 }
 
-const getPillarClass = (pillar) => {
-  const pillarColors = {
-    'Growth Strategies': 'bg-orange-600 text-white',
-    'Personal Stories': 'bg-purple-600 text-white',
-    'Content Creation': 'bg-blue-600 text-white',
-    'Behind the Scenes': 'bg-pink-600 text-white',
-    'Tutorials': 'bg-green-600 text-white',
-    'Reviews': 'bg-indigo-600 text-white',
-    'Entertainment': 'bg-red-600 text-white',
-    'Educational': 'bg-teal-600 text-white'
+// Get pillar display name from pillar data (handles both string and object formats)
+const getPillarDisplayName = (pillar) => {
+  if (typeof pillar === 'string') {
+    return pillar
   }
-  
-  return pillarColors[pillar] || 'bg-gray-600 text-white'
+  if (typeof pillar === 'object' && pillar?.name) {
+    return pillar.name
+  }
+  return 'Unknown Pillar'
+}
+
+// Get pillar class based on actual pillar names from usePillars
+const getPillarClass = (pillar) => {
+  const pillarName = getPillarDisplayName(pillar)
+
+  // Map actual pillar names to colors - using the real pillars from usePillars
+  const pillarColors = {
+    'Game Development': 'bg-orange-600 text-white',      // Gaming content
+    'Game Reviews': 'bg-indigo-600 text-white',          // Review content
+    'Tech Tutorials': 'bg-blue-600 text-white',          // Educational/tutorial content
+    'Productivity Tips': 'bg-green-600 text-white'       // Productivity content
+  }
+
+  return pillarColors[pillarName] || 'bg-gray-600 text-white'
 }
 
 const getPerformanceClass = (performance) => {

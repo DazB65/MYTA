@@ -232,7 +232,7 @@ const mockVideos = ref([
     duration: "12:34",
     date: "2024-01-15",
     pillar: {
-      name: "Productivity",
+      name: "Productivity Tips",
       icon: "ProductivityIcon"
     },
     performance: "Excellent",
@@ -271,7 +271,7 @@ const mockVideos = ref([
     duration: "15:22",
     date: "2024-01-12",
     pillar: {
-      name: "Gaming",
+      name: "Game Development",
       icon: "GameIcon"
     },
     performance: "Good",
@@ -310,7 +310,7 @@ const mockVideos = ref([
     duration: "18:45",
     date: "2024-01-10",
     pillar: {
-      name: "Technology",
+      name: "Tech Tutorials",
       icon: "TechIcon"
     },
     performance: "Average",
@@ -349,7 +349,7 @@ const mockVideos = ref([
     duration: "22:10",
     date: "2024-01-08",
     pillar: {
-      name: "Reviews",
+      name: "Game Reviews",
       icon: "ReviewIcon"
     },
     performance: "Poor",
@@ -388,7 +388,7 @@ const mockVideos = ref([
     duration: "16:28",
     date: "2024-01-05",
     pillar: {
-      name: "Gaming",
+      name: "Game Development",
       icon: "GameIcon"
     },
     performance: "Good",
@@ -427,7 +427,7 @@ const mockVideos = ref([
     duration: "14:52",
     date: "2024-01-03",
     pillar: {
-      name: "Technology",
+      name: "Tech Tutorials",
       icon: "TechIcon"
     },
     performance: "Excellent",
@@ -466,7 +466,7 @@ const mockVideos = ref([
     duration: "19:33",
     date: "2024-01-01",
     pillar: {
-      name: "Productivity",
+      name: "Productivity Tips",
       icon: "ProductivityIcon"
     },
     performance: "Excellent",
@@ -541,7 +541,7 @@ const mockVideos = ref([
     thumbnail: "https://img.youtube.com/vi/dQw4w9WgXcQ/mqdefault.jpg",
     duration: "17:42",
     date: "2023-12-25",
-    pillar: "Gaming Reviews",
+    pillar: "Game Reviews",
     category: "Setup",
     performance: "Average",
     youtubeUrl: "https://youtube.com/watch?v=dQw4w9WgXcQ",
@@ -578,7 +578,7 @@ const mockVideos = ref([
     thumbnail: "https://img.youtube.com/vi/dQw4w9WgXcQ/mqdefault.jpg",
     duration: "13:28",
     date: "2023-12-22",
-    pillar: "Personal Stories",
+    pillar: "Productivity Tips",
     category: "Vlog",
     performance: "Excellent",
     youtubeUrl: "https://youtube.com/watch?v=dQw4w9WgXcQ",
@@ -652,7 +652,7 @@ const mockVideos = ref([
     thumbnail: "https://img.youtube.com/vi/dQw4w9WgXcQ/mqdefault.jpg",
     duration: "20:45",
     date: "2023-12-18",
-    pillar: "Growth Strategies",
+    pillar: "Productivity Tips",
     category: "Reflection",
     performance: "Average",
     youtubeUrl: "https://youtube.com/watch?v=dQw4w9WgXcQ",
@@ -726,7 +726,7 @@ const mockVideos = ref([
     thumbnail: "https://img.youtube.com/vi/dQw4w9WgXcQ/mqdefault.jpg",
     duration: "14:33",
     date: "2023-12-12",
-    pillar: "Growth Strategies",
+    pillar: "Productivity Tips",
     category: "Analysis",
     performance: "Good",
     youtubeUrl: "https://youtube.com/watch?v=dQw4w9WgXcQ",
@@ -800,7 +800,7 @@ const mockVideos = ref([
     thumbnail: "https://img.youtube.com/vi/dQw4w9WgXcQ/mqdefault.jpg",
     duration: "18:55",
     date: "2023-12-08",
-    pillar: "Behind the Scenes",
+    pillar: "Productivity Tips",
     category: "Vlog",
     performance: "Good",
     youtubeUrl: "https://youtube.com/watch?v=dQw4w9WgXcQ",
@@ -837,7 +837,7 @@ const mockVideos = ref([
     thumbnail: "https://img.youtube.com/vi/dQw4w9WgXcQ/mqdefault.jpg",
     duration: "11:42",
     date: "2023-12-05",
-    pillar: "Growth Strategies",
+    pillar: "Productivity Tips",
     category: "Tutorial",
     performance: "Excellent",
     youtubeUrl: "https://youtube.com/watch?v=dQw4w9WgXcQ",
@@ -911,7 +911,7 @@ const mockVideos = ref([
     thumbnail: "https://img.youtube.com/vi/dQw4w9WgXcQ/mqdefault.jpg",
     duration: "16:44",
     date: "2023-12-01",
-    pillar: "Growth Strategies",
+    pillar: "Productivity Tips",
     category: "Education",
     performance: "Good",
     youtubeUrl: "https://youtube.com/watch?v=dQw4w9WgXcQ",
@@ -948,7 +948,7 @@ const mockVideos = ref([
     thumbnail: "https://img.youtube.com/vi/dQw4w9WgXcQ/mqdefault.jpg",
     duration: "13:29",
     date: "2023-11-28",
-    pillar: "Content Creation",
+    pillar: "Tech Tutorials",
     category: "Entertainment",
     performance: "Excellent",
     youtubeUrl: "https://youtube.com/watch?v=dQw4w9WgXcQ",
@@ -985,7 +985,7 @@ const mockVideos = ref([
     thumbnail: "https://img.youtube.com/vi/dQw4w9WgXcQ/mqdefault.jpg",
     duration: "15:36",
     date: "2023-11-25",
-    pillar: "Personal Stories",
+    pillar: "Productivity Tips",
     category: "Lifestyle",
     performance: "Average",
     youtubeUrl: "https://youtube.com/watch?v=dQw4w9WgXcQ",
@@ -1059,7 +1059,7 @@ const mockVideos = ref([
     thumbnail: "https://img.youtube.com/vi/dQw4w9WgXcQ/mqdefault.jpg",
     duration: "24:51",
     date: "2023-11-20",
-    pillar: "Personal Stories",
+    pillar: "Productivity Tips",
     category: "Business",
     performance: "Excellent",
     youtubeUrl: "https://youtube.com/watch?v=dQw4w9WgXcQ",
@@ -1096,7 +1096,7 @@ const mockVideos = ref([
     thumbnail: "https://img.youtube.com/vi/dQw4w9WgXcQ/mqdefault.jpg",
     duration: "19:27",
     date: "2023-11-18",
-    pillar: "Gaming Reviews",
+    pillar: "Game Reviews",
     category: "Tutorial",
     performance: "Average",
     youtubeUrl: "https://youtube.com/watch?v=dQw4w9WgXcQ",
