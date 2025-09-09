@@ -126,7 +126,7 @@
 
         <!-- Video Grid -->
         <div class="grid grid-cols-4 gap-6">
-          <div v-for="video in filteredAndSortedVideos" :key="video.id" :class="getVideoCardClasses(calculatePerformance(video))" @click="openVideoStats(video)">
+          <div v-for="video in filteredAndSortedVideos" :key="video.id" :class="getVideoCardClasses(video)" @click="openVideoStats(video)">
             <div class="relative mb-3 aspect-video overflow-hidden rounded-lg bg-gray-700">
               <img :src="video.thumbnail" :alt="video.title" class="h-full w-full object-cover" />
               <div
@@ -157,7 +157,7 @@
               </div>
             </div>
             <div class="flex items-start space-x-2 mb-1">
-              <span class="text-purple-300 text-sm mt-0.5">🎬</span>
+              <span class="text-white text-sm mt-0.5">🎬</span>
               <h4 class="line-clamp-2 text-sm font-medium text-white">{{ video.title }}</h4>
             </div>
             <p class="text-xs text-gray-400">{{ formatNumber(video.detailedStats?.views || 0) }} views • {{ formatDate(video.date) }}</p>
@@ -231,8 +231,10 @@ const mockVideos = ref([
     thumbnail: "https://img.youtube.com/vi/dQw4w9WgXcQ/mqdefault.jpg",
     duration: "12:34",
     date: "2024-01-15",
-    pillar: "Growth Strategies",
-    category: "Tutorial",
+    pillar: {
+      name: "Productivity",
+      icon: "ProductivityIcon"
+    },
     performance: "Excellent",
     youtubeUrl: "https://youtube.com/watch?v=dQw4w9WgXcQ",
     detailedStats: {
@@ -268,8 +270,10 @@ const mockVideos = ref([
     thumbnail: "https://img.youtube.com/vi/dQw4w9WgXcQ/mqdefault.jpg",
     duration: "15:22",
     date: "2024-01-12",
-    pillar: "Personal Stories",
-    category: "Vlog",
+    pillar: {
+      name: "Gaming",
+      icon: "GameIcon"
+    },
     performance: "Good",
     youtubeUrl: "https://youtube.com/watch?v=dQw4w9WgXcQ",
     detailedStats: {
@@ -305,8 +309,10 @@ const mockVideos = ref([
     thumbnail: "https://img.youtube.com/vi/dQw4w9WgXcQ/mqdefault.jpg",
     duration: "18:45",
     date: "2024-01-10",
-    pillar: "Content Creation",
-    category: "Education",
+    pillar: {
+      name: "Technology",
+      icon: "TechIcon"
+    },
     performance: "Average",
     youtubeUrl: "https://youtube.com/watch?v=dQw4w9WgXcQ",
     detailedStats: {
@@ -342,8 +348,10 @@ const mockVideos = ref([
     thumbnail: "https://img.youtube.com/vi/dQw4w9WgXcQ/mqdefault.jpg",
     duration: "22:10",
     date: "2024-01-08",
-    pillar: "Behind the Scenes",
-    category: "Behind the Scenes",
+    pillar: {
+      name: "Reviews",
+      icon: "ReviewIcon"
+    },
     performance: "Poor",
     youtubeUrl: "https://youtube.com/watch?v=dQw4w9WgXcQ",
     detailedStats: {
@@ -379,8 +387,10 @@ const mockVideos = ref([
     thumbnail: "https://img.youtube.com/vi/dQw4w9WgXcQ/mqdefault.jpg",
     duration: "16:28",
     date: "2024-01-05",
-    pillar: "Gaming Reviews",
-    category: "Review",
+    pillar: {
+      name: "Gaming",
+      icon: "GameIcon"
+    },
     performance: "Good",
     youtubeUrl: "https://youtube.com/watch?v=dQw4w9WgXcQ",
     detailedStats: {
@@ -416,8 +426,10 @@ const mockVideos = ref([
     thumbnail: "https://img.youtube.com/vi/dQw4w9WgXcQ/mqdefault.jpg",
     duration: "14:52",
     date: "2024-01-03",
-    pillar: "Tech Tutorials",
-    category: "Review",
+    pillar: {
+      name: "Technology",
+      icon: "TechIcon"
+    },
     performance: "Excellent",
     youtubeUrl: "https://youtube.com/watch?v=dQw4w9WgXcQ",
     detailedStats: {
@@ -453,8 +465,10 @@ const mockVideos = ref([
     thumbnail: "https://img.youtube.com/vi/dQw4w9WgXcQ/mqdefault.jpg",
     duration: "19:33",
     date: "2024-01-01",
-    pillar: "Content Creation",
-    category: "Tutorial",
+    pillar: {
+      name: "Productivity",
+      icon: "ProductivityIcon"
+    },
     performance: "Excellent",
     youtubeUrl: "https://youtube.com/watch?v=dQw4w9WgXcQ",
     detailedStats: {
@@ -1380,12 +1394,41 @@ const loadMore = async () => {
   }
 }
 
-// Get video card classes - all video content items use purple borders
-const getVideoCardClasses = (performance) => {
-  const baseClasses = "group cursor-pointer rounded-lg p-3 transition-all duration-300 hover:scale-[1.02] hover:shadow-lg"
+// Get video card classes based on pillar for enhanced borders
+const getVideoCardClasses = (video) => {
+  const baseClasses = "group cursor-pointer rounded-lg p-3 transition-all duration-300 hover:scale-[1.02] hover:shadow-lg bg-gray-800"
 
-  // All video content items use purple borders for consistency
-  return `${baseClasses} bg-purple-900/70 backdrop-blur-sm border-2 border-purple-600/60 shadow-purple-600/20 shadow-sm`
+  // Get pillar-based border colors
+  const pillarColors = getPillarCardColors(video.pillar?.icon)
+
+  return `${baseClasses} border-2 ${pillarColors.border} ${pillarColors.shadow} shadow-sm`
+}
+
+// Get pillar-based border colors for videos
+const getPillarCardColors = (pillarIcon) => {
+  const colorMap = {
+    'GameIcon': {
+      border: 'border-blue-600/60',
+      shadow: 'shadow-blue-600/20'
+    },
+    'ReviewIcon': {
+      border: 'border-yellow-600/60',
+      shadow: 'shadow-yellow-600/20'
+    },
+    'TechIcon': {
+      border: 'border-purple-600/60',
+      shadow: 'shadow-purple-600/20'
+    },
+    'ProductivityIcon': {
+      border: 'border-green-600/60',
+      shadow: 'shadow-green-600/20'
+    },
+    'default': {
+      border: 'border-orange-600/60',
+      shadow: 'shadow-orange-600/20'
+    }
+  }
+  return colorMap[pillarIcon] || colorMap.default
 }
 
 // Calculate performance level based on video metrics

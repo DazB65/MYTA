@@ -105,31 +105,31 @@ const props = defineProps<Props>()
 // Emits
 const emit = defineEmits(['action-click', 'mark-read', 'delete-notification'])
 
-// Agent data mapping
+// Agent data mapping - using correct colors from backend definitions
 const agentData = {
   'Alex': {
     image: '/optimized/Agent1.jpg',
-    color: '#3b82f6', // blue
-    gradient: 'from-blue-400 to-blue-600'
+    color: '#f97316', // orange (Agent 1)
+    gradient: 'from-orange-400 to-orange-600'
   },
   'Levi': {
     image: '/optimized/Agent2.jpg',
-    color: '#eab308', // yellow
-    gradient: 'from-yellow-400 to-yellow-600'
+    color: '#3b82f6', // blue (Agent 2)
+    gradient: 'from-blue-400 to-blue-600'
   },
   'Maya': {
     image: '/optimized/Agent3.jpg',
-    color: '#ec4899', // pink
-    gradient: 'from-pink-400 to-pink-600'
+    color: '#a855f7', // purple (Agent 3)
+    gradient: 'from-purple-400 to-purple-600'
   },
   'Zara': {
     image: '/optimized/Agent4.jpg',
-    color: '#8b5cf6', // purple
-    gradient: 'from-purple-400 to-purple-600'
+    color: '#eab308', // yellow (Agent 4)
+    gradient: 'from-yellow-400 to-yellow-600'
   },
   'Kai': {
     image: '/optimized/Agent5.jpg',
-    color: '#10b981', // green
+    color: '#16a34a', // green (Agent 5)
     gradient: 'from-green-400 to-green-600'
   }
 }
@@ -150,13 +150,24 @@ const getAgentRingColor = (agentName: string) => {
 }
 
 const getNotificationStyle = (agentName: string, priority: string) => {
-  const color = agentData[agentName]?.color || '#f97316'
-  const baseClasses = 'bg-gradient-to-r backdrop-blur-sm'
-  
+  const baseClasses = 'bg-gradient-to-r backdrop-blur-sm from-gray-900/60 to-gray-800/60'
+
+  // Agent-specific border colors - matching backend agent definitions with higher visibility
+  const agentBorderColors = {
+    'Alex': 'border-orange-500/80',   // #f97316 (Agent 1)
+    'Levi': 'border-blue-500/80',     // #3b82f6 (Agent 2)
+    'Maya': 'border-purple-500/80',   // #a855f7 (Agent 3)
+    'Zara': 'border-yellow-500/80',   // #eab308 (Agent 4)
+    'Kai': 'border-green-500/80'      // #16a34a (Agent 5)
+  }
+
+  const borderColor = agentBorderColors[agentName] || 'border-orange-500/80'
+
   if (priority === 'high') {
-    return `${baseClasses} from-red-900/40 to-red-800/40 border-red-500/30`
+    // For high priority, use full opacity border
+    return `${baseClasses} ${borderColor.replace('/80', '')}`
   } else {
-    return `${baseClasses} from-gray-900/60 to-gray-800/60 border-gray-500/30`
+    return `${baseClasses} ${borderColor}`
   }
 }
 
@@ -203,24 +214,24 @@ const deleteNotification = (notification: any) => {
 </script>
 
 <style scoped>
-/* Custom gradient backgrounds for different agents */
+/* Custom gradient backgrounds for different agents - matching backend definitions */
 .bg-alex {
-  background: linear-gradient(135deg, rgba(59, 130, 246, 0.4) 0%, rgba(59, 130, 246, 0.2) 100%);
+  background: linear-gradient(135deg, rgba(249, 115, 22, 0.4) 0%, rgba(249, 115, 22, 0.2) 100%);
 }
 
 .bg-levi {
-  background: linear-gradient(135deg, rgba(234, 179, 8, 0.4) 0%, rgba(234, 179, 8, 0.2) 100%);
+  background: linear-gradient(135deg, rgba(59, 130, 246, 0.4) 0%, rgba(59, 130, 246, 0.2) 100%);
 }
 
 .bg-maya {
-  background: linear-gradient(135deg, rgba(236, 72, 153, 0.4) 0%, rgba(236, 72, 153, 0.2) 100%);
+  background: linear-gradient(135deg, rgba(168, 85, 247, 0.4) 0%, rgba(168, 85, 247, 0.2) 100%);
 }
 
 .bg-zara {
-  background: linear-gradient(135deg, rgba(139, 92, 246, 0.4) 0%, rgba(139, 92, 246, 0.2) 100%);
+  background: linear-gradient(135deg, rgba(234, 179, 8, 0.4) 0%, rgba(234, 179, 8, 0.2) 100%);
 }
 
 .bg-kai {
-  background: linear-gradient(135deg, rgba(16, 185, 129, 0.4) 0%, rgba(16, 185, 129, 0.2) 100%);
+  background: linear-gradient(135deg, rgba(22, 163, 74, 0.4) 0%, rgba(22, 163, 74, 0.2) 100%);
 }
 </style>

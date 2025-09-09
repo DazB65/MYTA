@@ -12,11 +12,12 @@
   <Transition name="slide-right">
     <div
       v-if="isOpen"
-      class="fixed right-0 top-0 z-50 h-full bg-forest-800 shadow-2xl border-l border-forest-700 flex"
+      class="fixed right-0 top-0 z-50 h-full bg-gray-800 shadow-2xl border-l-2 flex"
+      :class="getAgentBorderClass(selectedAgentData.id)"
       style="width: calc(100vw - 280px); left: 280px;"
     >
       <!-- Left Sidebar for Questions & Suggestions -->
-      <div class="w-80 bg-forest-700 border-r border-forest-600 flex flex-col">
+      <div class="w-80 bg-gray-700 border-r border-gray-600 flex flex-col">
         <!-- Sidebar Header -->
         <div class="p-4 border-b border-forest-700">
           <h3 class="text-sm font-medium text-white">Quick Access</h3>
@@ -780,6 +781,24 @@ const enhancedHeaderGradient = computed(() => {
   const color = selectedAgentData.value.color || '#f97316'
   return `linear-gradient(135deg, ${color}40 0%, ${color}20 50%, ${color}10 100%)`
 })
+
+// Get agent-based border colors for the chat panel
+const getAgentBorderClass = (agentId) => {
+  switch (agentId) {
+    case 1: // Boss Agent
+      return 'border-orange-600/60 shadow-orange-600/20 shadow-sm'
+    case 2: // Gaming Agent
+      return 'border-blue-600/60 shadow-blue-600/20 shadow-sm'
+    case 3: // Tech Agent
+      return 'border-purple-600/60 shadow-purple-600/20 shadow-sm'
+    case 4: // Productivity Agent
+      return 'border-green-600/60 shadow-green-600/20 shadow-sm'
+    case 5: // Reviews Agent
+      return 'border-yellow-600/60 shadow-yellow-600/20 shadow-sm'
+    default:
+      return 'border-orange-600/60 shadow-orange-600/20 shadow-sm'
+  }
+}
 
 const executivePlaceholder = computed(() => {
   const name = selectedAgentData.value.name || 'Boss Agent'

@@ -24,7 +24,7 @@
       <div
         v-for="video in recentVideos"
         :key="video.id"
-        :class="getVideoCardClasses(calculatePerformance(video))"
+        :class="getVideoCardClasses(video)"
         @click="analyzeVideo(video)"
       >
         <!-- Video Info -->
@@ -44,7 +44,7 @@
           <!-- Video Details -->
           <div class="flex-1 min-w-0">
             <div class="flex items-center space-x-2">
-              <span class="text-purple-300">🎬</span>
+              <span class="text-white">🎬</span>
               <h4 class="font-medium text-white truncate">
                 {{ video.title }}
               </h4>
@@ -313,22 +313,41 @@ const calculatePerformance = (video) => {
   else return 'Poor'
 }
 
-// Get video card classes based on performance for enhanced borders
-const getVideoCardClasses = (performance) => {
-  const baseClasses = "flex items-center justify-between rounded-lg p-4 transition-all duration-300 hover:scale-[1.01] hover:shadow-lg cursor-pointer"
+// Get video card classes based on pillar for enhanced borders
+const getVideoCardClasses = (video) => {
+  const baseClasses = "flex items-center justify-between rounded-lg p-4 transition-all duration-300 hover:scale-[1.01] hover:shadow-lg cursor-pointer bg-gray-800"
 
-  switch (performance?.toLowerCase()) {
-    case 'excellent':
-      return `${baseClasses} bg-gray-900/70 backdrop-blur-sm border-2 border-green-600/60 shadow-green-600/20 shadow-sm`
-    case 'good':
-      return `${baseClasses} bg-gray-900/70 backdrop-blur-sm border-2 border-blue-600/60 shadow-blue-600/20 shadow-sm`
-    case 'average':
-      return `${baseClasses} bg-gray-900/70 backdrop-blur-sm border-2 border-yellow-600/60 shadow-yellow-600/20 shadow-sm`
-    case 'poor':
-      return `${baseClasses} bg-gray-900/70 backdrop-blur-sm border-2 border-red-600/60 shadow-red-600/20 shadow-sm`
-    default:
-      return `${baseClasses} bg-gray-700 border border-gray-600/50`
+  // Get pillar-based border colors
+  const pillarColors = getPillarCardColors(video.pillar?.icon)
+
+  return `${baseClasses} border-2 ${pillarColors.border} ${pillarColors.shadow} shadow-sm`
+}
+
+// Get pillar-based border colors for videos
+const getPillarCardColors = (pillarIcon) => {
+  const colorMap = {
+    'GameIcon': {
+      border: 'border-blue-600/60',
+      shadow: 'shadow-blue-600/20'
+    },
+    'ReviewIcon': {
+      border: 'border-yellow-600/60',
+      shadow: 'shadow-yellow-600/20'
+    },
+    'TechIcon': {
+      border: 'border-purple-600/60',
+      shadow: 'shadow-purple-600/20'
+    },
+    'ProductivityIcon': {
+      border: 'border-green-600/60',
+      shadow: 'shadow-green-600/20'
+    },
+    'default': {
+      border: 'border-orange-600/60',
+      shadow: 'shadow-orange-600/20'
+    }
   }
+  return colorMap[pillarIcon] || colorMap.default
 }
 
 // Methods

@@ -223,14 +223,14 @@ const getPillarButtonColor = (icon) => {
 
 // Get pillar card classes with enhanced colored borders
 const getPillarCardClasses = (icon) => {
-  const baseClasses = "rounded-xl p-6 cursor-pointer transition-all duration-300 hover:scale-[1.02] hover:shadow-lg"
+  const baseClasses = "rounded-xl p-6 cursor-pointer transition-all duration-300 hover:scale-[1.02] hover:shadow-lg bg-gray-800"
 
   const colorMap = {
-    'GameIcon': `${baseClasses} bg-blue-900/70 backdrop-blur-sm border-2 border-blue-600/60 shadow-blue-600/20 shadow-sm`,
-    'ReviewIcon': `${baseClasses} bg-yellow-900/70 backdrop-blur-sm border-2 border-yellow-600/60 shadow-yellow-600/20 shadow-sm`,
-    'TechIcon': `${baseClasses} bg-purple-900/70 backdrop-blur-sm border-2 border-purple-600/60 shadow-purple-600/20 shadow-sm`,
-    'ProductivityIcon': `${baseClasses} bg-green-900/70 backdrop-blur-sm border-2 border-green-600/60 shadow-green-600/20 shadow-sm`,
-    'default': `${baseClasses} bg-orange-900/70 backdrop-blur-sm border-2 border-orange-600/60 shadow-orange-600/20 shadow-sm`
+    'GameIcon': `${baseClasses} border-2 border-blue-600/60 shadow-blue-600/20 shadow-sm`,
+    'ReviewIcon': `${baseClasses} border-2 border-yellow-600/60 shadow-yellow-600/20 shadow-sm`,
+    'TechIcon': `${baseClasses} border-2 border-purple-600/60 shadow-purple-600/20 shadow-sm`,
+    'ProductivityIcon': `${baseClasses} border-2 border-green-600/60 shadow-green-600/20 shadow-sm`,
+    'default': `${baseClasses} border-2 border-orange-600/60 shadow-orange-600/20 shadow-sm`
   }
   return colorMap[icon] || colorMap.default
 }
