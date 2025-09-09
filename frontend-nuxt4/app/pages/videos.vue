@@ -185,7 +185,7 @@
 </template>
 
 <script setup>
-import { computed, onMounted, ref, watch } from 'vue'
+import { computed, onMounted, onUnmounted, ref, watch } from 'vue'
 
 // Protect this route with authentication
 definePageMeta({
@@ -1133,9 +1133,14 @@ const mockVideos = ref([
 const filteredAndSortedVideos = computed(() => {
   let filtered = videos.value
 
-  // Filter by pillar
+  // Filter by pillar - handle both string and object pillar formats
   if (selectedPillar.value !== 'all') {
-    filtered = filtered.filter(video => video.pillar === selectedPillar.value)
+    filtered = filtered.filter(video => {
+      const pillarName = typeof video.pillar === 'string'
+        ? video.pillar
+        : video.pillar?.name || ''
+      return pillarName === selectedPillar.value
+    })
   }
 
   // Sort videos
@@ -1259,12 +1264,15 @@ const fetchVideos = async () => {
   } catch (err) {
     console.error('Error fetching videos:', err)
     error.value = 'Failed to load videos'
-    // Fallback to mock data for development
-    videos.value = mockVideos.value
-    totalCount.value = mockVideos.value.length
-    totalPages.value = 1
-    hasNext.value = false
-    hasPrev.value = false
+    // Fallback to mock data for development - only if no videos loaded yet
+    if (videos.value.length === 0) {
+      videos.value = mockVideos.value
+      totalCount.value = mockVideos.value.length
+      totalPages.value = Math.ceil(mockVideos.value.length / perPage.value)
+      hasNext.value = totalPages.value > 1
+      hasPrev.value = false
+      error.value = null // Clear error when using mock data
+    }
   } finally {
     loading.value = false
   }
@@ -1306,11 +1314,19 @@ const clearFilters = () => {
   fetchVideos()
 }
 
-// Watch for filter changes
+// Debounced search function
+let searchTimeout = null
+
+// Watch for filter changes with proper debouncing
 watch([searchQuery, selectedPillar, selectedTier, dateFrom, dateTo, sortBy], () => {
-  // Debounce search to avoid too many API calls
+  // Clear existing timeout
+  if (searchTimeout) {
+    clearTimeout(searchTimeout)
+  }
+
+  // Debounce search queries, apply others immediately
   if (searchQuery.value) {
-    setTimeout(() => {
+    searchTimeout = setTimeout(() => {
       applyFilters()
     }, 500)
   } else {
@@ -1398,8 +1414,23 @@ const loadMore = async () => {
 const getVideoCardClasses = (video) => {
   const baseClasses = "group cursor-pointer rounded-lg p-3 transition-all duration-300 hover:scale-[1.02] hover:shadow-lg bg-gray-800"
 
+  // Get pillar name and icon - handle both string and object formats
+  let pillarIcon = null
+  if (typeof video.pillar === 'string') {
+    // Map pillar names to icons
+    const pillarIconMap = {
+      'Game Development': 'GameIcon',
+      'Game Reviews': 'ReviewIcon',
+      'Tech Tutorials': 'TechIcon',
+      'Productivity Tips': 'ProductivityIcon'
+    }
+    pillarIcon = pillarIconMap[video.pillar]
+  } else if (video.pillar?.icon) {
+    pillarIcon = video.pillar.icon
+  }
+
   // Get pillar-based border colors
-  const pillarColors = getPillarCardColors(video.pillar?.icon)
+  const pillarColors = getPillarCardColors(pillarIcon)
 
   return `${baseClasses} border-2 ${pillarColors.border} ${pillarColors.shadow} shadow-sm`
 }
@@ -1408,24 +1439,24 @@ const getVideoCardClasses = (video) => {
 const getPillarCardColors = (pillarIcon) => {
   const colorMap = {
     'GameIcon': {
-      border: 'border-blue-600/60',
-      shadow: 'shadow-blue-600/20'
+      border: 'border-orange-500/60',
+      shadow: 'shadow-orange-500/20'
     },
     'ReviewIcon': {
-      border: 'border-yellow-600/60',
-      shadow: 'shadow-yellow-600/20'
+      border: 'border-blue-500/60',
+      shadow: 'shadow-blue-500/20'
     },
     'TechIcon': {
-      border: 'border-purple-600/60',
-      shadow: 'shadow-purple-600/20'
+      border: 'border-purple-500/60',
+      shadow: 'shadow-purple-500/20'
     },
     'ProductivityIcon': {
-      border: 'border-green-600/60',
-      shadow: 'shadow-green-600/20'
+      border: 'border-green-500/60',
+      shadow: 'shadow-green-500/20'
     },
     'default': {
-      border: 'border-orange-600/60',
-      shadow: 'shadow-orange-600/20'
+      border: 'border-gray-600/60',
+      shadow: 'shadow-gray-600/20'
     }
   }
   return colorMap[pillarIcon] || colorMap.default
@@ -1509,8 +1540,16 @@ const getPerformanceBadgeClasses = (performance) => {
 
 // Load videos on component mount
 onMounted(() => {
-  // Initialize with mock data first, then try to fetch real data
-  videos.value = mockVideos.value
+  // Start with empty array and loading state
+  videos.value = []
+  loading.value = true
   fetchVideos()
+})
+
+// Cleanup on unmount
+onUnmounted(() => {
+  if (searchTimeout) {
+    clearTimeout(searchTimeout)
+  }
 })
 </script>
