@@ -183,12 +183,12 @@ const selectedVideo = ref(null)
 const recentVideos = ref([
   {
     id: 1,
-    title: "10 YouTube Growth Hacks That Actually Work in 2024",
+    title: "Building My First Indie Game in Unity",
     thumbnail: "https://img.youtube.com/vi/dQw4w9WgXcQ/mqdefault.jpg",
     duration: "12:34",
     publishedAt: "2024-01-15T10:00:00Z",
     category: "Tutorial",
-    pillar: "Growth Strategies",
+    pillar: "Game Development",
     performance: "Excellent",
     views: 45200,
     viewsTrend: 12.5,
@@ -199,12 +199,12 @@ const recentVideos = ref([
   },
   {
     id: 2,
-    title: "My Biggest YouTube Mistakes (And How to Avoid Them)",
+    title: "Top 5 Gaming Laptops Under $1000",
     thumbnail: "https://img.youtube.com/vi/dQw4w9WgXcQ/mqdefault.jpg",
     duration: "15:22",
     publishedAt: "2024-01-12T14:30:00Z",
-    category: "Vlog",
-    pillar: "Personal Stories",
+    category: "Review",
+    pillar: "Game Reviews",
     performance: "Good",
     views: 28900,
     viewsTrend: 8.3,
@@ -215,12 +215,12 @@ const recentVideos = ref([
   },
   {
     id: 3,
-    title: "Creating Viral Content: The Complete Guide",
+    title: "Complete Guide to Setting Up Your Dev Environment",
     thumbnail: "https://img.youtube.com/vi/dQw4w9WgXcQ/mqdefault.jpg",
     duration: "18:45",
     publishedAt: "2024-01-10T09:15:00Z",
     category: "Education",
-    pillar: "Content Creation",
+    pillar: "Tech Tutorials",
     performance: "Average",
     views: 15600,
     viewsTrend: -5.2,
@@ -231,12 +231,12 @@ const recentVideos = ref([
   },
   {
     id: 4,
-    title: "Behind the Scenes: My Content Creation Process",
+    title: "10 Productivity Tips for Remote Developers",
     thumbnail: "https://img.youtube.com/vi/dQw4w9WgXcQ/mqdefault.jpg",
     duration: "22:10",
     publishedAt: "2024-01-08T16:45:00Z",
-    category: "Behind the Scenes",
-    pillar: "Behind the Scenes",
+    category: "Productivity",
+    pillar: "Productivity Tips",
     performance: "Poor",
     views: 8200,
     viewsTrend: -12.8,
@@ -317,34 +317,48 @@ const calculatePerformance = (video) => {
 const getVideoCardClasses = (video) => {
   const baseClasses = "flex items-center justify-between rounded-lg p-4 transition-all duration-300 hover:scale-[1.01] hover:shadow-lg cursor-pointer bg-gray-800"
 
+  // Map pillar names to icons
+  const pillarIcon = getPillarIcon(video.pillar)
+
   // Get pillar-based border colors
-  const pillarColors = getPillarCardColors(video.pillar?.icon)
+  const pillarColors = getPillarCardColors(pillarIcon)
 
   return `${baseClasses} border-2 ${pillarColors.border} ${pillarColors.shadow} shadow-sm`
 }
 
-// Get pillar-based border colors for videos
+// Map pillar names to icons
+const getPillarIcon = (pillarName) => {
+  const pillarIconMap = {
+    'Game Development': 'GameIcon',
+    'Game Reviews': 'ReviewIcon',
+    'Tech Tutorials': 'TechIcon',
+    'Productivity Tips': 'ProductivityIcon'
+  }
+  return pillarIconMap[pillarName] || 'default'
+}
+
+// Get pillar-based border colors for videos - using correct agent colors
 const getPillarCardColors = (pillarIcon) => {
   const colorMap = {
     'GameIcon': {
-      border: 'border-blue-600/60',
-      shadow: 'shadow-blue-600/20'
+      border: 'border-blue-500/60',    // Agent 2 (Levi) - Blue
+      shadow: 'shadow-blue-500/20'
     },
     'ReviewIcon': {
-      border: 'border-yellow-600/60',
-      shadow: 'shadow-yellow-600/20'
+      border: 'border-yellow-500/60',  // Agent 4 (Zara) - Yellow
+      shadow: 'shadow-yellow-500/20'
     },
     'TechIcon': {
-      border: 'border-purple-600/60',
-      shadow: 'shadow-purple-600/20'
+      border: 'border-purple-500/60',  // Agent 3 (Maya) - Purple
+      shadow: 'shadow-purple-500/20'
     },
     'ProductivityIcon': {
-      border: 'border-green-600/60',
-      shadow: 'shadow-green-600/20'
+      border: 'border-green-500/60',   // Agent 5 (Kai) - Green
+      shadow: 'shadow-green-500/20'
     },
     'default': {
-      border: 'border-orange-600/60',
-      shadow: 'shadow-orange-600/20'
+      border: 'border-orange-500/60',  // Agent 1 (Alex) - Orange
+      shadow: 'shadow-orange-500/20'
     }
   }
   return colorMap[pillarIcon] || colorMap.default
@@ -388,19 +402,15 @@ const getPerformanceClass = (performance) => {
 }
 
 const getPillarClass = (pillar) => {
-  // Different colors for different pillars to make them visually distinct
+  // Map pillar names to agent colors for consistency
   const pillarColors = {
-    'Growth Strategies': 'bg-orange-600 text-white',
-    'Personal Stories': 'bg-purple-600 text-white',
-    'Content Creation': 'bg-blue-600 text-white',
-    'Behind the Scenes': 'bg-pink-600 text-white',
-    'Tutorials': 'bg-green-600 text-white',
-    'Reviews': 'bg-indigo-600 text-white',
-    'Entertainment': 'bg-red-600 text-white',
-    'Educational': 'bg-teal-600 text-white'
+    'Game Development': 'bg-blue-600 text-white',      // Agent 2 (Levi) - Blue
+    'Game Reviews': 'bg-yellow-600 text-white',        // Agent 4 (Zara) - Yellow
+    'Tech Tutorials': 'bg-purple-600 text-white',      // Agent 3 (Maya) - Purple
+    'Productivity Tips': 'bg-green-600 text-white'     // Agent 5 (Kai) - Green
   }
 
-  return pillarColors[pillar] || 'bg-gray-600 text-white'
+  return pillarColors[pillar] || 'bg-orange-600 text-white' // Agent 1 (Alex) - Orange default
 }
 
 const refreshData = async () => {
