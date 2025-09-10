@@ -41,7 +41,7 @@ updates:
 
   # Frontend Node.js dependencies
   - package-ecosystem: "npm"
-    directory: "/frontend-new"
+    directory: "/frontend-nuxt4"
     schedule:
       interval: "weekly"
       day: "monday"
@@ -106,7 +106,7 @@ updates:
       include: "scope"
 
   - package-ecosystem: "docker"
-    directory: "/frontend-new"
+    directory: "/frontend-nuxt4"
     schedule:
       interval: "weekly"
       day: "tuesday"
