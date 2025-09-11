@@ -162,14 +162,7 @@
                     </div>
                   </div>
 
-                  <!-- Content -->
-                  <div class="flex items-center space-x-4">
-                    <div class="text-xs font-medium text-gray-300">🎬 Content</div>
-                    <div class="flex items-center space-x-2 text-xs">
-                      <div class="w-4 h-3 rounded bg-purple-900/70 border-2 border-purple-600/60 shadow-purple-600/20 shadow-sm"></div>
-                      <span class="text-purple-300">Video Content Ideas</span>
-                    </div>
-                  </div>
+
 
                   <!-- Goals -->
                   <div class="flex items-center space-x-4">
