@@ -1,6 +1,6 @@
 <template>
   <div v-if="show" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-    <div class="bg-slate-900 rounded-lg shadow-xl w-full max-w-5xl max-h-[90vh] overflow-hidden border border-gray-700">
+    <div class="bg-slate-900 rounded-lg shadow-xl w-full max-w-5xl max-h-[90vh] overflow-hidden border-2 border-gray-600/70 shadow-lg">
       <!-- Modal Header -->
       <div class="bg-gradient-to-r from-gray-700 to-gray-800 text-white p-6 flex items-center justify-between">
         <div class="flex items-center space-x-3">
@@ -27,7 +27,7 @@
         <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
           
           <!-- Competitor Analysis Template -->
-          <div class="bg-gray-800 border border-gray-600 rounded-lg p-6 hover:border-gray-500 transition-colors">
+          <div class="bg-gray-800 border-2 border-gray-600/70 shadow-lg rounded-lg p-6 hover:border-gray-500 transition-colors">
             <div class="flex items-center mb-4">
               <div class="h-12 w-12 rounded-lg bg-red-500/20 flex items-center justify-center mr-4">
                 <svg class="h-6 w-6 text-red-400" fill="currentColor" viewBox="0 0 20 20">
@@ -59,7 +59,7 @@
           </div>
 
           <!-- Trend Research Template -->
-          <div class="bg-gray-800 border border-gray-600 rounded-lg p-6 hover:border-gray-500 transition-colors">
+          <div class="bg-gray-800 border-2 border-gray-600/70 shadow-lg rounded-lg p-6 hover:border-gray-500 transition-colors">
             <div class="flex items-center mb-4">
               <div class="h-12 w-12 rounded-lg bg-blue-500/20 flex items-center justify-center mr-4">
                 <svg class="h-6 w-6 text-blue-400" fill="currentColor" viewBox="0 0 20 20">

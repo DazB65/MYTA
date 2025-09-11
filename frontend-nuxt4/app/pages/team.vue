@@ -11,7 +11,7 @@
 
 
       <!-- Tabbed Interface -->
-      <div class="bg-gray-900/80 backdrop-blur-sm border border-gray-700/50 rounded-xl overflow-hidden">
+      <div class="bg-gray-900/80 backdrop-blur-sm border-2 border-gray-600/70 shadow-lg rounded-xl overflow-hidden">
         <!-- Tab Navigation -->
         <div class="flex border-b border-gray-700">
           <button

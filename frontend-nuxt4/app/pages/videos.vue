@@ -62,7 +62,7 @@
       </div>
 
       <!-- Recent Videos Section -->
-      <div class="mb-8 rounded-xl bg-gray-900/80 backdrop-blur-sm border border-gray-700/50 p-6">
+      <div class="mb-8 rounded-xl bg-gray-900/80 backdrop-blur-sm border-2 border-gray-600/70 shadow-lg p-6">
         <div class="mb-6 flex items-center justify-between">
           <div class="flex items-center space-x-4">
             <h3 class="text-xl font-bold text-white">Recent Videos</h3>
@@ -126,7 +126,7 @@
 
         <!-- Pillar Legend -->
         <div class="mb-4 flex items-center justify-center">
-          <div class="flex items-center space-x-6 rounded-lg bg-gray-800/60 px-4 py-2 border border-gray-600/30">
+          <div class="flex items-center space-x-6 rounded-lg bg-gray-800/60 px-4 py-2 border-2 border-gray-600/70 shadow-lg">
             <span class="text-sm font-medium text-gray-300">Pillar Colors:</span>
             <div class="flex items-center space-x-4">
               <div class="flex items-center space-x-2">
@@ -1559,7 +1559,7 @@ const getPerformanceBadgeClasses = (performance) => {
     case 'poor':
       return 'bg-red-600/80 text-red-100 border border-red-500/50'
     default:
-      return 'bg-gray-600/80 text-gray-100 border border-gray-500/50'
+      return 'bg-gray-600/80 text-gray-100 border-2 border-gray-600/70 shadow-lg/50'
   }
 }
 

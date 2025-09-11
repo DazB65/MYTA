@@ -48,10 +48,10 @@
 
 
       <!-- Kanban Board -->
-      <div class="rounded-xl bg-gray-900/80 backdrop-blur-sm border border-gray-700/50 p-6">
+      <div class="rounded-xl bg-gray-900/80 backdrop-blur-sm border-2 border-gray-600/70 shadow-lg p-6">
         <div class="grid grid-cols-4 gap-4 pb-6">
           <!-- Ideas Column -->
-          <div class="flex flex-col bg-gray-900/80 backdrop-blur-sm rounded-lg p-4 border border-gray-700/50">
+          <div class="flex flex-col bg-gray-900/80 backdrop-blur-sm rounded-lg p-4 border-2 border-gray-600/70 shadow-lg">
             <div class="flex items-center justify-between -m-4 mb-4 p-4 bg-slate-700/50 rounded-t-lg">
               <div class="flex items-center space-x-2">
                 <div class="h-3 w-3 rounded-full bg-blue-600"/>
@@ -102,7 +102,7 @@
                     <!-- Dropdown Menu -->
                     <div
                       v-if="showDropdownMenu === item.id"
-                      class="absolute right-0 top-6 z-50 w-32 rounded-md bg-gray-600 shadow-lg border border-gray-500"
+                      class="absolute right-0 top-6 z-50 w-32 rounded-md bg-gray-600 shadow-lg border-2 border-gray-600/70 shadow-lg"
                     >
                       <button
                         @click.stop="openEditModal(item)"
@@ -129,7 +129,7 @@
                 </div>
 
                 <!-- Performance Predictions -->
-                <div v-if="item.status !== 'published'" class="mb-3 p-3 bg-gray-900/80 backdrop-blur-sm rounded-lg border border-gray-700/50">
+                <div v-if="item.status !== 'published'" class="mb-3 p-3 bg-gray-900/80 backdrop-blur-sm rounded-lg border-2 border-gray-600/70 shadow-lg">
                   <div class="flex items-center justify-between mb-2">
                     <h6 class="text-xs font-medium text-blue-300">📈 Performance Forecast</h6>
                     <span class="text-xs text-green-300">{{ getConfidence(item) }}% confidence</span>
@@ -190,7 +190,7 @@
           </div>
 
           <!-- Planning Column -->
-          <div class="flex flex-col bg-gray-900/80 backdrop-blur-sm rounded-lg p-4 border border-gray-700/50">
+          <div class="flex flex-col bg-gray-900/80 backdrop-blur-sm rounded-lg p-4 border-2 border-gray-600/70 shadow-lg">
             <div class="flex items-center justify-between -m-4 mb-4 p-4 bg-slate-700/50 rounded-t-lg">
               <div class="flex items-center space-x-2">
                 <div class="h-3 w-3 rounded-full bg-yellow-600"/>
@@ -241,7 +241,7 @@
                   <!-- Dropdown Menu -->
                   <div
                     v-if="showDropdownMenu === item.id"
-                    class="absolute right-0 top-6 z-50 w-32 rounded-md bg-gray-600 shadow-lg border border-gray-500"
+                    class="absolute right-0 top-6 z-50 w-32 rounded-md bg-gray-600 shadow-lg border-2 border-gray-600/70 shadow-lg"
                   >
                     <button
                       @click.stop="openEditModal(item)"
@@ -306,7 +306,7 @@
           </div>
 
           <!-- In Progress Column -->
-          <div class="flex flex-col bg-gray-900/80 backdrop-blur-sm rounded-lg p-4 border border-gray-700/50">
+          <div class="flex flex-col bg-gray-900/80 backdrop-blur-sm rounded-lg p-4 border-2 border-gray-600/70 shadow-lg">
             <div class="flex items-center justify-between -m-4 mb-4 p-4 bg-slate-700/50 rounded-t-lg">
               <div class="flex items-center space-x-2">
                 <div class="h-3 w-3 rounded-full bg-orange-600"/>
@@ -357,7 +357,7 @@
                     <!-- Dropdown Menu -->
                     <div
                       v-if="showDropdownMenu === item.id"
-                      class="absolute right-0 top-6 z-50 w-32 rounded-md bg-gray-600 shadow-lg border border-gray-500"
+                      class="absolute right-0 top-6 z-50 w-32 rounded-md bg-gray-600 shadow-lg border-2 border-gray-600/70 shadow-lg"
                     >
                       <button
                         @click.stop="openEditModal(item)"
@@ -428,7 +428,7 @@
           </div>
 
           <!-- Published Column -->
-          <div class="flex flex-col bg-gray-900/80 backdrop-blur-sm rounded-lg p-4 border border-gray-700/50">
+          <div class="flex flex-col bg-gray-900/80 backdrop-blur-sm rounded-lg p-4 border-2 border-gray-600/70 shadow-lg">
             <div class="flex items-center justify-between -m-4 mb-4 p-4 bg-slate-700/50 rounded-t-lg">
               <div class="flex items-center space-x-2">
                 <div class="h-3 w-3 rounded-full bg-green-600"/>
@@ -479,7 +479,7 @@
                     <!-- Dropdown Menu -->
                     <div
                       v-if="showDropdownMenu === item.id"
-                      class="absolute right-0 top-6 z-50 w-32 rounded-md bg-gray-600 shadow-lg border border-gray-500"
+                      class="absolute right-0 top-6 z-50 w-32 rounded-md bg-gray-600 shadow-lg border-2 border-gray-600/70 shadow-lg"
                     >
                       <button
                         @click.stop="openEditModal(item)"
@@ -542,7 +542,7 @@
 
 
       <!-- Agent Content Suggestions -->
-      <div class="mt-6 rounded-xl bg-gray-900/80 backdrop-blur-sm border border-gray-700/50 p-6">
+      <div class="mt-6 rounded-xl bg-gray-900/80 backdrop-blur-sm border-2 border-gray-600/70 shadow-lg p-6">
         <div class="mb-6 flex items-center justify-between">
           <div class="flex items-center space-x-3">
             <div class="flex h-10 w-10 items-center justify-center rounded-lg overflow-hidden bg-purple-600/20">
@@ -572,7 +572,7 @@
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
 
           <!-- Trending Topics -->
-          <div class="rounded-lg bg-gray-900/80 backdrop-blur-sm p-4 border border-gray-700/50">
+          <div class="rounded-lg bg-gray-900/80 backdrop-blur-sm p-4 border-2 border-gray-600/70 shadow-lg">
             <div class="mb-3 flex items-center justify-between">
               <div class="flex items-center space-x-2">
                 <div class="h-2 w-2 rounded-full bg-red-500"></div>
@@ -603,7 +603,7 @@
           </div>
 
           <!-- Content Ideas -->
-          <div class="rounded-lg bg-gray-900/80 backdrop-blur-sm p-4 border border-gray-700/50">
+          <div class="rounded-lg bg-gray-900/80 backdrop-blur-sm p-4 border-2 border-gray-600/70 shadow-lg">
             <div class="mb-3 flex items-center justify-between">
               <div class="flex items-center space-x-2">
                 <div class="h-2 w-2 rounded-full bg-blue-500"></div>
@@ -634,7 +634,7 @@
           </div>
 
           <!-- Optimization Tips -->
-          <div class="rounded-lg bg-gray-900/80 backdrop-blur-sm p-4 border border-gray-700/50">
+          <div class="rounded-lg bg-gray-900/80 backdrop-blur-sm p-4 border-2 border-gray-600/70 shadow-lg">
             <div class="mb-3 flex items-center justify-between">
               <div class="flex items-center space-x-2">
                 <div class="h-2 w-2 rounded-full bg-green-500"></div>
@@ -697,7 +697,7 @@
 
     <!-- Delete Confirmation Modal -->
     <div v-if="showDeleteConfirmModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
-      <div class="bg-gray-900/80 backdrop-blur-sm border border-gray-700/50 rounded-xl p-6 w-full max-w-md mx-4">
+      <div class="bg-gray-900/80 backdrop-blur-sm border-2 border-gray-600/70 shadow-lg rounded-xl p-6 w-full max-w-md mx-4">
         <div class="flex items-center justify-between mb-4">
           <h3 class="text-lg font-semibold text-white">Delete Content</h3>
           <button @click="showDeleteConfirmModal = false" class="text-gray-400 hover:text-white">
@@ -1737,7 +1737,7 @@ const getCardClasses = (status, pillar) => {
     case 'published':
       return `${baseClasses} border-2 border-green-600/60 shadow-green-600/20 shadow-sm`
     default:
-      return `${baseClasses} border border-gray-700/50`
+      return `${baseClasses} border-2 border-gray-600/70 shadow-lg`
   }
 }
 

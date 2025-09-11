@@ -40,7 +40,7 @@
       </div>
 
       <!-- Tab Content -->
-      <div class="rounded-xl bg-gray-900/80 backdrop-blur-sm border border-gray-700/50 p-6">
+      <div class="rounded-xl bg-gray-900/80 backdrop-blur-sm border-2 border-gray-600/70 shadow-lg p-6">
         <div class="tab-content">
         <!-- My Pillars Tab -->
         <div v-show="activeTab === 'pillars'" class="space-y-6">
@@ -76,19 +76,19 @@
 
           <!-- Summary Stats -->
           <div class="mt-8 grid grid-cols-1 gap-4 md:grid-cols-4">
-            <div class="rounded-lg bg-gray-900/80 backdrop-blur-sm border border-gray-700/50 p-4">
+            <div class="rounded-lg bg-gray-900/80 backdrop-blur-sm border-2 border-gray-600/70 shadow-lg p-4">
               <div class="text-2xl font-bold text-white">{{ totalVideos }}</div>
               <div class="text-sm text-gray-400">Total Videos</div>
             </div>
-            <div class="rounded-lg bg-gray-900/80 backdrop-blur-sm border border-gray-700/50 p-4">
+            <div class="rounded-lg bg-gray-900/80 backdrop-blur-sm border-2 border-gray-600/70 shadow-lg p-4">
               <div class="text-2xl font-bold text-white">{{ activePillars.length }}</div>
               <div class="text-sm text-gray-400">Active Pillars</div>
             </div>
-            <div class="rounded-lg bg-gray-900/80 backdrop-blur-sm border border-gray-700/50 p-4">
+            <div class="rounded-lg bg-gray-900/80 backdrop-blur-sm border-2 border-gray-600/70 shadow-lg p-4">
               <div class="text-2xl font-bold text-white">{{ formatViews(totalViews) }}</div>
               <div class="text-sm text-gray-400">Total Views</div>
             </div>
-            <div class="rounded-lg bg-gray-900/80 backdrop-blur-sm border border-gray-700/50 p-4">
+            <div class="rounded-lg bg-gray-900/80 backdrop-blur-sm border-2 border-gray-600/70 shadow-lg p-4">
               <div class="text-2xl font-bold text-white">{{ totalIdeas }}</div>
               <div class="text-sm text-gray-400">Content Ideas</div>
             </div>
@@ -131,7 +131,7 @@
 
     <!-- Add Pillar Modal -->
     <div v-if="showAddModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
-      <div class="rounded-xl bg-gray-900/80 backdrop-blur-sm border border-gray-700/50 p-6 w-full max-w-md mx-4">
+      <div class="rounded-xl bg-gray-900/80 backdrop-blur-sm border-2 border-gray-600/70 shadow-lg p-6 w-full max-w-md mx-4">
         <div class="mb-4 flex items-center justify-between">
           <h3 class="text-lg font-semibold text-white">Add New Pillar</h3>
           <button @click="showAddModal = false" class="text-gray-400 hover:text-white">
@@ -150,7 +150,7 @@
                 v-model="newPillar.name"
                 type="text"
                 required
-                class="w-full rounded-lg bg-gray-700 border border-gray-600 px-3 py-2 text-white focus:outline-none focus:ring-2 focus:ring-orange-500"
+                class="w-full rounded-lg bg-gray-700 border-2 border-gray-600/70 shadow-lg px-3 py-2 text-white focus:outline-none focus:ring-2 focus:ring-orange-500"
                 placeholder="e.g., Gaming Tutorials, Tech Reviews..."
               />
             </div>
@@ -161,7 +161,7 @@
               <textarea
                 v-model="newPillar.description"
                 rows="3"
-                class="w-full rounded-lg bg-gray-700 border border-gray-600 px-3 py-2 text-white focus:outline-none focus:ring-2 focus:ring-orange-500"
+                class="w-full rounded-lg bg-gray-700 border-2 border-gray-600/70 shadow-lg px-3 py-2 text-white focus:outline-none focus:ring-2 focus:ring-orange-500"
                 placeholder="Describe what type of content this pillar will focus on..."
               ></textarea>
             </div>

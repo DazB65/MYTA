@@ -4,9 +4,9 @@
     <div class="absolute inset-0 bg-black bg-opacity-50" @click="$emit('close')" />
 
     <!-- Modal -->
-    <div class="relative bg-gray-900/80 backdrop-blur-sm rounded-xl shadow-xl mx-4 max-h-[calc(100vh-10rem)] overflow-y-auto border border-gray-700/50" style="width: calc(100% - 2rem);">
+    <div class="relative bg-gray-900/80 backdrop-blur-sm rounded-xl shadow-xl mx-4 max-h-[calc(100vh-10rem)] overflow-y-auto border-2 border-gray-600/70 shadow-lg" style="width: calc(100% - 2rem);">
       <!-- Header -->
-      <div class="flex items-center justify-between p-6 border-b border-gray-700/50">
+      <div class="flex items-center justify-between p-6 border-b border-gray-600/70">
         <div class="flex items-center space-x-3">
           <div class="flex h-12 w-12 items-center justify-center rounded-lg bg-orange-500">
             <svg class="h-8 w-8 text-white" fill="currentColor" viewBox="0 0 20 20">

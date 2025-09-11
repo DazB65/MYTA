@@ -639,7 +639,7 @@ const chatMessages = ref(null)
 }
 
 .explore-btn {
-  @apply bg-gray-700 text-gray-300 border border-gray-500;
+  @apply bg-gray-700 text-gray-300 border-2 border-gray-600/70 shadow-lg;
 }
 
 .explore-btn:hover {
@@ -660,7 +660,7 @@ const chatMessages = ref(null)
 }
 
 .chat-container {
-  @apply bg-gray-900/80 backdrop-blur-sm border border-gray-700/50 rounded-lg overflow-hidden;
+  @apply bg-gray-900/80 backdrop-blur-sm border-2 border-gray-600/70 shadow-lg rounded-lg overflow-hidden;
 }
 
 .chat-messages {

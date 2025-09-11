@@ -15,7 +15,7 @@
       </div>
 
       <!-- Settings Tabs -->
-      <div class="mb-6 rounded-xl bg-gray-900/80 backdrop-blur-sm border border-gray-700/50 p-6">
+      <div class="mb-6 rounded-xl bg-gray-900/80 backdrop-blur-sm border-2 border-gray-600/70 shadow-lg p-6">
         <div class="border-b border-gray-700">
           <nav class="flex space-x-8">
             <button
@@ -39,7 +39,7 @@
       <!-- Tab Content -->
       <div>
         <!-- Agent Customization Tab -->
-        <div v-if="activeTab === 'agent'" class="mb-6 rounded-xl bg-gray-900/80 backdrop-blur-sm border border-gray-700/50 p-6">
+        <div v-if="activeTab === 'agent'" class="mb-6 rounded-xl bg-gray-900/80 backdrop-blur-sm border-2 border-gray-600/70 shadow-lg p-6">
           <div class="mb-6 flex items-center space-x-3">
             <div class="flex h-10 w-10 items-center justify-center rounded-lg bg-orange-500">
               <svg class="h-6 w-6 text-white" fill="currentColor" viewBox="0 0 20 20">
@@ -62,7 +62,7 @@
                 v-model="agentName"
                 type="text"
                 placeholder="Enter your Boss Agent's name"
-                class="w-full rounded-lg border border-gray-600 bg-gray-700 px-4 py-3 text-white placeholder-gray-400 focus:border-orange-500 focus:outline-none focus:ring-2 focus:ring-orange-500"
+                class="w-full rounded-lg border-2 border-gray-600/70 shadow-lg bg-gray-700 px-4 py-3 text-white placeholder-gray-400 focus:border-orange-500 focus:outline-none focus:ring-2 focus:ring-orange-500"
               />
               <p class="mt-1 text-xs text-gray-400">
                 Your Boss Agent coordinates with specialized agents behind the scenes
@@ -139,7 +139,7 @@
         </div>
 
         <!-- General Settings Tab -->
-        <div v-if="activeTab === 'general'" class="rounded-xl bg-gray-900/80 backdrop-blur-sm border border-gray-700/50 p-6">
+        <div v-if="activeTab === 'general'" class="rounded-xl bg-gray-900/80 backdrop-blur-sm border-2 border-gray-600/70 shadow-lg p-6">
           <div class="mb-6 flex items-center space-x-3">
             <div class="flex h-10 w-10 items-center justify-center rounded-lg bg-gray-700">
               <svg class="h-6 w-6 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
@@ -171,7 +171,7 @@
         <!-- Subscription Tab -->
         <div v-if="activeTab === 'subscription'" class="space-y-6">
           <!-- Current Plan -->
-          <div class="rounded-xl bg-gray-900/80 backdrop-blur-sm border border-gray-700/50 p-6">
+          <div class="rounded-xl bg-gray-900/80 backdrop-blur-sm border-2 border-gray-600/70 shadow-lg p-6">
             <div class="mb-6 flex items-center justify-between">
               <div class="flex items-center space-x-3">
                 <div class="flex h-10 w-10 items-center justify-center rounded-lg bg-orange-500">
@@ -200,7 +200,7 @@
                     v-for="agent in agents"
                     :key="agent.id"
                     class="flex items-center space-x-2 p-2 rounded-lg"
-                    :class="isAgentAccessible(agent.id) ? 'bg-green-900/30 border border-green-600/30' : 'bg-gray-900/30 border border-gray-600/30'"
+                    :class="isAgentAccessible(agent.id) ? 'bg-green-900/30 border border-green-600/30' : 'bg-gray-900/30 border-2 border-gray-600/70 shadow-lg'"
                   >
                     <img
                       :src="agent.avatar"
@@ -533,7 +533,7 @@
                   <span
                     v-for="agent in plan.agentAccess.locked"
                     :key="agent"
-                    class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-gray-900/30 text-gray-400 border border-gray-600/30"
+                    class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-gray-900/30 text-gray-400 border-2 border-gray-600/70 shadow-lg"
                   >
                     🔒 {{ agent }}
                   </span>

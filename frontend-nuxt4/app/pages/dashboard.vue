@@ -10,7 +10,7 @@
 
       <!-- Channel Statistics -->
       <div class="mb-6 px-4">
-        <div class="rounded-xl bg-gray-900/80 backdrop-blur-sm border border-gray-700/50 p-6">
+        <div class="rounded-xl bg-gray-900/80 backdrop-blur-sm border-2 border-gray-600/70 shadow-lg p-6">
           <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
         <!-- Subscribers -->
         <div

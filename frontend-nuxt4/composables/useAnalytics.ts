@@ -120,6 +120,12 @@ export const useAnalytics = () => {
     return data
   }
 
+  // YouTube connection function (delegated to YouTube channel composable)
+  const connectYouTube = async (userId: string = 'default_user') => {
+    const { connectYouTube: connectYT } = await import('./useYouTubeChannel')
+    return connectYT()
+  }
+
   return {
     // Store state (backward compatibility)
     loading,
@@ -142,6 +148,7 @@ export const useAnalytics = () => {
     // Store actions (backward compatibility)
     initialize,
     refresh,
+    connectYouTube,
 
     // Utility functions
     formatNumber,

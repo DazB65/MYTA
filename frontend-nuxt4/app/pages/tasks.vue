@@ -33,7 +33,7 @@
           <!-- Left Column: Calendar (2/3 width) -->
           <div class="lg:col-span-2">
             <!-- Calendar Container -->
-            <div class="rounded-xl bg-gray-900/80 backdrop-blur-sm border border-gray-700/50 p-6">
+            <div class="rounded-xl bg-gray-900/80 backdrop-blur-sm border-2 border-gray-600/70 shadow-lg p-6">
               <!-- Calendar Header -->
               <div class="mb-6 flex items-center justify-between">
                 <div class="flex items-center space-x-4">
@@ -68,7 +68,7 @@
                   v-for="day in calendarDays"
                   :key="`${day.date.getFullYear()}-${day.date.getMonth()}-${day.date.getDate()}`"
                   :class="[
-                    'min-h-[120px] p-2 border border-gray-700 rounded-lg cursor-pointer transition-colors',
+                    'min-h-[120px] p-2 border-2 border-gray-600/70 shadow-lg rounded-lg cursor-pointer transition-colors',
                     day.isCurrentMonth ? 'bg-gray-800 hover:bg-gray-700' : 'bg-gray-900 opacity-50',
                     day.isToday ? 'ring-2 ring-orange-500' : '',
                     selectedDate && day.date.toDateString() === selectedDate.toDateString() ? 'bg-gray-600' : ''
@@ -180,7 +180,7 @@
           <!-- Right Column: Tasks to Schedule (1/3 width) -->
           <div class="space-y-6">
             <!-- Tasks to Schedule -->
-            <div class="rounded-xl bg-gray-900/80 backdrop-blur-sm border border-gray-700/50 p-6">
+            <div class="rounded-xl bg-gray-900/80 backdrop-blur-sm border-2 border-gray-600/70 shadow-lg p-6">
               <div class="mb-6 flex items-center justify-between">
                 <div class="flex items-center space-x-3">
                   <div class="flex h-10 w-10 items-center justify-center rounded-lg bg-orange-500/20">
@@ -207,7 +207,7 @@
                 <div
                   v-for="task in unscheduledTasks"
                   :key="task.id"
-                  class="rounded-lg p-4 bg-gray-700 hover:bg-gray-600 transition-colors cursor-pointer border border-gray-600/30"
+                  class="rounded-lg p-4 bg-gray-700 hover:bg-gray-600 transition-colors cursor-pointer border-2 border-gray-600/70 shadow-lg"
                   draggable="true"
                   @dragstart="startDragTask(task, $event)"
                   @click="scheduleTask(task)"
@@ -290,7 +290,7 @@
         <!-- Task Details Sidebar (when date selected) -->
         <div v-if="selectedDate" class="grid grid-cols-1 lg:grid-cols-3 gap-6">
           <!-- Selected Date Tasks -->
-          <div class="lg:col-span-2 rounded-xl bg-gray-900/80 backdrop-blur-sm border border-gray-700/50 p-6">
+          <div class="lg:col-span-2 rounded-xl bg-gray-900/80 backdrop-blur-sm border-2 border-gray-600/70 shadow-lg p-6">
             <div class="mb-4 flex items-center justify-between">
               <h3 class="text-lg font-semibold text-white">
                 Tasks for {{ formatDate(selectedDate) }}
@@ -309,8 +309,8 @@
                 :key="`${item.type || 'task'}-${item.id}`"
                 :class="[
                   'flex items-center justify-between rounded-lg p-4',
-                  item.type === 'content' ? 'bg-gray-700/50 border border-gray-600/30' :
-                  item.type === 'goal' ? 'bg-gray-700/30 border border-gray-600/20' :
+                  item.type === 'content' ? 'bg-gray-700/50 border-2 border-gray-600/70 shadow-lg' :
+                  item.type === 'goal' ? 'bg-gray-700/30 border-2 border-gray-600/70 shadow-lg/20' :
                   'bg-gray-700'
                 ]"
               >
@@ -389,7 +389,7 @@
           </div>
 
           <!-- Quick Stats -->
-          <div class="rounded-xl bg-gray-900/80 backdrop-blur-sm border border-gray-700/50 p-6">
+          <div class="rounded-xl bg-gray-900/80 backdrop-blur-sm border-2 border-gray-600/70 shadow-lg p-6">
             <h3 class="text-lg font-semibold text-white mb-4">Quick Stats</h3>
             <div class="space-y-4">
               <div class="flex items-center justify-between">
@@ -416,7 +416,7 @@
       <!-- Task Manager View -->
       <div v-if="currentView === 'manager'" class="space-y-6">
         <!-- Filters and Search -->
-        <div class="rounded-xl bg-gray-900/80 backdrop-blur-sm border border-gray-700/50 p-6">
+        <div class="rounded-xl bg-gray-900/80 backdrop-blur-sm border-2 border-gray-600/70 shadow-lg p-6">
           <div class="flex flex-col md:flex-row gap-4 items-center justify-between">
             <div class="flex flex-wrap gap-2">
               <button
@@ -433,7 +433,7 @@
                 v-model="searchQuery"
                 type="text"
                 placeholder="Search tasks..."
-                class="rounded-lg bg-gray-700 border border-gray-600 px-3 py-2 text-sm text-white placeholder-gray-400 focus:border-orange-500 focus:outline-none"
+                class="rounded-lg bg-gray-700 border-2 border-gray-600/70 shadow-lg px-3 py-2 text-sm text-white placeholder-gray-400 focus:border-orange-500 focus:outline-none"
               />
               <button
                 class="rounded-lg bg-orange-500 px-4 py-2 text-sm text-white hover:bg-orange-600"
@@ -446,7 +446,7 @@
         </div>
 
         <!-- Task List -->
-        <div class="rounded-xl bg-gray-900/80 backdrop-blur-sm border border-gray-700/50 p-6">
+        <div class="rounded-xl bg-gray-900/80 backdrop-blur-sm border-2 border-gray-600/70 shadow-lg p-6">
           <div class="space-y-3">
             <div
               v-for="task in filteredTasks"
@@ -1196,7 +1196,7 @@ const getCalendarItemClasses = (item: any) => {
         typeClasses = 'bg-green-900/70 backdrop-blur-sm border-2 border-green-600/60 text-green-100 shadow-green-600/20 shadow-sm'
         break
       default:
-        typeClasses = 'bg-gray-700/70 border border-gray-600/50 text-gray-300'
+        typeClasses = 'bg-gray-700/70 border-2 border-gray-600/70 shadow-lg text-gray-300'
     }
   }
 
@@ -1524,7 +1524,7 @@ const getTaskCardClasses = (task: Task) => {
       priorityClasses = "bg-gray-900/70 backdrop-blur-sm border-2 border-green-600/60 shadow-green-600/20 shadow-sm"
       break
     default:
-      priorityClasses = "bg-gray-700 border border-gray-600/50"
+      priorityClasses = "bg-gray-700 border-2 border-gray-600/70 shadow-lg"
   }
 
   // Add left border for due dates (keeping existing functionality)

@@ -437,7 +437,7 @@
             v-model="messageInput"
             type="text"
             :placeholder="executivePlaceholder"
-            class="flex-1 bg-gray-800 border border-gray-600 rounded-xl px-4 py-3 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-orange-400 focus:border-orange-400 transition-all duration-200"
+            class="flex-1 bg-gray-800 border-2 border-gray-600/70 shadow-lg rounded-xl px-4 py-3 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-orange-400 focus:border-orange-400 transition-all duration-200"
             @keyup.enter="sendMessage"
             @input="handleTyping"
           />
@@ -482,7 +482,7 @@
             class="px-6 py-3 rounded-xl font-semibold text-white transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg"
             :class="messageInput.trim()
               ? 'bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 border border-orange-400/50 hover:border-orange-400/70 shadow-orange-500/25'
-              : 'bg-gray-600 border border-gray-500/30'"
+              : 'bg-gray-600 border-2 border-gray-600/70 shadow-lg/30'"
             title="Send executive message"
           >
             <div v-if="!isSending" class="flex items-center space-x-2">
@@ -618,7 +618,7 @@
           <div class="flex items-center space-x-3">
             <button
               @click="showDeleteConfirmation = false"
-              class="flex-1 px-4 py-2 rounded-lg bg-gray-600/30 hover:bg-gray-600/50 text-gray-200 hover:text-white transition-all duration-200 border border-gray-500/30"
+              class="flex-1 px-4 py-2 rounded-lg bg-gray-600/30 hover:bg-gray-600/50 text-gray-200 hover:text-white transition-all duration-200 border-2 border-gray-600/70 shadow-lg/30"
             >
               Cancel
             </button>

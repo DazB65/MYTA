@@ -28,7 +28,7 @@
           type="email"
           placeholder="Enter your email address"
           required
-          class="w-full px-6 py-4 bg-gray-800/50 border border-gray-700 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-transparent transition-all"
+          class="w-full px-6 py-4 bg-gray-800/50 border-2 border-gray-600/70 shadow-lg rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-transparent transition-all"
           :class="{ 'border-red-500': emailError }"
         />
         <div v-if="emailError" class="absolute -bottom-6 left-0 text-red-400 text-sm">
@@ -42,7 +42,7 @@
           v-model="channelName"
           type="text"
           placeholder="YouTube channel name (optional)"
-          class="w-full px-6 py-4 bg-gray-800/50 border border-gray-700 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-transparent transition-all"
+          class="w-full px-6 py-4 bg-gray-800/50 border-2 border-gray-600/70 shadow-lg rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-transparent transition-all"
         />
       </div>
 
@@ -50,7 +50,7 @@
       <div class="relative">
         <select
           v-model="subscriberRange"
-          class="w-full px-6 py-4 bg-gray-800/50 border border-gray-700 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-transparent transition-all"
+          class="w-full px-6 py-4 bg-gray-800/50 border-2 border-gray-600/70 shadow-lg rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-transparent transition-all"
         >
           <option value="">Subscriber count (optional)</option>
           <option value="0-100">0 - 100 subscribers</option>

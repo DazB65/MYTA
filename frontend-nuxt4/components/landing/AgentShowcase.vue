@@ -235,7 +235,7 @@
       </div>
 
       <!-- Team Collaboration Highlight -->
-      <div class="text-center bg-gradient-to-r from-gray-800/50 to-gray-700/50 rounded-2xl p-8 border border-gray-600">
+      <div class="text-center bg-gradient-to-r from-gray-800/50 to-gray-700/50 rounded-2xl p-8 border-2 border-gray-600/70 shadow-lg">
         <h3 class="text-2xl font-bold text-white mb-4">
           They work together, so you don't have to work alone
         </h3>
