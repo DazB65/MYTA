@@ -1,5 +1,6 @@
 import { defineStore } from 'pinia'
 import { computed, readonly, ref } from 'vue'
+import { AGENTS } from '../config/agents'
 import type { Agent, AgentInsight, AgentStatus, ChatSession } from '../types/agents'
 
 export const useAgentsStore = defineStore('agents', () => {
@@ -13,110 +14,8 @@ export const useAgentsStore = defineStore('agents', () => {
   const isConnected = ref(false)
   const lastHeartbeat = ref<Date | null>(null)
 
-  // Initialize default AI team members with color-coded personalities - matching backend
-  const defaultAgents: Agent[] = [
-    {
-      id: 'boss_agent',
-      name: 'Boss Agent',
-      type: 'boss_agent',
-      status: 'online',
-      capabilities: [
-        'team_coordination',
-        'task_management',
-        'agent_delegation',
-        'comprehensive_analysis',
-        'user_interaction',
-      ],
-      description:
-        'Your Team Leader - Coordinates with specialized team members to provide comprehensive support',
-      avatar: '/BossAgent.png',
-      color: '#f97316', // Orange - primary brand color
-      personality: 'Leads your AI team and coordinates with specialized team members',
-      specialization: 'Team Leader',
-    },
-    {
-      id: 'agent_1',
-      name: 'Alex',
-      type: 'content_analysis',
-      status: 'online',
-      capabilities: [
-        'team_video_analysis',
-        'collaborative_metrics',
-        'team_optimization',
-        'viral_potential',
-      ],
-      description:
-        'Analytics Team Member - Collaborates with team on data-driven insights for YouTube growth',
-      avatar: '/optimized/Agent1.jpg',
-      color: '#f97316', // Orange
-      personality: 'Data-driven team member who collaborates on strategic insights',
-      specialization: 'Analytics Team Member',
-    },
-    {
-      id: 'agent_2',
-      name: 'Levi',
-      type: 'audience_insights',
-      status: 'online',
-      capabilities: [
-        'team_content_creation',
-        'collaborative_strategy',
-        'video_production',
-        'storytelling',
-      ],
-      description: 'Content Team Member - Works with team on creative and innovative content strategy',
-      avatar: '/optimized/Agent2.jpg',
-      color: '#3b82f6', // Blue
-      personality: 'Creative team member who works with others on content strategy',
-      specialization: 'Content Team Member',
-    },
-    {
-      id: 'agent_3',
-      name: 'Maya',
-      type: 'seo_discoverability',
-      status: 'online',
-      capabilities: [
-        'team_audience_engagement',
-        'collaborative_community_building',
-        'social_interaction',
-        'relationship_management',
-      ],
-      description:
-        'Engagement Team Member - Collaborates with team on community-focused audience growth strategies',
-      avatar: '/optimized/Agent3.jpg',
-      color: '#a855f7', // Purple
-      personality: 'Community-focused team member who collaborates on audience strategy',
-      specialization: 'Engagement Team Member',
-    },
-    {
-      id: 'agent_4',
-      name: 'Zara',
-      type: 'competitive_analysis',
-      status: 'online',
-      capabilities: ['team_growth_strategy', 'collaborative_optimization', 'performance_analysis', 'scaling'],
-      description: 'Growth Team Member - Works with team on results-driven strategies for channel growth',
-      avatar: '/optimized/Agent4.jpg',
-      color: '#eab308', // Yellow
-      personality: 'Results-driven team member who works with others on optimization',
-      specialization: 'Growth Team Member',
-    },
-    {
-      id: 'agent_5',
-      name: 'Kai',
-      type: 'monetization_strategy',
-      status: 'online',
-      capabilities: [
-        'team_technical_optimization',
-        'collaborative_seo_analysis',
-        'algorithm_insights',
-        'technical_strategy',
-      ],
-      description: 'Technical Team Member - Coordinates with team on technical and detail-oriented optimization',
-      avatar: '/optimized/Agent5.jpg',
-      color: '#16a34a', // Green
-      personality: 'Technical team member who coordinates on SEO and optimization',
-      specialization: 'Technical Team Member',
-    },
-  ]
+  // Use centralized agent configuration
+  const defaultAgents: Agent[] = AGENTS
 
   // Getters
   const allAgents = computed(() => Array.from(agents.value.values()))

@@ -1,29 +1,6 @@
 import { defineStore } from 'pinia'
 import { computed, ref } from 'vue'
-
-export interface SubscriptionPlan {
-  id: string
-  name: string
-  description: string
-  price_monthly: number
-  price_yearly: number
-  price_per_seat?: number
-  features: string[]
-  limits: {
-    ai_conversations: number
-    agents_count: number
-    content_pillars: number
-    goals: number
-    competitors: number
-    team_members: number
-    max_team_members?: number
-    research_projects: number
-    video_analysis: number
-    team_collaboration: boolean
-  }
-  popular?: boolean
-  trial_days?: number
-}
+import { SUBSCRIPTION_PLANS, type SubscriptionPlan, getPlanById } from '../config/subscription-plans'
 
 export interface UserSubscription {
   id: string
@@ -77,8 +54,15 @@ export const useSubscriptionStore = defineStore('subscription', () => {
   const stripe = useStripe()
 
   // State
-  const currentSubscription = ref<UserSubscription | null>(null)
-  const availablePlans = ref<SubscriptionPlan[]>([])
+  const currentSubscription = ref<UserSubscription | null>({
+    id: 'basic',
+    name: 'Basic',
+    status: 'active',
+    current_period_start: new Date().toISOString(),
+    current_period_end: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
+    cancel_at_period_end: false
+  })
+  const availablePlans = ref<SubscriptionPlan[]>(SUBSCRIPTION_PLANS)
   const usage = ref<UsageStats | null>(null)
   const usageAlerts = ref<UsageAlert[]>([])
   const billingHistory = ref<BillingHistoryItem[]>([])
@@ -93,7 +77,7 @@ export const useSubscriptionStore = defineStore('subscription', () => {
   
   const currentPlan = computed(() => {
     if (!currentSubscription.value) return null
-    return availablePlans.value.find(plan => plan.id === currentSubscription.value?.id)
+    return getPlanById(currentSubscription.value.id)
   })
 
   const usagePercentage = computed(() => {

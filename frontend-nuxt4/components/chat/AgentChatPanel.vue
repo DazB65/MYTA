@@ -638,6 +638,7 @@
 <script setup lang="ts">
 import { computed, nextTick, onMounted, ref, watch } from 'vue';
 
+import { useAgentAccess } from '../../composables/useAgentAccess';
 import { useAgentSettings } from '../../composables/useAgentSettings';
 import { useSaveToTask } from '../../composables/useSaveToTask';
 import { useSmartQuestions } from '../../composables/useSmartQuestions';
@@ -662,6 +663,7 @@ const { selectedAgent, agentName, allAgents, setSelectedAgent, setAgentName } = 
 const chatStore = useChatStore()
 const { getContextualQuestions } = useSmartQuestions()
 const { saveMessageAsTask, prepareTaskData } = useSaveToTask()
+const { isAgentAccessible, canAccessAgentChat } = useAgentAccess()
 
 const { success, error } = useToast()
 const { openTask, openContent } = useModals()
@@ -907,6 +909,12 @@ const scrollToBottom = async () => {
 
 const sendMessage = async () => {
   if (!messageInput.value.trim() || isSending.value) return
+
+  // Check if user can access this agent
+  if (!canAccessAgentChat(selectedAgentData.value.id)) {
+    error('Agent Access Denied', 'Upgrade your plan to chat with this agent')
+    return
+  }
 
   const content = messageInput.value.trim()
   messageInput.value = ''

@@ -42,34 +42,44 @@
     <!-- Agent Grid -->
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
       <div
-        v-for="agent in allAgents"
-        :key="agent.id"
-        class="card card-hover cursor-pointer"
-        :style="{ borderColor: agent.color + '40' }"
-        @click="selectAgent(agent)"
+        v-for="agentInfo in agentsWithAccess"
+        :key="agentInfo.agent.id"
+        class="card card-hover cursor-pointer relative"
+        :class="{ 'opacity-60': agentInfo.isLocked }"
+        :style="{ borderColor: agentInfo.agent.color + '40' }"
+        @click="selectAgent(agentInfo)"
       >
+        <!-- Lock Overlay -->
+        <div v-if="agentInfo.isLocked" class="absolute inset-0 bg-black bg-opacity-50 rounded-lg flex items-center justify-center z-10">
+          <div class="text-center text-white">
+            <div class="text-2xl mb-2">🔒</div>
+            <div class="text-sm font-medium">Upgrade Required</div>
+            <div class="text-xs opacity-75">{{ agentInfo.lockReason }}</div>
+          </div>
+        </div>
+
         <!-- Agent Header -->
         <div class="flex items-center space-x-3 mb-4">
-          <div 
+          <div
             class="w-12 h-12 rounded-lg flex items-center justify-center"
-            :style="{ backgroundColor: agent.color + '20' }"
+            :style="{ backgroundColor: agentInfo.agent.color + '20' }"
           >
-            <img 
-              v-if="agent.avatar" 
-              :src="agent.avatar" 
-              :alt="agent.name"
+            <img
+              v-if="agentInfo.agent.avatar"
+              :src="agentInfo.agent.avatar"
+              :alt="agentInfo.agent.name"
               class="w-8 h-8 rounded-lg object-cover"
             />
             <span v-else class="text-lg">🤖</span>
           </div>
           <div class="flex-1">
-            <h4 class="font-semibold text-text-primary">{{ agent.name }}</h4>
-            <p class="text-sm text-text-muted">{{ agent.personality }}</p>
+            <h4 class="font-semibold text-text-primary">{{ agentInfo.agent.name }}</h4>
+            <p class="text-sm text-text-muted">{{ agentInfo.agent.personality }}</p>
           </div>
-          <div 
+          <div
             :class="[
               'w-3 h-3 rounded-full',
-              getStatusColor(agent.status)
+              agentInfo.isLocked ? 'bg-gray-400' : getStatusColor(agentInfo.agent.status)
             ]"
           ></div>
         </div>
@@ -78,26 +88,26 @@
         <div class="space-y-3">
           <div>
             <div class="text-sm font-medium text-text-secondary mb-1">Specialization</div>
-            <div class="text-sm text-text-primary">{{ agent.specialization }}</div>
+            <div class="text-sm text-text-primary">{{ agentInfo.agent.specialization }}</div>
           </div>
-          
+
           <div>
             <div class="text-sm font-medium text-text-secondary mb-1">Capabilities</div>
             <div class="flex flex-wrap gap-1">
-              <VBadge 
-                v-for="capability in agent.capabilities.slice(0, 3)" 
+              <VBadge
+                v-for="capability in agentInfo.agent.capabilities.slice(0, 3)"
                 :key="capability"
                 variant="secondary"
                 size="sm"
               >
                 {{ capability.replace('_', ' ') }}
               </VBadge>
-              <VBadge 
-                v-if="agent.capabilities.length > 3"
+              <VBadge
+                v-if="agentInfo.agent.capabilities.length > 3"
                 variant="secondary"
                 size="sm"
               >
-                +{{ agent.capabilities.length - 3 }}
+                +{{ agentInfo.agent.capabilities.length - 3 }}
               </VBadge>
             </div>
           </div>
@@ -106,7 +116,7 @@
             <div class="flex items-center justify-between text-sm">
               <span class="text-text-muted">Last Active</span>
               <span class="text-text-secondary">
-                {{ formatLastActive(agent.lastActive) }}
+                {{ agentInfo.isLocked ? 'Locked' : formatLastActive(agentInfo.agent.lastActive) }}
               </span>
             </div>
           </div>
@@ -114,19 +124,29 @@
 
         <!-- Quick Actions -->
         <div class="mt-4 flex space-x-2">
-          <VButton 
-            variant="ghost" 
+          <VButton
+            v-if="agentInfo.isAccessible"
+            variant="ghost"
             size="sm"
-            @click.stop="startChat(agent)"
+            @click.stop="startChat(agentInfo.agent)"
           >
             💬 Chat
           </VButton>
-          <VButton 
-            variant="ghost" 
+          <VButton
+            v-if="agentInfo.isAccessible"
+            variant="ghost"
             size="sm"
-            @click.stop="viewInsights(agent)"
+            @click.stop="viewInsights(agentInfo.agent)"
           >
             💡 Insights
+          </VButton>
+          <VButton
+            v-if="agentInfo.isLocked"
+            variant="primary"
+            size="sm"
+            @click.stop="showUpgradeModal(agentInfo)"
+          >
+            🔓 Upgrade to Unlock
           </VButton>
         </div>
       </div>
@@ -208,14 +228,19 @@
 
 <script setup lang="ts">
 import { computed } from 'vue'
+import { useRouter } from 'vue-router'
+import type { AgentAccessInfo } from '../../composables/useAgentAccess'
+import { useAgentAccess } from '../../composables/useAgentAccess'
+import { useWebSocketAgent } from '../../composables/useWebSocketAgent'
 import { useAgentsStore } from '../../stores/agents'
 import { useChatStore } from '../../stores/chat'
-import { useWebSocketAgent } from '../../composables/useWebSocketAgent'
-import type { Agent, AgentInsight, ChatSession } from '../../types/agents'
+import type { Agent, ChatSession } from '../../types/agents'
 
 const agentsStore = useAgentsStore()
 const chatStore = useChatStore()
+const router = useRouter()
 const { isConnected } = useWebSocketAgent()
+const { agentsWithAccess, currentTier, isAgentAccessible } = useAgentAccess()
 
 // Computed properties
 const allAgents = computed(() => agentsStore.allAgents)
@@ -267,20 +292,38 @@ const formatTimestamp = (date: Date) => {
   }).format(date)
 }
 
-const selectAgent = (agent: Agent) => {
-  console.log('Selected agent:', agent)
+const selectAgent = (agentInfo: AgentAccessInfo) => {
+  if (agentInfo.isLocked) {
+    showUpgradeModal(agentInfo)
+    return
+  }
+  console.log('Selected agent:', agentInfo.agent)
   // Emit event or navigate to agent detail
 }
 
 const startChat = (agent: Agent) => {
+  if (!isAgentAccessible(agent.id)) {
+    console.log('Agent access denied:', agent.name)
+    return
+  }
   const sessionId = chatStore.createSession(agent.id, `Chat with ${agent.name}`)
   chatStore.setActiveSession(sessionId)
   // Navigate to chat or open chat modal
 }
 
 const viewInsights = (agent: Agent) => {
+  if (!isAgentAccessible(agent.id)) {
+    console.log('Agent access denied:', agent.name)
+    return
+  }
   console.log('View insights for:', agent)
   // Navigate to insights page or open insights modal
+}
+
+const showUpgradeModal = (agentInfo: AgentAccessInfo) => {
+  console.log('Showing upgrade modal for:', agentInfo.agent.name)
+  // Navigate to subscription/upgrade page
+  router.push('/settings?tab=subscription&upgrade=' + agentInfo.upgradeRequired)
 }
 
 const openChat = (session: ChatSession) => {

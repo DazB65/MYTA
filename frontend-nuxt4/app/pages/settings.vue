@@ -191,6 +191,39 @@
               </div>
             </div>
 
+            <!-- Current Agent Access -->
+            <div class="mb-6">
+              <div class="rounded-lg bg-gray-700 p-4">
+                <h4 class="font-medium text-white mb-3">🤖 Your AI Agent Access</h4>
+                <div class="grid grid-cols-2 md:grid-cols-3 gap-3">
+                  <div
+                    v-for="agent in agents"
+                    :key="agent.id"
+                    class="flex items-center space-x-2 p-2 rounded-lg"
+                    :class="isAgentAccessible(agent.id) ? 'bg-green-900/30 border border-green-600/30' : 'bg-gray-900/30 border border-gray-600/30'"
+                  >
+                    <img
+                      :src="agent.avatar"
+                      :alt="agent.name"
+                      class="w-6 h-6 rounded object-cover"
+                    />
+                    <span
+                      class="text-sm font-medium"
+                      :class="isAgentAccessible(agent.id) ? 'text-green-300' : 'text-gray-400'"
+                    >
+                      {{ isAgentAccessible(agent.id) ? '✓' : '🔒' }} {{ agent.name }}
+                    </span>
+                  </div>
+                </div>
+                <div class="mt-3 text-xs text-gray-400">
+                  {{ accessibleAgentsCount }}/{{ agents.length }} agents available on your current plan
+                  <span v-if="lockedAgentsCount > 0" class="text-orange-400">
+                    • {{ lockedAgentsCount }} agents locked
+                  </span>
+                </div>
+              </div>
+            </div>
+
             <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
               <!-- Plan Details -->
               <div class="md:col-span-2">
@@ -397,21 +430,21 @@
 
     <!-- Plans Modal -->
     <div v-if="showPlansModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
-      <div class="bg-forest-800 rounded-xl p-6 max-w-7xl w-full mx-4 max-h-[95vh] overflow-y-auto">
-        <div class="flex items-center justify-between mb-6">
+      <div class="bg-forest-800 rounded-xl p-4 max-w-7xl w-full mx-4 h-[95vh] flex flex-col">
+        <div class="flex items-center justify-between mb-4 flex-shrink-0">
           <div>
-            <h2 class="text-2xl font-bold text-white">Choose Your Plan</h2>
-            <p class="text-gray-400">Select the perfect plan for your YouTube growth journey</p>
+            <h2 class="text-xl font-bold text-white">Choose Your Plan</h2>
+            <p class="text-sm text-gray-400">Select the perfect plan for your YouTube growth journey</p>
           </div>
           <button @click="showPlansModal = false" class="text-gray-400 hover:text-white">
-            <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
             </svg>
           </button>
         </div>
 
         <!-- Billing Toggle -->
-        <div class="flex items-center justify-center mb-8">
+        <div class="flex items-center justify-center mb-4 flex-shrink-0">
           <div class="bg-forest-700 rounded-lg p-1 flex">
             <button
               :class="[
@@ -436,12 +469,12 @@
         </div>
 
         <!-- Plans Grid -->
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 flex-1 overflow-hidden pt-4">
           <div
             v-for="plan in availablePlans"
             :key="plan.id"
             :class="[
-              'relative rounded-xl p-6 border-2 transition-all',
+              'relative rounded-xl p-4 border-2 transition-all h-full flex flex-col',
               plan.popular
                 ? 'border-orange-500 bg-gradient-to-b from-orange-500/10 to-transparent'
                 : 'border-forest-600 bg-forest-700 hover:border-forest-500',
@@ -478,6 +511,39 @@
               </div>
               <div v-if="billingCycle === 'yearly'" class="text-sm text-green-400">
                 Save ${{ (plan.price.monthly * 12) - plan.price.yearly }} per year
+              </div>
+            </div>
+
+            <!-- Agent Access -->
+            <div v-if="plan.agentAccess" class="mb-6">
+              <h4 class="text-sm font-medium text-white mb-3">🤖 AI Agent Access</h4>
+              <div class="space-y-2">
+                <!-- Accessible Agents -->
+                <div class="flex flex-wrap gap-1">
+                  <span
+                    v-for="agent in plan.agentAccess.agents"
+                    :key="agent"
+                    class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-900/30 text-green-300 border border-green-600/30"
+                  >
+                    ✓ {{ agent }}
+                  </span>
+                </div>
+                <!-- Locked Agents -->
+                <div v-if="plan.agentAccess.locked.length > 0" class="flex flex-wrap gap-1">
+                  <span
+                    v-for="agent in plan.agentAccess.locked"
+                    :key="agent"
+                    class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-gray-900/30 text-gray-400 border border-gray-600/30"
+                  >
+                    🔒 {{ agent }}
+                  </span>
+                </div>
+                <div class="text-xs text-gray-400">
+                  {{ plan.agentAccess.total }} total agents
+                  <span v-if="plan.agentAccess.locked.length > 0">
+                    ({{ plan.agentAccess.locked.length }} locked)
+                  </span>
+                </div>
               </div>
             </div>
 
@@ -550,14 +616,14 @@
         </div>
 
         <!-- Trial Notice -->
-        <div class="mt-8 p-4 bg-blue-500/10 border border-blue-500/20 rounded-lg">
+        <div class="mt-4 p-3 bg-blue-500/10 border border-blue-500/20 rounded-lg flex-shrink-0">
           <div class="flex items-center space-x-2">
-            <svg class="h-5 w-5 text-blue-400" fill="currentColor" viewBox="0 0 20 20">
+            <svg class="h-4 w-4 text-blue-400" fill="currentColor" viewBox="0 0 20 20">
               <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"/>
             </svg>
             <div>
-              <p class="text-blue-400 font-medium">5-Day Free Trial</p>
-              <p class="text-blue-300 text-sm">Experience the full power of MYTA with all Pro features unlocked. No credit card required.</p>
+              <p class="text-blue-400 font-medium text-sm">5-Day Free Trial</p>
+              <p class="text-blue-300 text-xs">Experience the full power of MYTA with all Pro features unlocked. No credit card required.</p>
             </div>
           </div>
         </div>
@@ -572,11 +638,13 @@
 import { computed, onMounted, ref } from 'vue'
 import { useRoute } from 'vue-router'
 
+import { useAgentAccess } from '../../composables/useAgentAccess'
 import { useAgentSettings } from '../../composables/useAgentSettings'
 import { useModals } from '../../composables/useModals'
 
 import SeatManagement from '../../components/subscription/SeatManagement.vue'
 import { useToast } from '../../composables/useToast'
+import { useAgentsStore } from '../../stores/agents'
 import { useAuthStore } from '../../stores/auth'
 import { useSubscriptionStore } from '../../stores/subscription'
 
@@ -586,19 +654,27 @@ definePageMeta({
 })
 
 // Agent settings
-const { agentName, selectedAgentId, selectedAgent, allAgents, setSelectedAgent, setAgentName, saveSettings } = useAgentSettings()
+const { agentName, selectedAgentId, selectedAgent, setSelectedAgent, setAgentName, saveSettings } = useAgentSettings()
 
-// Use agents from composable
-const agents = allAgents
+// Agent access control
+const { isAgentAccessible, accessibleAgentsCount, lockedAgentsCount } = useAgentAccess()
+
+// Use agents from store (which have the correct IDs for access control)
+const agentsStore = useAgentsStore()
+agentsStore.initializeAgents() // Ensure agents are initialized
+const agents = agentsStore.allAgents
 
 // Computed property for specialist agents (exclude Boss Agent)
-const specialistAgents = computed(() => allAgents.value.slice(1))
+const specialistAgents = computed(() => agentsStore.allAgents.filter(agent => agent.id !== 'boss_agent'))
 
 // Toast notifications
 const { success, error } = useToast()
 
 // Subscription store
 const subscriptionStore = useSubscriptionStore()
+
+// Import centralized plans
+import { SUBSCRIPTION_PLANS } from '../config/subscription-plans'
 
 
 
@@ -622,103 +698,42 @@ const tabs = [
 
 // Subscription data
 const currentPlan = ref({
-  id: 'solo_pro',
-  name: 'Solo Pro',
-  billing: '$14.99/month',
+  id: 'basic',
+  name: 'Basic',
+  billing: '$4.99/month',
   features: [
-    'Full AI agent access with advanced insights',
-    '100 AI conversations/month',
-    'Content pillars (up to 10)',
-    'Advanced task management (unlimited)',
-    'Unlimited goal tracking',
-    '25 video analyses/month',
-    'Unlimited research projects',
-    'Advanced analytics and insights',
-    'Priority support (24h response)',
-    'Custom agent personalities'
+    'Boss Agent + 3 specialist agents',
+    '50 AI conversations/month',
+    'Basic content pillars (up to 3)',
+    'Task management (up to 25 tasks)',
+    'Goal tracking (5 goals)',
+    '10 video analyses/month',
+    '5 research projects/month',
+    'Email support (48h response)'
   ],
   limits: {
-    aiConversations: 100,
-    agentsCount: 5,
-    contentPillars: 10,
-    goals: -1,
-    competitors: 3,
-    researchProjects: -1,
-    videoAnalysis: 25
+    aiConversations: 50,
+    agentsCount: 4,
+    contentPillars: 3,
+    goals: 5,
+    competitors: 2,
+    researchProjects: 5,
+    videoAnalysis: 10
   }
 })
 
 const usage = ref({
-  aiConversations: 34,
-  agentsCount: 5,
-  contentPillars: 8,
-  goals: 4,
-  competitors: 2,
-  researchProjects: 3,
-  videoAnalysis: 8
+  aiConversations: 23,
+  agentsCount: 4,
+  contentPillars: 2,
+  goals: 3,
+  competitors: 1,
+  researchProjects: 2,
+  videoAnalysis: 4
 })
 
 // Available plans for upgrade modal
-const availablePlans = ref([
-  {
-    id: 'solo',
-    name: 'Solo Creator',
-    description: 'Perfect for new YouTubers getting started',
-    price: { monthly: 4.99, yearly: 49.99 },
-    popular: false,
-    features: [
-      'Basic AI agent insights (limited features)',
-      '25 AI conversations/month',
-      'Basic content pillars (up to 4)',
-      'Task management (up to 25 tasks)',
-      'Goal tracking (3 goals)',
-      '5 video analyses/month',
-      '3 research projects/month',
-      'Email support (48h response)'
-    ]
-  },
-  {
-    id: 'solo_pro',
-    name: 'Solo Pro',
-    description: 'For serious creators ready to scale',
-    price: { monthly: 14.99, yearly: 149.99 },
-    popular: true,
-    features: [
-      'Full AI agent access with advanced insights',
-      '100 AI conversations/month',
-      'Content pillars (up to 10)',
-      'Advanced task management (unlimited)',
-      'Unlimited goal tracking',
-      '25 video analyses/month',
-      'Unlimited research projects',
-      'Advanced analytics and insights',
-      'Priority support (24h response)',
-      'Custom agent personalities'
-    ]
-  },
-  {
-    id: 'teams',
-    name: 'Teams',
-    description: 'For agencies and multi-channel operations',
-    price: { monthly: 29.99, yearly: 299.99, per_seat: 9.99 },
-    popular: false,
-    features: [
-      'Full AI agent access with team collaboration',
-      '250 AI conversations/month (shared across team)',
-      'Content pillars (up to 10)',
-      'Advanced task management (unlimited)',
-      'Unlimited goal tracking',
-      '50 video analyses/month (shared across team)',
-      'Unlimited research projects',
-      'Team collaboration features',
-      'Team notes and shared workspaces',
-      'Role-based permissions',
-      'Advanced team analytics',
-      'Priority support (12h response)',
-      'Custom integrations'
-    ]
-  }
-])
+const availablePlans = ref(SUBSCRIPTION_PLANS)
 
 const billingCycle = ref('monthly')
 
@@ -763,7 +778,10 @@ const selectedSeats = ref({
 
 // Initialize data when component mounts
 onMounted(async () => {
-  // Component initialization
+  // Ensure agents are initialized
+  agentsStore.initializeAgents()
+  console.log('Agents initialized:', agentsStore.allAgents)
+  console.log('Accessible agents count:', accessibleAgentsCount.value)
 })
 
 // Save settings function
