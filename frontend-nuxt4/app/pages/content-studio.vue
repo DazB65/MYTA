@@ -54,7 +54,7 @@
           <div class="flex flex-col bg-gray-900/80 backdrop-blur-sm rounded-lg p-4 border border-gray-700/50">
             <div class="flex items-center justify-between -m-4 mb-4 p-4 bg-slate-700/50 rounded-t-lg">
               <div class="flex items-center space-x-2">
-                <div class="h-3 w-3 rounded-full bg-blue-500"/>
+                <div class="h-3 w-3 rounded-full bg-blue-600"/>
                 <h3 class="font-semibold text-white">Ideas</h3>
                 <span class="rounded-full bg-gray-700 px-2 py-1 text-xs text-gray-300">{{
                   getColumnCount('ideas')
@@ -193,7 +193,7 @@
           <div class="flex flex-col bg-gray-900/80 backdrop-blur-sm rounded-lg p-4 border border-gray-700/50">
             <div class="flex items-center justify-between -m-4 mb-4 p-4 bg-slate-700/50 rounded-t-lg">
               <div class="flex items-center space-x-2">
-                <div class="h-3 w-3 rounded-full bg-orange-400"/>
+                <div class="h-3 w-3 rounded-full bg-yellow-600"/>
                 <h3 class="font-semibold text-white">Planning</h3>
                 <span class="rounded-full bg-gray-700 px-2 py-1 text-xs text-gray-300">{{
                   getColumnCount('planning')
@@ -309,7 +309,7 @@
           <div class="flex flex-col bg-gray-900/80 backdrop-blur-sm rounded-lg p-4 border border-gray-700/50">
             <div class="flex items-center justify-between -m-4 mb-4 p-4 bg-slate-700/50 rounded-t-lg">
               <div class="flex items-center space-x-2">
-                <div class="h-3 w-3 rounded-full bg-red-400"/>
+                <div class="h-3 w-3 rounded-full bg-orange-600"/>
                 <h3 class="font-semibold text-white">In Progress</h3>
                 <span class="rounded-full bg-gray-700 px-2 py-1 text-xs text-gray-300">{{
                   getColumnCount('in-progress')
@@ -431,7 +431,7 @@
           <div class="flex flex-col bg-gray-900/80 backdrop-blur-sm rounded-lg p-4 border border-gray-700/50">
             <div class="flex items-center justify-between -m-4 mb-4 p-4 bg-slate-700/50 rounded-t-lg">
               <div class="flex items-center space-x-2">
-                <div class="h-3 w-3 rounded-full bg-yellow-400"/>
+                <div class="h-3 w-3 rounded-full bg-green-600"/>
                 <h3 class="font-semibold text-white">Published</h3>
                 <span class="rounded-full bg-gray-700 px-2 py-1 text-xs text-gray-300">{{
                   getColumnCount('published')
@@ -1722,22 +1722,20 @@ const getColumnCount = status => {
   return getColumnItems(status).length
 }
 
-// Get card classes based on pillar for content items
+// Get card classes based on stage status for better workflow visualization
 const getCardClasses = (status, pillar) => {
   const baseClasses = "cursor-pointer rounded-lg p-4 transition-all duration-300 hover:scale-[1.02] hover:shadow-lg w-full relative bg-gray-800"
 
-  // Get pillar-based border colors
-  const pillarColors = getPillarCardColors(pillar?.icon)
-
+  // Get stage-based border colors for clear workflow progression
   switch (status) {
     case 'ideas':
-      return `${baseClasses} border-2 ${pillarColors.border} ${pillarColors.shadow} shadow-sm`
+      return `${baseClasses} border-2 border-blue-600/60 shadow-blue-600/20 shadow-sm`
     case 'planning':
-      return `${baseClasses} border-2 ${pillarColors.border} ${pillarColors.shadow} shadow-sm`
+      return `${baseClasses} border-2 border-yellow-600/60 shadow-yellow-600/20 shadow-sm`
     case 'in-progress':
-      return `${baseClasses} border-2 ${pillarColors.border} ${pillarColors.shadow} shadow-sm`
+      return `${baseClasses} border-2 border-orange-600/60 shadow-orange-600/20 shadow-sm`
     case 'published':
-      return `${baseClasses} border-2 ${pillarColors.border} ${pillarColors.shadow} shadow-sm`
+      return `${baseClasses} border-2 border-green-600/60 shadow-green-600/20 shadow-sm`
     default:
       return `${baseClasses} border border-gray-700/50`
   }
