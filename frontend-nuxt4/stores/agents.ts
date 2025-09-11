@@ -48,7 +48,7 @@ export const useAgentsStore = defineStore('agents', () => {
       description:
         'Analytics Team Member - Collaborates with team on data-driven insights for YouTube growth',
       avatar: '/optimized/Agent1.jpg',
-      color: '#3b82f6', // Blue
+      color: '#f97316', // Orange
       personality: 'Data-driven team member who collaborates on strategic insights',
       specialization: 'Analytics Team Member',
     },
@@ -65,7 +65,7 @@ export const useAgentsStore = defineStore('agents', () => {
       ],
       description: 'Content Team Member - Works with team on creative and innovative content strategy',
       avatar: '/optimized/Agent2.jpg',
-      color: '#eab308', // Yellow
+      color: '#3b82f6', // Blue
       personality: 'Creative team member who works with others on content strategy',
       specialization: 'Content Team Member',
     },
@@ -83,7 +83,7 @@ export const useAgentsStore = defineStore('agents', () => {
       description:
         'Engagement Team Member - Collaborates with team on community-focused audience growth strategies',
       avatar: '/optimized/Agent3.jpg',
-      color: '#16a34a', // Green
+      color: '#a855f7', // Purple
       personality: 'Community-focused team member who collaborates on audience strategy',
       specialization: 'Engagement Team Member',
     },
@@ -95,7 +95,7 @@ export const useAgentsStore = defineStore('agents', () => {
       capabilities: ['team_growth_strategy', 'collaborative_optimization', 'performance_analysis', 'scaling'],
       description: 'Growth Team Member - Works with team on results-driven strategies for channel growth',
       avatar: '/optimized/Agent4.jpg',
-      color: '#a855f7', // Purple
+      color: '#eab308', // Yellow
       personality: 'Results-driven team member who works with others on optimization',
       specialization: 'Growth Team Member',
     },
@@ -112,7 +112,7 @@ export const useAgentsStore = defineStore('agents', () => {
       ],
       description: 'Technical Team Member - Coordinates with team on technical and detail-oriented optimization',
       avatar: '/optimized/Agent5.jpg',
-      color: '#dc2626', // Red
+      color: '#16a34a', // Green
       personality: 'Technical team member who coordinates on SEO and optimization',
       specialization: 'Technical Team Member',
     },
