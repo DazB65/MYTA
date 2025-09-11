@@ -362,7 +362,7 @@ export default async function handler(req, res) {
     const emailTemplate = templates[template];
 
     const { data, error } = await resend.emails.send({
-      from: "MYTA Team <onboarding@resend.dev>",
+      from: "MYTA Team <hello@waitlist.myytagent.app>", // Using custom subdomain
       to: [email],
       subject: emailTemplate.subject,
       html: emailTemplate.html(templateData),
@@ -373,6 +373,8 @@ export default async function handler(req, res) {
       console.error("Resend error:", error);
       return res.status(500).json({ error: "Failed to send email" });
     }
+
+    console.log("Email sent successfully:", data.id);
 
     return res.status(200).json({
       success: true,
