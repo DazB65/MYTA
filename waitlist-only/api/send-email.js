@@ -371,7 +371,7 @@ export default async function handler(req, res) {
     console.log("Attempting to send email to:", email);
 
     const { data, error } = await resend.emails.send({
-      from: "MYTA Team <noreply@send.myytagent.app>", // Using verified domain
+      from: "MYTA Team <noreply@myytagent.app>", // Using verified domain
       to: [email],
       subject: emailTemplate.subject,
       html: emailTemplate.html(templateData),
