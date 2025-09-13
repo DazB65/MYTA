@@ -101,11 +101,7 @@ export default async function handler(req, res) {
     // Send welcome email
     try {
       const emailResponse = await fetch(
-        `${
-          req.headers.origin ||
-          process.env.VERCEL_URL ||
-          "https://myta-waitlist.vercel.app"
-        }/api/send-email`,
+        "https://waitlist.myytagent.app/api/send-email",
         {
           method: "POST",
           headers: {

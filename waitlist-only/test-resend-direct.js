@@ -1,7 +1,11 @@
+import dotenv from "dotenv";
 import { Resend } from "resend";
 
+// Load environment variables
+dotenv.config({ path: ".env.local" });
+
 // Test Resend directly with your API key
-const resend = new Resend("re_FtW9uwHE_P3NtJbmWAZumfHUNeKKHTUs9");
+const resend = new Resend(process.env.RESEND_API_KEY);
 
 async function testResendDirect() {
   console.log("🧪 Testing Resend API directly...\n");

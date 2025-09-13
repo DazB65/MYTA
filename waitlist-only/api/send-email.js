@@ -362,7 +362,7 @@ export default async function handler(req, res) {
     const emailTemplate = templates[template];
 
     const { data, error } = await resend.emails.send({
-      from: "MYTA Team <hello@waitlist.myytagent.app>", // Using custom subdomain
+      from: "MYTA Team <noreply@send.myytagent.app>", // Using verified domain
       to: [email],
       subject: emailTemplate.subject,
       html: emailTemplate.html(templateData),

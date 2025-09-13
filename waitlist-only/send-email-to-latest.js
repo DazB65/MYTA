@@ -67,7 +67,7 @@ async function sendEmailToLatestSignup() {
 
     // Use the deployed Vercel API endpoint
     const emailResponse = await fetch(
-      "https://myta-waitlist.vercel.app/api/send-email",
+      "https://waitlist.myytagent.app/api/send-email",
       {
         method: "POST",
         headers: {
