@@ -102,11 +102,11 @@
         <div 
           v-for="alert in unreadAlerts.slice(0, 3)" 
           :key="alert.id"
-          class="bg-red-500/10 border border-red-500/20 rounded-lg p-3"
+          class="bg-orange-500/10 border border-orange-500/20 rounded-lg p-3"
         >
           <div class="flex items-start justify-between">
             <div class="flex-1">
-              <div class="text-sm font-medium text-red-400">
+              <div class="text-sm font-medium text-orange-400">
                 {{ formatUsageType(alert.usage_type) }} {{ alert.alert_type?.replace('_', ' ') || '' }}
               </div>
               <div class="text-xs text-gray-300 mt-1">

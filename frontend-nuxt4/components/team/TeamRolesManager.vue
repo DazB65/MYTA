@@ -48,11 +48,9 @@
           >
             <div class="flex items-center justify-between">
               <div class="flex items-center space-x-3">
-                <img 
-                  :src="member.avatar" 
-                  :alt="member.name"
-                  class="w-10 h-10 rounded-lg object-cover"
-                />
+                <div class="w-10 h-10 rounded-lg bg-blue-600 flex items-center justify-center text-white font-medium text-sm">
+                  {{ getInitials(member.name) }}
+                </div>
                 <div>
                   <div class="text-white font-medium">{{ member.name }}</div>
                   <div class="text-gray-400 text-sm">{{ member.email }}</div>
@@ -177,7 +175,6 @@ const humanMembers = ref([
     id: 'user_1',
     name: 'John Doe',
     email: 'john@example.com',
-    avatar: '/user-avatars/user1.jpg',
     role: 'Owner',
     status: 'active',
     permissions: ['all']
@@ -186,7 +183,6 @@ const humanMembers = ref([
     id: 'user_2',
     name: 'Sarah Wilson',
     email: 'sarah@example.com',
-    avatar: '/user-avatars/user2.jpg',
     role: 'Editor',
     status: 'active',
     permissions: ['content_create', 'content_edit', 'analytics_view']
@@ -195,12 +191,21 @@ const humanMembers = ref([
     id: 'user_3',
     name: 'Mike Chen',
     email: 'mike@example.com',
-    avatar: '/user-avatars/user3.jpg',
     role: 'Viewer',
     status: 'pending',
     permissions: ['analytics_view']
   }
 ])
+
+// Helper function to get initials
+const getInitials = (name) => {
+  return name
+    .split(' ')
+    .map(word => word.charAt(0))
+    .join('')
+    .toUpperCase()
+    .slice(0, 2)
+}
 
 
 

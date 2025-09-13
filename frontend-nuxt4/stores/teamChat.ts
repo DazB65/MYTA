@@ -111,7 +111,6 @@ export const useTeamChatStore = defineStore('teamChat', () => {
         id: 'user_1',
         name: 'John Doe',
         email: 'john@example.com',
-        avatar: '/user-avatars/user1.jpg',
         role: 'Owner',
         status: 'online',
         lastSeen: new Date()
@@ -120,7 +119,6 @@ export const useTeamChatStore = defineStore('teamChat', () => {
         id: 'user_2',
         name: 'Sarah Wilson',
         email: 'sarah@example.com',
-        avatar: '/user-avatars/user2.jpg',
         role: 'Editor',
         status: 'online',
         lastSeen: new Date()
@@ -129,7 +127,6 @@ export const useTeamChatStore = defineStore('teamChat', () => {
         id: 'user_3',
         name: 'Mike Chen',
         email: 'mike@example.com',
-        avatar: '/user-avatars/user3.jpg',
         role: 'Viewer',
         status: 'away',
         lastSeen: new Date(Date.now() - 300000) // 5 minutes ago
