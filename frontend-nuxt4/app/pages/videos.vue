@@ -174,12 +174,6 @@
               >
                 {{ video.duration }}
               </div>
-              <!-- Performance Badge -->
-              <div class="absolute top-2 left-2">
-                <span :class="getPerformanceBadgeClasses(calculatePerformance(video))" class="px-2 py-1 text-xs font-medium rounded-full">
-                  {{ calculatePerformance(video) }}
-                </span>
-              </div>
             </div>
             <div class="flex items-start space-x-2 mb-1">
               <span class="text-white text-sm mt-0.5">🎬</span>
@@ -1547,21 +1541,7 @@ const calculatePerformance = (video) => {
   else return 'Poor'                       // <50
 }
 
-// Get performance badge classes
-const getPerformanceBadgeClasses = (performance) => {
-  switch (performance?.toLowerCase()) {
-    case 'excellent':
-      return 'bg-green-600/80 text-green-100 border border-green-500/50'
-    case 'good':
-      return 'bg-blue-600/80 text-blue-100 border border-blue-500/50'
-    case 'average':
-      return 'bg-yellow-600/80 text-yellow-100 border border-yellow-500/50'
-    case 'poor':
-      return 'bg-red-600/80 text-red-100 border border-red-500/50'
-    default:
-      return 'bg-gray-600/80 text-gray-100 border-2 border-gray-600/70 shadow-lg/50'
-  }
-}
+
 
 // Load videos on component mount
 onMounted(() => {

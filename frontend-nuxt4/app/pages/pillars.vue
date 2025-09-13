@@ -4,46 +4,13 @@
     <div class="p-6 pt-24">
       <!-- Header -->
       <div class="mb-6">
-        <h1 class="text-2xl font-bold text-white">Content Pillars & Strategy</h1>
-        <p class="text-gray-400">AI team collaboration for strategic content planning</p>
+        <h1 class="text-2xl font-bold text-white">Content Pillars</h1>
+        <p class="text-gray-400">Organize and manage your content themes</p>
       </div>
 
-      <!-- Tab Navigation -->
-      <div class="mb-6">
-        <div class="border-b border-gray-600">
-          <nav class="-mb-px flex space-x-8">
-            <button
-              @click="activeTab = 'pillars'"
-              :class="[
-                'py-2 px-1 border-b-2 font-medium text-sm transition-colors',
-                activeTab === 'pillars'
-                  ? 'border-orange-500 text-orange-400'
-                  : 'border-transparent text-gray-400 hover:text-gray-300 hover:border-gray-300'
-              ]"
-            >
-              My Pillars
-            </button>
-            <button
-              @click="activeTab = 'strategy'"
-              :class="[
-                'py-2 px-1 border-b-2 font-medium text-sm transition-colors flex items-center space-x-2',
-                activeTab === 'strategy'
-                  ? 'border-orange-500 text-orange-400'
-                  : 'border-transparent text-gray-400 hover:text-gray-300 hover:border-gray-300'
-              ]"
-            >
-              <span>Strategic Planning</span>
-              <span class="text-xs bg-blue-500 text-white px-2 py-0.5 rounded-full">DEV</span>
-            </button>
-          </nav>
-        </div>
-      </div>
-
-      <!-- Tab Content -->
+      <!-- Content -->
       <div class="rounded-xl bg-gray-900/80 backdrop-blur-sm border-2 border-gray-600/70 shadow-lg p-6">
-        <div class="tab-content">
-        <!-- My Pillars Tab -->
-        <div v-show="activeTab === 'pillars'" class="space-y-6">
+        <div class="space-y-6">
           <!-- Header with Add Button -->
           <div class="flex items-center justify-between">
             <div class="flex items-center space-x-4">
@@ -93,38 +60,6 @@
               <div class="text-sm text-gray-400">Content Ideas</div>
             </div>
           </div>
-        </div>
-
-        <!-- Strategic Planning Tab -->
-        <div v-show="activeTab === 'strategy'" class="space-y-6">
-          <!-- Development Access - Strategic Planning Dashboard -->
-          <div class="relative">
-            <StrategicPlanningDashboard />
-          </div>
-
-          <!-- Premium Upgrade Prompt (Hidden during development) -->
-          <div v-if="false" class="relative">
-            <div class="absolute inset-0 bg-gradient-to-r from-orange-500/10 to-purple-500/10 rounded-xl border border-orange-500/20 backdrop-blur-sm z-10 flex items-center justify-center">
-              <div class="text-center p-8">
-                <div class="inline-flex items-center justify-center w-16 h-16 bg-orange-500/20 rounded-full mb-4">
-                  <svg class="w-8 h-8 text-orange-400" fill="currentColor" viewBox="0 0 20 20">
-                    <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                  </svg>
-                </div>
-                <h3 class="text-xl font-semibold text-white mb-2">Strategic Planning Dashboard</h3>
-                <p class="text-gray-300 mb-4 max-w-md">Unlock AI-powered strategic insights, cross-pillar opportunities, and long-term planning with our premium features.</p>
-                <button class="px-6 py-3 bg-gradient-to-r from-orange-500 to-purple-500 text-white font-medium rounded-lg hover:from-orange-600 hover:to-purple-600 transition-all duration-200">
-                  Upgrade to Pro
-                </button>
-              </div>
-            </div>
-
-            <!-- Blurred Preview -->
-            <div class="filter blur-sm opacity-50 pointer-events-none">
-              <StrategicPlanningDashboard />
-            </div>
-          </div>
-        </div>
         </div>
       </div>
     </div>
@@ -214,7 +149,6 @@
 <script setup>
 import { computed, ref } from 'vue'
 import PillarCard from '../../components/pillars/PillarCard.vue'
-import StrategicPlanningDashboard from '../../components/strategy/StrategicPlanningDashboard.vue'
 import { usePillars } from '../../composables/usePillars'
 
 // Protect this route with authentication
@@ -237,7 +171,6 @@ const hasPremiumAccess = computed(() => {
 
 // Local state
 const showAddModal = ref(false)
-const activeTab = ref('pillars')
 
 // New pillar form data
 const newPillar = ref({
