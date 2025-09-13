@@ -348,6 +348,13 @@ export default async function handler(req, res) {
   }
 
   try {
+    // Debug: Check if API key is available
+    console.log("RESEND_API_KEY available:", !!process.env.RESEND_API_KEY);
+    console.log(
+      "RESEND_API_KEY starts with re_:",
+      process.env.RESEND_API_KEY?.startsWith("re_")
+    );
+
     const { email, template, waitlist_id, name } = req.body;
 
     if (!email || !template || !waitlist_id) {
@@ -361,6 +368,8 @@ export default async function handler(req, res) {
     const templateData = { waitlist_id, name };
     const emailTemplate = templates[template];
 
+    console.log("Attempting to send email to:", email);
+
     const { data, error } = await resend.emails.send({
       from: "MYTA Team <noreply@send.myytagent.app>", // Using verified domain
       to: [email],
@@ -371,7 +380,9 @@ export default async function handler(req, res) {
 
     if (error) {
       console.error("Resend error:", error);
-      return res.status(500).json({ error: "Failed to send email" });
+      return res
+        .status(500)
+        .json({ error: "Failed to send email", details: error });
     }
 
     console.log("Email sent successfully:", data.id);
