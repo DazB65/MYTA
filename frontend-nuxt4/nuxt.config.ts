@@ -147,7 +147,7 @@ export default defineNuxtConfig({
           content:
             'AI-powered YouTube analytics and content optimization platform. Track performance, get insights, and grow your channel.',
         },
-        { property: 'og:image', content: '/MY YT AGENT.png' },
+        { property: 'og:image', content: '/MYTALogo.png' },
         { property: 'og:url', content: 'https://myytagent.app' },
         { property: 'og:site_name', content: 'MYTA' },
 
@@ -158,7 +158,7 @@ export default defineNuxtConfig({
           name: 'twitter:description',
           content: 'AI-powered YouTube analytics and content optimization platform.',
         },
-        { name: 'twitter:image', content: '/MY YT AGENT.png' },
+        { name: 'twitter:image', content: '/MYTALogo.png' },
 
         // Performance and mobile
         { name: 'format-detection', content: 'telephone=no' },

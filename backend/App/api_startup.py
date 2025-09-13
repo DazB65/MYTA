@@ -115,7 +115,7 @@ class VidalyticsStartup:
         logger.info("Initializing AI model integrations...")
         
         try:
-            from model_integrations import get_model_integration
+            from .model_integrations import get_model_integration
             
             integration = get_model_integration()
             model_status = integration.get_model_status()
@@ -158,7 +158,7 @@ class VidalyticsStartup:
         logger.info("Initializing YouTube API integration...")
         
         try:
-            from youtube_api_integration import get_youtube_integration
+            from .youtube_api_integration import get_youtube_integration
             
             integration = get_youtube_integration()
             api_status = integration.get_api_status()
@@ -191,16 +191,16 @@ class VidalyticsStartup:
         
         try:
             # Test boss agent import
-            from boss_agent import get_boss_agent
+            from .boss_agent import get_boss_agent
             boss_agent = get_boss_agent()
             
             # Test specialized agent imports
             agent_imports = {
-                "content_analysis": "content_analysis_agent",
-                "audience_insights": "audience_insights_agent", 
-                "seo_discoverability": "seo_discoverability_agent",
-                "competitive_analysis": "competitive_analysis_agent",
-                "monetization_strategy": "monetization_strategy_agent"
+                "content_analysis": ".content_analysis_agent",
+                "audience_insights": ".audience_insights_agent",
+                "seo_discoverability": ".seo_discoverability_agent",
+                "competitive_analysis": ".competitive_analysis_agent",
+                "monetization_strategy": ".monetization_strategy_agent"
             }
             
             available_agents = []
@@ -270,9 +270,9 @@ class VidalyticsStartup:
         logger.info("Initializing real-time data pipeline...")
         
         try:
-            from realtime_data_pipeline import get_data_pipeline
-            from enhanced_user_context import get_enhanced_context_manager
-            from analytics_service import get_analytics_service
+            from .realtime_data_pipeline import get_data_pipeline
+            from .enhanced_user_context import get_enhanced_context_manager
+            from .analytics_service import get_analytics_service
             
             # Initialize data pipeline
             data_pipeline = get_data_pipeline()
@@ -323,7 +323,7 @@ class VidalyticsStartup:
         logger.info("Initializing authentication system...")
         
         try:
-            from boss_agent_auth import get_boss_agent_authenticator
+            from .boss_agent_auth_compat import get_boss_agent_authenticator
             
             authenticator = get_boss_agent_authenticator()
             

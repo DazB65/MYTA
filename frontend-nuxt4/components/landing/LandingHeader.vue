@@ -4,9 +4,9 @@
       <div class="flex items-center justify-between">
         <!-- Logo -->
         <div class="flex items-center space-x-3">
-          <img 
-            src="/MY YT AGENT.png" 
-            alt="MYTA Logo" 
+          <img
+            src="/MYTALogo.png"
+            alt="MYTA Logo"
             class="h-8 w-auto"
           />
           <span class="text-xl font-bold bg-gradient-to-r from-pink-500 to-purple-600 bg-clip-text text-transparent">

@@ -5,7 +5,7 @@
 
     <!-- Logo in Top Right -->
     <div class="absolute -top-24 right-0 z-20">
-      <img src="/MY YT AGENT.png" alt="MYTA Logo" class="w-128 h-128">
+      <img src="/MYTALogo.png" alt="MYTA Logo" class="w-128 h-128">
     </div>
 
     <!-- Content Container -->

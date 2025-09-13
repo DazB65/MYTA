@@ -10,7 +10,7 @@ export const useSEO = () => {
     title,
     description,
     keywords,
-    image = '/MY YT AGENT.png',
+    image = '/MYTALogo.png',
     url,
     type = 'website',
     author = 'MYTA',
@@ -100,7 +100,7 @@ export const useSEO = () => {
         url: 'https://myta.app',
         logo: {
           '@type': 'ImageObject',
-          url: 'https://myta.app/MY YT AGENT.png'
+          url: 'https://myta.app/MYTALogo.png'
         }
       }
     })
@@ -168,7 +168,7 @@ export const useSEO = () => {
       '@type': 'Article',
       headline: title,
       description,
-      image: image ? `https://myta.app${image}` : 'https://myta.app/MY YT AGENT.png',
+      image: image ? `https://myta.app${image}` : 'https://myta.app/MYTALogo.png',
       datePublished,
       dateModified: dateModified || datePublished,
       author: {
@@ -182,7 +182,7 @@ export const useSEO = () => {
         url: 'https://myta.app',
         logo: {
           '@type': 'ImageObject',
-          url: 'https://myta.app/MY YT AGENT.png'
+          url: 'https://myta.app/MYTALogo.png'
         }
       },
       articleSection: section,

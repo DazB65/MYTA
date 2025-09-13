@@ -9,9 +9,9 @@
         <div class="flex items-center overflow-visible -ml-12">
           <NuxtLink to="/dashboard" class="flex items-center">
             <img
-              src="/MY YT AGENT.png"
-              alt="MY YT AGENT"
-              class="h-72 w-auto mt-12"
+              src="/MYTALogo.png"
+              alt="MYTA Logo"
+              class="h-72 w-auto ml-8 mt-32"
             />
           </NuxtLink>
         </div>
@@ -106,7 +106,7 @@
 
       <!-- iPhone Compartment Section -->
         <!-- Action Buttons with Navigation -->
-        <div class="mb-4 flex items-center justify-between">
+        <div class="mb-8 flex items-center justify-between">
           <!-- Left spacer -->
           <div class="flex-1"></div>
 

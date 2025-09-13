@@ -14,14 +14,14 @@ from dataclasses import dataclass
 from enum import Enum
 import logging
 
-from agent_performance_models import (
-    PerformanceAlert, AlertSeverity, AgentType, 
+from .agent_performance_models import (
+    PerformanceAlert, AlertSeverity, AgentType,
     AgentHealthSnapshot, SystemPerformanceSnapshot
 )
-from agent_performance_tracker import get_performance_tracker
-from database import get_db_connection
-from logging_config import get_logger, LogCategory
-from config import get_settings
+from .agent_performance_tracker import get_performance_tracker
+from .database import get_database_manager
+from .logging_config import get_logger, LogCategory
+from .config import get_settings
 
 logger = get_logger(__name__, LogCategory.MONITORING)
 

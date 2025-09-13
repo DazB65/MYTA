@@ -11,14 +11,14 @@ from typing import Dict, List, Optional, Any, Tuple
 from dataclasses import dataclass, asdict
 from enum import Enum
 import os
-from backend import get_agent_cache
-from backend import migrate_openai_call_to_integration
-from backend.App.enhanced_user_context import get_enhanced_context_manager
-from backend.App.realtime_data_pipeline import get_data_pipeline
-from backend.boss_agent_auth import get_boss_agent_authenticator
-from backend.App.data_access_monitor import get_data_access_monitor
+from .agent_cache import get_agent_cache
+# from . import migrate_openai_call_to_integration  # Function not found
+from .enhanced_user_context import get_enhanced_context_manager
+from .realtime_data_pipeline import get_data_pipeline
+from .boss_agent_auth_compat import get_boss_agent_authenticator
+from .data_access_monitor import get_data_access_monitor
 # Use centralized model integration
-from backend.model_integrations import create_agent_call_to_integration
+from .model_integrations import create_agent_call_to_integration
 
 # Configure advanced logging
 from backend.logging_config import get_logger, LogCategory
@@ -269,7 +269,7 @@ class ContentAnalysisAgent(SpecializedAgent):
     def __init__(self):
         super().__init__("content_analyzer")
         # Import the specialized agent
-        from backend.content_analysis_agent import get_content_analysis_agent
+        from .content_analysis_agent import get_content_analysis_agent
         self.specialized_agent = get_content_analysis_agent()
     
     async def _generate_response(self, request: AgentRequest) -> Dict[str, Any]:
@@ -418,7 +418,7 @@ class AudienceInsightsAgent(SpecializedAgent):
     def __init__(self):
         super().__init__("audience_analyzer")
         # Import the specialized agent
-        from backend.App.audience_insights_agent import get_audience_insights_agent
+        from .audience_insights_agent import get_audience_insights_agent
         self.specialized_agent = get_audience_insights_agent()
     
     async def _generate_response(self, request: AgentRequest) -> Dict[str, Any]:
@@ -545,7 +545,7 @@ class SEOOptimizationAgent(SpecializedAgent):
     def __init__(self):
         super().__init__("seo_optimizer")
         # Import the specialized agent
-        from seo_discoverability_agent import get_seo_discoverability_agent
+        from .seo_discoverability_agent import get_seo_discoverability_agent
         self.specialized_agent = get_seo_discoverability_agent()
     
     async def _generate_response(self, request: AgentRequest) -> Dict[str, Any]:
@@ -659,7 +659,7 @@ class CompetitiveAnalysisAgent(SpecializedAgent):
     def __init__(self):
         super().__init__("competitor_analyzer")
         # Import the specialized agent
-        from competitive_analysis_agent import get_competitive_analysis_agent
+        from .competitive_analysis_agent import get_competitive_analysis_agent
         self.specialized_agent = get_competitive_analysis_agent()
     
     async def _generate_response(self, request: AgentRequest) -> Dict[str, Any]:
@@ -773,7 +773,7 @@ class MonetizationAgent(SpecializedAgent):
     def __init__(self):
         super().__init__("monetization_optimizer")
         # Import the specialized agent
-        from monetization_strategy_agent import get_monetization_strategy_agent
+        from .monetization_strategy_agent import get_monetization_strategy_agent
         self.specialized_agent = get_monetization_strategy_agent()
     
     async def _generate_response(self, request: AgentRequest) -> Dict[str, Any]:

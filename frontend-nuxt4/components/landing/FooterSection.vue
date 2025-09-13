@@ -5,7 +5,7 @@
         <!-- Brand -->
         <div class="flex flex-col md:flex-row items-center gap-6">
           <img
-            src="/MY YT AGENT.png"
+            src="/MYTALogo.png"
             alt="MYTA Logo"
             class="h-20 w-auto"
           />

@@ -6,7 +6,7 @@
       <div class="flex justify-center">
         <div class="relative">
           <img
-            src="/MY YT AGENT.png"
+            src="/MYTALogo.png"
             alt="MYTA Logo"
             class="h-[28rem] md:h-[36rem] w-auto drop-shadow-2xl"
           />

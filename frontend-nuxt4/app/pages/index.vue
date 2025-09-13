@@ -12,11 +12,11 @@ useHead({
     { name: 'keywords', content: 'YouTube growth, agent analytics, content optimization, YouTube strategy, creator tools, video analytics, thumbnail optimization, YouTube SEO' },
     { property: 'og:title', content: 'MYTA - Your Agent Team for YouTube Growth' },
     { property: 'og:description', content: 'Join the waitlist for the agent-powered YouTube growth platform that helps creators optimize content, analyze performance, and scale their channels.' },
-    { property: 'og:image', content: '/MY YT AGENT.png' },
+    { property: 'og:image', content: '/MYTALogo.png' },
     { property: 'og:url', content: 'https://myta.ai' },
     { name: 'twitter:title', content: 'MYTA - Your Agent Team for YouTube Growth' },
     { name: 'twitter:description', content: 'Join the waitlist for the agent-powered YouTube growth platform that helps creators optimize content, analyze performance, and scale their channels.' },
-    { name: 'twitter:image', content: '/MY YT AGENT.png' }
+    { name: 'twitter:image', content: '/MYTALogo.png' }
   ]
 })
 </script>

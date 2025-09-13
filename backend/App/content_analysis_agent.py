@@ -12,11 +12,11 @@ import os
 import time
 from googleapiclient.errors import HttpError
 from dataclasses import dataclass
-from backend.youtube_api_integration import get_youtube_integration
-from backend.base_agent import BaseSpecializedAgent, AgentType, AgentRequest, AgentAnalysis, AgentInsight, AgentRecommendation
-from backend.boss_agent_auth import SpecializedAgentAuthMixin
-from backend.connection_pool import get_youtube_client
-from backend import get_agent_model_adapter
+from .youtube_api_integration import get_youtube_integration
+from .base_agent import BaseSpecializedAgent, AgentType, AgentRequest, AgentAnalysis, AgentInsight, AgentRecommendation
+from .boss_agent_auth import SpecializedAgentAuthMixin
+from .connection_pool import get_youtube_client
+from .agent_model_adapter import get_agent_model_adapter
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)

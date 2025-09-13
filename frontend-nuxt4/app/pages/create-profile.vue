@@ -12,7 +12,7 @@
         <!-- MYTA Logo Header -->
         <div class="text-center -mt-16">
           <div class="flex items-center justify-center -mb-20">
-            <img src="/MY YT AGENT.png" alt="MYTA Logo" class="w-[28rem] h-[28rem]">
+            <img src="/MYTALogo.png" alt="MYTA Logo" class="w-[28rem] h-[28rem]">
           </div>
 
         </div>
