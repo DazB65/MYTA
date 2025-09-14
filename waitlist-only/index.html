@@ -39,6 +39,21 @@
       .animate-gradient {
         animation: gradient 3s ease infinite;
       }
+
+      @keyframes slideInFromTop {
+        0% {
+          transform: translateY(-100vh);
+          opacity: 0;
+        }
+        100% {
+          transform: translateY(0);
+          opacity: 1;
+        }
+      }
+
+      .logo-container {
+        animation: slideInFromTop 1.2s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+      }
     </style>
   </head>
   <body class="bg-gray-900 text-white min-h-screen">
@@ -47,7 +62,7 @@
       <div class="relative z-10 max-w-6xl mx-auto px-6 text-center -mt-8">
         <!-- Logo -->
         <div class="flex justify-center">
-          <div class="relative">
+          <div class="relative logo-container">
             <img
               src="/MYTALogo.png"
               alt="MYTA Logo"
