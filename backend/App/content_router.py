@@ -21,6 +21,108 @@ from backend.App.agent_personalities import get_agent_personality
 logger = logging.getLogger(__name__)
 router = APIRouter(prefix="/api/content", tags=["content"])
 
+# Helper functions for enhanced context
+async def get_user_voice_profile(user_id: str, voice_analyzer, enhanced_context: Dict) -> Dict[str, Any]:
+    """Get user's voice profile for content generation"""
+    try:
+        # Get channel content for voice analysis
+        channel_content = enhanced_context.get('recent_content', [])
+        channel_info = enhanced_context.get('channel_info', {})
+
+        if channel_content:
+            voice_profile = await voice_analyzer.analyze_channel_voice(channel_content, channel_info)
+            return voice_profile
+        else:
+            # Return fallback voice profile
+            return {
+                "voice_characteristics": {
+                    "tone": "Professional yet approachable",
+                    "formality_level": "Semi-formal",
+                    "personality": "Educational expert"
+                },
+                "writing_style": {
+                    "sentence_structure": "Clear and concise",
+                    "vocabulary_level": "Industry-specific, accessible",
+                    "pacing": "Steady, methodical"
+                }
+            }
+    except Exception as e:
+        logger.warning(f"Could not get voice profile for user {user_id}: {e}")
+        return {}
+
+async def get_competitive_context(user_id: str, enhanced_context: Dict) -> Dict[str, Any]:
+    """Get competitive insights for content differentiation"""
+    try:
+        # Extract competitive intelligence from enhanced context
+        competitive_data = enhanced_context.get('competitive_intelligence', {})
+        return {
+            'market_gaps': competitive_data.get('content_gaps', []),
+            'differentiation_opportunities': competitive_data.get('opportunities', []),
+            'competitor_weaknesses': competitive_data.get('competitor_weaknesses', []),
+            'trending_in_niche': competitive_data.get('trending_topics', [])
+        }
+    except Exception as e:
+        logger.warning(f"Could not get competitive context for user {user_id}: {e}")
+        return {}
+
+async def get_trending_context(user_id: str, enhanced_context: Dict) -> Dict[str, Any]:
+    """Get trending opportunities for content"""
+    try:
+        trending_data = enhanced_context.get('trending_opportunities', {})
+        return {
+            'hot_topics': trending_data.get('hot_topics', []),
+            'emerging_trends': trending_data.get('emerging_trends', []),
+            'seasonal_opportunities': trending_data.get('seasonal', []),
+            'niche_trends': trending_data.get('niche_specific', [])
+        }
+    except Exception as e:
+        logger.warning(f"Could not get trending context for user {user_id}: {e}")
+        return {}
+
+def get_agent_specialization_for_content(agent_id: str, content_type: str, pillar: str) -> Dict[str, Any]:
+    """Get agent-specific specialization for content generation"""
+
+    # Agent-specific content generation specializations
+    specializations = {
+        "1": {  # Alex - Analytics Team Member
+            "focus": "Data-driven content optimization",
+            "unique_approach": "Performance metrics and analytics-backed content strategy",
+            "content_angle": "Measurable results and strategic insights",
+            "special_elements": ["Performance data", "Metrics analysis", "ROI focus", "Strategic planning"],
+            "tone_modifier": "Professional and data-backed"
+        },
+        "2": {  # Levi - Content Team Member
+            "focus": "Creative storytelling and production excellence",
+            "unique_approach": "Engaging narratives and visual storytelling techniques",
+            "content_angle": "Creative execution and audience engagement",
+            "special_elements": ["Storytelling hooks", "Visual techniques", "Creative formats", "Trend integration"],
+            "tone_modifier": "Energetic and creative"
+        },
+        "3": {  # Maya - Engagement Team Member
+            "focus": "Community building and authentic connections",
+            "unique_approach": "Relationship-focused content that builds community",
+            "content_angle": "Audience connection and community engagement",
+            "special_elements": ["Community building", "Authentic connections", "Engagement strategies", "Relationship focus"],
+            "tone_modifier": "Warm and community-focused"
+        },
+        "4": {  # Zara - Growth & Optimization Expert
+            "focus": "Scalable growth and algorithm optimization",
+            "unique_approach": "Growth-hacking techniques and systematic scaling",
+            "content_angle": "Viral potential and growth optimization",
+            "special_elements": ["Growth strategies", "Algorithm optimization", "Scaling techniques", "Viral elements"],
+            "tone_modifier": "Strategic and growth-focused"
+        },
+        "5": {  # Kai - Technical & SEO Specialist
+            "focus": "Technical optimization and discoverability",
+            "unique_approach": "SEO-optimized content with technical precision",
+            "content_angle": "Search optimization and technical excellence",
+            "special_elements": ["SEO optimization", "Technical details", "Platform mechanics", "Discoverability"],
+            "tone_modifier": "Technical and precise"
+        }
+    }
+
+    return specializations.get(agent_id, specializations["1"])
+
 @router.post("/generate-script")
 @limiter.limit(get_rate_limit("authenticated", "content_generation"))
 async def generate_script(
@@ -45,8 +147,9 @@ async def generate_script(
         if not title:
             raise HTTPException(status_code=400, detail="Title is required")
         
-        # Get agent personality for context
+        # Get agent personality and specialization for context
         agent = get_agent_personality(agent_id)
+        agent_specialization = get_agent_specialization_for_content(agent_id, script_type, pillar)
         
         # Get enhanced user context for personalization
         user_id = current_user["id"]
@@ -55,6 +158,8 @@ async def generate_script(
         try:
             from backend.App.enhanced_user_context import EnhancedUserContextService
             from backend.App.audience_insights_agent import AudienceInsightsAgent
+            from backend.App.voice_analyzer import get_voice_analyzer
+            from backend.App.competitive_analysis_agent import CompetitiveAnalysisAgent
 
             # Get enhanced user context with performance data
             context_service = EnhancedUserContextService()
@@ -64,15 +169,30 @@ async def generate_script(
             audience_agent = AudienceInsightsAgent()
             audience_insights = await audience_agent.get_audience_context_for_content(user_id)
 
+            # Get voice profile for style matching
+            voice_analyzer = get_voice_analyzer()
+            voice_profile = await get_user_voice_profile(user_id, voice_analyzer, enhanced_context)
+
+            # Get competitive insights for differentiation
+            competitive_insights = await get_competitive_context(user_id, enhanced_context)
+
+            # Get trending opportunities
+            trending_context = await get_trending_context(user_id, enhanced_context)
+
         except Exception as e:
             logger.warning(f"Could not fetch enhanced context for user {user_id}: {e}")
             enhanced_context = {}
             audience_insights = {}
+            voice_profile = {}
+            competitive_insights = {}
+            trending_context = {}
 
         # Build enhanced context for personalization
         performance_context = enhanced_context.get('performance_intelligence', {})
         channel_context = enhanced_context.get('channel_info', {})
         audience_context = audience_insights.get('demographics', {})
+        voice_characteristics = voice_profile.get('voice_characteristics', {})
+        writing_style = voice_profile.get('writing_style', {})
 
         # Build highly specialized prompt with enhanced user context
         script_prompt = f"""
@@ -101,6 +221,20 @@ async def generate_script(
         - Engagement Patterns: {audience_context.get('peak_engagement_times', 'Standard patterns')}
         - Communication Style: {audience_context.get('preferred_communication_style', 'Professional and engaging')}
 
+        VOICE MATCHING PROFILE:
+        - Tone: {voice_characteristics.get('tone', 'Professional yet approachable')}
+        - Formality Level: {voice_characteristics.get('formality_level', 'Semi-formal')}
+        - Personality: {voice_characteristics.get('personality', 'Educational expert')}
+        - Sentence Structure: {writing_style.get('sentence_structure', 'Clear and concise')}
+        - Vocabulary Level: {writing_style.get('vocabulary_level', 'Industry-specific, accessible')}
+        - Pacing: {writing_style.get('pacing', 'Steady, methodical')}
+
+        COMPETITIVE INTELLIGENCE:
+        - Market Gaps: {competitive_insights.get('market_gaps', ['General opportunities'])}
+        - Differentiation Opportunities: {competitive_insights.get('differentiation_opportunities', ['Unique perspective'])}
+        - Trending in Niche: {trending_context.get('niche_trends', ['Current topics'])}
+        - Hot Topics: {trending_context.get('hot_topics', ['Popular subjects'])}
+
         CRITICAL INSTRUCTION - BE SPECIFIC AND PERSONALIZED:
         This script must be HIGHLY SPECIFIC and ACTIONABLE, not generic. Use the content idea to create something unique that only an expert in {pillar} would know.
 
@@ -110,6 +244,27 @@ async def generate_script(
         - Reference performance patterns that work for your channel size ({channel_context.get('subscriber_count', 'growing')} subscribers)
         - Include hooks and techniques similar to your top-performing content
 
+        VOICE MATCHING REQUIREMENTS:
+        - Match your established tone: {voice_characteristics.get('tone', 'professional yet approachable')}
+        - Use your typical formality level: {voice_characteristics.get('formality_level', 'semi-formal')}
+        - Reflect your personality: {voice_characteristics.get('personality', 'educational expert')}
+        - Follow your sentence structure patterns: {writing_style.get('sentence_structure', 'clear and concise')}
+        - Use vocabulary at your level: {writing_style.get('vocabulary_level', 'industry-specific, accessible')}
+        - Match your content pacing: {writing_style.get('pacing', 'steady, methodical')}
+
+        COMPETITIVE DIFFERENTIATION:
+        - Address market gaps: {competitive_insights.get('market_gaps', ['general opportunities'])}
+        - Leverage differentiation opportunities: {competitive_insights.get('differentiation_opportunities', ['unique perspective'])}
+        - Capitalize on trending topics: {trending_context.get('hot_topics', ['popular subjects'])}
+        - Include niche-specific trends: {trending_context.get('niche_trends', ['current topics'])}
+
+        AGENT SPECIALIZATION ({agent['name']} - {agent['role']}):
+        - Unique Focus: {agent_specialization['focus']}
+        - Specialized Approach: {agent_specialization['unique_approach']}
+        - Content Angle: {agent_specialization['content_angle']}
+        - Special Elements to Include: {agent_specialization['special_elements']}
+        - Tone Modifier: {agent_specialization['tone_modifier']}
+
         REQUIRED SPECIFICITY:
         - Include specific tools, software, platforms, or apps used in {pillar}
         - Mention exact numbers, percentages, metrics, or benchmarks
@@ -118,6 +273,13 @@ async def generate_script(
         - Address specific problems that {pillar} practitioners face
         - Provide advanced techniques or insider knowledge
         - Include specific steps with exact actions to take
+
+        AGENT SPECIALIZATION REQUIREMENTS:
+        - Apply {agent['name']}'s unique expertise: {agent_specialization['focus']}
+        - Use {agent['name']}'s specialized approach: {agent_specialization['unique_approach']}
+        - Emphasize {agent['name']}'s content angle: {agent_specialization['content_angle']}
+        - Include {agent['name']}'s special elements: {agent_specialization['special_elements']}
+        - Maintain {agent['name']}'s tone: {agent_specialization['tone_modifier']}
 
         EXPERT SCRIPT STRUCTURE:
 
@@ -285,6 +447,7 @@ async def generate_title(
         try:
             from backend.App.enhanced_user_context import EnhancedUserContextService
             from backend.App.audience_insights_agent import AudienceInsightsAgent
+            from backend.App.voice_analyzer import get_voice_analyzer
 
             context_service = EnhancedUserContextService()
             enhanced_context = await context_service.get_enhanced_context(user_id)
@@ -292,18 +455,32 @@ async def generate_title(
             audience_agent = AudienceInsightsAgent()
             audience_insights = await audience_agent.get_audience_context_for_content(user_id)
 
+            # Get voice profile for style matching
+            voice_analyzer = get_voice_analyzer()
+            voice_profile = await get_user_voice_profile(user_id, voice_analyzer, enhanced_context)
+
+            # Get competitive and trending insights
+            competitive_insights = await get_competitive_context(user_id, enhanced_context)
+            trending_context = await get_trending_context(user_id, enhanced_context)
+
         except Exception as e:
             logger.warning(f"Could not fetch enhanced context for title generation: {e}")
             enhanced_context = {}
             audience_insights = {}
+            voice_profile = {}
+            competitive_insights = {}
+            trending_context = {}
 
-        # Get agent personality
+        # Get agent personality and specialization
         agent = get_agent_personality(agent_id)
+        agent_specialization = get_agent_specialization_for_content(agent_id, "title", pillar)
 
         # Extract performance context
         performance_context = enhanced_context.get('performance_intelligence', {})
         channel_context = enhanced_context.get('channel_info', {})
         audience_context = audience_insights.get('demographics', {})
+        voice_characteristics = voice_profile.get('voice_characteristics', {})
+        writing_style = voice_profile.get('writing_style', {})
 
         # Build specialized prompt for title generation with performance data
         title_prompt = f"""
@@ -320,6 +497,18 @@ async def generate_title(
         - Top Performing Content: {performance_context.get('successful_content_patterns', 'Varied content')}
         - Audience Engagement Style: {audience_context.get('engagement_preferences', 'Standard engagement')}
 
+        VOICE MATCHING PROFILE:
+        - Channel Tone: {voice_characteristics.get('tone', 'Professional yet approachable')}
+        - Formality Level: {voice_characteristics.get('formality_level', 'Semi-formal')}
+        - Personality: {voice_characteristics.get('personality', 'Educational expert')}
+        - Vocabulary Style: {writing_style.get('vocabulary_level', 'Industry-specific, accessible')}
+
+        COMPETITIVE INTELLIGENCE:
+        - Market Gaps: {competitive_insights.get('market_gaps', ['General opportunities'])}
+        - Trending Topics: {trending_context.get('hot_topics', ['Popular subjects'])}
+        - Niche Trends: {trending_context.get('niche_trends', ['Current topics'])}
+        - Differentiation Opportunities: {competitive_insights.get('differentiation_opportunities', ['Unique perspective'])}
+
         CRITICAL REQUIREMENTS:
         1. Titles must be SPECIFIC to {pillar} - not generic
         2. Include exact tools, numbers, or specific outcomes when possible
@@ -330,6 +519,13 @@ async def generate_title(
         7. Create curiosity about specific {pillar} knowledge
         8. Optimize for your audience demographic ({audience_context.get('primary_age_group', 'general audience')})
         9. Use language and complexity level that matches your {channel_context.get('subscriber_count', 'growing')} subscriber channel
+        10. Match your channel's tone: {voice_characteristics.get('tone', 'professional yet approachable')}
+        11. Use your typical formality level: {voice_characteristics.get('formality_level', 'semi-formal')}
+        12. Incorporate trending topics: {trending_context.get('hot_topics', ['popular subjects'])}
+        13. Address market gaps: {competitive_insights.get('market_gaps', ['general opportunities'])}
+        14. Apply {agent['name']}'s expertise: {agent_specialization['focus']}
+        15. Use {agent['name']}'s approach: {agent_specialization['content_angle']}
+        16. Include {agent['name']}'s special elements: {agent_specialization['special_elements']}
 
         EXAMPLES OF SPECIFICITY:
         - Instead of "How to Get More Views" → "How I Got 2M Views Using This YouTube Algorithm Hack"
@@ -399,6 +595,7 @@ async def generate_description(
         try:
             from backend.App.enhanced_user_context import EnhancedUserContextService
             from backend.App.audience_insights_agent import AudienceInsightsAgent
+            from backend.App.voice_analyzer import get_voice_analyzer
 
             context_service = EnhancedUserContextService()
             enhanced_context = await context_service.get_enhanced_context(user_id)
@@ -406,18 +603,32 @@ async def generate_description(
             audience_agent = AudienceInsightsAgent()
             audience_insights = await audience_agent.get_audience_context_for_content(user_id)
 
+            # Get voice profile for style matching
+            voice_analyzer = get_voice_analyzer()
+            voice_profile = await get_user_voice_profile(user_id, voice_analyzer, enhanced_context)
+
+            # Get competitive and trending insights
+            competitive_insights = await get_competitive_context(user_id, enhanced_context)
+            trending_context = await get_trending_context(user_id, enhanced_context)
+
         except Exception as e:
             logger.warning(f"Could not fetch enhanced context for description generation: {e}")
             enhanced_context = {}
             audience_insights = {}
+            voice_profile = {}
+            competitive_insights = {}
+            trending_context = {}
 
-        # Get agent personality
+        # Get agent personality and specialization
         agent = get_agent_personality(agent_id)
+        agent_specialization = get_agent_specialization_for_content(agent_id, "description", pillar)
 
         # Extract performance context
         performance_context = enhanced_context.get('performance_intelligence', {})
         channel_context = enhanced_context.get('channel_info', {})
         audience_context = audience_insights.get('demographics', {})
+        voice_characteristics = voice_profile.get('voice_characteristics', {})
+        writing_style = voice_profile.get('writing_style', {})
 
         # Build enhanced prompt for description generation
         description_prompt = f"""
@@ -433,6 +644,18 @@ async def generate_description(
         - Engagement Style: {audience_context.get('engagement_preferences', 'Standard engagement')}
         - Top Performing Content: {performance_context.get('successful_content_patterns', 'Varied content')}
 
+        VOICE MATCHING PROFILE:
+        - Channel Tone: {voice_characteristics.get('tone', 'Professional yet approachable')}
+        - Formality Level: {voice_characteristics.get('formality_level', 'Semi-formal')}
+        - Personality: {voice_characteristics.get('personality', 'Educational expert')}
+        - Writing Style: {writing_style.get('sentence_structure', 'Clear and concise')}
+        - Vocabulary Level: {writing_style.get('vocabulary_level', 'Industry-specific, accessible')}
+
+        COMPETITIVE INTELLIGENCE:
+        - Market Gaps: {competitive_insights.get('market_gaps', ['General opportunities'])}
+        - Trending Topics: {trending_context.get('hot_topics', ['Popular subjects'])}
+        - Differentiation Opportunities: {competitive_insights.get('differentiation_opportunities', ['Unique perspective'])}
+
         Requirements:
         1. First 125 characters should be compelling (visible in search)
         2. Include relevant keywords naturally
@@ -442,6 +665,15 @@ async def generate_description(
         6. Keep it engaging and informative for {channel_context.get('subscriber_count', 'growing')} subscriber channel
         7. Optimize for YouTube SEO
         8. Use language complexity appropriate for your audience demographic
+        9. Match your channel's tone: {voice_characteristics.get('tone', 'professional yet approachable')}
+        10. Use your typical formality level: {voice_characteristics.get('formality_level', 'semi-formal')}
+        11. Write in your established personality: {voice_characteristics.get('personality', 'educational expert')}
+        12. Follow your sentence structure patterns: {writing_style.get('sentence_structure', 'clear and concise')}
+        13. Incorporate trending elements: {trending_context.get('hot_topics', ['popular subjects'])}
+        14. Address market gaps: {competitive_insights.get('market_gaps', ['general opportunities'])}
+        15. Apply {agent['name']}'s expertise: {agent_specialization['focus']}
+        16. Use {agent['name']}'s specialized approach: {agent_specialization['unique_approach']}
+        17. Emphasize {agent['name']}'s content angle: {agent_specialization['content_angle']}
         
         Structure:
         - Hook/Value proposition (first 2 lines)
