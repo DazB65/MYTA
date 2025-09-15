@@ -138,6 +138,11 @@
           </div>
         </div>
 
+        <!-- Automation Tab -->
+        <div v-if="activeTab === 'automation'">
+          <AutomationSettings />
+        </div>
+
         <!-- General Settings Tab -->
         <div v-if="activeTab === 'general'" class="rounded-xl bg-gray-900/80 backdrop-blur-sm border-2 border-gray-600/70 shadow-lg p-6">
           <div class="mb-6 flex items-center space-x-3">
@@ -642,6 +647,7 @@ import { useAgentAccess } from '../../composables/useAgentAccess'
 import { useAgentSettings } from '../../composables/useAgentSettings'
 import { useModals } from '../../composables/useModals'
 
+import AutomationSettings from '../../components/automation/AutomationSettings.vue'
 import SeatManagement from '../../components/subscription/SeatManagement.vue'
 import { useToast } from '../../composables/useToast'
 import { useAgentsStore } from '../../stores/agents'
@@ -692,6 +698,7 @@ const activeTab = ref(route.query.tab || 'agent')
 
 const tabs = [
   { id: 'agent', name: 'Agent Settings', icon: '🤖' },
+  { id: 'automation', name: 'Automation', icon: '⚡' },
   { id: 'subscription', name: 'Subscription', icon: '💳' },
   { id: 'general', name: 'General', icon: '⚙️' }
 ]

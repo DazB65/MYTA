@@ -30,6 +30,50 @@
 
         <!-- Right: User Profile and Actions -->
         <div class="flex items-center space-x-4">
+          <!-- Smart Notifications -->
+          <div class="relative">
+            <button
+              @click="toggleNotifications"
+              class="p-2 rounded-lg text-gray-400 hover:text-white hover:bg-forest-700 transition-colors relative"
+              title="Smart Notifications"
+            >
+              <svg class="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
+                <path d="M10 2a6 6 0 00-6 6v3.586l-.707.707A1 1 0 004 14h12a1 1 0 00.707-1.707L16 11.586V8a6 6 0 00-6-6zM10 18a3 3 0 01-3-3h6a3 3 0 01-3 3z"/>
+              </svg>
+              <!-- Notification Badge -->
+              <span
+                v-if="urgentNotificationsCount > 0"
+                class="absolute -top-1 -right-1 inline-flex items-center justify-center px-1.5 py-0.5 text-xs font-bold leading-none text-white bg-red-500 rounded-full"
+              >
+                {{ urgentNotificationsCount > 9 ? '9+' : urgentNotificationsCount }}
+              </span>
+            </button>
+
+            <!-- Notifications Dropdown -->
+            <div
+              v-if="showNotifications"
+              class="absolute right-0 mt-2 w-96 bg-gray-800 rounded-xl shadow-lg border border-gray-600 z-50"
+              @click.stop
+            >
+              <div class="p-4 border-b border-gray-700">
+                <div class="flex items-center justify-between">
+                  <h3 class="text-lg font-semibold text-white">Smart Notifications</h3>
+                  <button
+                    @click="showNotifications = false"
+                    class="text-gray-400 hover:text-white"
+                  >
+                    <svg class="h-4 w-4" fill="currentColor" viewBox="0 0 20 20">
+                      <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"/>
+                    </svg>
+                  </button>
+                </div>
+              </div>
+              <div class="max-h-96 overflow-y-auto">
+                <SmartNotifications @openSettings="openNotificationSettings" />
+              </div>
+            </div>
+          </div>
+
           <!-- Settings -->
           <NuxtLink
             to="/settings"
@@ -93,9 +137,22 @@
 
 <script setup>
 import { computed, onMounted, onUnmounted, ref } from 'vue'
+import { useRouter } from 'vue-router'
+import { useAutomation } from '../composables/useAutomation'
+import SmartNotifications from './automation/SmartNotifications.vue'
 
 // Mobile menu state
 const showMobileMenu = ref(false)
+
+// Notifications state
+const showNotifications = ref(false)
+const router = useRouter()
+
+// Automation composable
+const { urgentNotifications, getNotifications } = useAutomation()
+
+// Computed
+const urgentNotificationsCount = computed(() => urgentNotifications.value.length)
 
 // Navigation items
 const mainMenuItems = [
@@ -126,19 +183,44 @@ const closeMobileMenu = () => {
   showMobileMenu.value = false
 }
 
-// Close mobile menu when clicking outside
-onMounted(() => {
-  const handleClickOutside = (event) => {
-    if (showMobileMenu.value && !event.target.closest('header')) {
-      closeMobileMenu()
-    }
+// Notifications methods
+const toggleNotifications = () => {
+  showNotifications.value = !showNotifications.value
+  if (showNotifications.value) {
+    getNotifications()
   }
-  
+}
+
+const openNotificationSettings = () => {
+  showNotifications.value = false
+  router.push('/settings?tab=automation')
+}
+
+// Handle clicks outside components
+const handleClickOutside = (event) => {
+  // Close notifications dropdown
+  if (showNotifications.value && !event.target.closest('.relative')) {
+    showNotifications.value = false
+  }
+
+  // Close mobile menu
+  if (showMobileMenu.value && !event.target.closest('header')) {
+    closeMobileMenu()
+  }
+}
+
+// Lifecycle hooks
+onMounted(() => {
+  // Load notifications on mount
+  getNotifications()
+
+  // Add click outside listener
   document.addEventListener('click', handleClickOutside)
-  
-  onUnmounted(() => {
-    document.removeEventListener('click', handleClickOutside)
-  })
+})
+
+onUnmounted(() => {
+  // Remove click outside listener
+  document.removeEventListener('click', handleClickOutside)
 })
 </script>
 
