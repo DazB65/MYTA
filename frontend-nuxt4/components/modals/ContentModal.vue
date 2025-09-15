@@ -247,31 +247,32 @@
             </div>
 
             <!-- Step 5: Tags with Keyword Suggestions -->
-            <div class="bg-gradient-to-r from-red-500/10 to-orange-500/10 border border-red-500/20 rounded-xl p-4">
-              <label class="block text-sm font-medium text-gray-300 mb-3">
-                <span class="inline-flex items-center">
-                  <span class="bg-gradient-to-r from-red-500 to-orange-500 text-white text-sm font-bold px-3 py-2 rounded-full mr-3 shadow-lg">5</span>
-                  <span class="text-lg font-semibold text-red-300">Tags & Keywords</span>
-                </span>
-              </label>
+            <div class="bg-gradient-to-r from-red-500/10 to-orange-500/10 border border-red-500/20 rounded-xl p-4 space-y-3">
+              <div class="flex items-center justify-between">
+                <label class="block text-sm font-medium text-gray-300">
+                  <span class="inline-flex items-center">
+                    <span class="bg-gradient-to-r from-red-500 to-orange-500 text-white text-sm font-bold px-3 py-2 rounded-full mr-3 shadow-lg">5</span>
+                    <span class="text-lg font-semibold text-red-300">Tags & Keywords</span>
+                  </span>
+                </label>
+                <button
+                  type="button"
+                  @click.stop="generateKeywordSuggestions"
+                  class="text-xs text-blue-400 hover:text-blue-300 transition-colors flex items-center space-x-1"
+                  title="Get keyword suggestions"
+                >
+                  <span>💡</span>
+                  <span>Get keywords</span>
+                </button>
+              </div>
               <div class="relative">
                 <input
                   v-model="form.tags"
                   type="text"
                   placeholder="Enter tags separated by commas"
-                  class="w-full px-4 py-3 bg-forest-700 border border-forest-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent pr-10"
+                  class="w-full px-4 py-3 bg-forest-700 border border-forest-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent"
                   @focus="showKeywordSuggestions = true"
                 />
-                <button
-                  type="button"
-                  @click.stop="generateKeywordSuggestions"
-                  class="absolute right-3 top-3 p-1 text-orange-400 hover:text-orange-300 transition-colors"
-                  title="Get keyword suggestions"
-                >
-                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
-                  </svg>
-                </button>
               </div>
 
               <!-- Keyword Suggestions -->
@@ -532,26 +533,15 @@
                 </div>
               </div>
 
-              <!-- Step 2: Description Generation -->
-              <div class="bg-gradient-to-r from-green-500/10 to-blue-500/10 border border-green-500/20 rounded-xl p-3 space-y-3">
+              <!-- Step 2: Description -->
+              <div class="bg-gradient-to-r from-green-500/10 to-blue-500/10 border border-green-500/20 rounded-xl p-3 space-y-2">
                 <div class="flex items-center space-x-3">
                   <span class="bg-gradient-to-r from-green-500 to-blue-500 text-white text-sm font-bold px-3 py-2 rounded-full shadow-lg">2</span>
                   <span class="text-base font-semibold text-green-300">Add Description</span>
                 </div>
-                <button
-                  @click="generateDescription"
-                  :disabled="isGenerating || !form.title"
-                  class="w-full flex items-center justify-between p-3 bg-forest-700 hover:bg-forest-600 rounded-lg transition-colors text-left disabled:opacity-50"
-                >
-                  <div class="flex items-center space-x-3">
-                    <span class="text-lg">📝</span>
-                    <div>
-                      <div class="text-sm font-medium text-white">Generate Description</div>
-                      <div class="text-xs text-gray-400">Detailed content descriptions</div>
-                    </div>
-                  </div>
-                  <span class="text-gray-400">→</span>
-                </button>
+                <div class="text-sm text-green-200 ml-10 font-medium">
+                  {{ form.description ? '✅ Description added' : '⏳ Input by the user in the form' }}
+                </div>
               </div>
 
               <!-- Step 3: Title Generation -->
