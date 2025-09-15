@@ -1311,12 +1311,48 @@ class AudienceInsightsAgent(SpecializedAgentAuthMixin, BaseSpecializedAgent):
     Operates as a sub-agent within the Vidalytics boss agent hierarchy
     """
     
-    def __init__(self, youtube_api_key: str, openai_api_key: str = None):
-        super().__init__(AgentType.AUDIENCE_INSIGHTS, youtube_api_key, openai_api_key, model_name='claude-3-5-sonnet-20241022')
-        
-        # Initialize API clients
-        self.youtube_client = YouTubeAudienceAPIClient(youtube_api_key)
-        self.sentiment_engine = ClaudeSentimentEngine()
+    def __init__(self, youtube_api_key: str = None, openai_api_key: str = None):
+        if youtube_api_key:
+            super().__init__(AgentType.AUDIENCE_INSIGHTS, youtube_api_key, openai_api_key, model_name='claude-3-5-sonnet-20241022')
+            # Initialize API clients
+            self.youtube_client = YouTubeAudienceAPIClient(youtube_api_key)
+            self.sentiment_engine = ClaudeSentimentEngine()
+        else:
+            # Minimal initialization for content generation context
+            self.agent_type = "audience_insights"
+            self.hierarchical_role = "specialist"
+
+    async def get_audience_context_for_content(self, user_id: str) -> Dict[str, Any]:
+        """Get simplified audience context for content generation"""
+        try:
+            # Get basic user context
+            from backend.App.user_context import get_user_context
+            user_context = get_user_context(user_id)
+
+            # Extract relevant audience insights for content generation
+            audience_context = {
+                'demographics': {
+                    'primary_age_group': user_context.get('audience_demographics', {}).get('primary_age_group', 'General audience'),
+                    'engagement_preferences': user_context.get('audience_behavior', {}).get('engagement_style', 'Standard engagement'),
+                    'content_preferences': user_context.get('audience_behavior', {}).get('content_preferences', 'Varied interests'),
+                    'attention_span': user_context.get('audience_behavior', {}).get('attention_span', 'Standard'),
+                    'preferred_communication_style': user_context.get('audience_behavior', {}).get('communication_style', 'Professional and engaging')
+                }
+            }
+
+            return audience_context
+
+        except Exception as e:
+            logger.warning(f"Could not get audience context for content generation: {e}")
+            return {
+                'demographics': {
+                    'primary_age_group': 'General audience',
+                    'engagement_preferences': 'Standard engagement',
+                    'content_preferences': 'Varied interests',
+                    'attention_span': 'Standard',
+                    'preferred_communication_style': 'Professional and engaging'
+                }
+            }
         
         # Initialize analyzers
         self.posting_time_analyzer = PostingTimeAnalyzer()

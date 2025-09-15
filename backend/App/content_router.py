@@ -48,10 +48,33 @@ async def generate_script(
         # Get agent personality for context
         agent = get_agent_personality(agent_id)
         
-        # Get user context for personalization
+        # Get enhanced user context for personalization
         user_id = current_user["id"]
 
-        # Build highly specialized prompt based on agent expertise and content details
+        # Import enhanced context services
+        try:
+            from backend.App.enhanced_user_context import EnhancedUserContextService
+            from backend.App.audience_insights_agent import AudienceInsightsAgent
+
+            # Get enhanced user context with performance data
+            context_service = EnhancedUserContextService()
+            enhanced_context = await context_service.get_enhanced_context(user_id)
+
+            # Get audience insights for personalization
+            audience_agent = AudienceInsightsAgent()
+            audience_insights = await audience_agent.get_audience_context_for_content(user_id)
+
+        except Exception as e:
+            logger.warning(f"Could not fetch enhanced context for user {user_id}: {e}")
+            enhanced_context = {}
+            audience_insights = {}
+
+        # Build enhanced context for personalization
+        performance_context = enhanced_context.get('performance_intelligence', {})
+        channel_context = enhanced_context.get('channel_info', {})
+        audience_context = audience_insights.get('demographics', {})
+
+        # Build highly specialized prompt with enhanced user context
         script_prompt = f"""
         You are {agent['name']}, {agent['role']}. Create a specialized YouTube video script that showcases your unique expertise and personality.
 
@@ -65,8 +88,27 @@ async def generate_script(
         - Tone: {tone}
         - Agent Expertise: {agent.get('expertise', 'General content creation')}
 
-        CRITICAL INSTRUCTION - BE SPECIFIC:
+        CHANNEL PERFORMANCE CONTEXT:
+        - Channel Size: {channel_context.get('subscriber_count', 'Unknown')} subscribers
+        - Average CTR: {channel_context.get('recent_ctr', 'Unknown')}%
+        - Average Retention: {channel_context.get('recent_retention', 'Unknown')}%
+        - Top Performing Content Types: {performance_context.get('successful_content_patterns', 'General content')}
+        - Audience Engagement Style: {audience_context.get('engagement_preferences', 'Standard engagement')}
+
+        AUDIENCE INSIGHTS:
+        - Primary Demographics: {audience_context.get('primary_age_group', 'General audience')}
+        - Content Preferences: {audience_context.get('content_preferences', 'Varied interests')}
+        - Engagement Patterns: {audience_context.get('peak_engagement_times', 'Standard patterns')}
+        - Communication Style: {audience_context.get('preferred_communication_style', 'Professional and engaging')}
+
+        CRITICAL INSTRUCTION - BE SPECIFIC AND PERSONALIZED:
         This script must be HIGHLY SPECIFIC and ACTIONABLE, not generic. Use the content idea to create something unique that only an expert in {pillar} would know.
+
+        PERSONALIZATION REQUIREMENTS:
+        - Tailor content complexity to match your audience's engagement patterns
+        - Use communication style that resonates with your {audience_context.get('primary_age_group', 'general')} audience
+        - Reference performance patterns that work for your channel size ({channel_context.get('subscriber_count', 'growing')} subscribers)
+        - Include hooks and techniques similar to your top-performing content
 
         REQUIRED SPECIFICITY:
         - Include specific tools, software, platforms, or apps used in {pillar}
@@ -79,12 +121,13 @@ async def generate_script(
 
         EXPERT SCRIPT STRUCTURE:
 
-        1. SPECIFIC HOOK (0-15 seconds):
-        Based on the content idea, start with:
-        - A specific statistic, result, or claim directly related to the content idea
-        - A common {pillar} problem that the content idea specifically solves
-        - An exact tool, technique, or method you'll reveal
-        - A specific transformation or result viewers will achieve
+        1. PERFORMANCE-OPTIMIZED HOOK (0-15 seconds):
+        Based on your channel's {channel_context.get('recent_ctr', 'average')}% CTR performance, create a hook that:
+        - Uses a specific statistic, result, or claim directly related to the content idea
+        - Addresses a common {pillar} problem that the content idea specifically solves
+        - Mentions an exact tool, technique, or method you'll reveal
+        - Promises a specific transformation or result viewers will achieve
+        - Matches the engagement style that works for your audience
 
         2. CREDIBILITY INTRO (15-30 seconds):
         - Establish expertise in this specific area of {pillar}
@@ -92,8 +135,8 @@ async def generate_script(
         - Reference specific platforms, software, or methodologies you use
         - Preview the exact, measurable value viewers will get
 
-        3. DETAILED MAIN CONTENT (Write the complete spoken content):
-        Based on the content idea, write the full spoken content including:
+        3. RETENTION-OPTIMIZED MAIN CONTENT (Write the complete spoken content):
+        With your current {channel_context.get('recent_retention', 'average')}% retention rate, structure content to maintain engagement:
         - Complete step-by-step explanations with specific actions and exact settings
         - Name specific tools, software, platforms, or apps (TubeBuddy, Canva, Photoshop, etc.)
         - Include real examples with actual numbers, metrics, or results you create
@@ -101,6 +144,8 @@ async def generate_script(
         - Explain common mistakes with exact solutions in full sentences
         - Share advanced techniques that demonstrate {pillar} expertise
         - Provide specific benchmarks or targets with complete explanations
+        - Use pacing and engagement techniques that work for your audience demographic
+        - Include retention hooks every 30-45 seconds to maintain {audience_context.get('attention_span', 'standard')} attention spans
 
         4. EXPERT ENGAGEMENT:
         - Ask specific questions about viewers' {pillar} tools or experience
@@ -234,17 +279,46 @@ async def generate_title(
         
         if not topic:
             raise HTTPException(status_code=400, detail="Topic is required")
-        
+
+        # Get enhanced user context for title personalization
+        user_id = current_user["id"]
+        try:
+            from backend.App.enhanced_user_context import EnhancedUserContextService
+            from backend.App.audience_insights_agent import AudienceInsightsAgent
+
+            context_service = EnhancedUserContextService()
+            enhanced_context = await context_service.get_enhanced_context(user_id)
+
+            audience_agent = AudienceInsightsAgent()
+            audience_insights = await audience_agent.get_audience_context_for_content(user_id)
+
+        except Exception as e:
+            logger.warning(f"Could not fetch enhanced context for title generation: {e}")
+            enhanced_context = {}
+            audience_insights = {}
+
         # Get agent personality
         agent = get_agent_personality(agent_id)
-        
-        # Build specialized prompt for title generation
+
+        # Extract performance context
+        performance_context = enhanced_context.get('performance_intelligence', {})
+        channel_context = enhanced_context.get('channel_info', {})
+        audience_context = audience_insights.get('demographics', {})
+
+        # Build specialized prompt for title generation with performance data
         title_prompt = f"""
         You are {agent['name']}, {agent['role']}. Generate {count} highly specific YouTube video titles for:
 
         Topic: {topic}
         Content Idea: {content_idea if content_idea else 'Use topic for context'}
         Content Pillar: {pillar}
+
+        CHANNEL PERFORMANCE CONTEXT:
+        - Channel Size: {channel_context.get('subscriber_count', 'Growing')} subscribers
+        - Current CTR: {channel_context.get('recent_ctr', 'Average')}%
+        - Audience Demographics: {audience_context.get('primary_age_group', 'General audience')}
+        - Top Performing Content: {performance_context.get('successful_content_patterns', 'Varied content')}
+        - Audience Engagement Style: {audience_context.get('engagement_preferences', 'Standard engagement')}
 
         CRITICAL REQUIREMENTS:
         1. Titles must be SPECIFIC to {pillar} - not generic
@@ -254,6 +328,8 @@ async def generate_title(
         5. Mention specific techniques, methods, or strategies
         6. Keep under 60 characters for optimal YouTube display
         7. Create curiosity about specific {pillar} knowledge
+        8. Optimize for your audience demographic ({audience_context.get('primary_age_group', 'general audience')})
+        9. Use language and complexity level that matches your {channel_context.get('subscriber_count', 'growing')} subscriber channel
 
         EXAMPLES OF SPECIFICITY:
         - Instead of "How to Get More Views" → "How I Got 2M Views Using This YouTube Algorithm Hack"
@@ -317,26 +393,55 @@ async def generate_description(
         
         if not title:
             raise HTTPException(status_code=400, detail="Title is required")
-        
+
+        # Get enhanced user context for description personalization
+        user_id = current_user["id"]
+        try:
+            from backend.App.enhanced_user_context import EnhancedUserContextService
+            from backend.App.audience_insights_agent import AudienceInsightsAgent
+
+            context_service = EnhancedUserContextService()
+            enhanced_context = await context_service.get_enhanced_context(user_id)
+
+            audience_agent = AudienceInsightsAgent()
+            audience_insights = await audience_agent.get_audience_context_for_content(user_id)
+
+        except Exception as e:
+            logger.warning(f"Could not fetch enhanced context for description generation: {e}")
+            enhanced_context = {}
+            audience_insights = {}
+
         # Get agent personality
         agent = get_agent_personality(agent_id)
-        
-        # Build prompt for description generation
+
+        # Extract performance context
+        performance_context = enhanced_context.get('performance_intelligence', {})
+        channel_context = enhanced_context.get('channel_info', {})
+        audience_context = audience_insights.get('demographics', {})
+
+        # Build enhanced prompt for description generation
         description_prompt = f"""
         Create a compelling YouTube video description for:
-        
+
         Title: {title}
         Content Pillar: {pillar}
         Keywords to include: {', '.join(keywords) if keywords else 'None specified'}
-        
+
+        CHANNEL CONTEXT:
+        - Channel Size: {channel_context.get('subscriber_count', 'Growing')} subscribers
+        - Audience Demographics: {audience_context.get('primary_age_group', 'General audience')}
+        - Engagement Style: {audience_context.get('engagement_preferences', 'Standard engagement')}
+        - Top Performing Content: {performance_context.get('successful_content_patterns', 'Varied content')}
+
         Requirements:
         1. First 125 characters should be compelling (visible in search)
         2. Include relevant keywords naturally
-        3. Add clear value proposition
-        4. Include call-to-action for engagement
+        3. Add clear value proposition tailored to {audience_context.get('primary_age_group', 'your audience')}
+        4. Include call-to-action that matches your {audience_context.get('engagement_preferences', 'standard')} engagement style
         5. Add relevant hashtags at the end
-        6. Keep it engaging and informative
+        6. Keep it engaging and informative for {channel_context.get('subscriber_count', 'growing')} subscriber channel
         7. Optimize for YouTube SEO
+        8. Use language complexity appropriate for your audience demographic
         
         Structure:
         - Hook/Value proposition (first 2 lines)
