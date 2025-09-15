@@ -1205,7 +1205,109 @@ class BossAgent:
         except Exception as e:
             logger.error(f"Error getting channel content: {e}")
             return []
-    
+
+    async def _get_user_voice_profile_for_chat(self, user_id: str, voice_analyzer, enhanced_context: Dict) -> Dict[str, Any]:
+        """Get user's voice profile for chat responses"""
+        try:
+            # Get channel content for voice analysis
+            channel_content = enhanced_context.get('recent_content', [])
+            channel_info = enhanced_context.get('channel_info', {})
+
+            if channel_content:
+                voice_profile = await voice_analyzer.analyze_channel_voice(channel_content, channel_info)
+                return voice_profile
+            else:
+                # Return fallback voice profile
+                return {
+                    "voice_characteristics": {
+                        "tone": "Professional yet approachable",
+                        "formality_level": "Semi-formal",
+                        "personality": "Educational expert"
+                    },
+                    "writing_style": {
+                        "sentence_structure": "Clear and concise",
+                        "vocabulary_level": "Industry-specific, accessible",
+                        "pacing": "Steady, methodical"
+                    }
+                }
+        except Exception as e:
+            logger.warning(f"Could not get voice profile for chat user {user_id}: {e}")
+            return {}
+
+    async def _get_competitive_context_for_chat(self, user_id: str, enhanced_context: Dict) -> Dict[str, Any]:
+        """Get competitive insights for chat responses"""
+        try:
+            # Extract competitive intelligence from enhanced context
+            competitive_data = enhanced_context.get('competitive_intelligence', {})
+            return {
+                'market_gaps': competitive_data.get('content_gaps', []),
+                'differentiation_opportunities': competitive_data.get('opportunities', []),
+                'competitor_weaknesses': competitive_data.get('competitor_weaknesses', []),
+                'trending_in_niche': competitive_data.get('trending_topics', [])
+            }
+        except Exception as e:
+            logger.warning(f"Could not get competitive context for chat user {user_id}: {e}")
+            return {}
+
+    async def _get_trending_context_for_chat(self, user_id: str, enhanced_context: Dict) -> Dict[str, Any]:
+        """Get trending opportunities for chat responses"""
+        try:
+            trending_data = enhanced_context.get('trending_opportunities', {})
+            return {
+                'hot_topics': trending_data.get('hot_topics', []),
+                'emerging_trends': trending_data.get('emerging_trends', []),
+                'seasonal_opportunities': trending_data.get('seasonal', []),
+                'niche_trends': trending_data.get('niche_specific', [])
+            }
+        except Exception as e:
+            logger.warning(f"Could not get trending context for chat user {user_id}: {e}")
+            return {}
+
+    def _get_agent_specialization_for_chat(self, intent: QueryType, message: str) -> Dict[str, Any]:
+        """Get agent specialization for chat responses based on intent"""
+
+        # Agent specializations for chat responses
+        specializations = {
+            QueryType.CONTENT_ANALYSIS: {
+                "focus": "Creative content strategy and performance analysis",
+                "approach": "Data-driven creative insights with storytelling techniques",
+                "elements": ["Performance metrics", "Creative techniques", "Audience engagement", "Content optimization"],
+                "style": "Energetic and creative, with analytical backing"
+            },
+            QueryType.AUDIENCE_INSIGHTS: {
+                "focus": "Community building and authentic audience connections",
+                "approach": "Relationship-focused analysis with engagement strategies",
+                "elements": ["Community insights", "Engagement patterns", "Audience behavior", "Connection strategies"],
+                "style": "Warm and community-focused, with empathetic understanding"
+            },
+            QueryType.SEO_OPTIMIZATION: {
+                "focus": "Technical optimization and discoverability enhancement",
+                "approach": "SEO-focused analysis with technical precision",
+                "elements": ["Search optimization", "Technical details", "Platform mechanics", "Discoverability tactics"],
+                "style": "Technical and precise, with systematic approach"
+            },
+            QueryType.COMPETITIVE_ANALYSIS: {
+                "focus": "Strategic growth and market positioning",
+                "approach": "Growth-oriented analysis with competitive intelligence",
+                "elements": ["Market analysis", "Growth strategies", "Competitive positioning", "Scaling techniques"],
+                "style": "Strategic and results-driven, with growth focus"
+            },
+            QueryType.MONETIZATION: {
+                "focus": "Revenue optimization and business strategy",
+                "approach": "Business-focused analysis with monetization strategies",
+                "elements": ["Revenue streams", "Business metrics", "Monetization tactics", "Financial optimization"],
+                "style": "Business-oriented and strategic, with ROI focus"
+            },
+            QueryType.GENERAL: {
+                "focus": "Comprehensive YouTube strategy and analytics",
+                "approach": "Holistic analysis with data-driven insights",
+                "elements": ["Performance analytics", "Strategic insights", "Growth recommendations", "Optimization tactics"],
+                "style": "Professional and analytical, with strategic guidance"
+            }
+        }
+
+        return specializations.get(intent, specializations[QueryType.GENERAL])
+
     async def process_user_query(self, message: str, user_context: Dict) -> Dict[str, Any]:
         """
         Main entry point for processing user queries
@@ -1259,9 +1361,52 @@ class BossAgent:
                     enhanced_context = await get_enhanced_context_manager().get_enhanced_context(user_id)
                     channel_info = enhanced_context.get("channel_info", {})
                     realtime_data = enhanced_context.get("realtime_data", {})
-                    
+
                     # Add OAuth status to context for debugging
                     enhanced_context['oauth_status'] = oauth_status
+
+                    # Get additional enhanced context services for chat
+                    try:
+                        from backend.App.enhanced_user_context import EnhancedUserContextService
+                        from backend.App.audience_insights_agent import AudienceInsightsAgent
+                        from backend.App.voice_analyzer import get_voice_analyzer
+
+                        # Get enhanced user context with performance data
+                        context_service = EnhancedUserContextService()
+                        enhanced_user_context = await context_service.get_enhanced_context(user_id)
+
+                        # Get audience insights for personalization
+                        audience_agent = AudienceInsightsAgent()
+                        audience_insights = await audience_agent.get_audience_context_for_content(user_id)
+
+                        # Get voice profile for style matching
+                        voice_analyzer = get_voice_analyzer()
+                        voice_profile = await self._get_user_voice_profile_for_chat(user_id, voice_analyzer, enhanced_user_context)
+
+                        # Get competitive and trending insights
+                        competitive_insights = await self._get_competitive_context_for_chat(user_id, enhanced_user_context)
+                        trending_context = await self._get_trending_context_for_chat(user_id, enhanced_user_context)
+
+                        # Merge enhanced contexts
+                        enhanced_context.update({
+                            'enhanced_user_context': enhanced_user_context,
+                            'audience_insights': audience_insights,
+                            'voice_profile': voice_profile,
+                            'competitive_insights': competitive_insights,
+                            'trending_context': trending_context
+                        })
+
+                        logger.info(f"✅ Enhanced chat context loaded for {user_id}")
+
+                    except Exception as e:
+                        logger.warning(f"Could not load enhanced chat context for {user_id}: {e}")
+                        enhanced_context.update({
+                            'enhanced_user_context': {},
+                            'audience_insights': {},
+                            'voice_profile': {},
+                            'competitive_insights': {},
+                            'trending_context': {}
+                        })
                     
                     # Enhanced context logging
                     total_views = channel_info.get('total_view_count', 0)
@@ -1947,6 +2092,21 @@ class BossAgent:
         
         # Create enhanced synthesis prompt with confidence weighting
         channel_info = user_context.get("channel_info", {})
+
+        # Extract enhanced context for chat personalization
+        enhanced_user_context = user_context.get('enhanced_user_context', {})
+        audience_insights = user_context.get('audience_insights', {})
+        voice_profile = user_context.get('voice_profile', {})
+        competitive_insights = user_context.get('competitive_insights', {})
+        trending_context = user_context.get('trending_context', {})
+
+        # Extract voice characteristics for response matching
+        voice_characteristics = voice_profile.get('voice_characteristics', {})
+        writing_style = voice_profile.get('writing_style', {})
+        audience_context = audience_insights.get('demographics', {})
+
+        # Determine primary agent specialization based on intent
+        primary_agent_specialization = self._get_agent_specialization_for_chat(intent, message)
         
         # Calculate confidence-weighted insights
         high_confidence_insights = []
@@ -1972,13 +2132,13 @@ class BossAgent:
         
         synthesis_prompt = f"""
         You are Vidalytics's AI assistant. Provide an expert, data-driven response to this YouTube creator's question.
-        
+
         {self._get_voice_guidelines()}
-        
+
         CREATOR'S QUESTION: "{message}"
         DETECTED INTENT: {intent.value.replace('_', ' ').title()}
         CHANNEL: {channel_info.get('name', 'Creator')}
-        
+
         REAL-TIME CHANNEL DATA:
         • Total Views: {channel_info.get('total_view_count', 0):,}
         • Subscribers: {channel_info.get('subscriber_count', 0):,}
@@ -1987,6 +2147,30 @@ class BossAgent:
         • Current CTR: {channel_info.get('recent_ctr', 0):.1f}%
         • Retention Rate: {channel_info.get('recent_retention', 0):.1f}%
         • Engagement Rate: {channel_info.get('recent_engagement_rate', 0):.1f}%
+
+        VOICE MATCHING PROFILE:
+        • Channel Tone: {voice_characteristics.get('tone', 'Professional yet approachable')}
+        • Formality Level: {voice_characteristics.get('formality_level', 'Semi-formal')}
+        • Personality: {voice_characteristics.get('personality', 'Educational expert')}
+        • Writing Style: {writing_style.get('sentence_structure', 'Clear and concise')}
+        • Vocabulary Level: {writing_style.get('vocabulary_level', 'Industry-specific, accessible')}
+
+        AUDIENCE INSIGHTS:
+        • Primary Demographics: {audience_context.get('primary_age_group', 'General audience')}
+        • Content Preferences: {audience_context.get('content_preferences', 'Varied interests')}
+        • Communication Style: {audience_context.get('preferred_communication_style', 'Professional and engaging')}
+
+        COMPETITIVE INTELLIGENCE:
+        • Market Gaps: {competitive_insights.get('market_gaps', ['General opportunities'])}
+        • Trending in Niche: {trending_context.get('niche_trends', ['Current topics'])}
+        • Hot Topics: {trending_context.get('hot_topics', ['Popular subjects'])}
+        • Differentiation Opportunities: {competitive_insights.get('differentiation_opportunities', ['Unique perspective'])}
+
+        AGENT SPECIALIZATION FOCUS:
+        • Primary Expertise: {primary_agent_specialization['focus']}
+        • Specialized Approach: {primary_agent_specialization['approach']}
+        • Key Elements: {primary_agent_specialization['elements']}
+        • Response Style: {primary_agent_specialization['style']}
         
         AI AGENT ANALYSIS (Prioritized by Confidence):
         {chr(10).join(prioritized_insights)}
@@ -1997,12 +2181,20 @@ class BossAgent:
         2. **DATA-DRIVEN**: Use only the real metrics provided above - no generic estimates
         3. **CONTEXT-AWARE**: Reference their channel's specific performance levels
         4. **ACTIONABLE**: Include 1-2 specific next steps if relevant to their question
-        5. **PROFESSIONAL TONE**: Expert but approachable, like a seasoned YouTube strategist
+        5. **VOICE MATCHING**: Match their established tone ({voice_characteristics.get('tone', 'professional')}) and formality level ({voice_characteristics.get('formality_level', 'semi-formal')})
+        6. **AUDIENCE APPROPRIATE**: Use language suitable for their {audience_context.get('primary_age_group', 'general')} audience
+        7. **COMPETITIVE AWARENESS**: Include relevant market opportunities or trending topics when applicable
+        8. **AGENT SPECIALIZATION**: Apply {primary_agent_specialization['focus']} with {primary_agent_specialization['style']}
+        9. **SPECIALIZED ELEMENTS**: Include {primary_agent_specialization['elements']} in your response
+        10. **PROFESSIONAL TONE**: Expert but approachable, like a seasoned YouTube strategist
         
         QUALITY STANDARDS:
         ✓ Answer must be specific to their exact question
         ✓ Use precise numbers from the data above
         ✓ Provide context relative to YouTube benchmarks when relevant
+        ✓ Match their channel's voice and communication style
+        ✓ Include competitive insights or trending opportunities when relevant
+        ✓ Use vocabulary appropriate for their audience demographic
         ✓ Keep total response under 200 words unless complex analysis requested
         ✓ End with actionable next step if applicable
         
