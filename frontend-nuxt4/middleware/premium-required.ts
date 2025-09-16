@@ -32,6 +32,7 @@ function checkPremiumAccess(subscription: any, feature: string): boolean {
     'advanced-analytics': ['solo_pro', 'teams'],
     'competitor-tracking': ['solo_pro', 'teams'],
     'trend-analysis': ['solo_pro', 'teams'],
+    'competitive-intelligence': ['solo_pro', 'teams'],
     'team-collaboration': ['teams'],
     'unlimited-content': ['solo_pro', 'teams'],
     'unlimited-goals': ['solo_pro', 'teams']

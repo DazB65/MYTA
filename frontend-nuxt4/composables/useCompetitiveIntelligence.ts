@@ -239,11 +239,31 @@ export const useCompetitiveIntelligence = () => {
         },
         blue_ocean_opportunities: [
           {
-            title: 'AI-Powered Video Editing Tools',
-            market_size: 'Large',
-            competition_density: 'Low',
-            success_probability: 85,
-            description: 'Emerging market with high demand and low competition'
+            ocean_id: 'ai-creator-tools',
+            market_name: 'AI-Powered Creator Tools',
+            unique_value_proposition: 'First-to-market advantage in AI-assisted content creation for everyday creators',
+            market_size: 250000,
+            competition_density: 0.15,
+            potential_roi: 4.2,
+            success_probability: 0.85
+          },
+          {
+            ocean_id: 'sustainable-tech-reviews',
+            market_name: 'Sustainable Tech Reviews',
+            unique_value_proposition: 'Eco-conscious technology reviews focusing on environmental impact and sustainability',
+            market_size: 180000,
+            competition_density: 0.08,
+            potential_roi: 3.8,
+            success_probability: 0.78
+          },
+          {
+            ocean_id: 'no-code-enterprise',
+            market_name: 'No-Code for Enterprise',
+            unique_value_proposition: 'Enterprise-level no-code solutions and tutorials for business teams',
+            market_size: 320000,
+            competition_density: 0.12,
+            potential_roi: 5.1,
+            success_probability: 0.82
           }
         ],
         competitive_threats: [
@@ -275,24 +295,56 @@ export const useCompetitiveIntelligence = () => {
         },
         market_opportunities: [
           {
+            opportunity_id: 'ai-video-editing',
             title: 'AI-Powered Video Editing Tools',
             opportunity_score: 95,
             market_size: 'Large',
             competition_density: 'Low',
             time_sensitivity: 'High',
             effort_required: 'Medium',
+            potential_impact: 'Very High',
+            type: 'Content Strategy',
             success_probability: 85,
             description: 'Emerging market with high demand and low competition'
           },
           {
+            opportunity_id: 'sustainable-tech',
             title: 'Sustainable Tech Reviews',
             opportunity_score: 88,
             market_size: 'Medium',
             competition_density: 'Medium',
             time_sensitivity: 'Medium',
             effort_required: 'Low',
+            potential_impact: 'High',
+            type: 'Niche Market',
             success_probability: 78,
             description: 'Growing interest in eco-friendly technology solutions'
+          },
+          {
+            opportunity_id: 'enterprise-tutorials',
+            title: 'Enterprise Software Tutorials',
+            opportunity_score: 82,
+            market_size: 'Large',
+            competition_density: 'Medium',
+            time_sensitivity: 'Medium',
+            effort_required: 'High',
+            potential_impact: 'High',
+            type: 'Business Expansion',
+            success_probability: 75,
+            description: 'High-value enterprise software tutorials with premium monetization potential'
+          },
+          {
+            opportunity_id: 'live-coding',
+            title: 'Live Coding Sessions',
+            opportunity_score: 76,
+            market_size: 'Medium',
+            competition_density: 'High',
+            time_sensitivity: 'Low',
+            effort_required: 'Medium',
+            potential_impact: 'Medium',
+            type: 'Content Format',
+            success_probability: 68,
+            description: 'Interactive live coding sessions to build stronger community engagement'
           }
         ],
         content_gaps: [
