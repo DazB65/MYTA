@@ -20,6 +20,7 @@ from .data_access_monitor import get_data_access_monitor
 # Use centralized model integration
 from .model_integrations import create_agent_call_to_integration
 from .intelligent_agent_workflows import create_intelligent_workflow, execute_intelligent_workflow, get_workflow_status
+from .proactive_agent_collaboration import get_collaboration_statistics, get_relevant_insights_for_agent
 
 # Configure advanced logging
 from backend.logging_config import get_logger, LogCategory
@@ -1901,9 +1902,16 @@ class BossAgent:
             
             # Step 5: Execute agents (parallel where possible)
             agent_responses = await self._execute_agents(active_agents, requests)
-            
-            # Step 6: Synthesize final response with enhanced context
-            final_response = await self._synthesize_response(intent, agent_responses, enhanced_context if user_id else user_context, message)
+
+            # Step 5.5: Analyze for proactive collaboration opportunities
+            collaboration_insights = await self._analyze_proactive_collaboration(
+                active_agents, agent_responses, enhanced_context if user_id else user_context
+            )
+
+            # Step 6: Synthesize final response with enhanced context and collaboration insights
+            final_response = await self._synthesize_response(
+                intent, agent_responses, enhanced_context if user_id else user_context, message, collaboration_insights
+            )
             
             # Step 7: Cache the response
             if final_response.get("success", False):
@@ -2125,7 +2133,159 @@ class BossAgent:
             logger.error(f"Fallback response creation failed for {agent_type.value}: {e}")
             return None
     
-    async def _synthesize_response(self, intent: QueryType, agent_responses: List[AgentResponse], user_context: Dict, message: str) -> Dict[str, Any]:
+    async def _analyze_proactive_collaboration(
+        self,
+        active_agents: List[str],
+        agent_responses: List[AgentResponse],
+        user_context: Dict[str, Any]
+    ) -> Dict[str, Any]:
+        """Analyze agent responses for proactive collaboration opportunities"""
+
+        collaboration_insights = {
+            "collaboration_suggestions": [],
+            "cross_agent_insights": [],
+            "collaboration_opportunities": [],
+            "agent_synergies": []
+        }
+
+        try:
+            # Get collaboration statistics
+            collab_stats = get_collaboration_statistics()
+
+            # Analyze each agent's response for collaboration patterns
+            for response in agent_responses:
+                if not response or not hasattr(response, 'agent_type'):
+                    continue
+
+                agent_name = response.agent_type.value if hasattr(response.agent_type, 'value') else str(response.agent_type)
+
+                # Check if this agent has collaboration metadata
+                if hasattr(response, 'analysis') and isinstance(response.analysis, dict):
+                    analysis = response.analysis
+
+                    # Look for collaboration suggestions in the response
+                    if "collaboration_suggestions" in analysis:
+                        for suggestion in analysis["collaboration_suggestions"]:
+                            collaboration_insights["collaboration_suggestions"].append({
+                                "source_agent": agent_name,
+                                "suggested_agents": suggestion.get("suggested_agents", []),
+                                "reason": suggestion.get("reason", ""),
+                                "expected_outcome": suggestion.get("expected_outcome", ""),
+                                "confidence": suggestion.get("confidence", 0.5)
+                            })
+
+                    # Look for received insights
+                    if "received_insights" in analysis:
+                        for insight in analysis["received_insights"]:
+                            collaboration_insights["cross_agent_insights"].append({
+                                "receiving_agent": agent_name,
+                                "source_agent": insight.get("source_agent", ""),
+                                "insight_type": insight.get("insight_type", ""),
+                                "interpretation": insight.get("interpretation", "")
+                            })
+
+            # Identify potential agent synergies
+            collaboration_insights["agent_synergies"] = self._identify_agent_synergies(active_agents, agent_responses)
+
+            # Generate collaboration opportunities based on current analysis
+            collaboration_insights["collaboration_opportunities"] = self._generate_collaboration_opportunities(
+                active_agents, agent_responses, user_context
+            )
+
+            logger.info(f"🤝 Proactive collaboration analysis: "
+                       f"{len(collaboration_insights['collaboration_suggestions'])} suggestions, "
+                       f"{len(collaboration_insights['cross_agent_insights'])} cross-agent insights")
+
+        except Exception as e:
+            logger.error(f"Proactive collaboration analysis failed: {e}")
+
+        return collaboration_insights
+
+    def _identify_agent_synergies(self, active_agents: List[str], agent_responses: List[AgentResponse]) -> List[Dict[str, Any]]:
+        """Identify synergies between active agents"""
+
+        synergies = []
+
+        # Define known synergies between agents
+        synergy_patterns = {
+            ("content_analysis", "seo_optimization"): "Content quality insights enhance SEO optimization strategies",
+            ("audience_insights", "monetization"): "Audience behavior data improves monetization targeting",
+            ("competitive_analysis", "content_analysis"): "Competitive insights inform content strategy development",
+            ("seo_optimization", "competitive_analysis"): "SEO data reveals competitive positioning opportunities",
+            ("audience_insights", "content_analysis"): "Audience preferences guide content optimization",
+            ("monetization", "competitive_analysis"): "Revenue strategies benefit from competitive market analysis"
+        }
+
+        # Check for active synergies
+        for (agent1, agent2), synergy_description in synergy_patterns.items():
+            if agent1 in active_agents and agent2 in active_agents:
+                synergies.append({
+                    "agents": [agent1, agent2],
+                    "synergy_type": "complementary_analysis",
+                    "description": synergy_description,
+                    "strength": 0.8  # High synergy strength
+                })
+
+        return synergies
+
+    def _generate_collaboration_opportunities(
+        self,
+        active_agents: List[str],
+        agent_responses: List[AgentResponse],
+        user_context: Dict[str, Any]
+    ) -> List[Dict[str, Any]]:
+        """Generate collaboration opportunities based on current analysis"""
+
+        opportunities = []
+
+        # Analyze response patterns to suggest additional collaborations
+        response_data = {}
+        for response in agent_responses:
+            if response and hasattr(response, 'agent_type') and hasattr(response, 'analysis'):
+                agent_name = response.agent_type.value if hasattr(response.agent_type, 'value') else str(response.agent_type)
+                response_data[agent_name] = response.analysis
+
+        # Look for patterns that suggest additional agent involvement
+        if "content_analysis" in response_data:
+            content_analysis = response_data["content_analysis"]
+
+            # If content analysis shows low engagement, suggest audience insights
+            if isinstance(content_analysis, dict) and content_analysis.get("engagement_score", 1.0) < 0.5:
+                if "audience_insights" not in active_agents:
+                    opportunities.append({
+                        "opportunity_type": "low_engagement_investigation",
+                        "suggested_agent": "audience_insights",
+                        "reason": "Low engagement detected - audience analysis could identify causes",
+                        "priority": "high",
+                        "expected_benefit": "Identify audience behavior patterns causing low engagement"
+                    })
+
+            # If content shows high viral potential, suggest competitive analysis
+            if isinstance(content_analysis, dict) and content_analysis.get("viral_potential_score", 0.0) > 0.8:
+                if "competitive_analysis" not in active_agents:
+                    opportunities.append({
+                        "opportunity_type": "viral_potential_maximization",
+                        "suggested_agent": "competitive_analysis",
+                        "reason": "High viral potential - competitive positioning could maximize impact",
+                        "priority": "high",
+                        "expected_benefit": "Optimize competitive positioning for viral content"
+                    })
+
+        # Look for SEO opportunities that could benefit from content analysis
+        if "seo_optimization" in response_data and "content_analysis" not in active_agents:
+            seo_analysis = response_data["seo_optimization"]
+            if isinstance(seo_analysis, dict) and seo_analysis.get("keyword_opportunity_score", 0.0) > 0.7:
+                opportunities.append({
+                    "opportunity_type": "keyword_content_optimization",
+                    "suggested_agent": "content_analysis",
+                    "reason": "High-value keywords identified - content analysis could optimize targeting",
+                    "priority": "medium",
+                    "expected_benefit": "Align content strategy with high-opportunity keywords"
+                })
+
+        return opportunities
+
+    async def _synthesize_response(self, intent: QueryType, agent_responses: List[AgentResponse], user_context: Dict, message: str, collaboration_insights: Dict[str, Any] = None) -> Dict[str, Any]:
         """Synthesize final response from agent outputs"""
         
         if not agent_responses:
@@ -2297,7 +2457,8 @@ class BossAgent:
             # Fallback to simple concatenation
             synthesized_response = f"Based on your {intent.value.replace('_', ' ')} request, here's what I found:\n\n" + "\n\n".join(all_insights)
         
-        return {
+        # Prepare final response with collaboration insights
+        final_response = {
             "success": True,
             "response": synthesized_response,
             "intent": intent.value,
@@ -2306,6 +2467,51 @@ class BossAgent:
             "processing_time": sum(r.processing_time for r in agent_responses),
             "confidence": sum(r.confidence for r in agent_responses) / len(agent_responses)
         }
+
+        # Add collaboration insights if available
+        if collaboration_insights:
+            collaboration_summary = self._format_collaboration_summary(collaboration_insights)
+            if collaboration_summary:
+                final_response["collaboration_insights"] = collaboration_insights
+                final_response["collaboration_summary"] = collaboration_summary
+
+                # Append collaboration summary to response if significant
+                if (len(collaboration_insights.get("collaboration_suggestions", [])) > 0 or
+                    len(collaboration_insights.get("collaboration_opportunities", [])) > 0):
+                    final_response["response"] += f"\n\n{collaboration_summary}"
+
+        return final_response
+
+    def _format_collaboration_summary(self, collaboration_insights: Dict[str, Any]) -> str:
+        """Format collaboration insights for user display"""
+
+        summary_parts = []
+
+        # Add collaboration suggestions
+        suggestions = collaboration_insights.get("collaboration_suggestions", [])
+        if suggestions:
+            summary_parts.append("🤝 **Agent Collaboration Insights:**")
+            for suggestion in suggestions[:3]:  # Top 3 suggestions
+                agents = ", ".join(suggestion.get("suggested_agents", []))
+                reason = suggestion.get("reason", "")
+                summary_parts.append(f"• {suggestion.get('source_agent', 'Agent')} suggests collaborating with {agents}: {reason}")
+
+        # Add collaboration opportunities
+        opportunities = collaboration_insights.get("collaboration_opportunities", [])
+        if opportunities:
+            summary_parts.append("\n💡 **Additional Analysis Opportunities:**")
+            for opp in opportunities[:2]:  # Top 2 opportunities
+                summary_parts.append(f"• {opp.get('suggested_agent', 'Agent')}: {opp.get('reason', '')}")
+
+        # Add agent synergies
+        synergies = collaboration_insights.get("agent_synergies", [])
+        if synergies:
+            summary_parts.append("\n⚡ **Agent Synergies Detected:**")
+            for synergy in synergies[:2]:  # Top 2 synergies
+                agents = " + ".join(synergy.get("agents", []))
+                summary_parts.append(f"• {agents}: {synergy.get('description', '')}")
+
+        return "\n".join(summary_parts) if summary_parts else ""
 
 # Initialize boss agent instance
 boss_agent = None
