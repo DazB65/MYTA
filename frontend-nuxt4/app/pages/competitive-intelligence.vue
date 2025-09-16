@@ -20,9 +20,9 @@
 <script setup>
 import CompetitiveIntelligenceDashboard from '../../components/competitive/CompetitiveIntelligenceDashboard.vue';
 
-// Protect this route with authentication and premium access
+// Protect this route with authentication
 definePageMeta({
-  middleware: ['auth', 'premium-required']
+  middleware: 'auth'
 })
 
 // Set page title
