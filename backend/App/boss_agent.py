@@ -19,6 +19,7 @@ from .boss_agent_auth_compat import get_boss_agent_authenticator
 from .data_access_monitor import get_data_access_monitor
 # Use centralized model integration
 from .model_integrations import create_agent_call_to_integration
+from .intelligent_agent_workflows import create_intelligent_workflow, execute_intelligent_workflow, get_workflow_status
 
 # Configure advanced logging
 from backend.logging_config import get_logger, LogCategory
@@ -1812,9 +1813,80 @@ class BossAgent:
             
             # Step 1: Parse message and classify intent
             intent, parameters = await self.intent_classifier.classify_intent(message, user_context)
-            
+
             logger.info(f"Classified intent: {intent.value} with parameters: {parameters}")
-            
+
+            # Step 1.5: Check if this requires intelligent workflow processing
+            workflow_keywords = [
+                "optimize", "full analysis", "complete", "comprehensive", "strategy",
+                "audit", "improve everything", "analyze all", "full optimization",
+                "content strategy", "channel audit", "video optimization"
+            ]
+
+            if any(keyword in message.lower() for keyword in workflow_keywords):
+                logger.info(f"🔄 Detected complex request requiring intelligent workflow processing")
+
+                try:
+                    # Create and execute intelligent workflow
+                    workflow = await create_intelligent_workflow(user_id, message, enhanced_context if user_id else user_context)
+                    workflow_result = await execute_intelligent_workflow(workflow.workflow_id)
+
+                    if workflow_result.get("success", False):
+                        logger.info(f"✅ Intelligent workflow completed successfully: {workflow.workflow_id}")
+
+                        # Format workflow results for user
+                        results = workflow_result["results"]
+                        response_parts = [
+                            f"🎯 **Intelligent Analysis Complete**",
+                            f"",
+                            f"I've coordinated {len(results['workflow_summary']['agents_involved'])} specialized agents to provide you with comprehensive insights:",
+                            f""
+                        ]
+
+                        # Add key insights
+                        if results.get("key_insights"):
+                            response_parts.append("📊 **Key Insights:**")
+                            for insight in results["key_insights"][:5]:  # Top 5 insights
+                                response_parts.append(f"• {insight}")
+                            response_parts.append("")
+
+                        # Add recommendations
+                        if results.get("recommendations"):
+                            response_parts.append("💡 **Recommendations:**")
+                            for rec in results["recommendations"][:5]:  # Top 5 recommendations
+                                response_parts.append(f"• {rec}")
+                            response_parts.append("")
+
+                        # Add action plan
+                        if results.get("action_plan"):
+                            response_parts.append("🚀 **Action Plan:**")
+                            for action in results["action_plan"]:
+                                response_parts.append(f"• {action}")
+                            response_parts.append("")
+
+                        # Add workflow metadata
+                        execution_time = results["workflow_metadata"]["completion_time"]
+                        agents_used = results["workflow_summary"]["agents_involved"]
+                        response_parts.append(f"⚡ Completed in {workflow_result['execution_time']:.1f}s using {len(agents_used)} agents: {', '.join(agents_used)}")
+
+                        return {
+                            "success": True,
+                            "response": "\n".join(response_parts),
+                            "intent": intent.value,
+                            "agents_used": agents_used,
+                            "processing_time": workflow_result['execution_time'],
+                            "confidence": 0.95,
+                            "workflow_id": workflow.workflow_id,
+                            "workflow_results": results
+                        }
+                    else:
+                        logger.warning(f"❌ Intelligent workflow failed: {workflow_result.get('error', 'Unknown error')}")
+                        # Fall back to standard processing
+
+                except Exception as e:
+                    logger.error(f"Intelligent workflow processing failed: {e}")
+                    # Fall back to standard processing
+
             # Step 2: Check cache for existing response
             cached_response = self.cache.get(message, user_context, intent.value)
             if cached_response:
