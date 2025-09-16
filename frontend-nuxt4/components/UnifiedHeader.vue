@@ -232,6 +232,7 @@ const mainMenuItems = [
   { name: 'Pillars', path: '/pillars' },
   { name: 'Videos', path: '/videos' },
   { name: 'Content Studio', path: '/content-studio' },
+  { name: 'Competitive Intel', path: '/competitive-intelligence' },
   { name: 'Team', path: '/team' }
 ]
 
