@@ -1,20 +1,20 @@
 <template>
-  <div class="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900">
-    <!-- Header -->
-    <AppHeader />
-    
+  <div class="p-6 pt-24">
+    <!-- Page Header -->
+    <div class="mb-6">
+      <h1 class="text-2xl font-bold text-white">Competitive Intelligence 2.0</h1>
+      <p class="text-gray-400">Advanced market positioning and strategic analysis</p>
+    </div>
+
     <!-- Main Content -->
-    <main class="pt-20 pb-8">
-      <div class="max-w-7xl mx-auto px-6">
-        <CompetitiveIntelligenceDashboard />
-      </div>
-    </main>
+    <div class="max-w-7xl mx-auto">
+      <CompetitiveIntelligenceDashboard />
+    </div>
   </div>
 </template>
 
 <script setup>
-import AppHeader from '../../components/AppHeader.vue'
-import CompetitiveIntelligenceDashboard from '../../components/competitive/CompetitiveIntelligenceDashboard.vue'
+import CompetitiveIntelligenceDashboard from '../../components/competitive/CompetitiveIntelligenceDashboard.vue';
 
 // Protect this route with authentication
 definePageMeta({

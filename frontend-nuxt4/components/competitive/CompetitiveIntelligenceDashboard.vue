@@ -1,32 +1,26 @@
 <template>
   <div class="space-y-6">
-    <!-- Header -->
-    <div class="flex items-center justify-between">
-      <div>
-        <h1 class="text-2xl font-bold text-white">Competitive Intelligence 2.0</h1>
-        <p class="text-gray-400">Advanced market positioning and strategic analysis</p>
-      </div>
-      <div class="flex items-center space-x-3">
-        <button
-          @click="refreshAnalysis"
-          :disabled="isLoading"
-          class="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center space-x-2"
-        >
-          <svg class="h-4 w-4" :class="{ 'animate-spin': isLoading }" fill="currentColor" viewBox="0 0 20 20">
-            <path fill-rule="evenodd" d="M4 2a1 1 0 011 1v2.101a7.002 7.002 0 0111.601 2.566 1 1 0 11-1.885.666A5.002 5.002 0 005.999 7H9a1 1 0 010 2H4a1 1 0 01-1-1V3a1 1 0 011-1zm.008 9.057a1 1 0 011.276.61A5.002 5.002 0 0014.001 13H11a1 1 0 110-2h5a1 1 0 011 1v5a1 1 0 11-2 0v-2.101a7.002 7.002 0 01-11.601-2.566 1 1 0 01.61-1.276z" clip-rule="evenodd"/>
-          </svg>
-          <span>{{ isLoading ? 'Analyzing...' : 'Refresh Analysis' }}</span>
-        </button>
-        <select
-          v-model="filters.analysisDepth"
-          @change="refreshAnalysis"
-          class="rounded-lg border-2 border-gray-600/70 bg-gray-700 px-3 py-2 text-white focus:border-blue-500 focus:outline-none"
-        >
-          <option value="quick">Quick Analysis</option>
-          <option value="standard">Standard Analysis</option>
-          <option value="comprehensive">Comprehensive Analysis</option>
-        </select>
-      </div>
+    <!-- Controls -->
+    <div class="flex items-center justify-end space-x-3">
+      <button
+        @click="refreshAnalysis"
+        :disabled="isLoading"
+        class="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center space-x-2"
+      >
+        <svg class="h-4 w-4" :class="{ 'animate-spin': isLoading }" fill="currentColor" viewBox="0 0 20 20">
+          <path fill-rule="evenodd" d="M4 2a1 1 0 011 1v2.101a7.002 7.002 0 0111.601 2.566 1 1 0 11-1.885.666A5.002 5.002 0 005.999 7H9a1 1 0 010 2H4a1 1 0 01-1-1V3a1 1 0 011-1zm.008 9.057a1 1 0 011.276.61A5.002 5.002 0 0014.001 13H11a1 1 0 110-2h5a1 1 0 011 1v5a1 1 0 11-2 0v-2.101a7.002 7.002 0 01-11.601-2.566 1 1 0 01.61-1.276z" clip-rule="evenodd"/>
+        </svg>
+        <span>{{ isLoading ? 'Analyzing...' : 'Refresh Analysis' }}</span>
+      </button>
+      <select
+        v-model="filters.analysisDepth"
+        @change="refreshAnalysis"
+        class="rounded-lg border-2 border-gray-600/70 bg-gray-700 px-3 py-2 text-white focus:border-blue-500 focus:outline-none"
+      >
+        <option value="quick">Quick Analysis</option>
+        <option value="standard">Standard Analysis</option>
+        <option value="comprehensive">Comprehensive Analysis</option>
+      </select>
     </div>
 
     <!-- Quick Insights Cards -->
@@ -211,15 +205,15 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
+import { onMounted, ref } from 'vue'
 import { useCompetitiveIntelligence } from '../../composables/useCompetitiveIntelligence'
 
 // Import child components (will create these next)
 import CompetitiveOverview from './CompetitiveOverview.vue'
+import CompetitiveThreats from './CompetitiveThreats.vue'
 import CompetitorProfiles from './CompetitorProfiles.vue'
 import ContentGapsAnalysis from './ContentGapsAnalysis.vue'
 import MarketOpportunities from './MarketOpportunities.vue'
-import CompetitiveThreats from './CompetitiveThreats.vue'
 import StrategicRecommendations from './StrategicRecommendations.vue'
 
 // Competitive intelligence composable
