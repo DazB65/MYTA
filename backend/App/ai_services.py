@@ -3,7 +3,7 @@ from openai import OpenAI
 from dotenv import load_dotenv
 from typing import List, Dict
 import json
-from backend.database import db_manager
+from .database import db_manager
 
 # Load environment variables from .env file (overriding system env vars for security)
 from dotenv import dotenv_values

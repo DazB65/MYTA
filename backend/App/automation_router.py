@@ -10,10 +10,10 @@ from typing import Dict, Any, List, Optional
 from fastapi import APIRouter, HTTPException, Depends
 from pydantic import BaseModel, Field
 
-from backend.App.intelligent_automation_engine import (
-    IntelligentAutomationEngine, 
-    AutomationSettings, 
-    AutomatedAction, 
+from .intelligent_automation_engine import (
+    IntelligentAutomationEngine,
+    AutomationSettings,
+    AutomatedAction,
     SmartNotification,
     AutoScheduleRecommendation,
     AutomationType,

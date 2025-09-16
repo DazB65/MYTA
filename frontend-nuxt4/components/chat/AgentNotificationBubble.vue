@@ -42,7 +42,7 @@
       </div>
 
       <!-- Notification Bubble -->
-      <div class="rounded-xl p-4 border backdrop-blur-sm"
+      <div class="rounded-xl p-4 bg-gray-900/80 backdrop-blur-sm border-2 border-gray-600/70 shadow-lg"
            :class="getNotificationStyle(notification.agentName, notification.priority)">
         
         <!-- Notification Title -->
@@ -150,8 +150,6 @@ const getAgentRingColor = (agentName: string) => {
 }
 
 const getNotificationStyle = (agentName: string, priority: string) => {
-  const baseClasses = 'bg-gradient-to-r backdrop-blur-sm from-gray-900/60 to-gray-800/60'
-
   // Agent-specific border colors - matching backend agent definitions with higher visibility
   const agentBorderColors = {
     'Alex': 'border-orange-500/80',   // #f97316 (Agent 1)
@@ -165,9 +163,9 @@ const getNotificationStyle = (agentName: string, priority: string) => {
 
   if (priority === 'high') {
     // For high priority, use full opacity border
-    return `${baseClasses} ${borderColor.replace('/80', '')}`
+    return borderColor.replace('/80', '')
   } else {
-    return `${baseClasses} ${borderColor}`
+    return borderColor
   }
 }
 

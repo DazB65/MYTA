@@ -11,9 +11,9 @@ from dataclasses import dataclass, asdict
 from enum import Enum
 import json
 
-from backend.App.enhanced_user_context import EnhancedUserContextManager
-from backend.App.advanced_prediction_engine import get_prediction_engine
-from backend.App.learning_adaptation_engine import get_learning_engine
+from .enhanced_user_context import EnhancedUserContextManager
+from .advanced_prediction_engine import get_prediction_engine
+from .learning_adaptation_engine import get_learning_engine
 
 logger = logging.getLogger(__name__)
 

@@ -12,19 +12,19 @@
   <Transition name="slide-right">
     <div
       v-if="isOpen"
-      class="fixed right-0 top-0 z-50 h-full bg-gray-800 shadow-2xl border-l-2 flex"
+      class="fixed right-0 top-0 z-50 h-full bg-gradient-to-b from-slate-800 via-gray-850 to-gray-900 shadow-2xl border-l-2 flex"
       :class="getAgentBorderClass(selectedAgentData.id)"
       style="width: calc(100vw - 280px); left: 280px;"
     >
       <!-- Left Sidebar for Questions & Suggestions -->
-      <div class="w-80 bg-gray-700 border-r border-gray-600 flex flex-col">
+      <div class="w-80 bg-gray-900/80 backdrop-blur-sm border-r border-gray-600/70 flex flex-col">
         <!-- Sidebar Header -->
-        <div class="p-4 border-b border-forest-700">
+        <div class="p-4 border-b border-gray-600/70">
           <h3 class="text-sm font-medium text-white">Quick Access</h3>
         </div>
 
         <!-- Saved Questions Section -->
-        <div v-if="savedQuestions.length > 0" class="p-4 border-b border-forest-700">
+        <div v-if="savedQuestions.length > 0" class="p-4 border-b border-gray-600/70">
           <div class="flex items-center justify-between mb-3">
             <h4 class="text-xs font-medium text-gray-300 uppercase tracking-wide flex items-center">
               <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -38,7 +38,7 @@
               <button
                 @click="loadSavedQuestion(question.text)"
                 :disabled="isSending"
-                class="flex-1 text-left text-sm text-gray-300 hover:text-white bg-forest-600 hover:bg-forest-500 rounded-lg px-3 py-2 transition-colors truncate disabled:opacity-50 disabled:cursor-not-allowed"
+                class="flex-1 text-left text-sm text-gray-300 hover:text-white bg-gray-800/60 hover:bg-gray-700/80 rounded-lg px-3 py-2 transition-colors truncate disabled:opacity-50 disabled:cursor-not-allowed border border-gray-600/50 hover:border-gray-500/70"
                 :class="{ 'animate-pulse': isSending }"
                 :title="question.text"
               >
@@ -58,7 +58,7 @@
         </div>
 
         <!-- Quick Actions Section -->
-        <div class="p-4 border-b border-forest-700">
+        <div class="p-4 border-b border-gray-600/70">
           <div class="flex items-center justify-between mb-3">
             <h4 class="text-xs font-medium text-gray-300 uppercase tracking-wide flex items-center">
               <span class="text-orange-400 mr-2">⚡</span>
@@ -107,7 +107,7 @@
               :key="suggestion.id"
               @click="loadSmartSuggestion(suggestion.text)"
               :disabled="isSending"
-              class="w-full text-left text-sm text-gray-300 hover:text-white bg-forest-600 hover:bg-forest-500 rounded-lg px-3 py-2 transition-colors flex items-center space-x-2 disabled:opacity-50 disabled:cursor-not-allowed"
+              class="w-full text-left text-sm text-gray-300 hover:text-white bg-gray-800/60 hover:bg-gray-700/80 rounded-lg px-3 py-2 transition-colors flex items-center space-x-2 disabled:opacity-50 disabled:cursor-not-allowed border border-gray-600/50 hover:border-gray-500/70"
               :class="{ 'animate-pulse': isSending }"
             >
               <span class="text-base">{{ suggestion.emoji }}</span>
@@ -207,7 +207,7 @@
       </div>
 
       <!-- Tab Navigation -->
-      <div class="border-b border-gray-600/30 bg-gray-800/50">
+      <div class="border-b border-gray-600/30 bg-gray-900/60 backdrop-blur-sm">
         <div class="flex space-x-1 p-2">
           <button
             @click="activeTab = 'chat'"
@@ -243,7 +243,7 @@
       <!-- Chat Messages Area -->
       <div
         ref="messagesContainer"
-        class="flex-1 overflow-y-auto p-4 space-y-4 overscroll-contain"
+        class="flex-1 overflow-y-auto p-6 space-y-6 overscroll-contain bg-gradient-to-b from-transparent via-gray-900/20 to-gray-900/40"
         :style="{ height: `calc(100vh - 250px)` }"
         @wheel.stop
       >
@@ -252,7 +252,9 @@
         <!-- Chat Tab Content -->
         <div v-if="activeTab === 'chat'">
           <!-- Enhanced Executive Welcome Message -->
-          <div v-if="chatMessages.length === 0" class="text-center py-8 px-4">
+          <div v-if="chatMessages.length === 0" class="text-center py-12 px-6">
+            <!-- Welcome Card Container -->
+            <div class="rounded-xl bg-gray-900/80 backdrop-blur-sm border-2 border-gray-600/70 shadow-lg p-8 max-w-2xl mx-auto">
             <!-- Executive Avatar with Orange Styling -->
             <div class="w-24 h-24 mx-auto mb-6 relative">
               <div class="w-full h-full rounded-xl overflow-hidden ring-4 ring-orange-400/50 bg-gradient-to-br from-orange-400 to-orange-600 p-1">
@@ -289,6 +291,7 @@
             </div>
 
             <p class="text-orange-300/80 text-sm font-medium">Ready to strategize your channel's growth? I'm coordinating with my specialist team to provide you with comprehensive insights.</p>
+            </div>
           </div>
 
           <!-- Chat Messages -->
@@ -390,12 +393,14 @@
         <!-- Insights Tab Content -->
         <div v-else-if="activeTab === 'insights'">
           <!-- Insights Header -->
-          <div v-if="agentNotifications.length === 0" class="text-center py-8 px-4">
-            <div class="w-16 h-16 mx-auto mb-4 rounded-full bg-gradient-to-r from-purple-500/20 to-indigo-500/20 flex items-center justify-center border border-purple-500/30">
-              <span class="text-2xl">💡</span>
+          <div v-if="agentNotifications.length === 0" class="text-center py-12 px-6">
+            <div class="rounded-xl bg-gray-900/80 backdrop-blur-sm border-2 border-gray-600/70 shadow-lg p-8 max-w-2xl mx-auto">
+              <div class="w-16 h-16 mx-auto mb-4 rounded-full bg-gradient-to-r from-purple-500/20 to-indigo-500/20 flex items-center justify-center border border-purple-500/30">
+                <span class="text-2xl">💡</span>
+              </div>
+              <h3 class="text-lg font-semibold text-white mb-2">No Insights Yet</h3>
+              <p class="text-gray-400 text-sm">Your AI team will share strategic insights and alerts here.</p>
             </div>
-            <h3 class="text-lg font-semibold text-white mb-2">No Insights Yet</h3>
-            <p class="text-gray-400 text-sm">Your AI team will share strategic insights and alerts here.</p>
           </div>
 
           <!-- Insights Actions -->
@@ -431,13 +436,13 @@
       </div>
 
       <!-- Enhanced Executive Input Area -->
-      <div class="border-t border-orange-500/30 p-4 bg-gradient-to-r from-orange-900/20 to-orange-800/20">
+      <div class="border-t border-orange-500/30 p-6 bg-gradient-to-r from-orange-900/20 to-orange-800/20 backdrop-blur-sm">
         <div class="flex items-center space-x-3">
           <input
             v-model="messageInput"
             type="text"
             :placeholder="executivePlaceholder"
-            class="flex-1 bg-gray-800 border-2 border-gray-600/70 shadow-lg rounded-xl px-4 py-3 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-orange-400 focus:border-orange-400 transition-all duration-200"
+            class="flex-1 bg-gray-900/80 backdrop-blur-sm border-2 border-gray-600/70 shadow-lg rounded-xl px-4 py-3 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-orange-400 focus:border-orange-400 transition-all duration-200"
             @keyup.enter="sendMessage"
             @input="handleTyping"
           />

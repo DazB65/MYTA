@@ -14,8 +14,8 @@ from collections import defaultdict
 import sqlite3
 import os
 
-from backend.App.enhanced_user_context import EnhancedUserContextManager
-from backend.App.youtube_analytics_service import YouTubeAnalyticsService
+from .enhanced_user_context import EnhancedUserContextManager
+from .youtube_analytics_service import YouTubeAnalyticsService
 
 logger = logging.getLogger(__name__)
 

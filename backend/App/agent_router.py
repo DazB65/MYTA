@@ -10,14 +10,14 @@ import traceback
 from typing import Dict
 
 # Import models
-from backend.api_models import (
+from .api_models import (
     ChatMessage, QuickActionRequest, AgentTaskRequest, AgentCallbackRequest,
     ModelStatusResponse, StandardResponse, ChatResponse,
     ChannelInfo, create_error_response, create_success_response
 )
 
 # Import services
-from backend.ai_services import get_ai_response, extract_channel_info, update_user_context, get_user_context
+from .ai_services import get_ai_response, extract_channel_info, update_user_context, get_user_context
 from backend.boss_agent import process_user_message
 from backend.backups import get_agent_cache
 from backend.model_integrations import get_model_integration

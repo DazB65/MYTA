@@ -13,16 +13,16 @@
           </div>
         </div>
         <div class="text-right">
-          <div class="text-2xl font-bold text-orange-500">{{ enabledAutomationsCount }}/6</div>
-          <div class="text-sm text-gray-400">Active</div>
+          <div class="text-2xl font-bold text-green-400">6/6</div>
+          <div class="text-sm text-gray-400">Always On</div>
         </div>
       </div>
 
       <!-- Automation Status -->
-      <div class="mb-6 rounded-lg p-4" :class="getStatusColor(automationStatus.status)">
+      <div class="mb-6 rounded-lg p-4 bg-green-900/30 border border-green-600/30 text-green-300">
         <div class="flex items-center space-x-2">
-          <span class="text-lg">{{ getStatusIcon(automationStatus.status) }}</span>
-          <span class="font-medium">{{ automationStatus.message }}</span>
+          <span class="text-lg">🚀</span>
+          <span class="font-medium">All automations running optimally</span>
         </div>
       </div>
 
@@ -46,46 +46,43 @@
     <!-- Core Automation Features -->
     <div class="rounded-xl bg-gray-900/80 backdrop-blur-sm border-2 border-gray-600/70 shadow-lg p-6">
       <h4 class="text-lg font-semibold text-white mb-4">Core Automation Features</h4>
-      
+      <p class="text-sm text-gray-400 mb-6">These automations run automatically based on your subscription tier</p>
+
       <div class="space-y-4">
         <!-- Auto-Scheduling -->
-        <AutomationToggleCard
-          :enabled="settings.auto_scheduling_enabled"
-          @toggle="toggleAutomation('auto_scheduling_enabled')"
+        <AutomationStatusCard
           icon="📅"
           title="Smart Auto-Scheduling"
           description="AI determines optimal posting times based on your audience activity"
-          :loading="isLoading"
+          status="active"
+          tier="basic"
         />
 
         <!-- Auto-Responses -->
-        <AutomationToggleCard
-          :enabled="settings.auto_responses_enabled"
-          @toggle="toggleAutomation('auto_responses_enabled')"
+        <AutomationStatusCard
           icon="💬"
           title="Smart Auto-Responses"
           description="AI responds to comments in your voice with escalation for complex issues"
-          :loading="isLoading"
+          status="active"
+          tier="pro"
         />
 
         <!-- SEO Optimization -->
-        <AutomationToggleCard
-          :enabled="settings.seo_optimization_enabled"
-          @toggle="toggleAutomation('seo_optimization_enabled')"
+        <AutomationStatusCard
           icon="🔍"
           title="SEO Auto-Optimization"
           description="Real-time keyword optimization and description enhancement"
-          :loading="isLoading"
+          status="active"
+          tier="basic"
         />
 
         <!-- Smart Notifications -->
-        <AutomationToggleCard
-          :enabled="settings.smart_notifications_enabled"
-          @toggle="toggleAutomation('smart_notifications_enabled')"
+        <AutomationStatusCard
           icon="🔔"
           title="Smart Notifications"
           description="Intelligent alerts for trending opportunities and performance issues"
-          :loading="isLoading"
+          status="active"
+          tier="basic"
         />
       </div>
     </div>
@@ -93,32 +90,31 @@
     <!-- Advanced Features -->
     <div class="rounded-xl bg-gray-900/80 backdrop-blur-sm border-2 border-gray-600/70 shadow-lg p-6">
       <h4 class="text-lg font-semibold text-white mb-4">Advanced Features</h4>
-      
+      <p class="text-sm text-gray-400 mb-6">Premium automations for enhanced productivity</p>
+
       <div class="space-y-4">
         <!-- Auto-Descriptions -->
-        <AutomationToggleCard
-          :enabled="settings.auto_descriptions_enabled"
-          @toggle="toggleAutomation('auto_descriptions_enabled')"
+        <AutomationStatusCard
           icon="📝"
           title="Auto-Generated Descriptions"
           description="AI creates optimized descriptions with SEO keywords and CTAs"
-          :loading="isLoading"
+          status="active"
+          tier="pro"
         />
 
         <!-- Content Ideas -->
-        <AutomationToggleCard
-          :enabled="settings.content_ideas_enabled"
-          @toggle="toggleAutomation('content_ideas_enabled')"
+        <AutomationStatusCard
           icon="💡"
           title="Content Idea Generation"
           description="Automatic trending topic suggestions and content calendar population"
-          :loading="isLoading"
+          status="active"
+          tier="pro"
         />
       </div>
     </div>
 
     <!-- Scheduling Preferences -->
-    <div v-if="settings.auto_scheduling_enabled" class="rounded-xl bg-gray-900/80 backdrop-blur-sm border-2 border-gray-600/70 shadow-lg p-6">
+    <div class="rounded-xl bg-gray-900/80 backdrop-blur-sm border-2 border-gray-600/70 shadow-lg p-6">
       <h4 class="text-lg font-semibold text-white mb-4">📅 Scheduling Preferences</h4>
       
       <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -159,7 +155,7 @@
     </div>
 
     <!-- Response Preferences -->
-    <div v-if="settings.auto_responses_enabled" class="rounded-xl bg-gray-900/80 backdrop-blur-sm border-2 border-gray-600/70 shadow-lg p-6">
+    <div class="rounded-xl bg-gray-900/80 backdrop-blur-sm border-2 border-gray-600/70 shadow-lg p-6">
       <h4 class="text-lg font-semibold text-white mb-4">💬 Response Preferences</h4>
       
       <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -197,7 +193,7 @@
     </div>
 
     <!-- Notification Preferences -->
-    <div v-if="settings.smart_notifications_enabled" class="rounded-xl bg-gray-900/80 backdrop-blur-sm border-2 border-gray-600/70 shadow-lg p-6">
+    <div class="rounded-xl bg-gray-900/80 backdrop-blur-sm border-2 border-gray-600/70 shadow-lg p-6">
       <h4 class="text-lg font-semibold text-white mb-4">🔔 Notification Preferences</h4>
       
       <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -231,7 +227,7 @@
       </div>
     </div>
 
-    <!-- Save Button -->
+    <!-- Save Preferences Button -->
     <div class="flex justify-end">
       <button
         @click="saveSettings"
@@ -239,7 +235,7 @@
         class="px-6 py-3 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center space-x-2"
       >
         <span v-if="isLoading" class="animate-spin">⏳</span>
-        <span>{{ isLoading ? 'Saving...' : 'Save Automation Settings' }}</span>
+        <span>{{ isLoading ? 'Saving...' : 'Save Preferences' }}</span>
       </button>
     </div>
   </div>
@@ -248,7 +244,7 @@
 <script setup>
 import { onMounted } from 'vue'
 import { useAutomation } from '../../composables/useAutomation'
-import AutomationToggleCard from './AutomationToggleCard.vue'
+import AutomationStatusCard from './AutomationStatusCard.vue'
 
 const {
   settings,
@@ -257,8 +253,7 @@ const {
   urgentNotifications,
   automationStatus,
   getSettings,
-  updateSettings,
-  toggleAutomation
+  updateSettings
 } = useAutomation()
 
 // Data
@@ -281,27 +276,16 @@ const responseTypes = [
 
 // Methods
 const saveSettings = async () => {
-  await updateSettings(settings.value)
-}
-
-const getStatusColor = (status) => {
-  switch (status) {
-    case 'optimal': return 'bg-green-900/30 border border-green-600/30 text-green-300'
-    case 'good': return 'bg-blue-900/30 border border-blue-600/30 text-blue-300'
-    case 'partial': return 'bg-yellow-900/30 border border-yellow-600/30 text-yellow-300'
-    case 'minimal': return 'bg-red-900/30 border border-red-600/30 text-red-300'
-    default: return 'bg-gray-900/30 border border-gray-600/30 text-gray-300'
+  // Only save user preferences (posting days, response tone, etc.)
+  const preferencesToSave = {
+    preferred_posting_days: settings.value.preferred_posting_days,
+    max_posts_per_week: settings.value.max_posts_per_week,
+    auto_response_types: settings.value.auto_response_types,
+    response_tone: settings.value.response_tone,
+    notification_frequency: settings.value.notification_frequency,
+    min_notification_priority: settings.value.min_notification_priority
   }
-}
-
-const getStatusIcon = (status) => {
-  switch (status) {
-    case 'optimal': return '🚀'
-    case 'good': return '✅'
-    case 'partial': return '⚠️'
-    case 'minimal': return '🔴'
-    default: return '⚙️'
-  }
+  await updateSettings(preferencesToSave)
 }
 
 // Initialize

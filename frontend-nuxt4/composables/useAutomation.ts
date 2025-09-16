@@ -3,7 +3,7 @@
  * Manages intelligent automation features and settings
  */
 
-import { ref, computed } from 'vue'
+import { computed, ref } from 'vue'
 import { useApi } from './useApi'
 import { useToast } from './useToast'
 
@@ -68,7 +68,7 @@ interface SEOOptimization {
 }
 
 export const useAutomation = () => {
-  const { $api } = useApi()
+  const { apiCall } = useApi()
   const { success, error } = useToast()
 
   // State
@@ -93,12 +93,8 @@ export const useAutomation = () => {
 
   // Computed
   const enabledAutomationsCount = computed(() => {
-    return [
-      settings.value.auto_scheduling_enabled,
-      settings.value.auto_responses_enabled,
-      settings.value.seo_optimization_enabled,
-      settings.value.smart_notifications_enabled
-    ].filter(Boolean).length
+    // All automations are always enabled based on tier
+    return 6 // Total automation features
   })
 
   const urgentNotifications = computed(() => {
@@ -106,25 +102,21 @@ export const useAutomation = () => {
   })
 
   const automationStatus = computed(() => {
-    const total = 4 // Total automation features
-    const enabled = enabledAutomationsCount.value
-    
-    if (enabled === total) return { status: 'optimal', message: 'All automations active' }
-    if (enabled >= total * 0.75) return { status: 'good', message: 'Most automations active' }
-    if (enabled >= total * 0.5) return { status: 'partial', message: 'Some automations active' }
-    return { status: 'minimal', message: 'Limited automation' }
+    // All automations are always optimal since they're always on
+    return { status: 'optimal', message: 'All automations running optimally' }
   })
 
   // API Methods
   const getSettings = async () => {
     try {
       isLoading.value = true
-      const response = await $api('/api/automation/settings')
-      
+      // Use automation test server on port 8001
+      const response = await apiCall('http://localhost:8001/api/automation/settings')
+
       if (response.success) {
         settings.value = { ...settings.value, ...response.settings }
       }
-      
+
       return response
     } catch (err) {
       error('Settings Error', 'Failed to load automation settings')
@@ -137,16 +129,17 @@ export const useAutomation = () => {
   const updateSettings = async (newSettings: Partial<AutomationSettings>) => {
     try {
       isLoading.value = true
-      const response = await $api('/api/automation/settings', {
+      // Use automation test server on port 8001
+      const response = await apiCall('http://localhost:8001/api/automation/settings', {
         method: 'POST',
         body: newSettings
       })
-      
+
       if (response.success) {
         settings.value = { ...settings.value, ...response.settings }
         success('Settings Updated', 'Automation settings saved successfully')
       }
-      
+
       return response
     } catch (err) {
       error('Update Failed', 'Failed to update automation settings')
@@ -164,7 +157,7 @@ export const useAutomation = () => {
     tags?: string[]
   }): Promise<AutoScheduleRecommendation | null> => {
     try {
-      const response = await $api('/api/automation/schedule-content', {
+      const response = await apiCall('/api/automation/schedule-content', {
         method: 'POST',
         body: contentData
       })
@@ -281,10 +274,7 @@ export const useAutomation = () => {
   }
 
   // Utility Methods
-  const toggleAutomation = async (automationType: keyof AutomationSettings) => {
-    const newValue = !settings.value[automationType]
-    await updateSettings({ [automationType]: newValue })
-  }
+  // Note: Automation features are always enabled based on subscription tier
 
   const formatNotificationTime = (timestamp: string) => {
     const date = new Date(timestamp)
@@ -344,7 +334,6 @@ export const useAutomation = () => {
     getNotifications,
     getDashboard,
     getOptimizationTips,
-    toggleAutomation,
 
     // Utilities
     formatNotificationTime,

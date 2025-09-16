@@ -15,9 +15,9 @@ from sklearn.preprocessing import StandardScaler
 import joblib
 import os
 
-from backend.App.content_analysis_agent import ContentAnalysisAgent
-from backend.App.youtube_analytics_service import YouTubeAnalyticsService
-from backend.App.enhanced_user_context import EnhancedUserContextManager
+from .content_analysis_agent import ContentAnalysisAgent
+from .youtube_analytics_service import YouTubeAnalyticsService
+from .enhanced_user_context import EnhancedUserContextManager
 from backend.App.audience_insights_agent import AudienceInsightsAgent
 
 logger = logging.getLogger(__name__)

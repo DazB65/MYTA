@@ -66,21 +66,128 @@
               <p class="text-sm text-green-200 mt-2 font-medium">📝 Provide context and details about your content</p>
             </div>
 
+            <!-- Step 2.5: Pre-Production Analysis (Optional) -->
+            <div v-if="form.description && form.pillarId" class="bg-gradient-to-r from-orange-500/10 to-purple-500/10 border border-orange-500/20 rounded-xl p-4">
+              <div class="flex items-center justify-between mb-3">
+                <span class="inline-flex items-center">
+                  <span class="bg-gradient-to-r from-orange-500 to-purple-500 text-white text-sm font-bold px-3 py-2 rounded-full mr-3 shadow-lg">🤖</span>
+                  <span class="text-lg font-semibold text-orange-300">AI Pre-Production Analysis</span>
+                </span>
+                <span class="text-xs text-orange-200 bg-orange-500/20 px-2 py-1 rounded-full">Optional</span>
+              </div>
+
+              <p class="text-sm text-orange-200 mb-4">Get coordinated insights from your AI team before creating your video. You can use, modify, or ignore any suggestions.</p>
+
+              <button
+                @click="runPreProductionAnalysis"
+                :disabled="isAnalyzing"
+                class="w-full bg-gradient-to-r from-orange-500 to-purple-500 hover:from-orange-600 hover:to-purple-600 disabled:from-gray-600 disabled:to-gray-700 text-white font-bold py-3 px-6 rounded-lg transition-all duration-200 flex items-center justify-center space-x-2"
+              >
+                <span v-if="isAnalyzing" class="animate-spin">⚙️</span>
+                <span v-else>🚀</span>
+                <span>{{ isAnalyzing ? 'Analyzing with AI Team...' : 'Analyze & Get AI Suggestions' }}</span>
+              </button>
+            </div>
+
+            <!-- Pre-Production Analysis Results -->
+            <div v-if="analysisResults" class="bg-gray-900/80 backdrop-blur-sm border-2 border-gray-600/70 rounded-xl p-4 space-y-4">
+              <div class="flex items-center justify-between">
+                <h4 class="text-lg font-semibold text-white flex items-center space-x-2">
+                  <span>🎯</span>
+                  <span>Pre-Production Analysis Results</span>
+                </h4>
+                <button @click="clearAnalysis" class="text-xs text-gray-400 hover:text-white">Clear</button>
+              </div>
+
+              <!-- Analysis Results Grid -->
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <!-- SEO Recommendations -->
+                <div class="bg-orange-500/10 border border-orange-500/20 rounded-lg p-3">
+                  <h5 class="text-orange-400 font-medium flex items-center space-x-2 mb-2">
+                    <span>📈</span>
+                    <span>SEO Optimization (Maya)</span>
+                  </h5>
+                  <p class="text-sm text-gray-300 mb-3">{{ analysisResults.seo?.recommendations || 'Analyzing SEO potential...' }}</p>
+                  <div class="flex space-x-2">
+                    <button @click="applySEOSuggestions" class="text-xs bg-orange-500/20 hover:bg-orange-500/30 text-orange-300 px-2 py-1 rounded">Apply Suggestions</button>
+                    <button @click="viewSEODetails" class="text-xs bg-gray-600/20 hover:bg-gray-600/30 text-gray-300 px-2 py-1 rounded">View Details</button>
+                  </div>
+                </div>
+
+                <!-- Competitive Insights -->
+                <div class="bg-blue-500/10 border border-blue-500/20 rounded-lg p-3">
+                  <h5 class="text-blue-400 font-medium flex items-center space-x-2 mb-2">
+                    <span>🔍</span>
+                    <span>Competitive Analysis (Zara)</span>
+                  </h5>
+                  <p class="text-sm text-gray-300 mb-3">{{ analysisResults.competitive?.insights || 'Analyzing competition...' }}</p>
+                  <div class="flex space-x-2">
+                    <button @click="applyCompetitiveInsights" class="text-xs bg-blue-500/20 hover:bg-blue-500/30 text-blue-300 px-2 py-1 rounded">Apply Insights</button>
+                    <button @click="viewCompetitiveDetails" class="text-xs bg-gray-600/20 hover:bg-gray-600/30 text-gray-300 px-2 py-1 rounded">View Details</button>
+                  </div>
+                </div>
+
+                <!-- Audience Insights -->
+                <div class="bg-purple-500/10 border border-purple-500/20 rounded-lg p-3">
+                  <h5 class="text-purple-400 font-medium flex items-center space-x-2 mb-2">
+                    <span>👥</span>
+                    <span>Audience Insights (Levi)</span>
+                  </h5>
+                  <p class="text-sm text-gray-300 mb-3">{{ analysisResults.audience?.recommendations || 'Analyzing audience potential...' }}</p>
+                  <div class="flex space-x-2">
+                    <button @click="applyAudienceInsights" class="text-xs bg-purple-500/20 hover:bg-purple-500/30 text-purple-300 px-2 py-1 rounded">Apply Insights</button>
+                    <button @click="viewAudienceDetails" class="text-xs bg-gray-600/20 hover:bg-gray-600/30 text-gray-300 px-2 py-1 rounded">View Details</button>
+                  </div>
+                </div>
+
+                <!-- Monetization Strategy -->
+                <div class="bg-green-500/10 border border-green-500/20 rounded-lg p-3">
+                  <h5 class="text-green-400 font-medium flex items-center space-x-2 mb-2">
+                    <span>💰</span>
+                    <span>Monetization Strategy (Kai)</span>
+                  </h5>
+                  <p class="text-sm text-gray-300 mb-3">{{ analysisResults.monetization?.tips || 'Analyzing monetization potential...' }}</p>
+                  <div class="flex space-x-2">
+                    <button @click="applyMonetizationTips" class="text-xs bg-green-500/20 hover:bg-green-500/30 text-green-300 px-2 py-1 rounded">Apply Tips</button>
+                    <button @click="viewMonetizationDetails" class="text-xs bg-gray-600/20 hover:bg-gray-600/30 text-gray-300 px-2 py-1 rounded">View Details</button>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Quick Actions -->
+              <div class="flex flex-wrap gap-2 pt-3 border-t border-gray-600/30">
+                <button @click="applyAllSuggestions" class="bg-gradient-to-r from-orange-500 to-purple-500 hover:from-orange-600 hover:to-purple-600 text-white text-sm font-medium px-4 py-2 rounded-lg">
+                  Apply All Suggestions
+                </button>
+                <button @click="selectiveSuggestions" class="bg-gray-600/20 hover:bg-gray-600/30 text-gray-300 text-sm font-medium px-4 py-2 rounded-lg">
+                  Choose Specific Suggestions
+                </button>
+                <button @click="ignoreAllSuggestions" class="bg-red-600/20 hover:bg-red-600/30 text-red-300 text-sm font-medium px-4 py-2 rounded-lg">
+                  Continue Without AI Suggestions
+                </button>
+              </div>
+            </div>
+
             <!-- Step 3: Title -->
             <div class="bg-gradient-to-r from-yellow-500/10 to-green-500/10 border border-yellow-500/20 rounded-xl p-4">
               <label class="block text-sm font-medium text-gray-300 mb-3">
                 <span class="inline-flex items-center">
                   <span class="bg-gradient-to-r from-yellow-500 to-green-500 text-white text-sm font-bold px-3 py-2 rounded-full mr-3 shadow-lg">3</span>
                   <span class="text-lg font-semibold text-yellow-300">Title *</span>
+                  <span v-if="titleSource === 'ai'" class="ml-2 text-xs bg-orange-500/20 text-orange-300 px-2 py-1 rounded-full">AI Suggested</span>
+                  <span v-if="titleSource === 'user'" class="ml-2 text-xs bg-blue-500/20 text-blue-300 px-2 py-1 rounded-full">User Created</span>
                 </span>
               </label>
-              <input
-                v-model="form.title"
-                type="text"
-                class="w-full px-4 py-3 bg-forest-700 border border-forest-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-transparent"
+              <div class="relative">
+                <input
+                  v-model="form.title"
+                  type="text"
+                  @input="onTitleChange"
+                  class="w-full px-4 py-3 bg-forest-700 border border-forest-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-transparent"
                 placeholder="Enter content title"
                 required
               />
+              </div>
               <p class="text-sm text-yellow-200 mt-2 font-medium">✨ Create a compelling title that captures attention</p>
             </div>
 
@@ -1758,6 +1865,13 @@ const form = ref({
   }
 })
 
+// Pre-production analysis state
+const isAnalyzing = ref(false)
+const analysisResults = ref(null)
+const titleSource = ref('user') // 'user', 'ai', or 'mixed'
+const descriptionSource = ref('user')
+const tagsSource = ref('user')
+
 // Initialize form with content data when editing
 const initializeForm = () => {
   if (props.content) {
@@ -2288,6 +2402,139 @@ const handleAnalyzeCompetitors = (keywords) => {
   alert('Competitor analysis feature coming soon!')
 }
 
+// Pre-production analysis functions
+const runPreProductionAnalysis = async () => {
+  if (isAnalyzing.value) return
+
+  isAnalyzing.value = true
+  try {
+    const pillar = availablePillars.value.find(p => p.id === form.value.pillarId)
+    const { post } = useApi()
+
+    // Call the automation workflow we built using proper API composable
+    const response = await post('/api/workflows/pre-production-analysis', {
+      description: form.value.description,
+      contentIdea: form.value.contentIdea || form.value.description,
+      pillar: pillar?.name || 'General',
+      pillarId: form.value.pillarId
+    }, {
+      showLoading: true,
+      loadingKey: 'pre-production-analysis'
+    })
+
+    if (response.status === 'success') {
+      analysisResults.value = response.data
+      // Show success message
+      console.log('🎯 Pre-production analysis complete:', analysisResults.value)
+    } else {
+      throw new Error(response.error || 'Analysis failed')
+    }
+
+  } catch (error) {
+    console.error('Error running pre-production analysis:', error)
+    alert('Error running analysis. Please try again.')
+  } finally {
+    isAnalyzing.value = false
+  }
+}
+
+const clearAnalysis = () => {
+  analysisResults.value = null
+}
+
+// Individual suggestion application functions
+const applySEOSuggestions = () => {
+  if (analysisResults.value?.seo?.optimizedTitle) {
+    form.value.title = analysisResults.value.seo.optimizedTitle
+    titleSource.value = 'ai'
+  }
+  if (analysisResults.value?.seo?.optimizedTags) {
+    form.value.tags = analysisResults.value.seo.optimizedTags
+    tagsSource.value = 'ai'
+  }
+  if (analysisResults.value?.seo?.optimizedDescription) {
+    form.value.description = analysisResults.value.seo.optimizedDescription
+    descriptionSource.value = 'ai'
+  }
+}
+
+const applyCompetitiveInsights = () => {
+  if (analysisResults.value?.competitive?.differentiationTips) {
+    // Add competitive insights to description or team notes
+    const insights = analysisResults.value.competitive.differentiationTips
+    form.value.teamNotes = form.value.teamNotes ?
+      `${form.value.teamNotes}\n\nCompetitive Insights:\n${insights}` :
+      `Competitive Insights:\n${insights}`
+  }
+}
+
+const applyAudienceInsights = () => {
+  if (analysisResults.value?.audience?.contentStructure) {
+    const structure = analysisResults.value.audience.contentStructure
+    form.value.teamNotes = form.value.teamNotes ?
+      `${form.value.teamNotes}\n\nAudience-Optimized Structure:\n${structure}` :
+      `Audience-Optimized Structure:\n${structure}`
+  }
+}
+
+const applyMonetizationTips = () => {
+  if (analysisResults.value?.monetization?.integrationTips) {
+    const tips = analysisResults.value.monetization.integrationTips
+    form.value.teamNotes = form.value.teamNotes ?
+      `${form.value.teamNotes}\n\nMonetization Strategy:\n${tips}` :
+      `Monetization Strategy:\n${tips}`
+  }
+}
+
+const applyAllSuggestions = () => {
+  applySEOSuggestions()
+  applyCompetitiveInsights()
+  applyAudienceInsights()
+  applyMonetizationTips()
+  alert('All AI suggestions have been applied! You can still edit any field as needed.')
+}
+
+const selectiveSuggestions = () => {
+  // This could open a detailed modal for selective application
+  alert('Selective suggestions feature - choose which specific recommendations to apply.')
+}
+
+const ignoreAllSuggestions = () => {
+  analysisResults.value = null
+  alert('Continuing with manual content creation. You can run analysis again anytime.')
+}
+
+// Track when user manually edits fields
+const onTitleChange = () => {
+  if (titleSource.value === 'ai') {
+    titleSource.value = 'mixed'
+  } else if (!form.value.title) {
+    titleSource.value = 'user'
+  }
+}
+
+const onDescriptionChange = () => {
+  if (descriptionSource.value === 'ai') {
+    descriptionSource.value = 'mixed'
+  } else if (!form.value.description) {
+    descriptionSource.value = 'user'
+  }
+}
+
+const onTagsChange = () => {
+  if (tagsSource.value === 'ai') {
+    tagsSource.value = 'mixed'
+  } else if (!form.value.tags) {
+    tagsSource.value = 'user'
+  }
+}
+
+// Detail view functions (placeholder for future enhancement)
+const viewSEODetails = () => alert('Detailed SEO analysis coming soon!')
+const viewCompetitiveDetails = () => alert('Detailed competitive analysis coming soon!')
+const viewAudienceDetails = () => alert('Detailed audience insights coming soon!')
+const viewMonetizationDetails = () => alert('Detailed monetization strategy coming soon!')
+
 const handleSubmit = () => {
   if (!form.value.title.trim()) {
     alert('Please enter a title')
@@ -2316,7 +2563,10 @@ const handleSubmit = () => {
     stageDueDates: form.value.stageDueDates,
     stageCompletions: form.value.stageCompletions,
     createdAt: props.content?.createdAt || new Date().toISOString(),
-    dueDate: form.value.stageDueDates.published || new Date().toISOString()
+    dueDate: form.value.stageDueDates.published || new Date().toISOString(),
+    // Track AI assistance usage
+    aiAssisted: analysisResults.value ? true : false,
+    aiSuggestions: analysisResults.value || null
   }
 
   emit('save', contentData)

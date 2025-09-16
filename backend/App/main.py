@@ -61,6 +61,8 @@ from .usage_router import router as usage_router
 from .api.videos import router as videos_router
 from .auth_router import router as auth_router
 from .waitlist_router import router as waitlist_router
+from .workflow_automation_router import router as workflow_automation_router, workflows_router
+from .simple_automation_router import router as automation_router
 from .request_logging import log_request_middleware
 from .error_handler import create_error_response, MYTAError
 
@@ -520,6 +522,15 @@ app.include_router(videos_router)
 
 # Include waitlist router (handles waitlist signups and email management)
 app.include_router(waitlist_router)
+
+# Include automation router (handles basic automation settings and features)
+app.include_router(automation_router)
+
+# Include workflow automation router (handles advanced AI workflows and pre-production analysis)
+app.include_router(workflow_automation_router)
+
+# Include workflows router (handles pre-production analysis and content optimization)
+app.include_router(workflows_router)
 
 # =============================================================================
 # Global Exception Handlers

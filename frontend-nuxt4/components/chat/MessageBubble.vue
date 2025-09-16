@@ -28,8 +28,8 @@
         v-if="message.type === 'text'"
         class="rounded-xl p-4 text-sm shadow-lg"
         :class="message.isFromUser
-          ? 'bg-gradient-to-r from-orange-500 to-orange-600 text-white ml-auto border border-orange-400/30'
-          : 'bg-gradient-to-r from-orange-900/60 to-orange-800/60 text-white border border-orange-500/30 backdrop-blur-sm'"
+          ? 'bg-gradient-to-r from-orange-500 to-orange-600 text-white ml-auto border border-orange-400/30 shadow-orange-500/25'
+          : 'bg-gray-900/80 backdrop-blur-sm text-white border-2 border-gray-600/70 shadow-lg'"
       >
         <p class="leading-relaxed">{{ message.content }}</p>
       </div>
@@ -37,7 +37,7 @@
       <!-- Executive Coordination Message -->
       <div
         v-else-if="message.type === 'coordination'"
-        class="rounded-xl bg-gradient-to-r from-blue-900/40 to-purple-900/40 text-white border border-blue-500/30 backdrop-blur-sm"
+        class="rounded-xl bg-gray-900/80 backdrop-blur-sm text-white border-2 border-blue-600/70 shadow-lg"
       >
         <div class="p-4">
           <div class="flex items-center space-x-3 mb-3">
@@ -71,7 +71,7 @@
       <!-- Executive Insight Message -->
       <div
         v-else-if="message.type === 'executive_insight'"
-        class="rounded-xl bg-gradient-to-r from-orange-900/60 to-amber-900/60 text-white border border-orange-500/40 backdrop-blur-sm"
+        class="rounded-xl bg-gray-900/80 backdrop-blur-sm text-white border-2 border-orange-600/70 shadow-lg"
       >
         <div class="p-4">
           <div class="flex items-center space-x-3 mb-3">
