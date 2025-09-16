@@ -266,7 +266,49 @@ export const useCompetitiveIntelligence = () => {
             'Establish thought leadership in AI space',
             'Launch premium course offerings'
           ]
-        }
+        },
+        market_opportunities: [
+          {
+            title: 'AI-Powered Video Editing Tools',
+            opportunity_score: 95,
+            market_size: 'Large',
+            competition_density: 'Low',
+            time_sensitivity: 'High',
+            effort_required: 'Medium',
+            success_probability: 85,
+            description: 'Emerging market with high demand and low competition'
+          },
+          {
+            title: 'Sustainable Tech Reviews',
+            opportunity_score: 88,
+            market_size: 'Medium',
+            competition_density: 'Medium',
+            time_sensitivity: 'Medium',
+            effort_required: 'Low',
+            success_probability: 78,
+            description: 'Growing interest in eco-friendly technology solutions'
+          }
+        ],
+        content_gaps: [
+          {
+            topic: 'AI-Powered Content Creation Tools',
+            opportunity_score: 92,
+            search_volume: 12000,
+            difficulty: 'Medium',
+            potential_views: 45000,
+            target_keywords: ['AI content tools', 'automated content creation', 'AI writing assistants'],
+            missing_competitors: ['TechReview Pro', 'Digital Marketing Hub']
+          },
+          {
+            topic: 'No-Code App Development Tutorial',
+            opportunity_score: 87,
+            search_volume: 8500,
+            difficulty: 'Low',
+            potential_views: 32000,
+            target_keywords: ['no-code development', 'app builder tutorial', 'drag and drop apps'],
+            missing_competitors: ['CodeMaster Academy']
+          }
+        ]
       }
       lastAnalysis.value = mockAnalysis
       error.value = null // Clear error since we have mock data
