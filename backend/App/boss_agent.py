@@ -22,6 +22,7 @@ from .model_integrations import create_agent_call_to_integration
 from .intelligent_agent_workflows import create_intelligent_workflow, execute_intelligent_workflow, get_workflow_status
 from .proactive_agent_collaboration import get_collaboration_statistics, get_relevant_insights_for_agent
 from .advanced_workflow_automation import execute_one_click_workflow, get_available_workflow_templates
+from .agent_performance_analytics import record_agent_performance, record_collaboration_metrics
 
 # Configure advanced logging
 from backend.logging_config import get_logger, LogCategory
@@ -2014,7 +2015,61 @@ class BossAgent:
             # Step 7: Cache the response
             if final_response.get("success", False):
                 self.cache.set(message, user_context, final_response, intent.value)
-            
+
+            # Step 8: Record performance analytics
+            try:
+                processing_time = final_response.get("processing_time", 0.0)
+                success = final_response.get("success", False)
+                confidence = final_response.get("confidence", 0.8)
+                agents_used = final_response.get("agents_used", [])
+
+                # Record Boss Agent performance
+                await record_agent_performance(
+                    agent_name="boss_agent",
+                    user_id=user_id or "anonymous",
+                    success=success,
+                    response_time=processing_time,
+                    confidence_score=confidence,
+                    collaboration_partners=agents_used,
+                    insights_generated=len(final_response.get("key_insights", [])),
+                    recommendations_provided=len(final_response.get("recommendations", [])),
+                    proactive_suggestions=len(collaboration_insights.get("collaboration_opportunities", []) if collaboration_insights else []),
+                    context={
+                        "intent": intent.value,
+                        "message_length": len(message),
+                        "workflow_type": final_response.get("workflow_type", "standard"),
+                        "real_time_data": final_response.get("real_time_data", False)
+                    }
+                )
+
+                # Record collaboration metrics if multiple agents were used
+                if len(agents_used) > 1:
+                    # Calculate collaboration quality metrics
+                    synergy_score = 0.8  # Base synergy score
+                    if collaboration_insights:
+                        # Boost synergy if proactive collaboration was detected
+                        if collaboration_insights.get("collaboration_opportunities"):
+                            synergy_score += 0.1
+                        if collaboration_insights.get("agent_synergies"):
+                            synergy_score += 0.1
+
+                    handoff_efficiency = 0.9 if success else 0.6  # High efficiency if successful
+                    outcome_quality = confidence  # Use confidence as outcome quality proxy
+
+                    await record_collaboration_metrics(
+                        participating_agents=agents_used,
+                        total_duration=processing_time,
+                        success=success,
+                        synergy_score=min(synergy_score, 1.0),
+                        handoff_efficiency=handoff_efficiency,
+                        outcome_quality=outcome_quality
+                    )
+
+                logger.info(f"📊 Performance recorded: Boss Agent + {len(agents_used)} collaborators, success={success}, time={processing_time:.1f}s")
+
+            except Exception as e:
+                logger.warning(f"Failed to record performance analytics: {e}")
+
             return final_response
             
         except Exception as e:
