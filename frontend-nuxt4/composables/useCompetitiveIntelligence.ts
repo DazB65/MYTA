@@ -199,18 +199,24 @@ export const useCompetitiveIntelligence = () => {
         ],
         competitor_profiles: [
           {
+            competitor_id: 'techreview-pro',
+            name: 'TechReview Pro',
             channel_name: 'TechReview Pro',
             subscriber_count: 125000,
+            avg_views: 45000,
             tier: 'Direct',
-            growth_rate: 15.2,
+            growth_rate: 0.152,
             strengths: ['Professional production', 'Industry connections'],
             weaknesses: ['Limited tutorial content', 'Inconsistent posting']
           },
           {
+            competitor_id: 'codemaster-academy',
+            name: 'CodeMaster Academy',
             channel_name: 'CodeMaster Academy',
             subscriber_count: 89000,
+            avg_views: 32000,
             tier: 'Direct',
-            growth_rate: 8.7,
+            growth_rate: 0.087,
             strengths: ['Educational focus', 'Clear explanations'],
             weaknesses: ['Outdated thumbnails', 'Limited trending topics']
           }
