@@ -24,7 +24,7 @@
     </div>
 
     <!-- Quick Insights Cards -->
-    <div v-if="quickInsights" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+    <div v-if="quickInsights" class="grid grid-cols-1 md:grid-cols-3 gap-4">
       <!-- Market Position -->
       <div class="rounded-xl bg-gray-900/80 backdrop-blur-sm border-2 border-gray-600/70 shadow-lg p-4">
         <div class="flex items-center space-x-3 mb-2">
@@ -59,24 +59,7 @@
         </div>
       </div>
 
-      <!-- Urgent Threat -->
-      <div class="rounded-xl bg-gray-900/80 backdrop-blur-sm border-2 border-gray-600/70 shadow-lg p-4">
-        <div class="flex items-center space-x-3 mb-2">
-          <div class="flex h-8 w-8 items-center justify-center rounded-lg bg-red-500">
-            <span class="text-white text-sm">⚠️</span>
-          </div>
-          <div>
-            <h3 class="font-semibold text-white">Urgent Threat</h3>
-            <p class="text-sm text-gray-400">{{ quickInsights.urgent_threat?.threat_level || 'None' }}</p>
-          </div>
-        </div>
-        <div class="text-sm text-red-400 font-medium">
-          {{ quickInsights.urgent_threat?.threat_type || 'No urgent threats' }}
-        </div>
-        <div v-if="quickInsights.urgent_threat" class="text-xs text-gray-400 mt-1">
-          {{ quickInsights.urgent_threat.timeline }}
-        </div>
-      </div>
+
 
       <!-- Recommended Action -->
       <div class="rounded-xl bg-gray-900/80 backdrop-blur-sm border-2 border-gray-600/70 shadow-lg p-4">
@@ -171,13 +154,7 @@
           />
         </div>
 
-        <!-- Threats Tab -->
-        <div v-else-if="activeTab === 'threats'">
-          <CompetitiveThreats 
-            :threats="urgentThreats"
-            :all-threats="lastAnalysis.competitive_threats"
-          />
-        </div>
+
 
         <!-- Strategy Tab -->
         <div v-else-if="activeTab === 'strategy'">
@@ -210,7 +187,6 @@ import { useCompetitiveIntelligence } from '../../composables/useCompetitiveInte
 
 // Import child components (will create these next)
 import CompetitiveOverview from './CompetitiveOverview.vue'
-import CompetitiveThreats from './CompetitiveThreats.vue'
 import CompetitorProfiles from './CompetitorProfiles.vue'
 import ContentGapsAnalysis from './ContentGapsAnalysis.vue'
 import MarketOpportunities from './MarketOpportunities.vue'
@@ -227,7 +203,6 @@ const {
   competitiveScore,
   marketPosition,
   topOpportunities,
-  urgentThreats,
   contentGapsByScore,
   analyzeCompetitiveLandscape,
   getQuickInsights
@@ -240,7 +215,6 @@ const tabs = [
   { id: 'competitors', name: 'Competitors', icon: '🏢' },
   { id: 'content-gaps', name: 'Content Gaps', icon: '🎯' },
   { id: 'opportunities', name: 'Opportunities', icon: '🚀' },
-  { id: 'threats', name: 'Threats', icon: '⚠️' },
   { id: 'strategy', name: 'Strategy', icon: '💡' }
 ]
 
