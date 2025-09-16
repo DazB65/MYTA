@@ -21,6 +21,7 @@ from .data_access_monitor import get_data_access_monitor
 from .model_integrations import create_agent_call_to_integration
 from .intelligent_agent_workflows import create_intelligent_workflow, execute_intelligent_workflow, get_workflow_status
 from .proactive_agent_collaboration import get_collaboration_statistics, get_relevant_insights_for_agent
+from .advanced_workflow_automation import execute_one_click_workflow, get_available_workflow_templates
 
 # Configure advanced logging
 from backend.logging_config import get_logger, LogCategory
@@ -1886,6 +1887,103 @@ class BossAgent:
 
                 except Exception as e:
                     logger.error(f"Intelligent workflow processing failed: {e}")
+                    # Fall back to standard processing
+
+            # Step 1.6: Check for one-click workflow patterns
+            one_click_patterns = {
+                "optimize my latest video": "complete_video_optimization",
+                "optimize my video": "complete_video_optimization",
+                "video optimization": "complete_video_optimization",
+                "boost my channel": "channel_growth_strategy",
+                "grow my channel": "channel_growth_strategy",
+                "channel growth": "channel_growth_strategy",
+                "maximize revenue": "monetization_optimization",
+                "monetization optimization": "monetization_optimization",
+                "weekly review": "weekly_performance_review",
+                "performance review": "weekly_performance_review",
+                "crisis": "crisis_management",
+                "emergency": "crisis_management",
+                "performance drop": "crisis_management"
+            }
+
+            detected_template = None
+            for pattern, template_id in one_click_patterns.items():
+                if pattern in message.lower():
+                    detected_template = template_id
+                    break
+
+            if detected_template:
+                logger.info(f"🚀 Detected one-click workflow pattern: {detected_template}")
+
+                try:
+                    # Execute one-click workflow
+                    workflow_result = await execute_one_click_workflow(
+                        template_id=detected_template,
+                        user_id=user_id,
+                        context=enhanced_context if user_id else user_context
+                    )
+
+                    if workflow_result.get("success", False):
+                        logger.info(f"✅ One-click workflow completed: {detected_template}")
+
+                        # Format one-click workflow results
+                        response_parts = [
+                            f"🚀 **{workflow_result['workflow_name']} Complete**",
+                            f"",
+                            f"I've executed a comprehensive {workflow_result['workflow_name'].lower()} using {len(workflow_result['agents_involved'])} specialized agents:",
+                            f""
+                        ]
+
+                        # Add key insights
+                        if workflow_result.get("key_insights"):
+                            response_parts.append("💡 **Key Insights:**")
+                            for insight in workflow_result["key_insights"]:
+                                response_parts.append(f"• {insight}")
+                            response_parts.append("")
+
+                        # Add recommendations
+                        if workflow_result.get("recommendations"):
+                            response_parts.append("🎯 **Recommendations:**")
+                            for rec in workflow_result["recommendations"]:
+                                response_parts.append(f"• {rec}")
+                            response_parts.append("")
+
+                        # Add action plan
+                        if workflow_result.get("action_plan"):
+                            response_parts.append("📋 **Action Plan:**")
+                            for action in workflow_result["action_plan"]:
+                                response_parts.append(f"• {action}")
+                            response_parts.append("")
+
+                        # Add outcomes achieved
+                        if workflow_result.get("expected_outcomes_achieved"):
+                            response_parts.append("✅ **Outcomes Achieved:**")
+                            for outcome in workflow_result["expected_outcomes_achieved"]:
+                                response_parts.append(f"• {outcome}")
+                            response_parts.append("")
+
+                        # Add execution summary
+                        execution_time = workflow_result.get("execution_time", 0)
+                        agents_used = workflow_result.get("agents_involved", [])
+                        response_parts.append(f"⚡ Completed in {execution_time:.1f}s using: {', '.join(agents_used)}")
+
+                        return {
+                            "success": True,
+                            "response": "\n".join(response_parts),
+                            "intent": intent.value,
+                            "agents_used": agents_used,
+                            "processing_time": execution_time,
+                            "confidence": 0.95,
+                            "workflow_type": "one_click",
+                            "template_id": detected_template,
+                            "workflow_results": workflow_result
+                        }
+                    else:
+                        logger.warning(f"❌ One-click workflow failed: {workflow_result.get('error', 'Unknown error')}")
+                        # Fall back to standard processing
+
+                except Exception as e:
+                    logger.error(f"One-click workflow processing failed: {e}")
                     # Fall back to standard processing
 
             # Step 2: Check cache for existing response
