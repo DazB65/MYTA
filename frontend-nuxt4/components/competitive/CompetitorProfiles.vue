@@ -7,7 +7,7 @@
         <p class="text-gray-400">Detailed analysis of your competitive landscape</p>
       </div>
       <button
-        @click="showAddModal = true"
+        @click="showAddForm = true"
         class="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors flex items-center space-x-2"
       >
         <span>➕</span>
@@ -219,7 +219,6 @@ const props = defineProps({
 
 // Reactive state
 const showAddForm = ref(false)
-const showAddModal = ref(false)
 const isAnalyzing = ref(false)
 const userCompetitors = ref([])
 
@@ -311,7 +310,6 @@ const cancelAdd = () => {
 // Reset form
 const resetForm = () => {
   showAddForm.value = false
-  showAddModal.value = false
   newCompetitor.name = ''
   newCompetitor.channel_url = ''
   newCompetitor.tier = 'direct'
