@@ -142,12 +142,19 @@
 
       <!-- Auto-Detected Competitors -->
       <div
-        v-for="competitor in competitors"
+        v-for="competitor in visibleCompetitors"
         :key="competitor.competitor_id"
         class="rounded-xl bg-gray-900/80 backdrop-blur-sm border-2 border-gray-600/70 shadow-lg p-6 relative"
       >
-        <div class="absolute top-3 right-3">
+        <div class="absolute top-3 right-3 flex items-center space-x-2">
           <span class="px-2 py-1 bg-orange-500/20 text-orange-300 text-xs font-medium rounded-full">Auto-detected</span>
+          <button
+            @click="hideAutoDetectedCompetitor(competitor.competitor_id)"
+            class="text-red-400 hover:text-red-300 transition-colors"
+            title="Hide competitor"
+          >
+            ❌
+          </button>
         </div>
 
         <h3 class="text-lg font-semibold text-white mb-2 pr-20">{{ competitor.name }}</h3>
@@ -210,7 +217,7 @@
 </template>
 
 <script setup>
-import { onMounted, reactive, ref } from 'vue'
+import { computed, onMounted, reactive, ref } from 'vue'
 
 const props = defineProps({
   competitors: Array,
@@ -221,6 +228,7 @@ const props = defineProps({
 const showAddForm = ref(false)
 const isAnalyzing = ref(false)
 const userCompetitors = ref([])
+const hiddenAutoDetectedCompetitors = ref([])
 
 // New competitor form data
 const newCompetitor = reactive({
@@ -236,6 +244,19 @@ onMounted(() => {
   if (saved) {
     userCompetitors.value = JSON.parse(saved)
   }
+
+  const hiddenCompetitors = localStorage.getItem('hiddenAutoDetectedCompetitors')
+  if (hiddenCompetitors) {
+    hiddenAutoDetectedCompetitors.value = JSON.parse(hiddenCompetitors)
+  }
+})
+
+// Computed property for visible auto-detected competitors
+const visibleCompetitors = computed(() => {
+  if (!props.competitors) return []
+  return props.competitors.filter(competitor =>
+    !hiddenAutoDetectedCompetitors.value.includes(competitor.competitor_id)
+  )
 })
 
 // Save competitors to localStorage
@@ -299,6 +320,14 @@ const removeCompetitor = (id) => {
   if (confirm('Are you sure you want to remove this competitor?')) {
     userCompetitors.value = userCompetitors.value.filter(c => c.id !== id)
     saveCompetitors()
+  }
+}
+
+// Hide auto-detected competitor
+const hideAutoDetectedCompetitor = (competitorId) => {
+  if (confirm('Are you sure you want to hide this auto-detected competitor? You can refresh the analysis to bring it back.')) {
+    hiddenAutoDetectedCompetitors.value.push(competitorId)
+    localStorage.setItem('hiddenAutoDetectedCompetitors', JSON.stringify(hiddenAutoDetectedCompetitors.value))
   }
 }
 
