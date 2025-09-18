@@ -4,8 +4,8 @@
     <div class="absolute inset-0 bg-[url('/grid-pattern.svg')] opacity-10" />
 
     <!-- Logo in Top Right -->
-    <div class="absolute -top-24 right-0 z-20">
-      <img src="/MYTALogo.png" alt="MYTA Logo" class="w-128 h-128">
+    <div class="absolute top-8 right-16 z-20">
+      <img src="/MYTALogo.png" alt="MYTA Logo" class="w-64 h-64">
     </div>
 
     <!-- Content Container -->

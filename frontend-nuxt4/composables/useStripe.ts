@@ -135,23 +135,21 @@ export const useStripe = () => {
     }
   }
 
-  // Stripe price IDs (replace with your actual price IDs)
+  // MYTA Stripe Price IDs
   const priceIds = {
-    starter: {
-      monthly: 'price_starter_monthly',
-      yearly: 'price_starter_yearly'
+    basic: {
+      monthly: 'price_1S8pq3A4NbLKuuGeAXxxeENx',
+      yearly: 'price_1S8pr7A4NbLKuuGeFTQs4lG5'
     },
-    creator: {
-      monthly: 'price_creator_monthly',
-      yearly: 'price_creator_yearly'
+    solo_pro: {
+      monthly: 'price_1S8pucA4NbLKuuGeU13Jvpfa',
+      yearly: 'price_1S8pv4A4NbLKuuGe5Cs1xl8O'
     },
-    pro: {
-      monthly: 'price_pro_monthly',
-      yearly: 'price_pro_yearly'
-    },
-    enterprise: {
-      monthly: 'price_enterprise_monthly',
-      yearly: 'price_enterprise_yearly'
+    teams: {
+      monthly: 'price_1S8pw0A4NbLKuuGeVAJjroZG',
+      yearly: 'price_1S8pwNA4NbLKuuGeTBVbDjLP',
+      monthly_per_seat: 'price_1S8pzaA4NbLKuuGeHnVRJfTc',
+      yearly_per_seat: 'price_1S8q01A4NbLKuuGeeYQ1Dav1'
     }
   }
 

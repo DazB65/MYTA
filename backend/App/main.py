@@ -41,6 +41,7 @@ from .session_router import router as session_router
 from .backup_router import router as backup_router
 from .monitoring_router import router as monitoring_router
 from .subscription_router import router as subscription_router
+from .stripe_router import router as stripe_router
 from .tasks_router import router as tasks_router
 from .goals_router import router as goals_router
 from .notes_router import router as notes_router
@@ -466,6 +467,9 @@ app.include_router(monitoring_router)
 
 # Include subscription router (handles LemonSqueezy integration and billing)
 app.include_router(subscription_router)
+
+# Include Stripe router (handles Stripe billing and payments)
+app.include_router(stripe_router)
 
 # Include tasks router (handles task management)
 app.include_router(tasks_router)

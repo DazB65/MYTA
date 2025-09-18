@@ -180,24 +180,35 @@ export const useSubscriptionStore = defineStore('subscription', () => {
   const createCheckoutSession = async (
     planId: string,
     billingCycle: 'monthly' | 'yearly' = 'monthly',
-    teamSeats: number = 1
+    teamSeats: number = 1,
+    pricingType: 'fixed' | 'per_seat' = 'fixed'
   ) => {
     try {
       loading.value = true
       error.value = null
 
-      const { $api } = useNuxtApp()
-      const result = await $api('/api/subscription/checkout', {
+      const config = useRuntimeConfig()
+
+      // Use new Stripe API endpoint
+      const result = await $fetch('/api/stripe/create-checkout-session', {
         method: 'POST',
+        baseURL: config.public.apiBase,
+        headers: {
+          'X-Requested-With': 'XMLHttpRequest',
+          'Content-Type': 'application/json'
+        },
         body: {
           plan_id: planId,
           billing_cycle: billingCycle,
-          team_seats: teamSeats
+          pricing_type: pricingType,
+          team_seats: teamSeats,
+          success_url: `${window.location.origin}/settings?success=true`,
+          cancel_url: `${window.location.origin}/settings?canceled=true`
         }
       })
 
       if (result.success) {
-        // Redirect to checkout URL
+        // Redirect to Stripe Checkout
         if (result.data.checkout_url) {
           window.location.href = result.data.checkout_url
         }
@@ -233,23 +244,36 @@ export const useSubscriptionStore = defineStore('subscription', () => {
   }
 
   // Create Stripe customer portal session
-  const createPortalSession = async () => {
+  const createPortalSession = async (customerId?: string) => {
     try {
-      console.log('createPortalSession called')
       loading.value = true
       error.value = null
 
-      console.log('stripe object:', stripe)
-      console.log('stripe.mockPortalSession:', stripe.mockPortalSession)
+      const config = useRuntimeConfig()
 
-      // For demo purposes, use mock portal
-      // In production, replace with real Stripe portal
-      const result = await stripe.mockPortalSession()
-      console.log('mockPortalSession result:', result)
+      // Use new Stripe API endpoint
+      const result = await $fetch('/api/stripe/create-portal-session', {
+        method: 'POST',
+        baseURL: config.public.apiBase,
+        headers: {
+          'X-Requested-With': 'XMLHttpRequest',
+          'Content-Type': 'application/json'
+        },
+        body: {
+          customer_id: customerId || stripeCustomerId.value,
+          return_url: `${window.location.origin}/settings`
+        }
+      })
+
+      if (result.success) {
+        // Redirect to Stripe Customer Portal
+        if (result.data.portal_url) {
+          window.location.href = result.data.portal_url
+        }
+      }
 
       return result
     } catch (err: any) {
-      console.error('Error in createPortalSession:', err)
       error.value = err.message
       console.error('Error creating portal session:', err)
       throw err
