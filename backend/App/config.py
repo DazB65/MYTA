@@ -88,6 +88,10 @@ class Settings(BaseSettings):
     # Security Keys
     boss_agent_secret_key: Optional[str] = Field(default=None, description="Boss agent secret key")
     session_secret_key: Optional[str] = Field(default=None, description="Session secret key")
+
+    # Dashboard Authentication
+    dashboard_password_hash: Optional[str] = Field(default=None, description="Dashboard password hash (SHA-256)")
+    dashboard_jwt_secret: Optional[str] = Field(default=None, description="Dashboard JWT secret key")
     
     # Rate Limiting
     rate_limit_per_minute: int = Field(default=60, description="Rate limit per minute")

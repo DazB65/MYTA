@@ -139,6 +139,10 @@ class InputValidationMiddleware(BaseHTTPMiddleware):
     async def dispatch(self, request: Request, call_next: Callable) -> Response:
         """Validate and sanitize input"""
         try:
+            # Skip validation for dashboard endpoints
+            if request.url.path.startswith("/api/dashboard/"):
+                return await call_next(request)
+
             # Only validate POST/PUT requests with JSON content
             if request.method in ["POST", "PUT", "PATCH"]:
                 content_type = request.headers.get("content-type", "")

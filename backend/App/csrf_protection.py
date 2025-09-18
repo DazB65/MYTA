@@ -16,10 +16,11 @@ logger = logging.getLogger(__name__)
 
 class CSRFProtection:
     """CSRF protection implementation"""
-    
+
     def __init__(self, secret_key: str):
         self.secret_key = secret_key
         self.exempt_methods: Set[str] = {'GET', 'HEAD', 'OPTIONS'}
+        self.exempt_paths: Set[str] = {'/api/dashboard/auth', '/api/dashboard/health'}
         self.token_timeout = timedelta(hours=2)  # CSRF tokens valid for 2 hours
         
     def generate_csrf_token(self) -> str:
@@ -43,7 +44,8 @@ class CSRFProtection:
     
     def is_safe_request(self, request: Request) -> bool:
         """Check if request is safe (doesn't need CSRF protection)"""
-        return request.method in self.exempt_methods
+        return (request.method in self.exempt_methods or
+                request.url.path in self.exempt_paths)
     
     def check_referer(self, request: Request) -> bool:
         """Check if referer header matches origin"""

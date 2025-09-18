@@ -63,6 +63,7 @@ from .auth_router import router as auth_router
 from .waitlist_router import router as waitlist_router
 from .workflow_automation_router import router as workflow_automation_router, workflows_router
 from .simple_automation_router import router as automation_router
+from .dashboard_auth_router import router as dashboard_auth_router
 from .request_logging import log_request_middleware
 from .error_handler import create_error_response, MYTAError
 
@@ -531,6 +532,9 @@ app.include_router(workflow_automation_router)
 
 # Include workflows router (handles pre-production analysis and content optimization)
 app.include_router(workflows_router)
+
+# Include dashboard authentication router (handles secure dashboard access)
+app.include_router(dashboard_auth_router)
 
 # =============================================================================
 # Global Exception Handlers
