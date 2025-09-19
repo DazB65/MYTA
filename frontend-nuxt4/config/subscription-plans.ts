@@ -111,16 +111,16 @@ export const SUBSCRIPTION_PLANS: SubscriptionPlan[] = [
   {
     id: 'solo_pro',
     name: 'MYTA Solo Pro',
-    description: 'For serious content creators - Boss Agent + 4 specialist agents with 200 AI conversations per month plus priority support',
+    description: 'For serious content creators - Boss Agent + 5 specialist agents with 200 AI conversations per month plus priority support',
     price: { monthly: 14.99, yearly: 149.99 },
     popular: true,
     agentAccess: {
-      total: 5,
-      agents: ['Boss Agent', 'Alex', 'Levi', 'Maya', 'Zara'],
-      locked: ['Kai']
+      total: 6,
+      agents: ['Boss Agent', 'Alex', 'Levi', 'Maya', 'Zara', 'Kai'],
+      locked: []
     },
     features: [
-      'Boss Agent + 4 specialist agents',
+      'Boss Agent + 5 specialist agents',
       '200 AI conversations/month',
       'Content pillars (up to 10)',
       'Advanced task management (unlimited)',
@@ -133,7 +133,7 @@ export const SUBSCRIPTION_PLANS: SubscriptionPlan[] = [
     ],
     limits: {
       ai_conversations: 200,
-      agents_count: 5,
+      agents_count: 6,
       content_pillars: 10,
       goals: -1, // unlimited
       competitors: 5,
