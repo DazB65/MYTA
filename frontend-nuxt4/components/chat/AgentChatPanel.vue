@@ -1610,22 +1610,38 @@ const handleNotificationAction = async (data: { action: string; notification: an
   // Mark notification as read when user interacts with it
   markNotificationAsRead(notification.id)
 
-  // Handle different notification actions with appropriate modals and navigation
+  // Handle different notification actions with specific task creation
   switch (action) {
     case 'review_opportunities':
-      // Navigate to Videos page for optimization
-      await sendMessage(`${notification.agentName}, taking you to the videos section to review optimization opportunities.`)
+      // Create specific video optimization analysis task
+      await sendMessage(`${notification.agentName}, creating a detailed video optimization analysis task for you.`)
       setTimeout(() => {
-        navigateTo('/videos')
+        openTask({
+          title: 'Video Optimization Analysis',
+          description: `${notification.message}\n\nAction Steps:\n1. Review performance metrics for recent videos\n2. Identify underperforming content (low CTR, retention, engagement)\n3. Analyze successful videos for patterns\n4. Create optimization recommendations for titles, thumbnails, and descriptions\n5. Prioritize videos for immediate optimization\n\nContext: ${notification.title}`,
+          category: 'analytics',
+          priority: 'high',
+          estimatedTime: 90,
+          tags: ['video-optimization', 'agent-generated', notification.agentName.toLowerCase(), 'performance-analysis'],
+          agentId: notification.agentId
+        })
         emit('close')
       }, 1000)
       break
 
     case 'show_optimization_details':
-      // Navigate to specific video optimization
-      await sendMessage(`${notification.agentName}, showing you the detailed optimization breakdown.`)
+      // Create specific optimization implementation task
+      await sendMessage(`${notification.agentName}, creating optimization implementation tasks with detailed action steps.`)
       setTimeout(() => {
-        navigateTo('/videos?tab=optimization')
+        openTask({
+          title: 'Implement Video Optimizations',
+          description: `${notification.message}\n\nImplementation Steps:\n1. Update video titles with high-performing keywords\n2. Redesign thumbnails using proven visual elements\n3. Optimize video descriptions with relevant tags and CTAs\n4. Adjust video timing and posting schedule\n5. Update end screens and cards for better retention\n6. Monitor performance changes after implementation\n\nExpected Impact: 25-40% engagement boost\nContext: ${notification.title}`,
+          category: 'seo',
+          priority: 'high',
+          estimatedTime: 120,
+          tags: ['optimization', 'implementation', 'agent-generated', notification.agentName.toLowerCase()],
+          agentId: notification.agentId
+        })
         emit('close')
       }, 1000)
       break
@@ -1646,19 +1662,35 @@ const handleNotificationAction = async (data: { action: string; notification: an
 
     case 'analyze_success':
     case 'view_analytics':
-      // Navigate to Videos page with analytics focus
-      await sendMessage(`${notification.agentName}, analyzing the success factors. Taking you to the performance analytics.`)
+      // Create success factor analysis task
+      await sendMessage(`${notification.agentName}, creating a comprehensive success factor analysis task for you.`)
       setTimeout(() => {
-        navigateTo('/videos?focus=analytics')
+        openTask({
+          title: 'Success Factor Analysis',
+          description: `${notification.message}\n\nAnalysis Steps:\n1. Identify top 5 performing videos from the last 30 days\n2. Analyze common elements: titles, thumbnails, topics, timing\n3. Extract key success patterns and formulas\n4. Compare against underperforming content\n5. Create replicable success framework\n6. Document insights for future content creation\n\nDeliverables: Success pattern report and content framework\nContext: ${notification.title}`,
+          category: 'analytics',
+          priority: 'medium',
+          estimatedTime: 75,
+          tags: ['success-analysis', 'performance', 'agent-generated', notification.agentName.toLowerCase()],
+          agentId: notification.agentId
+        })
         emit('close')
       }, 1000)
       break
 
     case 'view_strategy_analysis':
-      // Navigate to Pillars page for strategy
-      await sendMessage(`${notification.agentName}, opening the Q1 strategy analysis in your content pillars.`)
+      // Create strategic planning task
+      await sendMessage(`${notification.agentName}, creating a strategic planning and analysis task for your content pillars.`)
       setTimeout(() => {
-        navigateTo('/pillars?focus=strategy')
+        openTask({
+          title: 'Q1 Content Strategy Analysis',
+          description: `${notification.message}\n\nStrategy Review Steps:\n1. Evaluate current content pillar performance\n2. Analyze audience engagement by content type\n3. Identify gaps in content calendar\n4. Research competitor content strategies\n5. Develop Q1 content themes and topics\n6. Create content calendar with strategic focus\n\nOutcome: Updated content strategy and Q1 roadmap\nContext: ${notification.title}`,
+          category: 'strategy',
+          priority: 'high',
+          estimatedTime: 120,
+          tags: ['strategy', 'content-pillars', 'quarterly-planning', 'agent-generated', notification.agentName.toLowerCase()],
+          agentId: notification.agentId
+        })
         emit('close')
       }, 1000)
       break
@@ -1680,20 +1712,36 @@ const handleNotificationAction = async (data: { action: string; notification: an
       break
 
     case 'view_trending_topics':
-      // Navigate to Dashboard trending section
-      await sendMessage(`${notification.agentName}, showing you the latest trending topics and opportunities.`)
+      // Create trending topics research task
+      await sendMessage(`${notification.agentName}, creating a trending topics research and content planning task.`)
       setTimeout(() => {
-        navigateTo('/dashboard?section=trending')
+        openTask({
+          title: 'Trending Topics Research & Content Planning',
+          description: `${notification.message}\n\nResearch & Planning Steps:\n1. Identify trending topics in your niche using YouTube Trends\n2. Analyze trending hashtags and keywords\n3. Research competitor trending content\n4. Evaluate trending topics for brand alignment\n5. Create content ideas based on trending opportunities\n6. Develop content calendar incorporating trends\n\nDeliverables: Trending topics report and content ideas list\nContext: ${notification.title}`,
+          category: 'content',
+          priority: 'medium',
+          estimatedTime: 60,
+          tags: ['trending-topics', 'research', 'content-planning', 'agent-generated', notification.agentName.toLowerCase()],
+          agentId: notification.agentId
+        })
         emit('close')
       }, 1000)
       break
 
     case 'view_weekly_tasks':
     case 'view_tasks':
-      // Navigate to Tasks page
-      await sendMessage(`${notification.agentName}, opening your task dashboard.`)
+      // Create task organization and planning task
+      await sendMessage(`${notification.agentName}, creating a task organization and weekly planning session.`)
       setTimeout(() => {
-        navigateTo('/tasks')
+        openTask({
+          title: 'Weekly Task Organization & Planning',
+          description: `${notification.message}\n\nTask Management Steps:\n1. Review and prioritize current tasks\n2. Identify overdue or blocked tasks\n3. Estimate time requirements for pending tasks\n4. Create weekly schedule with task allocation\n5. Set up task dependencies and deadlines\n6. Plan daily focus areas for the week\n\nOutcome: Organized task list and weekly productivity plan\nContext: ${notification.title}`,
+          category: 'productivity',
+          priority: 'medium',
+          estimatedTime: 45,
+          tags: ['task-management', 'weekly-planning', 'productivity', 'agent-generated', notification.agentName.toLowerCase()],
+          agentId: notification.agentId
+        })
         emit('close')
       }, 1000)
       break
@@ -1715,26 +1763,88 @@ const handleNotificationAction = async (data: { action: string; notification: an
       break
 
     case 'view_analytics':
-      // Navigate to Videos page with analytics focus
-      await sendMessage(`${notification.agentName}, opening your performance analytics.`)
+      // Create comprehensive analytics review task
+      await sendMessage(`${notification.agentName}, creating a comprehensive analytics review and action plan.`)
       setTimeout(() => {
-        navigateTo('/videos?tab=analytics')
+        openTask({
+          title: 'Comprehensive Analytics Review',
+          description: `${notification.message}\n\nAnalytics Review Steps:\n1. Analyze channel performance metrics (views, CTR, retention)\n2. Review audience demographics and behavior patterns\n3. Evaluate revenue and monetization performance\n4. Identify top and bottom performing content\n5. Compare performance against previous periods\n6. Create data-driven improvement recommendations\n\nDeliverables: Analytics report with actionable insights\nContext: ${notification.title}`,
+          category: 'analytics',
+          priority: 'medium',
+          estimatedTime: 90,
+          tags: ['analytics-review', 'performance-metrics', 'data-analysis', 'agent-generated', notification.agentName.toLowerCase()],
+          agentId: notification.agentId
+        })
         emit('close')
       }, 1000)
       break
 
     case 'view_trends':
-      // Navigate to Dashboard with trends focus
-      await sendMessage(`${notification.agentName}, showing you the trending topics analysis.`)
+      // Create trend analysis and opportunity identification task
+      await sendMessage(`${notification.agentName}, creating a trend analysis and opportunity identification task.`)
       setTimeout(() => {
-        navigateTo('/dashboard?section=trends')
+        openTask({
+          title: 'Trend Analysis & Opportunity Identification',
+          description: `${notification.message}\n\nTrend Analysis Steps:\n1. Monitor current trends in your content niche\n2. Analyze trending keywords and topics\n3. Evaluate competitor trend adoption\n4. Identify emerging opportunities before they peak\n5. Assess trend alignment with your brand\n6. Create trend-based content strategy\n\nOutcome: Trend opportunities report and content recommendations\nContext: ${notification.title}`,
+          category: 'research',
+          priority: 'medium',
+          estimatedTime: 75,
+          tags: ['trend-analysis', 'opportunity-identification', 'market-research', 'agent-generated', notification.agentName.toLowerCase()],
+          agentId: notification.agentId
+        })
+        emit('close')
+      }, 1000)
+      break
+
+    case 'research_topic':
+      // Create topic research task
+      await sendMessage(`${notification.agentName}, creating a comprehensive topic research task for you.`)
+      setTimeout(() => {
+        openTask({
+          title: `Topic Research: ${notification.title}`,
+          description: `${notification.message}\n\nResearch Steps:\n1. Conduct keyword research for the topic\n2. Analyze competitor content on this topic\n3. Identify content gaps and opportunities\n4. Research audience questions and pain points\n5. Gather supporting data and statistics\n6. Create content outline and talking points\n\nDeliverables: Research report and content brief\nContext: ${notification.title}`,
+          category: 'research',
+          priority: 'medium',
+          estimatedTime: 60,
+          tags: ['topic-research', 'content-research', 'agent-generated', notification.agentName.toLowerCase()],
+          agentId: notification.agentId
+        })
+        emit('close')
+      }, 1000)
+      break
+
+    case 'competitor_analysis':
+      // Create competitor analysis task
+      await sendMessage(`${notification.agentName}, creating a detailed competitor analysis task.`)
+      setTimeout(() => {
+        openTask({
+          title: 'Competitor Analysis & Strategy',
+          description: `${notification.message}\n\nAnalysis Steps:\n1. Identify top 5 competitors in your niche\n2. Analyze their content strategy and posting frequency\n3. Evaluate their most successful content\n4. Study their audience engagement patterns\n5. Identify content gaps you can exploit\n6. Develop competitive advantage strategies\n\nOutcome: Competitor analysis report and strategic recommendations\nContext: ${notification.title}`,
+          category: 'research',
+          priority: 'high',
+          estimatedTime: 120,
+          tags: ['competitor-analysis', 'market-research', 'strategy', 'agent-generated', notification.agentName.toLowerCase()],
+          agentId: notification.agentId
+        })
         emit('close')
       }, 1000)
       break
 
     default:
-      // Fallback: send a message asking for more details
-      await sendMessage(`${notification.agentName}, tell me more about: ${notification.title}`)
+      // Create a general follow-up task for unknown actions
+      await sendMessage(`${notification.agentName}, creating a follow-up task to explore this insight further.`)
+      setTimeout(() => {
+        openTask({
+          title: `Follow-up: ${notification.title}`,
+          description: `${notification.message}\n\nNext Steps:\n1. Review the insight details and context\n2. Research additional information if needed\n3. Identify specific actions to take\n4. Create implementation plan\n5. Set timeline and milestones\n6. Execute and monitor progress\n\nNote: This insight requires further exploration to determine specific actions.\nContext: ${notification.title}`,
+          category: 'general',
+          priority: 'medium',
+          estimatedTime: 30,
+          tags: ['follow-up', 'insight-exploration', 'agent-generated', notification.agentName.toLowerCase()],
+          agentId: notification.agentId
+        })
+        emit('close')
+      }, 1000)
   }
 }
 
