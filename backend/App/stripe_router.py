@@ -93,17 +93,44 @@ async def create_checkout_session_get(
         # Create checkout session
         stripe_service = get_stripe_service()
 
-        # For Teams plan with per-seat pricing, use the team_seats quantity
-        quantity = team_seats if plan_id == "teams" and pricing_type == "per_seat" else 1
-        logger.info(f"🔄 Using quantity: {quantity} for price_id: {price_id}")
+        # Handle Teams plan with base + additional seats pricing
+        if plan_id == "teams" and pricing_type == "per_seat" and team_seats > 1:
+            # Teams plan: Base plan + additional seats
+            base_price_id = STRIPE_PRICE_IDS['teams']['monthly'] if billing_cycle == 'monthly' else STRIPE_PRICE_IDS['teams']['yearly']
+            per_seat_price_id = price_id  # This is already the per-seat price ID
+            additional_seats = team_seats - 1  # Subtract 1 because base includes 1 seat
 
-        result = stripe_service.create_checkout_session(
-            price_id=price_id,
-            customer_email=customer_email,
-            quantity=quantity,
-            success_url="http://localhost:3000/success",
-            cancel_url="http://localhost:3000/cancel"
-        )
+            line_items = [
+                {
+                    'price': base_price_id,
+                    'quantity': 1,
+                },
+                {
+                    'price': per_seat_price_id,
+                    'quantity': additional_seats,
+                }
+            ]
+
+            logger.info(f"🔄 Teams pricing: Base ({base_price_id}) + {additional_seats} additional seats ({per_seat_price_id})")
+
+            result = stripe_service.create_checkout_session(
+                line_items=line_items,
+                customer_email=customer_email,
+                success_url="http://localhost:3000/success",
+                cancel_url="http://localhost:3000/cancel"
+            )
+        else:
+            # Standard single-item pricing for all other plans
+            quantity = 1
+            logger.info(f"🔄 Standard pricing: quantity {quantity} for price_id: {price_id}")
+
+            result = stripe_service.create_checkout_session(
+                price_id=price_id,
+                customer_email=customer_email,
+                quantity=quantity,
+                success_url="http://localhost:3000/success",
+                cancel_url="http://localhost:3000/cancel"
+            )
 
         if result.get("success"):
             logger.info(f"🔄 Checkout session created successfully: {result.get('checkout_url')}")

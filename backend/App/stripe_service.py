@@ -5,7 +5,7 @@ Handles Stripe API operations for billing and subscriptions
 
 import os
 import stripe
-from typing import Dict, Any, Optional
+from typing import Dict, Any, Optional, List
 import logging
 from datetime import datetime
 
@@ -48,8 +48,9 @@ class StripeService:
     
     def create_checkout_session(
         self,
-        price_id: str,
-        customer_email: str,
+        line_items: List[Dict[str, Any]] = None,
+        price_id: str = None,
+        customer_email: str = None,
         customer_id: Optional[str] = None,
         quantity: int = 1,
         success_url: str = None,
@@ -57,20 +58,26 @@ class StripeService:
         metadata: Dict[str, str] = None
     ) -> Dict[str, Any]:
         """Create a Stripe Checkout session"""
-        self.logger.info(f"🔄 Creating checkout session for price_id: {price_id}, customer_email: {customer_email}")
+        # Handle both new line_items format and legacy price_id format
+        if line_items:
+            self.logger.info(f"🔄 Creating checkout session with {len(line_items)} line items, customer_email: {customer_email}")
+        else:
+            self.logger.info(f"🔄 Creating checkout session for price_id: {price_id}, customer_email: {customer_email}")
+            line_items = [{
+                'price': price_id,
+                'quantity': quantity,
+            }]
+
         try:
             # Default URLs if not provided
             if not success_url:
-                success_url = "https://your-domain.com/success?session_id={CHECKOUT_SESSION_ID}"
+                success_url = "http://localhost:3000/success"
             if not cancel_url:
-                cancel_url = "https://your-domain.com/cancel"
-            
+                cancel_url = "http://localhost:3000/cancel"
+
             session_params = {
                 'payment_method_types': ['card'],
-                'line_items': [{
-                    'price': price_id,
-                    'quantity': quantity,
-                }],
+                'line_items': line_items,
                 'mode': 'subscription',
                 'success_url': success_url,
                 'cancel_url': cancel_url,
