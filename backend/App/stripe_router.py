@@ -56,12 +56,13 @@ async def create_checkout_session_get(
     plan_id: str,
     billing_cycle: str = "monthly",
     pricing_type: str = "fixed",
+    team_seats: int = 1,
     customer_email: str = "demo@example.com"
 ):
     """Create a Stripe Checkout session using GET with query parameters"""
     try:
         logger.info("🔄 Starting checkout session creation via GET...")
-        logger.info(f"🔄 Parameters: plan_id={plan_id}, billing_cycle={billing_cycle}, pricing_type={pricing_type}")
+        logger.info(f"🔄 Parameters: plan_id={plan_id}, billing_cycle={billing_cycle}, pricing_type={pricing_type}, team_seats={team_seats}")
 
         if not plan_id:
             return JSONResponse(
@@ -92,9 +93,14 @@ async def create_checkout_session_get(
         # Create checkout session
         stripe_service = get_stripe_service()
 
+        # For Teams plan with per-seat pricing, use the team_seats quantity
+        quantity = team_seats if plan_id == "teams" and pricing_type == "per_seat" else 1
+        logger.info(f"🔄 Using quantity: {quantity} for price_id: {price_id}")
+
         result = stripe_service.create_checkout_session(
             price_id=price_id,
             customer_email=customer_email,
+            quantity=quantity,
             success_url="http://localhost:3000/success",
             cancel_url="http://localhost:3000/cancel"
         )

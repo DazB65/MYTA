@@ -846,7 +846,7 @@ const selectPlan = async (planId) => {
 
     // Prepare checkout data
     const seats = planId === 'teams' ? getSelectedSeats(planId) : 1
-    const pricingType = 'fixed' // For now, always use fixed pricing
+    const pricingType = planId === 'teams' ? 'per_seat' : 'fixed'
 
     // Show confirmation for Teams plan with seat details
     if (planId === 'teams') {

@@ -200,6 +200,7 @@ export const useSubscriptionStore = defineStore('subscription', () => {
           plan_id: planId,
           billing_cycle: billingCycle,
           pricing_type: pricingType,
+          team_seats: teamSeats,
           customer_email: 'demo@example.com'
         }
       })

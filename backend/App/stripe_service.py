@@ -51,6 +51,7 @@ class StripeService:
         price_id: str,
         customer_email: str,
         customer_id: Optional[str] = None,
+        quantity: int = 1,
         success_url: str = None,
         cancel_url: str = None,
         metadata: Dict[str, str] = None
@@ -68,7 +69,7 @@ class StripeService:
                 'payment_method_types': ['card'],
                 'line_items': [{
                     'price': price_id,
-                    'quantity': 1,
+                    'quantity': quantity,
                 }],
                 'mode': 'subscription',
                 'success_url': success_url,
