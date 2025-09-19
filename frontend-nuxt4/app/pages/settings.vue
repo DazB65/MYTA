@@ -845,19 +845,13 @@ const selectPlan = async (planId) => {
     if (!selectedPlan) return
 
     // Prepare checkout data
-    const checkoutData = {
-      planId,
-      billingCycle: billingCycle.value
-    }
+    const seats = planId === 'teams' ? getSelectedSeats(planId) : 1
+    const pricingType = 'fixed' // For now, always use fixed pricing
 
-    // Add seat information for Teams plan
+    // Show confirmation for Teams plan with seat details
     if (planId === 'teams') {
-      const seats = getSelectedSeats(planId)
-      checkoutData.seats = seats
-      checkoutData.totalCost = calculateTeamsTotal(selectedPlan, seats)
-
-      // Show confirmation for Teams plan with seat details
-      const confirmMessage = `You're about to purchase the Teams plan with ${seats} seat${seats > 1 ? 's' : ''} for $${checkoutData.totalCost}/month.\n\nThis includes:\n• Base plan: $${selectedPlan.price.monthly}/month\n• Additional seats: ${Math.max(0, seats - 1)} × $${selectedPlan.price.per_seat}/month\n\nProceed with checkout?`
+      const totalCost = calculateTeamsTotal(selectedPlan, seats)
+      const confirmMessage = `You're about to purchase the Teams plan with ${seats} seat${seats > 1 ? 's' : ''} for $${totalCost}/month.\n\nThis includes:\n• Base plan: $${selectedPlan.price.monthly}/month\n• Additional seats: ${Math.max(0, seats - 1)} × $${selectedPlan.price.per_seat}/month\n\nProceed with checkout?`
 
       if (!confirm(confirmMessage)) {
         return
@@ -865,11 +859,11 @@ const selectPlan = async (planId) => {
     }
 
     // Use Stripe integration through subscription store
-    const result = await subscriptionStore.createCheckoutSession(checkoutData.planId, checkoutData.billingCycle, checkoutData.seats)
+    const result = await subscriptionStore.createCheckoutSession(planId, billingCycle.value, seats, pricingType)
 
-    if (result.success) {
+    if (result.checkout_url) {
       const message = planId === 'teams'
-        ? `Checkout initiated for Teams plan with ${checkoutData.seats} seats ($${checkoutData.totalCost}/month)`
+        ? `Checkout initiated for Teams plan with ${seats} seats`
         : 'Checkout Initiated'
 
       success('Checkout Initiated', message)
@@ -877,8 +871,7 @@ const selectPlan = async (planId) => {
       // Close modal
       showPlansModal.value = false
 
-      // In production, user would be redirected to Stripe Checkout
-      // For demo, we just show success message
+      // User will be redirected to Stripe Checkout automatically by the subscription store
     }
   } catch (err) {
     error('Plan Selection Failed', 'Failed to select plan. Please try again.')
