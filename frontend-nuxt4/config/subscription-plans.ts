@@ -12,7 +12,8 @@ export interface SubscriptionPlan {
   price: {
     monthly: number
     yearly: number
-    per_seat?: number
+    per_seat_monthly?: number
+    per_seat_yearly?: number
   }
   popular?: boolean
   agentAccess: {
@@ -44,7 +45,8 @@ const transformPlanData = (plan: any): SubscriptionPlan => ({
   price: {
     monthly: plan.price_monthly,
     yearly: plan.price_yearly,
-    per_seat: plan.price_per_seat
+    per_seat_monthly: plan.price_per_seat_monthly,
+    per_seat_yearly: plan.price_per_seat_yearly
   },
   popular: plan.popular || false,
   agentAccess: plan.agent_access,
@@ -146,7 +148,7 @@ export const SUBSCRIPTION_PLANS: SubscriptionPlan[] = [
     id: 'teams',
     name: 'MYTA Teams',
     description: 'For agencies and teams - Boss Agent + 5 specialist agents with unlimited AI conversations, team collaboration, and dedicated support',
-    price: { monthly: 49.99, yearly: 499.99, per_seat: 9.99 },
+    price: { monthly: 49.99, yearly: 499.99, per_seat_monthly: 9.99, per_seat_yearly: 99.99 },
     popular: false,
     agentAccess: {
       total: 6,

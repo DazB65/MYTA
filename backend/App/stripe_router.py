@@ -95,30 +95,51 @@ async def create_checkout_session_get(
 
         # Handle Teams plan with base + additional seats pricing
         if plan_id == "teams" and pricing_type == "per_seat" and team_seats > 1:
-            # Teams plan: Base plan + additional seats
-            base_price_id = STRIPE_PRICE_IDS['teams']['monthly'] if billing_cycle == 'monthly' else STRIPE_PRICE_IDS['teams']['yearly']
-            per_seat_price_id = price_id  # This is already the per-seat price ID
-            additional_seats = team_seats - 1  # Subtract 1 because base includes 1 seat
+            if billing_cycle == 'monthly':
+                # Monthly Teams: Use base + additional seats model (works fine)
+                base_price_id = STRIPE_PRICE_IDS['teams']['monthly']
+                per_seat_price_id = price_id  # This is already the per-seat price ID
+                additional_seats = team_seats - 1  # Subtract 1 because base includes 1 seat
 
-            line_items = [
-                {
-                    'price': base_price_id,
-                    'quantity': 1,
-                },
-                {
-                    'price': per_seat_price_id,
-                    'quantity': additional_seats,
-                }
-            ]
+                line_items = [
+                    {
+                        'price': base_price_id,
+                        'quantity': 1,
+                    },
+                    {
+                        'price': per_seat_price_id,
+                        'quantity': additional_seats,
+                    }
+                ]
 
-            logger.info(f"🔄 Teams pricing: Base ({base_price_id}) + {additional_seats} additional seats ({per_seat_price_id})")
+                logger.info(f"🔄 Teams monthly pricing: Base ({base_price_id}) + {additional_seats} additional seats ({per_seat_price_id})")
 
-            result = stripe_service.create_checkout_session(
-                line_items=line_items,
-                customer_email=customer_email,
-                success_url="http://localhost:3000/success",
-                cancel_url="http://localhost:3000/cancel"
-            )
+                result = stripe_service.create_checkout_session(
+                    line_items=line_items,
+                    customer_email=customer_email,
+                    success_url="http://localhost:3000/success",
+                    cancel_url="http://localhost:3000/cancel"
+                )
+            else:
+                # Yearly Teams: Use single per-seat price with calculated quantity
+                # This avoids Stripe's "different billing intervals" error
+                # Calculate equivalent quantity: (base_cost + additional_seats * per_seat_cost) / per_seat_cost
+                # For 3 seats: ($499.99 + 2 * $99.99) / $99.99 = $699.97 / $99.99 ≈ 7 seats
+                base_yearly_cost = 499.99  # Base Teams yearly cost
+                per_seat_yearly_cost = 99.99  # Per-seat yearly cost
+                additional_seats = team_seats - 1
+                total_cost = base_yearly_cost + (additional_seats * per_seat_yearly_cost)
+                equivalent_quantity = round(total_cost / per_seat_yearly_cost)
+
+                logger.info(f"🔄 Teams yearly pricing: Using {equivalent_quantity} seats at ${per_seat_yearly_cost} each (total: ${total_cost})")
+
+                result = stripe_service.create_checkout_session(
+                    price_id=price_id,  # yearly per-seat price
+                    customer_email=customer_email,
+                    quantity=equivalent_quantity,
+                    success_url="http://localhost:3000/success",
+                    cancel_url="http://localhost:3000/cancel"
+                )
         else:
             # Standard single-item pricing for all other plans
             quantity = 1

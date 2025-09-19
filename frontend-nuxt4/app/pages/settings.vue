@@ -510,8 +510,8 @@
                 <span class="text-gray-400">
                   /{{ billingCycle === 'yearly' ? 'year' : 'month' }}
                 </span>
-                <div v-if="plan.price.per_seat" class="text-sm text-gray-400 mt-1">
-                  + ${{ plan.price.per_seat }}/seat/month
+                <div v-if="plan.price.per_seat_monthly" class="text-sm text-gray-400 mt-1">
+                  + ${{ billingCycle === 'yearly' ? plan.price.per_seat_yearly : plan.price.per_seat_monthly }}/seat/{{ billingCycle === 'yearly' ? 'year' : 'month' }}
                 </div>
               </div>
               <div v-if="billingCycle === 'yearly'" class="text-sm text-green-400">
@@ -595,10 +595,10 @@
               </div>
               <div class="mt-2 text-center">
                 <div class="text-sm text-gray-300">
-                  Total: <span class="font-semibold text-white">${{ calculateTeamsTotal(plan, getSelectedSeats(plan.id)) }}</span>/month
+                  Total: <span class="font-semibold text-white">${{ calculateTeamsTotal(plan, getSelectedSeats(plan.id)) }}</span>/{{ billingCycle === 'yearly' ? 'year' : 'month' }}
                 </div>
                 <div class="text-xs text-gray-400">
-                  Base ${{ plan.price.monthly }} + {{ Math.max(0, getSelectedSeats(plan.id) - 1) }} additional seats × ${{ plan.price.per_seat }}
+                  Base ${{ billingCycle === 'yearly' ? plan.price.yearly : plan.price.monthly }} + {{ Math.max(0, getSelectedSeats(plan.id) - 1) }} additional seats × ${{ billingCycle === 'yearly' ? plan.price.per_seat_yearly : plan.price.per_seat_monthly }}
                 </div>
               </div>
             </div>
@@ -851,7 +851,11 @@ const selectPlan = async (planId) => {
     // Show confirmation for Teams plan with seat details
     if (planId === 'teams') {
       const totalCost = calculateTeamsTotal(selectedPlan, seats)
-      const confirmMessage = `You're about to purchase the Teams plan with ${seats} seat${seats > 1 ? 's' : ''} for $${totalCost}/month.\n\nThis includes:\n• Base plan: $${selectedPlan.price.monthly}/month\n• Additional seats: ${Math.max(0, seats - 1)} × $${selectedPlan.price.per_seat}/month\n\nProceed with checkout?`
+      const isYearly = billingCycle.value === 'yearly'
+      const baseCost = isYearly ? selectedPlan.price.yearly : selectedPlan.price.monthly
+      const perSeatCost = isYearly ? selectedPlan.price.per_seat_yearly : selectedPlan.price.per_seat_monthly
+      const billingPeriod = isYearly ? 'year' : 'month'
+      const confirmMessage = `You're about to purchase the Teams plan with ${seats} seat${seats > 1 ? 's' : ''} for $${totalCost}/${billingPeriod}.\n\nThis includes:\n• Base plan: $${baseCost}/${billingPeriod}\n• Additional seats: ${Math.max(0, seats - 1)} × $${perSeatCost}/${billingPeriod}\n\nProceed with checkout?`
 
       if (!confirm(confirmMessage)) {
         return
@@ -896,9 +900,11 @@ const decreaseSeats = (planId) => {
 }
 
 const calculateTeamsTotal = (plan, seats) => {
-  const baseCost = plan.price.monthly
+  const isYearly = billingCycle.value === 'yearly'
+  const baseCost = isYearly ? plan.price.yearly : plan.price.monthly
   const additionalSeats = Math.max(0, seats - 1)
-  const additionalCost = additionalSeats * plan.price.per_seat
+  const perSeatCost = isYearly ? plan.price.per_seat_yearly : plan.price.per_seat_monthly
+  const additionalCost = additionalSeats * perSeatCost
   return (baseCost + additionalCost).toFixed(2)
 }
 
