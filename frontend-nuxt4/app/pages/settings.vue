@@ -97,7 +97,7 @@
                   class="text-center p-3 rounded-lg bg-gray-700"
                 >
                   <div class="mx-auto mb-2 h-12 w-12 overflow-hidden rounded-lg bg-gray-600">
-                    <img :src="agent.image" :alt="agent.name" class="h-full w-full object-cover" />
+                    <img :src="agent.avatar" :alt="agent.name" class="h-full w-full object-cover" />
                   </div>
                   <div class="text-xs font-medium text-gray-300">{{ agent.name }}</div>
                   <div class="text-xs text-gray-500 mt-1">{{ agent.description }}</div>
