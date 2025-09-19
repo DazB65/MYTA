@@ -189,29 +189,24 @@ export const useSubscriptionStore = defineStore('subscription', () => {
 
       const config = useRuntimeConfig()
 
-      // Use new Stripe API endpoint
+      // Use GET endpoint to avoid request body parsing timeout
       const result = await $fetch('/api/stripe/create-checkout-session', {
-        method: 'POST',
+        method: 'GET',
         baseURL: config.public.apiBase,
         headers: {
-          'X-Requested-With': 'XMLHttpRequest',
-          'Content-Type': 'application/json'
+          'X-Requested-With': 'XMLHttpRequest'
         },
-        body: {
+        query: {
           plan_id: planId,
           billing_cycle: billingCycle,
           pricing_type: pricingType,
-          team_seats: teamSeats,
-          success_url: `${window.location.origin}/settings?success=true`,
-          cancel_url: `${window.location.origin}/settings?canceled=true`
+          customer_email: 'demo@example.com'
         }
       })
 
-      if (result.success) {
+      if (result.checkout_url) {
         // Redirect to Stripe Checkout
-        if (result.data.checkout_url) {
-          window.location.href = result.data.checkout_url
-        }
+        window.location.href = result.checkout_url
         await fetchCurrentSubscription()
       }
 

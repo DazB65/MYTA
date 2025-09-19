@@ -24,9 +24,13 @@ class SecurityConfig:
         
         # Only load .env file in development
         if environment == "development":
-            if os.path.exists("../.env"):
-                load_dotenv()
+            # Check for .env file in current directory first, then parent directory
+            if os.path.exists(".env"):
+                load_dotenv(".env")
                 logger.info("Loaded environment variables from .env file (development mode)")
+            elif os.path.exists("../.env"):
+                load_dotenv("../.env")
+                logger.info("Loaded environment variables from ../.env file (development mode)")
             else:
                 logger.warning("No .env file found in development mode")
         else:

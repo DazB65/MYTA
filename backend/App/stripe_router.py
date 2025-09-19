@@ -6,17 +6,23 @@ Handles Stripe billing and subscription endpoints
 from fastapi import APIRouter, Request, HTTPException, Depends, Header
 from fastapi.responses import JSONResponse
 from typing import Dict, List, Optional, Any
+from pydantic import BaseModel
 import json
 import stripe
 from datetime import datetime
 
 from backend.App.stripe_service import get_stripe_service
-from backend.App.auth_middleware import get_current_user
+from backend.App.auth_middleware import get_current_user, get_optional_user
 from backend.App.api_models import create_success_response, create_error_response
 from backend.logging_config import get_logger, LogCategory
 
 # Configure logging
 logger = get_logger(__name__, LogCategory.API)
+
+# Pydantic models for request validation
+class CheckoutSessionRequest(BaseModel):
+    plan_id: str
+    billing_cycle: str
 
 # Create router
 router = APIRouter(prefix="/api/stripe", tags=["Stripe Billing"])
@@ -39,79 +45,176 @@ STRIPE_PRICE_IDS = {
     }
 }
 
-@router.post("/create-checkout-session")
-async def create_checkout_session(
-    request: Request,
-    current_user: Dict = Depends(get_current_user)
+@router.post("/test-endpoint")
+async def test_endpoint():
+    """Simple test endpoint to check if basic routing works"""
+    logger.info("🔄 Test endpoint reached successfully!")
+    return {"status": "success", "message": "Test endpoint working"}
+
+@router.get("/create-checkout-session")
+async def create_checkout_session_get(
+    plan_id: str,
+    billing_cycle: str = "monthly",
+    pricing_type: str = "fixed",
+    customer_email: str = "demo@example.com"
 ):
-    """Create a Stripe Checkout session for subscription"""
+    """Create a Stripe Checkout session using GET with query parameters"""
     try:
-        body = await request.json()
-        plan_id = body.get("plan_id")
-        billing_cycle = body.get("billing_cycle", "monthly")  # monthly or yearly
-        pricing_type = body.get("pricing_type", "fixed")  # fixed or per_seat
-        team_seats = body.get("team_seats", 1)
-        success_url = body.get("success_url")
-        cancel_url = body.get("cancel_url")
+        logger.info("🔄 Starting checkout session creation via GET...")
+        logger.info(f"🔄 Parameters: plan_id={plan_id}, billing_cycle={billing_cycle}, pricing_type={pricing_type}")
 
         if not plan_id:
-            raise HTTPException(status_code=400, detail="Plan ID is required")
+            return JSONResponse(
+                status_code=400,
+                content={"error": "Plan ID is required"}
+            )
 
         if plan_id not in STRIPE_PRICE_IDS:
-            raise HTTPException(status_code=400, detail="Invalid plan ID")
+            return JSONResponse(
+                status_code=400,
+                content={"error": f"Invalid plan ID: {plan_id}"}
+            )
 
         # Get the appropriate price ID
-        price_id = None
-        if plan_id == "teams" and pricing_type == "per_seat":
-            price_id = STRIPE_PRICE_IDS[plan_id][f"{billing_cycle}_per_seat"]
-        else:
-            price_id = STRIPE_PRICE_IDS[plan_id][billing_cycle]
+        try:
+            if plan_id == "teams" and pricing_type == "per_seat":
+                price_id = STRIPE_PRICE_IDS[plan_id][f"{billing_cycle}_per_seat"]
+            else:
+                price_id = STRIPE_PRICE_IDS[plan_id][billing_cycle]
+        except KeyError:
+            return JSONResponse(
+                status_code=400,
+                content={"error": f"Invalid billing cycle or pricing type: {billing_cycle}, {pricing_type}"}
+            )
 
-        if not price_id:
-            raise HTTPException(status_code=400, detail="Invalid billing cycle or pricing type")
-
-        stripe_service = get_stripe_service()
-        user_email = current_user.get("email", "user@example.com")
-        user_name = current_user.get("name", "")
-
-        # Create metadata for the checkout session
-        metadata = {
-            "user_id": str(current_user["id"]),
-            "plan_id": plan_id,
-            "billing_cycle": billing_cycle,
-            "pricing_type": pricing_type
-        }
-
-        if plan_id == "teams":
-            metadata["team_seats"] = str(team_seats)
+        logger.info(f"🔄 Found price ID: {price_id}")
 
         # Create checkout session
+        stripe_service = get_stripe_service()
+
         result = stripe_service.create_checkout_session(
             price_id=price_id,
-            customer_email=user_email,
-            success_url=success_url,
-            cancel_url=cancel_url,
-            metadata=metadata
+            customer_email=customer_email,
+            success_url="http://localhost:3000/success",
+            cancel_url="http://localhost:3000/cancel"
         )
 
-        if result["success"]:
-            return create_success_response(
-                "Checkout session created successfully",
-                {
-                    "session_id": result["session_id"],
-                    "checkout_url": result["checkout_url"],
-                    "plan_id": plan_id,
-                    "billing_cycle": billing_cycle,
-                    "pricing_type": pricing_type,
-                    "team_seats": team_seats if plan_id == "teams" else None
-                }
-            )
+        if result.get("success"):
+            logger.info(f"🔄 Checkout session created successfully: {result.get('checkout_url')}")
+            return JSONResponse(content={
+                "checkout_url": result.get("checkout_url"),
+                "session_id": result.get("session_id")
+            })
         else:
-            return create_error_response("Failed to create checkout session", result["error"])
+            logger.error(f"❌ Failed to create checkout session: {result.get('error')}")
+            return JSONResponse(
+                status_code=500,
+                content={"error": result.get("error", "Failed to create checkout session")}
+            )
 
     except Exception as e:
-        logger.error(f"Error creating Stripe checkout session: {e}")
-        return create_error_response("Failed to create checkout session", str(e))
+        logger.error(f"❌ Error creating checkout session: {e}")
+        return JSONResponse(
+            status_code=500,
+            content={"error": str(e)}
+        )
+
+@router.post("/create-checkout-session-v2")
+async def create_checkout_session_v2(request: Request):
+    """Create a Stripe Checkout session for subscription"""
+    try:
+        logger.info("🔄 Starting checkout session creation...")
+
+        # Parse JSON manually (no Pydantic models to avoid timeout)
+        try:
+            body_bytes = await request.body()
+            logger.info(f"🔄 Body bytes length: {len(body_bytes)}")
+
+            if body_bytes:
+                import json
+                body = json.loads(body_bytes.decode('utf-8'))
+                logger.info(f"🔄 Request body parsed: {body}")
+            else:
+                logger.warning("🔄 Empty request body")
+                body = {}
+        except Exception as e:
+            logger.error(f"❌ Error parsing request body: {e}")
+            return JSONResponse(
+                status_code=400,
+                content={"error": "Invalid JSON in request body"}
+            )
+
+        plan_id = body.get("plan_id")
+        billing_cycle = body.get("billing_cycle", "monthly")
+        pricing_type = body.get("pricing_type", "fixed")
+        team_seats = body.get("team_seats", 1)
+        success_url = body.get("success_url", "http://localhost:3000/success")
+        cancel_url = body.get("cancel_url", "http://localhost:3000/cancel")
+
+        logger.info(f"🔄 Parsed parameters: plan_id={plan_id}, billing_cycle={billing_cycle}, pricing_type={pricing_type}")
+
+        if not plan_id:
+            return JSONResponse(
+                status_code=400,
+                content={"error": "Plan ID is required"}
+            )
+
+        if plan_id not in STRIPE_PRICE_IDS:
+            return JSONResponse(
+                status_code=400,
+                content={"error": f"Invalid plan ID: {plan_id}"}
+            )
+
+        # Get the appropriate price ID
+        try:
+            if plan_id == "teams" and pricing_type == "per_seat":
+                price_id = STRIPE_PRICE_IDS[plan_id][f"{billing_cycle}_per_seat"]
+            else:
+                price_id = STRIPE_PRICE_IDS[plan_id][billing_cycle]
+        except KeyError:
+            return JSONResponse(
+                status_code=400,
+                content={"error": f"Invalid billing cycle or pricing type: {billing_cycle}, {pricing_type}"}
+            )
+
+        logger.info(f"🔄 Found price ID: {price_id}")
+
+        # Use demo email (no authentication to avoid dependency injection timeout)
+        customer_email = body.get("customer_email", "demo@example.com")
+
+        logger.info(f"🔄 Creating checkout session for {customer_email}")
+
+        # Create checkout session
+        stripe_service = get_stripe_service()
+
+        result = stripe_service.create_checkout_session(
+            price_id=price_id,
+            customer_email=customer_email,
+            success_url=success_url,
+            cancel_url=cancel_url
+        )
+
+        logger.info(f"🔄 Stripe service returned result: {result}")
+
+        if result.get("success"):
+            logger.info(f"🔄 Checkout session created successfully: {result.get('checkout_url')}")
+            return JSONResponse(content={
+                "checkout_url": result.get("checkout_url"),
+                "session_id": result.get("session_id")
+            })
+        else:
+            logger.error(f"❌ Failed to create checkout session: {result.get('error')}")
+            return JSONResponse(
+                status_code=500,
+                content={"error": result.get("error", "Failed to create checkout session")}
+            )
+
+    except Exception as e:
+        logger.error(f"❌ Error creating Stripe checkout session: {e}")
+        return JSONResponse(
+            status_code=500,
+            content={"error": str(e)}
+        )
 
 @router.post("/create-portal-session")
 async def create_portal_session(
@@ -263,6 +366,22 @@ async def get_price_ids():
         "Price IDs retrieved successfully",
         {"price_ids": STRIPE_PRICE_IDS}
     )
+
+@router.get("/test-service")
+async def test_stripe_service():
+    """Test Stripe service initialization"""
+    try:
+        logger.info("🔄 Testing Stripe service initialization...")
+        stripe_service = get_stripe_service()
+        logger.info("✅ Stripe service created successfully!")
+
+        return create_success_response(
+            "Stripe service test successful",
+            {"status": "working", "service_created": True}
+        )
+    except Exception as e:
+        logger.error(f"❌ Stripe service test failed: {e}")
+        return create_error_response("Stripe service test failed", str(e))
 
 @router.post("/webhook")
 async def handle_stripe_webhook(

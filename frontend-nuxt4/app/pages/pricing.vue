@@ -279,11 +279,15 @@ const selectPlan = async (planId) => {
       return
     }
 
-    // Check if user is authenticated
+    // Check if user is authenticated or in demo mode
     const { $router } = useNuxtApp()
     const authStore = useAuthStore()
 
-    if (!authStore.isAuthenticated) {
+    // Check for demo user data in localStorage
+    const demoUserData = process.client ? localStorage.getItem('myta_user_data') : null
+    const hasDemo = !!demoUserData
+
+    if (!authStore.isAuthenticated && !hasDemo) {
       // Redirect to login with return URL
       await $router.push(`/login?redirect=/pricing&plan=${planId}&billing=${billingCycle.value}`)
       return

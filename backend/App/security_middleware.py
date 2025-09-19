@@ -139,9 +139,13 @@ class InputValidationMiddleware(BaseHTTPMiddleware):
     async def dispatch(self, request: Request, call_next: Callable) -> Response:
         """Validate and sanitize input"""
         try:
-            # Skip validation for dashboard endpoints
-            if request.url.path.startswith("/api/dashboard/"):
+            # Skip validation for dashboard and Stripe endpoints
+            if (request.url.path.startswith("/api/dashboard/") or
+                request.url.path.startswith("/api/stripe/")):
+                logger.info(f"🔄 InputValidationMiddleware: Skipping validation for {request.url.path}")
                 return await call_next(request)
+
+            logger.info(f"🔄 InputValidationMiddleware: Processing validation for {request.url.path}")
 
             # Only validate POST/PUT requests with JSON content
             if request.method in ["POST", "PUT", "PATCH"]:

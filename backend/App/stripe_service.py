@@ -14,19 +14,41 @@ logger = logging.getLogger(__name__)
 
 class StripeService:
     """Service for handling Stripe API operations"""
-    
+
     def __init__(self):
+        # Use MYTA logging system
+        from backend.logging_config import get_logger, LogCategory
+        self.logger = get_logger(__name__, LogCategory.API)
+
+        self.logger.info("🔄 Initializing StripeService...")
+
         # Initialize Stripe with secret key from environment
-        stripe.api_key = os.getenv('STRIPE_SECRET_KEY')
+        stripe_secret = os.getenv('STRIPE_SECRET_KEY')
         self.publishable_key = os.getenv('STRIPE_PUBLISHABLE_KEY')
-        
-        if not stripe.api_key:
-            logger.error("STRIPE_SECRET_KEY not found in environment variables")
+
+        self.logger.info(f"🔑 Stripe secret key found: {bool(stripe_secret)}")
+        self.logger.info(f"🔑 Stripe publishable key found: {bool(self.publishable_key)}")
+
+        if not stripe_secret:
+            self.logger.error("❌ STRIPE_SECRET_KEY not found in environment variables")
             raise ValueError("Stripe secret key is required")
+
+        self.logger.info("🔄 Setting Stripe API key...")
+        stripe.api_key = stripe_secret
+        self.logger.info("✅ Stripe API key set successfully")
+
+        # Test Stripe connection
+        self.logger.info("🔄 Testing Stripe connection...")
+        try:
+            account = stripe.Account.retrieve()
+            self.logger.info(f"✅ Stripe connection successful! Account ID: {account.id}")
+        except Exception as e:
+            self.logger.error(f"❌ Stripe connection failed: {e}")
+            raise
     
     def create_checkout_session(
-        self, 
-        price_id: str, 
+        self,
+        price_id: str,
         customer_email: str,
         customer_id: Optional[str] = None,
         success_url: str = None,
@@ -34,6 +56,7 @@ class StripeService:
         metadata: Dict[str, str] = None
     ) -> Dict[str, Any]:
         """Create a Stripe Checkout session"""
+        self.logger.info(f"🔄 Creating checkout session for price_id: {price_id}, customer_email: {customer_email}")
         try:
             # Default URLs if not provided
             if not success_url:
@@ -58,8 +81,10 @@ class StripeService:
                 session_params['customer'] = customer_id
             else:
                 session_params['customer_email'] = customer_email
-            
+
+            logger.info(f"About to call Stripe API with params: {session_params}")
             session = stripe.checkout.Session.create(**session_params)
+            logger.info(f"Stripe checkout session created successfully: {session.id}")
             
             return {
                 'success': True,
