@@ -434,8 +434,8 @@
     </div>
 
     <!-- Plans Modal -->
-    <div v-if="showPlansModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 p-4">
-      <div class="bg-forest-800 rounded-xl p-4 max-w-7xl w-full max-h-full flex flex-col">
+    <div v-if="showPlansModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 p-4 overflow-y-auto">
+      <div class="bg-forest-800 rounded-xl p-4 max-w-7xl w-full my-4 flex flex-col">
         <div class="flex items-center justify-between mb-4 flex-shrink-0">
           <div>
             <h2 class="text-xl font-bold text-white">Choose Your Plan</h2>
@@ -474,7 +474,7 @@
         </div>
 
         <!-- Plans Grid -->
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 flex-1 overflow-y-auto pt-4 pb-6 pr-2">
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 pt-4">
           <div
             v-for="plan in availablePlans"
             :key="plan.id"
