@@ -11,7 +11,7 @@
             <img
               src="/MYTALogo.png"
               alt="MYTA Logo"
-              class="h-72 w-auto ml-8 mt-32"
+              class="h-72 w-auto ml-8 mt-36"
             />
           </NuxtLink>
         </div>
