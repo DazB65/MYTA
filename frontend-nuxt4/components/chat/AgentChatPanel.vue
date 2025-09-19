@@ -1616,14 +1616,25 @@ const handleNotificationAction = async (data: { action: string; notification: an
       // Create specific video optimization analysis task
       await sendMessage(`${notification.agentName}, creating a detailed video optimization analysis task for you.`)
       setTimeout(() => {
+        // Create a proper Task-like object for pre-filling the modal
+        const tomorrow = new Date()
+        tomorrow.setDate(tomorrow.getDate() + 1)
+
         openTask({
+          id: `temp_${Date.now()}`, // Temporary ID for new task
           title: 'Video Optimization Analysis',
           description: `${notification.message}\n\nAction Steps:\n1. Review performance metrics for recent videos\n2. Identify underperforming content (low CTR, retention, engagement)\n3. Analyze successful videos for patterns\n4. Create optimization recommendations for titles, thumbnails, and descriptions\n5. Prioritize videos for immediate optimization\n\nContext: ${notification.title}`,
-          category: 'analytics',
+          status: 'pending',
           priority: 'high',
+          category: 'analytics',
+          dueDate: tomorrow,
+          createdAt: new Date(),
+          updatedAt: new Date(),
+          completed: false,
           estimatedTime: 90,
           tags: ['video-optimization', 'agent-generated', notification.agentName.toLowerCase(), 'performance-analysis'],
-          agentId: notification.agentId
+          agentId: notification.agentId,
+          notes: ''
         })
         emit('close')
       }, 1000)
@@ -1633,14 +1644,25 @@ const handleNotificationAction = async (data: { action: string; notification: an
       // Create specific optimization implementation task
       await sendMessage(`${notification.agentName}, creating optimization implementation tasks with detailed action steps.`)
       setTimeout(() => {
+        // Create a proper Task-like object for pre-filling the modal
+        const tomorrow = new Date()
+        tomorrow.setDate(tomorrow.getDate() + 1)
+
         openTask({
+          id: `temp_${Date.now()}`, // Temporary ID for new task
           title: 'Implement Video Optimizations',
           description: `${notification.message}\n\nImplementation Steps:\n1. Update video titles with high-performing keywords\n2. Redesign thumbnails using proven visual elements\n3. Optimize video descriptions with relevant tags and CTAs\n4. Adjust video timing and posting schedule\n5. Update end screens and cards for better retention\n6. Monitor performance changes after implementation\n\nExpected Impact: 25-40% engagement boost\nContext: ${notification.title}`,
-          category: 'seo',
+          status: 'pending',
           priority: 'high',
+          category: 'seo',
+          dueDate: tomorrow,
+          createdAt: new Date(),
+          updatedAt: new Date(),
+          completed: false,
           estimatedTime: 120,
           tags: ['optimization', 'implementation', 'agent-generated', notification.agentName.toLowerCase()],
-          agentId: notification.agentId
+          agentId: notification.agentId,
+          notes: ''
         })
         emit('close')
       }, 1000)
@@ -1665,14 +1687,25 @@ const handleNotificationAction = async (data: { action: string; notification: an
       // Create success factor analysis task
       await sendMessage(`${notification.agentName}, creating a comprehensive success factor analysis task for you.`)
       setTimeout(() => {
+        // Create a proper Task-like object for pre-filling the modal
+        const tomorrow = new Date()
+        tomorrow.setDate(tomorrow.getDate() + 1)
+
         openTask({
+          id: `temp_${Date.now()}`, // Temporary ID for new task
           title: 'Success Factor Analysis',
           description: `${notification.message}\n\nAnalysis Steps:\n1. Identify top 5 performing videos from the last 30 days\n2. Analyze common elements: titles, thumbnails, topics, timing\n3. Extract key success patterns and formulas\n4. Compare against underperforming content\n5. Create replicable success framework\n6. Document insights for future content creation\n\nDeliverables: Success pattern report and content framework\nContext: ${notification.title}`,
-          category: 'analytics',
+          status: 'pending',
           priority: 'medium',
+          category: 'analytics',
+          dueDate: tomorrow,
+          createdAt: new Date(),
+          updatedAt: new Date(),
+          completed: false,
           estimatedTime: 75,
           tags: ['success-analysis', 'performance', 'agent-generated', notification.agentName.toLowerCase()],
-          agentId: notification.agentId
+          agentId: notification.agentId,
+          notes: ''
         })
         emit('close')
       }, 1000)
@@ -1682,14 +1715,25 @@ const handleNotificationAction = async (data: { action: string; notification: an
       // Create strategic planning task
       await sendMessage(`${notification.agentName}, creating a strategic planning and analysis task for your content pillars.`)
       setTimeout(() => {
+        // Create a proper Task-like object for pre-filling the modal
+        const tomorrow = new Date()
+        tomorrow.setDate(tomorrow.getDate() + 1)
+
         openTask({
+          id: `temp_${Date.now()}`, // Temporary ID for new task
           title: 'Q1 Content Strategy Analysis',
           description: `${notification.message}\n\nStrategy Review Steps:\n1. Evaluate current content pillar performance\n2. Analyze audience engagement by content type\n3. Identify gaps in content calendar\n4. Research competitor content strategies\n5. Develop Q1 content themes and topics\n6. Create content calendar with strategic focus\n\nOutcome: Updated content strategy and Q1 roadmap\nContext: ${notification.title}`,
-          category: 'strategy',
+          status: 'pending',
           priority: 'high',
+          category: 'strategy',
+          dueDate: tomorrow,
+          createdAt: new Date(),
+          updatedAt: new Date(),
+          completed: false,
           estimatedTime: 120,
           tags: ['strategy', 'content-pillars', 'quarterly-planning', 'agent-generated', notification.agentName.toLowerCase()],
-          agentId: notification.agentId
+          agentId: notification.agentId,
+          notes: ''
         })
         emit('close')
       }, 1000)
@@ -1715,14 +1759,25 @@ const handleNotificationAction = async (data: { action: string; notification: an
       // Create trending topics research task
       await sendMessage(`${notification.agentName}, creating a trending topics research and content planning task.`)
       setTimeout(() => {
+        // Create a proper Task-like object for pre-filling the modal
+        const tomorrow = new Date()
+        tomorrow.setDate(tomorrow.getDate() + 1)
+
         openTask({
+          id: `temp_${Date.now()}`, // Temporary ID for new task
           title: 'Trending Topics Research & Content Planning',
           description: `${notification.message}\n\nResearch & Planning Steps:\n1. Identify trending topics in your niche using YouTube Trends\n2. Analyze trending hashtags and keywords\n3. Research competitor trending content\n4. Evaluate trending topics for brand alignment\n5. Create content ideas based on trending opportunities\n6. Develop content calendar incorporating trends\n\nDeliverables: Trending topics report and content ideas list\nContext: ${notification.title}`,
-          category: 'content',
+          status: 'pending',
           priority: 'medium',
+          category: 'content',
+          dueDate: tomorrow,
+          createdAt: new Date(),
+          updatedAt: new Date(),
+          completed: false,
           estimatedTime: 60,
           tags: ['trending-topics', 'research', 'content-planning', 'agent-generated', notification.agentName.toLowerCase()],
-          agentId: notification.agentId
+          agentId: notification.agentId,
+          notes: ''
         })
         emit('close')
       }, 1000)
@@ -1733,14 +1788,25 @@ const handleNotificationAction = async (data: { action: string; notification: an
       // Create task organization and planning task
       await sendMessage(`${notification.agentName}, creating a task organization and weekly planning session.`)
       setTimeout(() => {
+        // Create a proper Task-like object for pre-filling the modal
+        const tomorrow = new Date()
+        tomorrow.setDate(tomorrow.getDate() + 1)
+
         openTask({
+          id: `temp_${Date.now()}`, // Temporary ID for new task
           title: 'Weekly Task Organization & Planning',
           description: `${notification.message}\n\nTask Management Steps:\n1. Review and prioritize current tasks\n2. Identify overdue or blocked tasks\n3. Estimate time requirements for pending tasks\n4. Create weekly schedule with task allocation\n5. Set up task dependencies and deadlines\n6. Plan daily focus areas for the week\n\nOutcome: Organized task list and weekly productivity plan\nContext: ${notification.title}`,
-          category: 'productivity',
+          status: 'pending',
           priority: 'medium',
+          category: 'productivity',
+          dueDate: tomorrow,
+          createdAt: new Date(),
+          updatedAt: new Date(),
+          completed: false,
           estimatedTime: 45,
           tags: ['task-management', 'weekly-planning', 'productivity', 'agent-generated', notification.agentName.toLowerCase()],
-          agentId: notification.agentId
+          agentId: notification.agentId,
+          notes: ''
         })
         emit('close')
       }, 1000)
@@ -1751,12 +1817,25 @@ const handleNotificationAction = async (data: { action: string; notification: an
       // Open Task Modal with workflow context
       await sendMessage(`${notification.agentName}, starting your optimization workflow.`)
       setTimeout(() => {
+        // Create a proper Task-like object for pre-filling the modal
+        const tomorrow = new Date()
+        tomorrow.setDate(tomorrow.getDate() + 1)
+
         openTask({
+          id: `temp_${Date.now()}`, // Temporary ID for new task
           title: `Workflow: ${notification.title}`,
           description: notification.message,
-          category: 'optimization',
+          status: 'pending',
           priority: 'medium',
-          tags: ['workflow', 'agent-generated', notification.agentName.toLowerCase()]
+          category: 'optimization',
+          dueDate: tomorrow,
+          createdAt: new Date(),
+          updatedAt: new Date(),
+          completed: false,
+          estimatedTime: 60,
+          tags: ['workflow', 'agent-generated', notification.agentName.toLowerCase()],
+          agentId: notification.agentId,
+          notes: ''
         })
         emit('close')
       }, 1000)
@@ -1766,14 +1845,25 @@ const handleNotificationAction = async (data: { action: string; notification: an
       // Create comprehensive analytics review task
       await sendMessage(`${notification.agentName}, creating a comprehensive analytics review and action plan.`)
       setTimeout(() => {
+        // Create a proper Task-like object for pre-filling the modal
+        const tomorrow = new Date()
+        tomorrow.setDate(tomorrow.getDate() + 1)
+
         openTask({
+          id: `temp_${Date.now()}`, // Temporary ID for new task
           title: 'Comprehensive Analytics Review',
           description: `${notification.message}\n\nAnalytics Review Steps:\n1. Analyze channel performance metrics (views, CTR, retention)\n2. Review audience demographics and behavior patterns\n3. Evaluate revenue and monetization performance\n4. Identify top and bottom performing content\n5. Compare performance against previous periods\n6. Create data-driven improvement recommendations\n\nDeliverables: Analytics report with actionable insights\nContext: ${notification.title}`,
-          category: 'analytics',
+          status: 'pending',
           priority: 'medium',
+          category: 'analytics',
+          dueDate: tomorrow,
+          createdAt: new Date(),
+          updatedAt: new Date(),
+          completed: false,
           estimatedTime: 90,
           tags: ['analytics-review', 'performance-metrics', 'data-analysis', 'agent-generated', notification.agentName.toLowerCase()],
-          agentId: notification.agentId
+          agentId: notification.agentId,
+          notes: ''
         })
         emit('close')
       }, 1000)
@@ -1783,14 +1873,25 @@ const handleNotificationAction = async (data: { action: string; notification: an
       // Create trend analysis and opportunity identification task
       await sendMessage(`${notification.agentName}, creating a trend analysis and opportunity identification task.`)
       setTimeout(() => {
+        // Create a proper Task-like object for pre-filling the modal
+        const tomorrow = new Date()
+        tomorrow.setDate(tomorrow.getDate() + 1)
+
         openTask({
+          id: `temp_${Date.now()}`, // Temporary ID for new task
           title: 'Trend Analysis & Opportunity Identification',
           description: `${notification.message}\n\nTrend Analysis Steps:\n1. Monitor current trends in your content niche\n2. Analyze trending keywords and topics\n3. Evaluate competitor trend adoption\n4. Identify emerging opportunities before they peak\n5. Assess trend alignment with your brand\n6. Create trend-based content strategy\n\nOutcome: Trend opportunities report and content recommendations\nContext: ${notification.title}`,
-          category: 'research',
+          status: 'pending',
           priority: 'medium',
+          category: 'research',
+          dueDate: tomorrow,
+          createdAt: new Date(),
+          updatedAt: new Date(),
+          completed: false,
           estimatedTime: 75,
           tags: ['trend-analysis', 'opportunity-identification', 'market-research', 'agent-generated', notification.agentName.toLowerCase()],
-          agentId: notification.agentId
+          agentId: notification.agentId,
+          notes: ''
         })
         emit('close')
       }, 1000)
@@ -1800,14 +1901,25 @@ const handleNotificationAction = async (data: { action: string; notification: an
       // Create topic research task
       await sendMessage(`${notification.agentName}, creating a comprehensive topic research task for you.`)
       setTimeout(() => {
+        // Create a proper Task-like object for pre-filling the modal
+        const tomorrow = new Date()
+        tomorrow.setDate(tomorrow.getDate() + 1)
+
         openTask({
+          id: `temp_${Date.now()}`, // Temporary ID for new task
           title: `Topic Research: ${notification.title}`,
           description: `${notification.message}\n\nResearch Steps:\n1. Conduct keyword research for the topic\n2. Analyze competitor content on this topic\n3. Identify content gaps and opportunities\n4. Research audience questions and pain points\n5. Gather supporting data and statistics\n6. Create content outline and talking points\n\nDeliverables: Research report and content brief\nContext: ${notification.title}`,
-          category: 'research',
+          status: 'pending',
           priority: 'medium',
+          category: 'research',
+          dueDate: tomorrow,
+          createdAt: new Date(),
+          updatedAt: new Date(),
+          completed: false,
           estimatedTime: 60,
           tags: ['topic-research', 'content-research', 'agent-generated', notification.agentName.toLowerCase()],
-          agentId: notification.agentId
+          agentId: notification.agentId,
+          notes: ''
         })
         emit('close')
       }, 1000)
@@ -1817,14 +1929,25 @@ const handleNotificationAction = async (data: { action: string; notification: an
       // Create competitor analysis task
       await sendMessage(`${notification.agentName}, creating a detailed competitor analysis task.`)
       setTimeout(() => {
+        // Create a proper Task-like object for pre-filling the modal
+        const tomorrow = new Date()
+        tomorrow.setDate(tomorrow.getDate() + 1)
+
         openTask({
+          id: `temp_${Date.now()}`, // Temporary ID for new task
           title: 'Competitor Analysis & Strategy',
           description: `${notification.message}\n\nAnalysis Steps:\n1. Identify top 5 competitors in your niche\n2. Analyze their content strategy and posting frequency\n3. Evaluate their most successful content\n4. Study their audience engagement patterns\n5. Identify content gaps you can exploit\n6. Develop competitive advantage strategies\n\nOutcome: Competitor analysis report and strategic recommendations\nContext: ${notification.title}`,
-          category: 'research',
+          status: 'pending',
           priority: 'high',
+          category: 'research',
+          dueDate: tomorrow,
+          createdAt: new Date(),
+          updatedAt: new Date(),
+          completed: false,
           estimatedTime: 120,
           tags: ['competitor-analysis', 'market-research', 'strategy', 'agent-generated', notification.agentName.toLowerCase()],
-          agentId: notification.agentId
+          agentId: notification.agentId,
+          notes: ''
         })
         emit('close')
       }, 1000)
@@ -1834,14 +1957,25 @@ const handleNotificationAction = async (data: { action: string; notification: an
       // Create a general follow-up task for unknown actions
       await sendMessage(`${notification.agentName}, creating a follow-up task to explore this insight further.`)
       setTimeout(() => {
+        // Create a proper Task-like object for pre-filling the modal
+        const tomorrow = new Date()
+        tomorrow.setDate(tomorrow.getDate() + 1)
+
         openTask({
+          id: `temp_${Date.now()}`, // Temporary ID for new task
           title: `Follow-up: ${notification.title}`,
           description: `${notification.message}\n\nNext Steps:\n1. Review the insight details and context\n2. Research additional information if needed\n3. Identify specific actions to take\n4. Create implementation plan\n5. Set timeline and milestones\n6. Execute and monitor progress\n\nNote: This insight requires further exploration to determine specific actions.\nContext: ${notification.title}`,
-          category: 'general',
+          status: 'pending',
           priority: 'medium',
+          category: 'general',
+          dueDate: tomorrow,
+          createdAt: new Date(),
+          updatedAt: new Date(),
+          completed: false,
           estimatedTime: 30,
           tags: ['follow-up', 'insight-exploration', 'agent-generated', notification.agentName.toLowerCase()],
-          agentId: notification.agentId
+          agentId: notification.agentId,
+          notes: ''
         })
         emit('close')
       }, 1000)
