@@ -117,7 +117,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, watch } from 'vue'
+import { computed, ref, watch } from 'vue';
 
 interface Props {
   researchItems: any[]
@@ -141,7 +141,7 @@ const agents = [
   {
     id: 'agent_1',
     name: 'Alex',
-    avatar: '/optimized/Agent1.jpg',
+    avatar: '/Alex.png',
     color: '#3b82f6',
     specialization: 'Analytics & Strategy',
     expertise: ['performance_metrics', 'competitive_analysis', 'growth_strategy']
@@ -149,7 +149,7 @@ const agents = [
   {
     id: 'agent_2',
     name: 'Levi',
-    avatar: '/optimized/Agent2.jpg',
+    avatar: '/Levi.png',
     color: '#eab308',
     specialization: 'Content Creation',
     expertise: ['content_optimization', 'creative_strategy', 'storytelling']
@@ -157,7 +157,7 @@ const agents = [
   {
     id: 'agent_3',
     name: 'Maya',
-    avatar: '/optimized/Agent3.jpg',
+    avatar: '/Maya.png',
     color: '#16a34a',
     specialization: 'Audience Engagement',
     expertise: ['audience_insights', 'community_building', 'engagement_optimization']
@@ -165,7 +165,7 @@ const agents = [
   {
     id: 'agent_4',
     name: 'Zara',
-    avatar: '/optimized/Agent4.jpg',
+    avatar: '/Zara.png',
     color: '#a855f7',
     specialization: 'Growth Optimization',
     expertise: ['algorithm_optimization', 'viral_potential', 'growth_hacking']
@@ -173,7 +173,7 @@ const agents = [
   {
     id: 'agent_5',
     name: 'Kai',
-    avatar: '/optimized/Agent5.jpg',
+    avatar: '/Kai.png',
     color: '#dc2626',
     specialization: 'Technical SEO',
     expertise: ['seo_optimization', 'metadata_analysis', 'technical_optimization']

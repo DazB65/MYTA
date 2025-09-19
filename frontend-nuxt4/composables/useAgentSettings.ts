@@ -27,7 +27,7 @@ const agentsData: AgentData[] = [
   {
     id: 1,
     name: 'Alex',
-    image: '/optimized/Agent1.jpg',
+    image: '/Alex.png',
     color: '#f97316', // Orange
     description: 'Analytics Team Member',
     personality: 'Data-driven team member who collaborates on strategic insights',
@@ -35,7 +35,7 @@ const agentsData: AgentData[] = [
   {
     id: 2,
     name: 'Levi',
-    image: '/optimized/Agent2.jpg',
+    image: '/Levi.png',
     color: '#3b82f6', // Blue
     description: 'Content Team Member',
     personality: 'Creative team member who works with others on content strategy',
@@ -43,7 +43,7 @@ const agentsData: AgentData[] = [
   {
     id: 3,
     name: 'Maya',
-    image: '/optimized/Agent3.jpg',
+    image: '/Maya.png',
     color: '#a855f7', // Purple
     description: 'Engagement Team Member',
     personality: 'Community-focused team member who collaborates on audience strategy',
@@ -51,7 +51,7 @@ const agentsData: AgentData[] = [
   {
     id: 4,
     name: 'Zara',
-    image: '/optimized/Agent4.jpg',
+    image: '/Zara.png',
     color: '#eab308', // Yellow
     description: 'Growth Team Member',
     personality: 'Results-driven team member who works with others on optimization',
@@ -59,7 +59,7 @@ const agentsData: AgentData[] = [
   {
     id: 5,
     name: 'Kai',
-    image: '/optimized/Agent5.jpg',
+    image: '/Kai.png',
     color: '#16a34a', // Green
     description: 'Technical Team Member',
     personality: 'Technical team member who coordinates on SEO and optimization',

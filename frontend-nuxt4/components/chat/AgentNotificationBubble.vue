@@ -108,27 +108,27 @@ const emit = defineEmits(['action-click', 'mark-read', 'delete-notification'])
 // Agent data mapping - using correct colors from backend definitions
 const agentData = {
   'Alex': {
-    image: '/optimized/Agent1.jpg',
+    image: '/Alex.png',
     color: '#f97316', // orange (Agent 1)
     gradient: 'from-orange-400 to-orange-600'
   },
   'Levi': {
-    image: '/optimized/Agent2.jpg',
+    image: '/Levi.png',
     color: '#3b82f6', // blue (Agent 2)
     gradient: 'from-blue-400 to-blue-600'
   },
   'Maya': {
-    image: '/optimized/Agent3.jpg',
+    image: '/Maya.png',
     color: '#a855f7', // purple (Agent 3)
     gradient: 'from-purple-400 to-purple-600'
   },
   'Zara': {
-    image: '/optimized/Agent4.jpg',
+    image: '/Zara.png',
     color: '#eab308', // yellow (Agent 4)
     gradient: 'from-yellow-400 to-yellow-600'
   },
   'Kai': {
-    image: '/optimized/Agent5.jpg',
+    image: '/Kai.png',
     color: '#16a34a', // green (Agent 5)
     gradient: 'from-green-400 to-green-600'
   }

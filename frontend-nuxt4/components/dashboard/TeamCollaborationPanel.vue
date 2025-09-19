@@ -214,9 +214,9 @@ const sharedPlans = ref([
     status: 'In Progress',
     dueDate: 'Mar 15',
     assignedAgents: [
-      { id: 'agent_1', name: 'Alex', avatar: '/optimized/Agent1.jpg' },
-      { id: 'agent_2', name: 'Levi', avatar: '/optimized/Agent2.jpg' },
-      { id: 'agent_3', name: 'Maya', avatar: '/optimized/Agent3.jpg' }
+      { id: 'agent_1', name: 'Alex', avatar: '/Alex.png' },
+      { id: 'agent_2', name: 'Levi', avatar: '/Levi.png' },
+      { id: 'agent_3', name: 'Maya', avatar: '/Maya.png' }
     ]
   },
   {
