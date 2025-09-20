@@ -15,10 +15,15 @@ class SpecializedAgentAuthMixin:
     Provides methods for validating boss agent requests and generating secure responses
     """
     
-    def __init__(self):
+    def __init__(self, *args, **kwargs):
+        # Accept any arguments to support multiple inheritance
+        # Only use what we need, ignore the rest
         self.agent_type = "specialized_agent"
         self.agent_id = "unknown"
         self.hierarchical_role = "specialized_agent"
+
+        # Call super() to continue the MRO chain
+        super().__init__(*args, **kwargs)
     
     def _validate_boss_agent_request(self, request_data: Dict[str, Any]) -> bool:
         """
