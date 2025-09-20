@@ -1744,12 +1744,25 @@ const handleNotificationAction = async (data: { action: string; notification: an
       // Open Task Modal for immediate task creation
       await sendMessage(`${notification.agentName}, creating strategic tasks for you to implement.`)
       setTimeout(() => {
+        // Create a proper Task-like object for pre-filling the modal
+        const tomorrow = new Date()
+        tomorrow.setDate(tomorrow.getDate() + 1)
+
         openTask({
+          id: `temp_${Date.now()}`, // Temporary ID for new task
           title: `Strategy Implementation: ${notification.title}`,
-          description: `Tasks generated from: ${notification.message}`,
-          category: 'strategy',
+          description: `${notification.message}\n\nImplementation Steps:\n1. Review the strategic recommendations and insights\n2. Break down the strategy into actionable tasks\n3. Set priorities and timelines for each task\n4. Assign resources and responsibilities\n5. Create implementation milestones\n6. Monitor progress and adjust as needed\n\nDeliverables: Strategic implementation plan with specific tasks\nContext: ${notification.title}`,
+          status: 'pending',
           priority: 'high',
-          tags: ['strategy', 'agent-generated', notification.agentName.toLowerCase()]
+          category: 'strategy',
+          dueDate: tomorrow,
+          createdAt: new Date(),
+          updatedAt: new Date(),
+          completed: false,
+          estimatedTime: 120,
+          tags: ['strategy', 'implementation', 'agent-generated', notification.agentName.toLowerCase()],
+          agentId: notification.agentId,
+          notes: ''
         })
         emit('close')
       }, 1000)
