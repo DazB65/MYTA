@@ -701,7 +701,6 @@ const agentNotifications = ref([
     message: 'Hey! I\'ve been working with the team and we\'ve identified optimization opportunities across 3 of your recent videos. The patterns we found could boost your engagement by 25-40%. Want me to walk you through what we discovered?',
     timestamp: new Date(Date.now() - 3 * 60 * 60 * 1000), // 3 hours ago
     actionButtons: [
-      { text: 'Review Videos', action: 'review_opportunities' },
       { text: 'Optimize Now', action: 'show_optimization_details' }
     ],
     isRead: false,
@@ -716,8 +715,7 @@ const agentNotifications = ref([
     message: 'Exciting news! Your latest video is performing 45% above your average. I\'ve analyzed the key factors driving this success - the thumbnail style, posting time, and topic angle are all hitting the sweet spot. Should we create a content series capitalizing on this trend?',
     timestamp: new Date(Date.now() - 2 * 60 * 60 * 1000), // 2 hours ago
     actionButtons: [
-      { text: 'Create Content', action: 'create_similar_content' },
-      { text: 'View Analytics', action: 'view_analytics' }
+      { text: 'Create Content', action: 'create_similar_content' }
     ],
     isRead: false,
     priority: 'high'
@@ -731,7 +729,6 @@ const agentNotifications = ref([
     message: 'Alex and I just finished the comprehensive content strategy analysis for your Q1 planning. We\'ve identified 5 high-impact content pillars and mapped out a 12-week content calendar that aligns with trending topics in your niche. The projected growth potential looks very promising!',
     timestamp: new Date(Date.now() - 5 * 60 * 1000), // 5 minutes ago
     actionButtons: [
-      { text: 'View Strategy', action: 'view_strategy_analysis' },
       { text: 'Create Tasks', action: 'implement_strategy' }
     ],
     isRead: false,
@@ -746,8 +743,7 @@ const agentNotifications = ref([
     message: 'I\'ve spotted a trending topic in your niche that\'s gaining massive traction! "AI productivity tools" is exploding with 340% search increase this week. We should create content around this immediately to capture the wave.',
     timestamp: new Date(Date.now() - 30 * 60 * 1000), // 30 minutes ago
     actionButtons: [
-      { text: 'Create Content', action: 'create_trending_content' },
-      { text: 'View Trends', action: 'view_trends' }
+      { text: 'Create Content', action: 'create_trending_content' }
     ],
     isRead: false,
     priority: 'high'
@@ -761,7 +757,6 @@ const agentNotifications = ref([
     message: 'I\'ve prepared your weekly content optimization tasks based on your recent performance data. There are 5 high-impact tasks that could boost your channel growth by 15-20% this week.',
     timestamp: new Date(Date.now() - 45 * 60 * 1000), // 45 minutes ago
     actionButtons: [
-      { text: 'View Tasks', action: 'view_tasks' },
       { text: 'Start Working', action: 'start_working' }
     ],
     isRead: false,
