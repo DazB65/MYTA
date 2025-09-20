@@ -55,6 +55,12 @@
         animation: slideInFromTop 1.2s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
       }
 
+      .early-access-text {
+        animation: slideInFromTop 1.2s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+        animation-delay: 0.3s;
+        opacity: 0;
+      }
+
       /* Ensure full background coverage */
       html, body {
         margin: 0;
@@ -97,6 +103,15 @@
             <div
               class="absolute inset-0 bg-gradient-to-r from-orange-500/20 to-forest-400/20 blur-3xl scale-110 -z-10"
             ></div>
+          </div>
+        </div>
+
+        <!-- Early Access Text -->
+        <div class="flex justify-center mt-4">
+          <div class="early-access-text">
+            <p class="text-2xl md:text-3xl font-semibold text-gray-300 tracking-wide">
+              Early Access
+            </p>
           </div>
         </div>
 
