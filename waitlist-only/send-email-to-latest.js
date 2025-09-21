@@ -67,7 +67,7 @@ async function sendEmailToLatestSignup() {
 
     // Use the deployed Vercel API endpoint
     const emailResponse = await fetch(
-      "https://waitlist.myytagent.app/api/send-email",
+      "https://earlyaccess.myytagent.app/api/send-email",
       {
         method: "POST",
         headers: {

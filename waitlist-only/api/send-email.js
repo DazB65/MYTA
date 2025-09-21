@@ -53,7 +53,8 @@ const templates = {
             </div>
 
             <div style="text-align: center; margin: 30px 0;">
-                <a href="https://x.com/myytagent" class="btn">Follow Us on X</a>
+                <a href="https://x.com/myytagent" class="btn" style="margin-right: 10px;">Follow Us on X</a>
+                <a href="https://youtube.com/@myytagent" class="btn" style="background: #ff0000 !important;">Subscribe on YouTube</a>
             </div>
 
             <p>Questions? Just reply to this email - we read every message!</p>
@@ -87,7 +88,9 @@ MYTA is your AI-powered YouTube Agent Team that handles everything from content 
 • You'll get exclusive early access when we launch
 • Special founder pricing just for waitlist members
 
-Follow us: https://x.com/myytagent
+Follow us:
+• X (Twitter): https://x.com/myytagent
+• YouTube: https://youtube.com/@myytagent
 
 Questions? Just reply to this email - we read every message!
 

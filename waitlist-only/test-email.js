@@ -14,7 +14,7 @@ async function testEmailAPI() {
     console.log("Data:", JSON.stringify(testData, null, 2));
 
     const response = await fetch(
-      "https://myta-waitlist.vercel.app/api/send-email",
+      "https://waitlist.myytagent.app/api/send-email",
       {
         method: "POST",
         headers: {
