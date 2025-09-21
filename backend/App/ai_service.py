@@ -5,6 +5,7 @@ Handles AI model integration with OpenAI and Anthropic APIs
 
 import os
 import asyncio
+import hashlib
 from typing import Dict, List, Optional, Any, AsyncGenerator
 from datetime import datetime
 import json
@@ -25,6 +26,11 @@ except ImportError:
 
 from backend.App.redis_service import get_redis_service
 from backend.App.error_handler import MYTAError, ErrorCode, ErrorCategory, ErrorSeverity
+from backend.App.enhanced_caching_service import (
+    get_cache_service, cache_ai_response, get_cached_ai_response,
+    CacheType, cached
+)
+from backend.App.circuit_breaker import get_openai_circuit_breaker, CircuitBreakerError
 from backend.logging_config import get_logger, LogCategory
 
 logger = get_logger(__name__, LogCategory.AGENT)
@@ -90,10 +96,18 @@ class AIService:
         stream: bool = False
     ) -> Dict[str, Any]:
         """Generate AI response for given messages"""
-        
+
         if not self.is_available():
             return self._get_fallback_response(messages, agent_id)
-        
+
+        # Check cache first (only for non-streaming requests)
+        if not stream and user_id:
+            query_text = json.dumps(messages, sort_keys=True)
+            cached_response = get_cached_ai_response(user_id, query_text, self.model_name)
+            if cached_response:
+                logger.info(f"Cache hit for user {user_id}, agent {agent_id}")
+                return cached_response
+
         try:
             # Add rate limiting check
             if user_id and not await self._check_rate_limit(user_id):
@@ -121,10 +135,18 @@ class AIService:
                 else:
                     return self._get_fallback_response(messages, agent_id)
             
-            # Cache the response
-            if user_id and not stream:
-                await self._cache_response(user_id, agent_id, messages, response)
-            
+            # Cache the response using enhanced caching service
+            if user_id and not stream and response:
+                query_text = json.dumps(messages, sort_keys=True)
+                cache_ai_response(
+                    user_id=user_id,
+                    query=query_text,
+                    response=response,
+                    model=self.model_name,
+                    ttl=3600  # Cache for 1 hour
+                )
+                logger.info(f"Cached AI response for user {user_id}, agent {agent_id}")
+
             return response
         
         except MYTAError:
@@ -143,8 +165,10 @@ class AIService:
             return self._get_fallback_response(messages, agent_id)
     
     async def _generate_openai_response(self, messages: List[Dict], stream: bool = False) -> Dict[str, Any]:
-        """Generate response using OpenAI API"""
-        try:
+        """Generate response using OpenAI API with circuit breaker protection"""
+        circuit_breaker = get_openai_circuit_breaker()
+
+        async def _make_openai_call():
             # Try the configured model first, fallback to gpt-3.5-turbo if needed
             model_to_use = self.model_name
 
@@ -185,7 +209,18 @@ class AIService:
                     },
                     "timestamp": datetime.utcnow().isoformat()
                 }
-        
+
+        try:
+            return await circuit_breaker.call(_make_openai_call)
+        except CircuitBreakerError as e:
+            logger.error(f"OpenAI circuit breaker open: {e}")
+            raise MYTAError(
+                message="OpenAI service temporarily unavailable",
+                error_code=ErrorCode.EXTERNAL_API_ERROR,
+                category=ErrorCategory.EXTERNAL_SERVICE,
+                severity=ErrorSeverity.HIGH,
+                details={"circuit_breaker": "open", "service": "openai"}
+            )
         except Exception as e:
             logger.error(f"OpenAI API error: {e}")
             raise

@@ -1,25 +1,34 @@
 <template>
-  <div class="flex items-center justify-center" :class="containerClass">
+  <div
+    class="flex items-center justify-center"
+    :class="containerClass"
+    role="status"
+    :aria-label="ariaLabel"
+    aria-live="polite"
+  >
     <div class="relative">
       <!-- Spinner -->
-      <div 
+      <div
         class="animate-spin rounded-full border-2 border-gray-300"
         :class="[
           sizeClass,
           `border-t-${color}-500`
         ]"
-      ></div>
-      
+        :aria-hidden="true"
+      >
+        <span class="sr-only">{{ loadingMessage }}</span>
+      </div>
+
       <!-- Optional text -->
       <div v-if="text" class="mt-3 text-center">
-        <p :class="textClass">{{ text }}</p>
+        <p :class="textClass" :id="textId">{{ text }}</p>
       </div>
     </div>
   </div>
 </template>
 
 <script setup>
-import { computed } from 'vue'
+import { computed, ref } from 'vue'
 
 const props = defineProps({
   size: {
@@ -38,8 +47,15 @@ const props = defineProps({
   overlay: {
     type: Boolean,
     default: false
+  },
+  loadingMessage: {
+    type: String,
+    default: 'Loading content, please wait...'
   }
 })
+
+// Generate unique ID for accessibility
+const textId = ref(`loading-text-${Math.random().toString(36).substr(2, 9)}`)
 
 const sizeClass = computed(() => {
   const sizes = {
@@ -65,8 +81,12 @@ const textClass = computed(() => {
 
 const containerClass = computed(() => {
   if (props.overlay) {
-    return 'fixed inset-0 bg-black bg-opacity-50 z-50'
+    return 'fixed inset-0 bg-black bg-opacity-50 z-50 backdrop-blur-sm'
   }
   return 'p-4'
+})
+
+const ariaLabel = computed(() => {
+  return props.text ? undefined : props.loadingMessage
 })
 </script>
