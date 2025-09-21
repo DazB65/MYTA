@@ -43,7 +43,7 @@
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 h-full">
               <!-- Tabbed Chat Interface - Takes up 2 columns -->
               <div class="lg:col-span-2 h-full">
-                <div class="rounded-xl bg-gray-700 h-full flex flex-col">
+                <div class="rounded-xl bg-gray-900/80 backdrop-blur-sm h-full flex flex-col border-2 border-gray-600/70 shadow-lg">
                   <TabbedChatInterface ref="tabbedChatRef" :team-id="'demo_team_123'" />
                 </div>
               </div>
@@ -136,7 +136,7 @@
 
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               <!-- Team Performance Metrics -->
-              <div class="bg-gray-700 rounded-xl p-6">
+              <div class="bg-gray-900/80 backdrop-blur-sm rounded-xl p-6 border-2 border-gray-600/70 shadow-lg">
                 <div class="flex items-center space-x-3 mb-4">
                   <div class="w-10 h-10 bg-blue-500/20 rounded-lg flex items-center justify-center">
                     <span class="text-blue-400 text-lg">📊</span>
@@ -173,7 +173,7 @@
               </div>
 
               <!-- Communication & Productivity -->
-              <div class="bg-gray-700 rounded-xl p-6">
+              <div class="bg-gray-900/80 backdrop-blur-sm rounded-xl p-6 border-2 border-gray-600/70 shadow-lg">
                 <div class="flex items-center space-x-3 mb-4">
                   <div class="w-10 h-10 bg-green-500/20 rounded-lg flex items-center justify-center">
                     <span class="text-green-400 text-lg">💬</span>
@@ -210,7 +210,7 @@
               </div>
 
               <!-- AI Agent ROI & Impact -->
-              <div class="bg-gray-700 rounded-xl p-6">
+              <div class="bg-gray-900/80 backdrop-blur-sm rounded-xl p-6 border-2 border-gray-600/70 shadow-lg">
                 <div class="flex items-center space-x-3 mb-4">
                   <div class="w-10 h-10 bg-purple-500/20 rounded-lg flex items-center justify-center">
                     <span class="text-purple-400 text-lg">🤖</span>
@@ -250,7 +250,7 @@
             <!-- Additional Analytics Sections -->
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
               <!-- Content Performance Overview -->
-              <div class="bg-gray-700 rounded-xl p-6">
+              <div class="bg-gray-900/80 backdrop-blur-sm rounded-xl p-6 border-2 border-gray-600/70 shadow-lg">
                 <div class="flex items-center space-x-3 mb-4">
                   <div class="w-10 h-10 bg-yellow-500/20 rounded-lg flex items-center justify-center">
                     <span class="text-yellow-400 text-lg">📈</span>
@@ -287,7 +287,7 @@
               </div>
 
               <!-- Team Health & Insights -->
-              <div class="bg-gray-700 rounded-xl p-6">
+              <div class="bg-gray-900/80 backdrop-blur-sm rounded-xl p-6 border-2 border-gray-600/70 shadow-lg">
                 <div class="flex items-center space-x-3 mb-4">
                   <div class="w-10 h-10 bg-red-500/20 rounded-lg flex items-center justify-center">
                     <span class="text-red-400 text-lg">❤️</span>
@@ -365,7 +365,7 @@
       <div class="mt-8 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         <button
           @click="createTeamProject"
-          class="p-4 rounded-xl bg-gray-800 hover:bg-gray-700 transition-colors text-left"
+          class="p-4 rounded-xl bg-gray-900/80 backdrop-blur-sm hover:bg-gray-700 transition-colors text-left border-2 border-gray-600/70 shadow-lg"
         >
           <div class="flex items-center space-x-3">
             <div class="w-8 h-8 rounded-lg bg-green-500/20 flex items-center justify-center">
@@ -380,7 +380,7 @@
 
         <button
           @click="viewTeamAnalytics"
-          class="p-4 rounded-xl bg-gray-800 hover:bg-gray-700 transition-colors text-left"
+          class="p-4 rounded-xl bg-gray-900/80 backdrop-blur-sm hover:bg-gray-700 transition-colors text-left border-2 border-gray-600/70 shadow-lg"
         >
           <div class="flex items-center space-x-3">
             <div class="w-8 h-8 rounded-lg bg-blue-500/20 flex items-center justify-center">
@@ -395,7 +395,7 @@
 
         <button
           @click="managePermissions"
-          class="p-4 rounded-xl bg-gray-800 hover:bg-gray-700 transition-colors text-left"
+          class="p-4 rounded-xl bg-gray-900/80 backdrop-blur-sm hover:bg-gray-700 transition-colors text-left border-2 border-gray-600/70 shadow-lg"
         >
           <div class="flex items-center space-x-3">
             <div class="w-8 h-8 rounded-lg bg-orange-500/20 flex items-center justify-center">
