@@ -1,5 +1,5 @@
 <template>
-  <div class="rounded-xl bg-forest-800 p-6">
+  <div class="rounded-xl bg-gray-900/80 backdrop-blur-sm p-6 border-2 border-gray-600/70 shadow-lg">
     <!-- Header -->
     <div class="flex items-center justify-between mb-6">
       <div class="flex items-center space-x-3">
@@ -21,15 +21,15 @@
 
     <!-- Team Overview Stats -->
     <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-      <div class="text-center p-3 rounded-lg bg-forest-700">
+      <div class="text-center p-3 rounded-lg bg-gray-900/80 backdrop-blur-sm border-2 border-blue-500/70 shadow-lg">
         <div class="text-2xl font-bold text-blue-400">{{ teamStats.totalMembers }}</div>
         <div class="text-xs text-gray-400">Total Members</div>
       </div>
-      <div class="text-center p-3 rounded-lg bg-forest-700">
+      <div class="text-center p-3 rounded-lg bg-gray-900/80 backdrop-blur-sm border-2 border-green-500/70 shadow-lg">
         <div class="text-2xl font-bold text-green-400">{{ teamStats.activeMembers }}</div>
         <div class="text-xs text-gray-400">Active Members</div>
       </div>
-      <div class="text-center p-3 rounded-lg bg-forest-700">
+      <div class="text-center p-3 rounded-lg bg-gray-900/80 backdrop-blur-sm border-2 border-yellow-500/70 shadow-lg">
         <div class="text-2xl font-bold text-yellow-400">{{ teamStats.pendingInvites }}</div>
         <div class="text-xs text-gray-400">Pending Invites</div>
       </div>
@@ -44,7 +44,7 @@
           <div
             v-for="member in humanMembers"
             :key="member.id"
-            class="p-4 rounded-lg bg-forest-700 hover:bg-forest-600 transition-colors"
+            class="p-4 rounded-lg bg-gray-900/80 backdrop-blur-sm border-2 border-gray-600/70 shadow-lg hover:border-gray-500/70 transition-all duration-200"
           >
             <div class="flex items-center justify-between">
               <div class="flex items-center space-x-3">
@@ -98,7 +98,7 @@
             </div>
 
             <!-- Permissions Summary -->
-            <div class="mt-3 pt-3 border-t border-forest-600">
+            <div class="mt-3 pt-3 border-t border-gray-600/70">
               <div class="flex items-center justify-between">
                 <div class="text-sm text-gray-300">
                   Permissions: {{ getPermissionsSummary(member.permissions) }}
@@ -119,13 +119,13 @@
     </div>
 
     <!-- Role Definitions -->
-    <div class="mt-8 pt-6 border-t border-forest-600">
+    <div class="mt-8 pt-6 border-t border-gray-600/70">
       <h3 class="text-lg font-medium text-white mb-4">Role Definitions</h3>
       <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         <div
           v-for="role in roleDefinitions"
           :key="role.name"
-          class="p-4 rounded-lg bg-forest-700"
+          class="p-4 rounded-lg bg-gray-900/80 backdrop-blur-sm border-2 border-gray-600/70 shadow-lg"
         >
           <div class="flex items-center space-x-2 mb-2">
             <span 
