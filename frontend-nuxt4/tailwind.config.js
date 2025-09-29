@@ -94,14 +94,20 @@ export default {
           900: '#7c2d12',
         },
 
-        // Agent colors - matching backend definitions
+        // Agent colors - matching correct agent mapping
         agent: {
-          1: '#3b82f6', // Alex - Blue
-          2: '#eab308', // Levi - Yellow (user preference)
-          3: '#16a34a', // Maya - Green
-          4: '#a855f7', // Zara - Purple
-          5: '#dc2626', // Kai - Red
-          boss: '#7c2d12', // Boss Agent - Dark Red/Brown
+          alex: '#f97316',  // Agent 1 - Alex - Orange
+          levi: '#3b82f6',  // Agent 2 - Levi - Blue
+          maya: '#a855f7',  // Agent 3 - Maya - Purple
+          zara: '#eab308',  // Agent 4 - Zara - Yellow
+          kai: '#16a34a',   // Agent 5 - Kai - Green
+          boss: '#ef4444',  // Boss Agent - Red
+          // Legacy numeric keys for backward compatibility
+          1: '#f97316',     // Alex - Orange
+          2: '#3b82f6',     // Levi - Blue
+          3: '#a855f7',     // Maya - Purple
+          4: '#eab308',     // Zara - Yellow
+          5: '#16a34a',     // Kai - Green
         },
 
         // Accent colors (forest + orange theme)
