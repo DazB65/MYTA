@@ -572,7 +572,7 @@
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
 
           <!-- Trending Topics -->
-          <div class="rounded-lg bg-gray-900/80 backdrop-blur-sm p-4 border-2 border-gray-600/70 shadow-lg">
+          <div class="rounded-lg bg-gray-900/80 backdrop-blur-sm p-4 border-2 border-red-500/70 shadow-lg">
             <div class="mb-3 flex items-center justify-between">
               <div class="flex items-center space-x-2">
                 <div class="h-2 w-2 rounded-full bg-red-500"></div>
@@ -603,7 +603,7 @@
           </div>
 
           <!-- Content Ideas -->
-          <div class="rounded-lg bg-gray-900/80 backdrop-blur-sm p-4 border-2 border-gray-600/70 shadow-lg">
+          <div class="rounded-lg bg-gray-900/80 backdrop-blur-sm p-4 border-2 border-blue-500/70 shadow-lg">
             <div class="mb-3 flex items-center justify-between">
               <div class="flex items-center space-x-2">
                 <div class="h-2 w-2 rounded-full bg-blue-500"></div>
@@ -634,7 +634,7 @@
           </div>
 
           <!-- Optimization Tips -->
-          <div class="rounded-lg bg-gray-900/80 backdrop-blur-sm p-4 border-2 border-gray-600/70 shadow-lg">
+          <div class="rounded-lg bg-gray-900/80 backdrop-blur-sm p-4 border-2 border-green-500/70 shadow-lg">
             <div class="mb-3 flex items-center justify-between">
               <div class="flex items-center space-x-2">
                 <div class="h-2 w-2 rounded-full bg-green-500"></div>
@@ -663,28 +663,6 @@
               </div>
             </div>
           </div>
-        </div>
-
-        <!-- Quick Actions -->
-        <div class="mt-6 flex flex-wrap gap-3">
-          <button class="flex items-center space-x-2 rounded-lg bg-orange-500 px-4 py-2 text-sm text-white hover:bg-orange-600 transition-colors">
-            <svg class="h-4 w-4" fill="currentColor" viewBox="0 0 20 20">
-              <path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clip-rule="evenodd"/>
-            </svg>
-            <span>Add to Ideas</span>
-          </button>
-          <button class="flex items-center space-x-2 rounded-lg bg-gray-700 px-4 py-2 text-sm text-white hover:bg-gray-600 transition-colors">
-            <svg class="h-4 w-4" fill="currentColor" viewBox="0 0 20 20">
-              <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z"/>
-            </svg>
-            <span>Customize Suggestions</span>
-          </button>
-          <button class="flex items-center space-x-2 rounded-lg bg-gray-700 px-4 py-2 text-sm text-white hover:bg-gray-600 transition-colors">
-            <svg class="h-4 w-4" fill="currentColor" viewBox="0 0 20 20">
-              <path d="M3 4a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-1 1H4a1 1 0 01-1-1V4zM3 10a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H4a1 1 0 01-1-1v-6zM14 9a1 1 0 00-1 1v6a1 1 0 001 1h2a1 1 0 001-1v-6a1 1 0 00-1-1h-2z"/>
-            </svg>
-            <span>View Analytics</span>
-          </button>
         </div>
       </div>
     </div>
