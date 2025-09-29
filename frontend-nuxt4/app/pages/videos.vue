@@ -149,8 +149,17 @@
           </div>
         </div>
 
+        <!-- Loading State -->
+        <div v-if="loading" class="grid grid-cols-4 gap-6">
+          <SkeletonLoader
+            v-for="i in 12"
+            :key="`skeleton-${i}`"
+            variant="video"
+          />
+        </div>
+
         <!-- Video Grid -->
-        <div class="grid grid-cols-4 gap-6">
+        <div v-else class="grid grid-cols-4 gap-6">
           <div v-for="video in filteredAndSortedVideos" :key="video.id" :class="getVideoCardClasses(video)" @click="openVideoStats(video)">
             <div class="relative mb-3 aspect-video overflow-hidden rounded-lg bg-gray-700">
               <img :src="video.thumbnail" :alt="video.title" class="h-full w-full object-cover" />

@@ -19,8 +19,18 @@
       </div>
     </div>
 
+    <!-- Loading State -->
+    <div v-if="loading" class="space-y-4">
+      <SkeletonLoader
+        v-for="i in 5"
+        :key="`skeleton-${i}`"
+        variant="list"
+        :count="1"
+      />
+    </div>
+
     <!-- Video Performance Cards -->
-    <div class="space-y-4">
+    <div v-else class="space-y-4">
       <div
         v-for="video in recentVideos"
         :key="video.id"
