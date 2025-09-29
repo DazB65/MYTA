@@ -75,6 +75,17 @@
               @dragover="onDragOver"
               @drop="onDrop($event, 'ideas')"
             >
+              <!-- Empty State -->
+              <EmptyState
+                v-if="getColumnItems('ideas').length === 0"
+                icon="💡"
+                title="No Ideas Yet"
+                description="Start brainstorming your next content ideas here"
+                action-text="Add First Idea"
+                variant="primary"
+                @action="openCreateModal"
+              />
+
               <div
                 v-for="item in getColumnItems('ideas')"
                 :key="item.id"
@@ -214,6 +225,16 @@
               @dragover="onDragOver"
               @drop="onDrop($event, 'planning')"
             >
+              <!-- Empty State -->
+              <EmptyState
+                v-if="getColumnItems('planning').length === 0"
+                icon="📋"
+                title="Nothing in Planning"
+                description="Drag ideas here to start planning your content"
+                :show-plus-icon="false"
+                variant="default"
+              />
+
               <div
                 v-for="item in getColumnItems('planning')"
                 :key="item.id"
@@ -330,6 +351,16 @@
               @dragover="onDragOver"
               @drop="onDrop($event, 'in-progress')"
             >
+              <!-- Empty State -->
+              <EmptyState
+                v-if="getColumnItems('in-progress').length === 0"
+                icon="🎬"
+                title="No Active Projects"
+                description="Move planned content here when you start creating"
+                :show-plus-icon="false"
+                variant="default"
+              />
+
               <div
                 v-for="item in getColumnItems('in-progress')"
                 :key="item.id"
@@ -452,6 +483,16 @@
               @dragover="onDragOver"
               @drop="onDrop($event, 'published')"
             >
+              <!-- Empty State -->
+              <EmptyState
+                v-if="getColumnItems('published').length === 0"
+                icon="🎉"
+                title="No Published Content"
+                description="Your published content will appear here"
+                :show-plus-icon="false"
+                variant="success"
+              />
+
               <div
                 v-for="item in getColumnItems('published')"
                 :key="item.id"

@@ -33,6 +33,19 @@
 
           <!-- Pillar Cards Grid -->
           <div class="grid grid-cols-1 gap-6 lg:grid-cols-2">
+            <!-- Empty State -->
+            <div v-if="pillars.length === 0" class="col-span-full">
+              <EmptyState
+                icon="🎯"
+                title="No Content Pillars Yet"
+                description="Content pillars help you organize your content strategy into themes. Create your first pillar to get started!"
+                action-text="Create First Pillar"
+                help-text="Pillars are strategic content themes that help you stay focused and consistent with your content creation"
+                variant="primary"
+                @action="handleAddPillar"
+              />
+            </div>
+
             <!-- Dynamic Pillar Cards -->
             <PillarCard
               v-for="pillar in pillars"

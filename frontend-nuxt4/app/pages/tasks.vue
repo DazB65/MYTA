@@ -202,8 +202,18 @@
                 </div>
               </div>
 
+              <!-- Empty State for Unscheduled Tasks -->
+              <EmptyState
+                v-if="unscheduledTasks.length === 0"
+                icon="✅"
+                title="All Caught Up!"
+                description="All your tasks are scheduled. Great job staying organized!"
+                :show-plus-icon="false"
+                variant="success"
+              />
+
               <!-- Unscheduled Tasks List -->
-              <div v-if="unscheduledTasks.length > 0" class="space-y-3">
+              <div v-else class="space-y-3">
                 <div
                   v-for="task in unscheduledTasks"
                   :key="task.id"
@@ -510,19 +520,16 @@
             </div>
 
             <!-- Empty State -->
-            <div v-if="filteredTasks.length === 0" class="text-center py-8">
-              <div class="text-gray-400 mb-4">
-                <span class="text-4xl">📝</span>
-              </div>
-              <h5 class="text-lg font-medium text-white mb-2">No tasks found</h5>
-              <p class="text-gray-400 mb-4">Create your first task to get started</p>
-              <button
-                class="rounded-lg bg-orange-500 px-4 py-2 text-sm text-white hover:bg-orange-600"
-                @click="showCreateModal = true"
-              >
-                Create Task
-              </button>
-            </div>
+            <EmptyState
+              v-if="filteredTasks.length === 0"
+              icon="📝"
+              title="No Tasks Found"
+              description="Create your first task to get started with organizing your content workflow"
+              action-text="Create Task"
+              help-text="Tasks help you stay organized and track your content creation progress"
+              variant="primary"
+              @action="showCreateModal = true"
+            />
           </div>
         </div>
       </div>
