@@ -102,7 +102,7 @@
                     <!-- Dropdown Menu -->
                     <div
                       v-if="showDropdownMenu === item.id"
-                      class="absolute right-0 top-6 z-50 w-32 rounded-md bg-gray-600 shadow-lg border-2 border-gray-600/70 shadow-lg"
+                      class="absolute right-0 top-6 z-50 w-32 rounded-md bg-gray-600 border-2 border-gray-600/70 shadow-lg"
                     >
                       <button
                         @click.stop="openEditModal(item)"
@@ -241,7 +241,7 @@
                   <!-- Dropdown Menu -->
                   <div
                     v-if="showDropdownMenu === item.id"
-                    class="absolute right-0 top-6 z-50 w-32 rounded-md bg-gray-600 shadow-lg border-2 border-gray-600/70 shadow-lg"
+                    class="absolute right-0 top-6 z-50 w-32 rounded-md bg-gray-600 border-2 border-gray-600/70 shadow-lg"
                   >
                     <button
                       @click.stop="openEditModal(item)"
@@ -357,7 +357,7 @@
                     <!-- Dropdown Menu -->
                     <div
                       v-if="showDropdownMenu === item.id"
-                      class="absolute right-0 top-6 z-50 w-32 rounded-md bg-gray-600 shadow-lg border-2 border-gray-600/70 shadow-lg"
+                      class="absolute right-0 top-6 z-50 w-32 rounded-md bg-gray-600 border-2 border-gray-600/70 shadow-lg"
                     >
                       <button
                         @click.stop="openEditModal(item)"
@@ -479,7 +479,7 @@
                     <!-- Dropdown Menu -->
                     <div
                       v-if="showDropdownMenu === item.id"
-                      class="absolute right-0 top-6 z-50 w-32 rounded-md bg-gray-600 shadow-lg border-2 border-gray-600/70 shadow-lg"
+                      class="absolute right-0 top-6 z-50 w-32 rounded-md bg-gray-600 border-2 border-gray-600/70 shadow-lg"
                     >
                       <button
                         @click.stop="openEditModal(item)"
