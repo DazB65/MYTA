@@ -1772,17 +1772,33 @@ const getPredictedEngagement = (item) => {
 }
 
 const getBestUploadTime = (item) => {
-  // Generate best upload time based on content type
-  const uploadTimes = {
-    'Technology': '2:00 PM PST',
-    'Marketing': '11:00 AM PST',
-    'Business': '9:00 AM PST',
-    'Content Strategy': '1:00 PM PST',
-    'Branding': '3:00 PM PST',
-    'Analytics': '10:00 AM PST'
+  // Generate best upload time based on content type (in PST)
+  const pstUploadTimes = {
+    'Technology': { hour: 14, minute: 0 }, // 2:00 PM PST
+    'Marketing': { hour: 11, minute: 0 },  // 11:00 AM PST
+    'Business': { hour: 9, minute: 0 },    // 9:00 AM PST
+    'Content Strategy': { hour: 13, minute: 0 }, // 1:00 PM PST
+    'Branding': { hour: 15, minute: 0 },   // 3:00 PM PST
+    'Analytics': { hour: 10, minute: 0 }   // 10:00 AM PST
   }
 
-  return uploadTimes[item.pillar?.name] || '2:00 PM PST'
+  // Get the PST time for this content type
+  const pstTime = pstUploadTimes[item.pillar?.name] || { hour: 14, minute: 0 }
+
+  // Create a date in PST timezone (PST is UTC-8)
+  const today = new Date()
+  const pstDate = new Date()
+  pstDate.setUTCHours(pstTime.hour + 8, pstTime.minute, 0, 0) // Convert PST to UTC
+
+  // Convert to user's local timezone and format
+  const localTime = pstDate.toLocaleTimeString([], {
+    hour: 'numeric',
+    minute: '2-digit',
+    hour12: true,
+    timeZoneName: 'short'
+  })
+
+  return localTime
 }
 
 const formatNumber = (num) => {
