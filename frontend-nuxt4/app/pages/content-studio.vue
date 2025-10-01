@@ -448,11 +448,19 @@
                     </div>
                   </div>
                 </div>
-                <div v-if="item.progress" class="h-2 w-full rounded-full bg-gray-600">
-                  <div
-                    class="h-2 rounded-full bg-orange-500"
-                    :style="`width: ${item.progress}%`"
-                  />
+
+                <!-- Progress Bar -->
+                <div v-if="item.progress" class="mb-3 p-3 bg-gray-900/80 backdrop-blur-sm rounded-lg border-2 border-gray-600/70 shadow-lg">
+                  <div class="flex items-center justify-between mb-2">
+                    <h6 class="text-xs font-medium text-orange-300">📊 Progress</h6>
+                    <span class="text-xs text-white font-medium">{{ item.progress }}%</span>
+                  </div>
+                  <div class="h-2 w-full rounded-full bg-gray-600">
+                    <div
+                      class="h-2 rounded-full bg-orange-500"
+                      :style="`width: ${item.progress}%`"
+                    />
+                  </div>
                 </div>
               </div>
             </div>
