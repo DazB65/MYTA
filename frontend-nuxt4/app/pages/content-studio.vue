@@ -1189,7 +1189,7 @@ const defaultContentItems = [
     status: 'published',
     priority: 'high',
     assignee: 'M',
-    publishDate: 'Dec 8, 2023',
+    publishDate: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }), // 2 days ago
     createdAt: '2023-12-08',
     dueDate: '2023-12-08',
     stageDueDates: {
@@ -1213,7 +1213,7 @@ const defaultContentItems = [
     status: 'published',
     priority: 'medium',
     assignee: 'M',
-    publishDate: 'Dec 7, 2023',
+    publishDate: new Date(Date.now() - 4 * 24 * 60 * 60 * 1000).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }), // 4 days ago
     createdAt: '2023-12-07',
     dueDate: '2023-12-07',
     stageDueDates: {
@@ -1231,7 +1231,7 @@ const defaultContentItems = [
     status: 'published',
     priority: 'high',
     assignee: 'M',
-    publishDate: 'Dec 6, 2023',
+    publishDate: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }), // 7 days ago (should be filtered out)
     createdAt: '2023-12-06',
     dueDate: '2023-12-06',
     stageDueDates: {
@@ -1796,7 +1796,31 @@ const formatNumber = (num) => {
 
 // Helper functions
 const getColumnItems = status => {
-  return contentItems.value.filter(item => item.status === status)
+  const items = contentItems.value.filter(item => item.status === status)
+
+  // For published items, only show content from the last 5 days
+  if (status === 'published') {
+    const fiveDaysAgo = new Date()
+    fiveDaysAgo.setDate(fiveDaysAgo.getDate() - 5)
+
+    return items.filter(item => {
+      if (!item.publishDate) return true // Keep items without publish date for safety
+
+      // Parse the publish date (format: "Dec 8, 2023" or ISO date)
+      let publishDate
+      if (item.publishDate.includes(',')) {
+        // Handle "Dec 8, 2023" format
+        publishDate = new Date(item.publishDate)
+      } else {
+        // Handle ISO date format
+        publishDate = new Date(item.publishDate)
+      }
+
+      return publishDate >= fiveDaysAgo
+    })
+  }
+
+  return items
 }
 
 const getColumnCount = status => {
