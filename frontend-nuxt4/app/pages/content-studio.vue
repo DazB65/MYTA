@@ -472,24 +472,24 @@
                   </div>
                 </div>
 
-                <!-- Performance Analytics -->
+                <!-- Performance Forecast -->
                 <div v-if="item.status === 'in-progress'" class="mb-3 p-3 bg-gray-900/80 backdrop-blur-sm rounded-lg border-2 border-gray-600/70 shadow-lg">
                   <div class="flex items-center justify-between mb-2">
-                    <h6 class="text-xs font-medium text-orange-300">📊 Performance Analytics</h6>
-                    <span class="text-xs text-blue-300">Live Data</span>
+                    <h6 class="text-xs font-medium text-orange-300">📈 Performance Forecast</h6>
+                    <span class="text-xs text-green-300">{{ getConfidence(item) }}% confidence</span>
                   </div>
                   <div class="space-y-1">
                     <div class="flex justify-between text-xs">
-                      <span class="text-gray-400">Views:</span>
-                      <span class="text-white font-medium">{{ item.views || '1.2K' }}</span>
+                      <span class="text-gray-400">Expected Views:</span>
+                      <span class="text-white font-medium">{{ getPredictedViews(item) }}</span>
                     </div>
                     <div class="flex justify-between text-xs">
                       <span class="text-gray-400">Engagement:</span>
-                      <span class="text-white font-medium">{{ item.engagement || '8.5%' }}</span>
+                      <span class="text-white font-medium">{{ getPredictedEngagement(item) }}%</span>
                     </div>
                     <div class="flex justify-between text-xs">
-                      <span class="text-gray-400">Revenue:</span>
-                      <span class="text-white font-medium">{{ item.revenue || '$24.50' }}</span>
+                      <span class="text-gray-400">Best Time:</span>
+                      <span class="text-white font-medium">{{ getBestUploadTime(item) }}</span>
                     </div>
                   </div>
                 </div>
