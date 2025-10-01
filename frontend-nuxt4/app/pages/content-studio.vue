@@ -475,7 +475,7 @@
                 <!-- Performance Forecast -->
                 <div v-if="item.status === 'in-progress'" class="mb-3 p-3 bg-gray-900/80 backdrop-blur-sm rounded-lg border-2 border-gray-600/70 shadow-lg">
                   <div class="flex items-center justify-between mb-2">
-                    <h6 class="text-xs font-medium text-orange-300">📈 Performance Forecast</h6>
+                    <h6 class="text-xs font-medium text-blue-300">📈 Performance Forecast</h6>
                     <span class="text-xs text-green-300">{{ getConfidence(item) }}% confidence</span>
                   </div>
                   <div class="space-y-1">
