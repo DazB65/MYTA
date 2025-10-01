@@ -140,7 +140,7 @@
                 </div>
 
                 <!-- Performance Predictions -->
-                <div v-if="item.status !== 'published'" class="mb-3 p-3 bg-gray-900/80 backdrop-blur-sm rounded-lg border-2 border-gray-600/70 shadow-lg">
+                <div v-if="item.status === 'ideas' || item.status === 'planning'" class="mb-3 p-3 bg-gray-900/80 backdrop-blur-sm rounded-lg border-2 border-gray-600/70 shadow-lg">
                   <div class="flex items-center justify-between mb-2">
                     <h6 class="text-xs font-medium text-blue-300">📈 Performance Forecast</h6>
                     <span class="text-xs text-green-300">{{ getConfidence(item) }}% confidence</span>
@@ -473,15 +473,15 @@
                 </div>
 
                 <!-- Progress Bar -->
-                <div v-if="item.progress" class="mb-3 p-3 bg-gray-900/80 backdrop-blur-sm rounded-lg border-2 border-gray-600/70 shadow-lg">
+                <div v-if="item.status === 'in-progress'" class="mb-3 p-3 bg-gray-900/80 backdrop-blur-sm rounded-lg border-2 border-gray-600/70 shadow-lg">
                   <div class="flex items-center justify-between mb-2">
                     <h6 class="text-xs font-medium text-orange-300">📊 Progress</h6>
-                    <span class="text-xs text-white font-medium">{{ item.progress }}%</span>
+                    <span class="text-xs text-white font-medium">{{ item.progress || 45 }}%</span>
                   </div>
                   <div class="h-2 w-full rounded-full bg-gray-600">
                     <div
                       class="h-2 rounded-full bg-orange-500"
-                      :style="`width: ${item.progress}%`"
+                      :style="`width: ${item.progress || 45}%`"
                     />
                   </div>
                 </div>
