@@ -1,5 +1,6 @@
 import { defineStore } from 'pinia'
 import { computed, readonly, ref } from 'vue'
+import { useApi } from '../composables/useApi'
 
 // Note: Tokens are now stored in secure httpOnly cookies
 // Only user data is stored in localStorage for UI purposes
