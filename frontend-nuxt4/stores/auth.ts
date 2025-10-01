@@ -70,17 +70,16 @@ export const useAuthStore = defineStore('auth', () => {
     error.value = null
 
     try {
-      const { $api } = useNuxtApp()
+      const { apiCall } = useApi()
 
       // Call secure login endpoint
-      const response = await $api('/api/auth/login', {
+      const response = await apiCall('/api/auth/login', {
         method: 'POST',
         body: {
           email: credentials.email,
           password: credentials.password,
           remember_me: credentials.remember_me || false
-        },
-        credentials: 'include' // Include cookies in request
+        }
       })
 
       if (response.status === 'success') {
@@ -107,12 +106,11 @@ export const useAuthStore = defineStore('auth', () => {
 
   const logout = async () => {
     try {
-      const { $api } = useNuxtApp()
+      const { apiCall } = useApi()
 
       // Call secure logout endpoint
-      await $api('/api/auth/logout', {
-        method: 'POST',
-        credentials: 'include' // Include cookies in request
+      await apiCall('/api/auth/logout', {
+        method: 'POST'
       })
     } catch (error) {
       console.warn('Logout API call failed:', error)
@@ -144,10 +142,9 @@ export const useAuthStore = defineStore('auth', () => {
       if (storedUser) {
         // Validate session with backend using httpOnly cookie
         try {
-          const { $api } = useNuxtApp()
-          const response = await $api('/api/auth/verify-token', {
-            method: 'POST',
-            credentials: 'include'
+          const { apiCall } = useApi()
+          const response = await apiCall('/api/auth/verify-token', {
+            method: 'POST'
           })
 
           if (response.status === 'success') {
@@ -180,10 +177,9 @@ export const useAuthStore = defineStore('auth', () => {
 
   const validateSession = async () => {
     try {
-      const { $api } = useNuxtApp()
-      const response = await $api('/api/auth/verify-token', {
-        method: 'POST',
-        credentials: 'include'
+      const { apiCall } = useApi()
+      const response = await apiCall('/api/auth/verify-token', {
+        method: 'POST'
       })
 
       return response.status === 'success'
