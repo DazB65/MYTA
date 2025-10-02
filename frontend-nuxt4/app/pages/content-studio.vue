@@ -1772,26 +1772,25 @@ const getPredictedEngagement = (item) => {
 }
 
 const getBestUploadTime = (item) => {
-  // Generate best upload time based on content type (in PST)
-  const pstUploadTimes = {
-    'Technology': { hour: 14, minute: 0 }, // 2:00 PM PST
-    'Marketing': { hour: 11, minute: 0 },  // 11:00 AM PST
-    'Business': { hour: 9, minute: 0 },    // 9:00 AM PST
-    'Content Strategy': { hour: 13, minute: 0 }, // 1:00 PM PST
-    'Branding': { hour: 15, minute: 0 },   // 3:00 PM PST
-    'Analytics': { hour: 10, minute: 0 }   // 10:00 AM PST
+  // Generate best upload time based on content type (in UTC)
+  const utcUploadTimes = {
+    'Technology': { hour: 22, minute: 0 }, // 10:00 PM UTC (2:00 PM PST)
+    'Marketing': { hour: 19, minute: 0 },  // 7:00 PM UTC (11:00 AM PST)
+    'Business': { hour: 17, minute: 0 },   // 5:00 PM UTC (9:00 AM PST)
+    'Content Strategy': { hour: 21, minute: 0 }, // 9:00 PM UTC (1:00 PM PST)
+    'Branding': { hour: 23, minute: 0 },   // 11:00 PM UTC (3:00 PM PST)
+    'Analytics': { hour: 18, minute: 0 }   // 6:00 PM UTC (10:00 AM PST)
   }
 
-  // Get the PST time for this content type
-  const pstTime = pstUploadTimes[item.pillar?.name] || { hour: 14, minute: 0 }
+  // Get the UTC time for this content type
+  const utcTime = utcUploadTimes[item.pillar?.name] || { hour: 22, minute: 0 }
 
-  // Create a date in PST timezone (PST is UTC-8)
-  const today = new Date()
-  const pstDate = new Date()
-  pstDate.setUTCHours(pstTime.hour + 8, pstTime.minute, 0, 0) // Convert PST to UTC
+  // Create a date in UTC timezone
+  const utcDate = new Date()
+  utcDate.setUTCHours(utcTime.hour, utcTime.minute, 0, 0)
 
   // Convert to user's local timezone and format
-  const localTime = pstDate.toLocaleTimeString([], {
+  const localTime = utcDate.toLocaleTimeString([], {
     hour: 'numeric',
     minute: '2-digit',
     hour12: true,
