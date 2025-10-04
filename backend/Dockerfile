@@ -31,7 +31,7 @@ RUN apt-get update && apt-get install -y \
 WORKDIR /app
 
 # Copy requirements first (for better layer caching)
-COPY requirements.txt requirements-prod.txt* ./
+COPY requirements.txt requirements-railway.txt* requirements-enhanced.txt* requirements-prod.txt* ./
 
 # Create virtual environment and install dependencies
 RUN python -m venv /opt/venv
@@ -39,11 +39,12 @@ ENV PATH="/opt/venv/bin:$PATH"
 
 # Install Python dependencies
 RUN pip install --upgrade pip && \
-    pip install --no-cache-dir -r requirements.txt
-
-# Install production-specific dependencies if available
-RUN if [ -f "requirements-prod.txt" ]; then \
-    pip install --no-cache-dir -r requirements-prod.txt; \
+    if [ -f "requirements-railway.txt" ]; then \
+    pip install --no-cache-dir -r requirements-railway.txt; \
+    elif [ -f "requirements-enhanced.txt" ]; then \
+    pip install --no-cache-dir -r requirements-enhanced.txt; \
+    else \
+    pip install --no-cache-dir -r requirements.txt; \
     fi
 
 # =============================================================================
@@ -69,6 +70,9 @@ ENV PATH="/opt/venv/bin:$PATH"
 
 # Copy application code
 COPY --chown=Vidalytics:Vidalytics . .
+
+# Make start script executable
+RUN chmod +x /app/start-railway.sh
 
 # Create necessary directories
 RUN mkdir -p logs backups /app/data && \

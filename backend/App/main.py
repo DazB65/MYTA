@@ -1279,4 +1279,6 @@ async def update_user_channel_id(user_id: str, channel_id: str) -> None:
 
 if __name__ == "__main__":
     import uvicorn
-    uvicorn.run(app, host="0.0.0.0", port=8888)
+    import os
+    port = int(os.getenv("PORT", 8888))
+    uvicorn.run(app, host="0.0.0.0", port=port)
