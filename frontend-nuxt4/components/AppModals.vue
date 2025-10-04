@@ -80,7 +80,7 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, onUnmounted, watch } from 'vue'
+import { watch } from 'vue'
 import { useModals } from '../composables/useModals.js'
 import { useToast } from '../composables/useToast'
 import { useTasksStore } from '../stores/tasks'
@@ -165,23 +165,8 @@ const handleGlobalTaskSave = (data) => {
 
 
 
-// Keyboard shortcuts - client only
-if (process.client) {
-  onMounted(() => {
-    const handleKeydown = (event) => {
-      // Close modals on Escape
-      if (event.key === 'Escape') {
-        closeAllModals()
-      }
-    }
-
-    document.addEventListener('keydown', handleKeydown)
-
-    onUnmounted(() => {
-      document.removeEventListener('keydown', handleKeydown)
-    })
-  })
-}
+// TODO: Add keyboard shortcuts back after fixing tree-shaking issue
+// Temporarily removed to fix build
 
 console.log('🔥 AppModals using composable - modals state:', modals)
 
