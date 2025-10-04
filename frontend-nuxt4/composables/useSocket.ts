@@ -1,14 +1,14 @@
-import { ref, onMounted, onUnmounted, watch, readonly } from 'vue'
 import type { Socket } from 'socket.io-client';
-import { io } from 'socket.io-client'
-import type { WebSocketMessage, WSMessageType, ChatMessage } from '../types/agents'
-import { useAuthStore } from '../stores/auth'
-import { useChatStore } from '../stores/chat'
-import { useAgentsStore } from '../stores/agents'
-import { useUIStore } from '../stores/ui'
+import { io } from 'socket.io-client';
+import { onMounted, onUnmounted, readonly, ref, watch } from 'vue';
+import { useAgentsStore } from '../stores/agents';
+import { useAuthStore } from '../stores/auth';
+import { useChatStore } from '../stores/chat';
+import { useUIStore } from '../stores/ui';
+import type { ChatMessage } from '../types/agents';
 
 export const useSocket = () => {
-  const config = { public: { wsUrl: 'ws://localhost:8000' } }
+  const config = useRuntimeConfig()
   const authStore = useAuthStore()
   const chatStore = useChatStore()
   const agentsStore = useAgentsStore()

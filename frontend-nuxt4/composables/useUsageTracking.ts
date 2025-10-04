@@ -41,7 +41,8 @@ export const useUsageTracking = () => {
   )
 
   // API Base URL
-  const apiBase = 'http://localhost:8000/api/usage'
+  const config = useRuntimeConfig()
+  const apiBase = `${config.public.apiBase}/api/usage`
 
   // Methods
   const fetchUsageSummary = async () => {
