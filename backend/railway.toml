@@ -1,9 +1,8 @@
 [build]
-builder = "dockerfile"
-dockerfilePath = "Dockerfile"
+builder = "nixpacks"
 
 [deploy]
-startCommand = "cd /app && uvicorn railway_main:app --host 0.0.0.0 --port ${PORT:-8888}"
+startCommand = "python simple_railway.py"
 healthcheckPath = "/health"
 healthcheckTimeout = 120
 restartPolicyType = "ON_FAILURE"
