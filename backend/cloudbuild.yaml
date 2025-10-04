@@ -1,0 +1,36 @@
+# Google Cloud Build configuration for MYTA backend
+steps:
+  # Build the container image using the Cloud Run specific Dockerfile
+  - name: "gcr.io/cloud-builders/docker"
+    args:
+      [
+        "build",
+        "-f",
+        "backend/Dockerfile.cloudrun",
+        "-t",
+        "gcr.io/$PROJECT_ID/myta-app:$COMMIT_SHA",
+        ".",
+      ]
+
+  # Push the container image to Container Registry
+  - name: "gcr.io/cloud-builders/docker"
+    args: ["push", "gcr.io/$PROJECT_ID/myta-app:$COMMIT_SHA"]
+
+  # Deploy container image to Cloud Run
+  - name: "gcr.io/cloud-builders/gcloud"
+    args:
+      - "run"
+      - "deploy"
+      - "myta-app"
+      - "--image"
+      - "gcr.io/$PROJECT_ID/myta-app:$COMMIT_SHA"
+      - "--region"
+      - "australia-southeast1"
+      - "--platform"
+      - "managed"
+      - "--allow-unauthenticated"
+      - "--port"
+      - "8888"
+
+images:
+  - "gcr.io/$PROJECT_ID/myta-app:$COMMIT_SHA"
