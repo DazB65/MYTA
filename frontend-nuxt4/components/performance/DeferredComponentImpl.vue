@@ -44,8 +44,8 @@
 </template>
 
 <script setup>
-import { usePerformance } from '@root/composables/usePerformance'
 import { onMounted, onUnmounted, ref, shallowRef, watch } from 'vue'
+import { usePerformance } from '~/composables/usePerformance'
 
 const props = defineProps({
   componentLoader: { type: Function, required: true },

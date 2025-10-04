@@ -156,8 +156,8 @@
 </template>
 
 <script setup>
-import { usePerformance } from '@root/composables/usePerformance'
 import { computed, onMounted, onUnmounted, ref } from 'vue'
+import { usePerformance } from '~/composables/usePerformance'
 
 const { metrics, cacheStats, cacheHitRate, cacheClear, collectPerformanceMetrics } =
   usePerformance()
