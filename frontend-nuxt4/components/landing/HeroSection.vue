@@ -198,7 +198,7 @@
             <div class="flex items-center mb-4">
               <div class="relative">
                 <img
-                  src="/Agent1.png"
+                  src="/Alex.png"
                   alt="Zara - Community Manager"
                   class="w-16 h-16 rounded-full border-3 border-pink-500"
                 />
