@@ -415,12 +415,12 @@
 <script setup>
 import { computed, nextTick, ref } from 'vue'
 import { useRouter } from 'vue-router'
-import TabbedChatInterface from '../../components/team/TabbedChatInterface.vue'
-import TeamMemberPresence from '../../components/team/TeamMemberPresence.vue'
-import TeamRolesManager from '../../components/team/TeamRolesManager.vue'
-import { useModals } from '../../composables/useModals'
-import { useTeamManagement } from '../../composables/useTeamManagement'
-import { useToast } from '../../composables/useToast'
+import TabbedChatInterface from '~/components/team/TabbedChatInterface.vue'
+import TeamMemberPresence from '~/components/team/TeamMemberPresence.vue'
+import TeamRolesManager from '~/components/team/TeamRolesManager.vue'
+import { useModals } from '~/composables/useModals'
+import { useTeamManagement } from '~/composables/useTeamManagement'
+import { useToast } from '~/composables/useToast'
 
 // Page metadata
 definePageMeta({

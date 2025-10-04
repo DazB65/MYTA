@@ -2,7 +2,7 @@
  * Performance optimization composable
  * Provides caching, lazy loading, and performance monitoring utilities
  */
-import { computed, onMounted, onUnmounted, reactive, ref } from 'vue'
+import { computed, reactive, ref } from 'vue'
 
 export const usePerformance = () => {
   // Performance metrics including Core Web Vitals
@@ -524,25 +524,8 @@ export const usePerformance = () => {
     return keysToDelete.length
   }
 
-  // Lifecycle management
-  onMounted(() => {
-    setupPerformanceObserver()
-    collectPerformanceMetrics()
-
-    // Regular cache cleanup
-    const cleanupInterval = setInterval(cleanupCache, 60000) // Every minute
-
-    // Regular metrics update
-    const metricsInterval = setInterval(collectPerformanceMetrics, 10000) // Every 10 seconds
-
-    onUnmounted(() => {
-      if (performanceObserver.value) {
-        performanceObserver.value.disconnect()
-      }
-      clearInterval(cleanupInterval)
-      clearInterval(metricsInterval)
-    })
-  })
+  // Lifecycle management - disabled for build compatibility
+  // TODO: Re-enable performance monitoring after fixing tree-shaking issues
 
   return {
     // Metrics

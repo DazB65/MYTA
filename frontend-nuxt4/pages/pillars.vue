@@ -161,8 +161,8 @@
 
 <script setup>
 import { computed, ref } from 'vue'
-import PillarCard from '../../components/pillars/PillarCard.vue'
-import { usePillars } from '../../composables/usePillars'
+import PillarCard from '~/components/pillars/PillarCard.vue'
+import { usePillars } from '~/composables/usePillars'
 
 // Protect this route with authentication
 definePageMeta({

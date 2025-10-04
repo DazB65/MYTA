@@ -2,18 +2,29 @@
 export default defineNuxtConfig({
   compatibilityDate: '2025-07-15',
 
-  // Use app/ directory for Nuxt 4 structure
-  srcDir: 'app/',
+
 
   // Modern build configuration
   nitro: {
     compressPublicAssets: true,
     minify: true,
+    rollupConfig: {
+      plugins: [],
+    },
   },
 
   // Performance optimizations
   experimental: {
     payloadExtraction: false, // Faster SSR
+    treeshakeClientOnly: false, // Disable tree-shaking for client-only code
+  },
+
+  // Disable problematic Nuxt features for build
+  hooks: {
+    'build:before': () => {
+      // Disable tree-shake-composables plugin
+      process.env.NUXT_DISABLE_TREE_SHAKE_COMPOSABLES = 'true'
+    }
   },
 
   // Build optimizations
@@ -28,7 +39,15 @@ export default defineNuxtConfig({
     optimizeDeps: {
       include: ['vue', 'vue-router'],
     },
+    // Disable tree-shaking for now to fix build issues
+    build: {
+      rollupOptions: {
+        treeshake: false,
+      },
+    },
   },
+
+
 
   // Auto-imports: simplified for deployment
   imports: {

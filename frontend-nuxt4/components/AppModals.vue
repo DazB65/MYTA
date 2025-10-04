@@ -165,21 +165,23 @@ const handleGlobalTaskSave = (data) => {
 
 
 
-// Keyboard shortcuts
-onMounted(() => {
-  const handleKeydown = (event) => {
-    // Close modals on Escape
-    if (event.key === 'Escape') {
-      closeAllModals()
+// Keyboard shortcuts - client only
+if (process.client) {
+  onMounted(() => {
+    const handleKeydown = (event) => {
+      // Close modals on Escape
+      if (event.key === 'Escape') {
+        closeAllModals()
+      }
     }
-  }
-  
-  document.addEventListener('keydown', handleKeydown)
-  
-  onUnmounted(() => {
-    document.removeEventListener('keydown', handleKeydown)
+
+    document.addEventListener('keydown', handleKeydown)
+
+    onUnmounted(() => {
+      document.removeEventListener('keydown', handleKeydown)
+    })
   })
-})
+}
 
 console.log('🔥 AppModals using composable - modals state:', modals)
 

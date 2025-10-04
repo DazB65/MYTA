@@ -50,7 +50,7 @@ onErrorCaptured((error, instance, info) => {
 
 <style>
 /* Import main CSS file */
-@import '../assets/css/main.css';
+@import './assets/css/main.css';
 
 /* Global styles */
 html {

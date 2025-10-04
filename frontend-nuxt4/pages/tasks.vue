@@ -542,9 +542,9 @@
 
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue'
-import { useModals } from '../../composables/useModals.js'
-import { useAnalyticsStore } from '../../stores/analytics'
-import { useTasksStore } from '../../stores/tasks'
+import { useModals } from '~/composables/useModals.js'
+import { useAnalyticsStore } from '~/stores/analytics'
+import { useTasksStore } from '~/stores/tasks'
 
 // Protect this route with authentication
 definePageMeta({

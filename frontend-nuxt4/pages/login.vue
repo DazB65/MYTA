@@ -140,14 +140,14 @@
 
     <!-- Full Screen Agent Background -->
     <div class="absolute inset-0 pointer-events-none">
-      <img src="/Agent1.png" alt="Agent 1" class="w-full h-full object-cover opacity-10">
+      <img src="/Alex.png" alt="Alex Agent" class="w-full h-full object-cover opacity-10">
     </div>
   </div>
 </template>
 
 <script setup>
 import { reactive, ref } from 'vue'
-import { useAuthStore } from '../../stores/auth'
+import { useAuthStore } from '~/stores/auth'
 
 // Remove the default layout and add guest middleware
 definePageMeta({

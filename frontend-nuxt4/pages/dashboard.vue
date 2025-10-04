@@ -613,16 +613,21 @@ onMounted(() => {
   // Reload goals from localStorage on mount (in case of page refresh)
   metricGoals.value = loadGoalsFromStorage()
   console.log('📊 Goals loaded from localStorage:', metricGoals.value)
+})
 
+// Handle goal updates in a client-only way
+if (process.client) {
   const handleGoalUpdate = (event) => {
     console.log('🎯 Goal update event received:', event.detail)
     handleGoalSave(event.detail)
   }
 
-  window.addEventListener('goalUpdated', handleGoalUpdate)
+  onMounted(() => {
+    window.addEventListener('goalUpdated', handleGoalUpdate)
+  })
 
   onUnmounted(() => {
     window.removeEventListener('goalUpdated', handleGoalUpdate)
   })
-})
+}
 </script>

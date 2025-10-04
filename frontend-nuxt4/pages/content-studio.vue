@@ -820,9 +820,9 @@
 <script setup>
 import { nextTick, onMounted, onUnmounted, ref } from 'vue'
 
-import { useAgentSettings } from '../../composables/useAgentSettings'
-import { useModals } from '../../composables/useModals.js'
-import { usePillars } from '../../composables/usePillars.js'
+import { useAgentSettings } from '~/composables/useAgentSettings'
+import { useModals } from '~/composables/useModals.js'
+import { usePillars } from '~/composables/usePillars.js'
 
 // Protect this route with authentication
 definePageMeta({

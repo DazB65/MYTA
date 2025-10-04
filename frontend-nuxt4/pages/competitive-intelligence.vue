@@ -20,7 +20,7 @@
 </template>
 
 <script setup>
-import CompetitiveIntelligenceDashboard from '../../components/competitive/CompetitiveIntelligenceDashboard.vue';
+import CompetitiveIntelligenceDashboard from '~/components/competitive/CompetitiveIntelligenceDashboard.vue';
 
 // Protect this route with authentication
 definePageMeta({

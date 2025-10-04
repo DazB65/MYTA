@@ -643,16 +643,16 @@
 import { computed, onMounted, ref } from 'vue'
 import { useRoute } from 'vue-router'
 
-import { useAgentAccess } from '../../composables/useAgentAccess'
-import { useAgentSettings } from '../../composables/useAgentSettings'
-import { useModals } from '../../composables/useModals'
+import { useAgentAccess } from '~/composables/useAgentAccess'
+import { useAgentSettings } from '~/composables/useAgentSettings'
+import { useModals } from '~/composables/useModals'
 
-import AutomationSettings from '../../components/automation/AutomationSettings.vue'
-import SeatManagement from '../../components/subscription/SeatManagement.vue'
-import { useToast } from '../../composables/useToast'
-import { useAgentsStore } from '../../stores/agents'
-import { useAuthStore } from '../../stores/auth'
-import { useSubscriptionStore } from '../../stores/subscription'
+import AutomationSettings from '~/components/automation/AutomationSettings.vue'
+import SeatManagement from '~/components/subscription/SeatManagement.vue'
+import { useToast } from '~/composables/useToast'
+import { useAgentsStore } from '~/stores/agents'
+import { useAuthStore } from '~/stores/auth'
+import { useSubscriptionStore } from '~/stores/subscription'
 
 // Protect this route with authentication
 definePageMeta({
