@@ -22,51 +22,23 @@ export default defineNuxtConfig({
     analyze: process.env.ANALYZE === 'true',
   },
 
-  // Vite/Nuxt aliases and optimizations
+  // Simplified Vite configuration for Railway deployment
   vite: {
-    resolve: {
-      alias: {
-        '@root': __dirname,
-      },
-    },
-    build: {
-      // Code splitting
-      rollupOptions: {
-        output: {
-          manualChunks: {
-            vendor: ['vue', 'vue-router'],
-            analytics: [
-              '@root/components/analytics/AnalyticsOverview.vue',
-              '@root/components/analytics/MetricCard.vue',
-            ],
-            charts: [
-              '@root/components/analytics/AnalyticsChart.vue',
-              '@root/components/analytics/ChartsDashboard.vue',
-            ],
-            performance: [
-              '@root/components/performance/DeferredComponent.vue',
-            ],
-          },
-        },
-      },
-    },
-
     // Dependency optimization
     optimizeDeps: {
       include: ['vue', 'vue-router'],
     },
   },
 
-  // Auto-imports: include root-level composables
+  // Auto-imports: simplified for deployment
   imports: {
-    dirs: ['composables/**', '../composables/**'],
+    dirs: ['composables/**'],
   },
 
-  // Components auto-registration: include root-level components
+  // Components auto-registration: simplified for deployment
   components: {
     dirs: [
       { path: 'components', pathPrefix: false },
-      { path: '../components', pathPrefix: false },
     ],
   },
 
