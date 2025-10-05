@@ -1,8 +1,8 @@
 <template>
   <div class="min-h-screen bg-gradient-to-br from-forest-900 via-forest-800 to-gray-900 relative overflow-hidden">
     <!-- Logo in Top Right -->
-    <div class="absolute -top-20 right-4 z-20">
-      <img src="/MYTALogo.png" alt="MYTA Logo" class="h-96 w-auto">
+    <div class="absolute top-4 right-4 z-20">
+      <img src="/MYTALogo.png" alt="MYTA Logo" class="h-80 w-auto">
     </div>
 
     <!-- Animated Background Elements -->
