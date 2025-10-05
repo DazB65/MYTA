@@ -1,7 +1,7 @@
 <template>
   <div class="min-h-screen bg-gradient-to-br from-forest-900 via-forest-800 to-forest-900">
-    <!-- Background Pattern -->
-    <div class="absolute inset-0 bg-[url('/grid-pattern.svg')] opacity-10" />
+    <!-- Background Pattern - Removed grid-pattern.svg reference -->
+    <!-- <div class="absolute inset-0 bg-[url('/grid-pattern.svg')] opacity-10" /> -->
 
     <!-- Logo in Top Right -->
     <div class="absolute top-8 right-16 z-20">

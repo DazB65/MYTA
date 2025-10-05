@@ -1,7 +1,7 @@
 <template>
   <div class="min-h-screen bg-gradient-to-br from-gray-900 via-purple-900 to-gray-900">
-    <!-- Background Pattern -->
-    <div class="absolute inset-0 bg-[url('/grid-pattern.svg')] opacity-10" />
+    <!-- Background Pattern - Removed grid-pattern.svg reference -->
+    <!-- <div class="absolute inset-0 bg-[url('/grid-pattern.svg')] opacity-10" /> -->
     
     <!-- Content Container -->
     <div class="relative flex min-h-screen items-center justify-center p-6">
