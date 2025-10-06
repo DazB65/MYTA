@@ -155,13 +155,12 @@ export const useYouTubeChannel = () => {
       state.value.error = null
 
       const requestBody = {
-        user_id: 'default_user', // In production, get from auth context
-        return_url: window.location.origin + '/dashboard'
+        userId: 'default_user' // In production, get from auth context
       }
       console.log('🔗 connectYouTube: Request body:', requestBody)
 
-      // Use the existing OAuth endpoint
-      const response = await fetch('/auth/initiate', {
+      // Use the correct YouTube OAuth endpoint
+      const response = await fetch('/api/youtube/auth-url', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -177,8 +176,8 @@ export const useYouTubeChannel = () => {
         const data = await response.json()
         console.log('🔗 connectYouTube: Response data:', data)
         // Redirect to YouTube OAuth
-        console.log('🔗 connectYouTube: Redirecting to:', data.authorization_url)
-        window.location.href = data.authorization_url
+        console.log('🔗 connectYouTube: Redirecting to:', data.authUrl)
+        window.location.href = data.authUrl
       } else {
         const errorData = await response.json()
         console.error('🔗 connectYouTube: Error response:', errorData)

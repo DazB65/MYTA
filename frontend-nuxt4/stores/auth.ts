@@ -66,6 +66,45 @@ export const useAuthStore = defineStore('auth', () => {
   }
 
   // Actions
+  const register = async (name: string, email: string, password: string, confirmPassword: string) => {
+    loading.value = true
+    error.value = null
+
+    try {
+      const { apiCall } = useApi()
+
+      const response = await apiCall('/api/auth/register', {
+        method: 'POST',
+        body: {
+          name,
+          email,
+          password,
+          confirm_password: confirmPassword
+        }
+      })
+
+      if (response.status === 'success') {
+        // Update state with user data (token is in httpOnly cookie)
+        user.value = response.user
+        isAuthenticated.value = true
+
+        // Only persist user data to localStorage (not tokens)
+        saveToStorage(USER_KEY, response.user)
+
+        console.log('Registration successful for:', email)
+        return response.user
+      } else {
+        throw new Error(response.error || 'Registration failed')
+      }
+    } catch (err: any) {
+      console.error('Registration failed:', err)
+      error.value = err.message || 'Registration failed'
+      throw err
+    } finally {
+      loading.value = false
+    }
+  }
+
   const login = async (credentials: { email: string; password: string; remember_me?: boolean }) => {
     loading.value = true
     error.value = null
@@ -204,6 +243,7 @@ export const useAuthStore = defineStore('auth', () => {
     userId,
 
     // Actions
+    register,
     login,
     logout,
     initializeAuth,

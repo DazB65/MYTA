@@ -18,13 +18,18 @@ from .api_models import (
 
 # Import services
 from .ai_services import get_ai_response, extract_channel_info, update_user_context, get_user_context
-from backend.boss_agent import process_user_message
-from backend.backups import get_agent_cache
-from backend.model_integrations import get_model_integration
-from backend.boss_agent_auth import validate_specialized_agent_request
+# Import from parent directory for production deployment
+import sys
+import os
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
+from boss_agent import process_user_message
+from backups import get_agent_cache
+from model_integrations import get_model_integration
+from boss_agent_auth import validate_specialized_agent_request
 
 # Import agent adapters
-from backend.agent_adapters import (
+from agent_adapters import (
     process_content_analysis_request,
     process_audience_insights_request,
     process_seo_request,
@@ -33,14 +38,14 @@ from backend.agent_adapters import (
 )
 
 # Configure advanced logging
-from backend.logging_config import get_logger, LogCategory
+from logging_config import get_logger, LogCategory
 logger = get_logger(__name__, LogCategory.AGENT)
 
 # Create router
 router = APIRouter(prefix="/api/agent", tags=["agent"])
 
 # Import rate limiter from main app
-from backend.rate_limiter import limiter, get_rate_limit
+from rate_limiter import limiter, get_rate_limit
 
 # Security
 security = HTTPBearer(auto_error=False)

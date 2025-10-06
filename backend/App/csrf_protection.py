@@ -92,35 +92,41 @@ class CSRFMiddleware(BaseHTTPMiddleware):
         
         # Check for CSRF protection on unsafe methods
         try:
+            # For development, be more lenient with CSRF protection
+            is_development = request.headers.get('host') in ['localhost:8888', '127.0.0.1:8888', 'localhost:3000', '127.0.0.1:3000']
+
             # Check X-Requested-With header (helps prevent simple CSRF)
             xhr_header = request.headers.get('x-requested-with')
-            if xhr_header != 'XMLHttpRequest':
+            if xhr_header != 'XMLHttpRequest' and not is_development:
                 logger.warning(f"Missing X-Requested-With header from {request.client.host}")
-                # Don't block, but log suspicious activity
-            
-            # Check CSRF token
+                # In production, this would be more strict
+
+            # Check CSRF token (more lenient in development)
             csrf_token = (
                 request.headers.get('x-csrf-token') or
                 request.headers.get('csrf-token')
             )
-            
+
+            # In development, allow requests without CSRF tokens for now
+            # TODO: Implement proper CSRF token flow for frontend
             if csrf_token and not self.csrf.validate_csrf_token(csrf_token):
                 logger.warning(f"Invalid CSRF token from {request.client.host}")
-                return JSONResponse(
-                    status_code=403,
-                    content={"error": "CSRF token validation failed", "code": "CSRF_INVALID"}
-                )
-            
+                if not is_development:
+                    return JSONResponse(
+                        status_code=403,
+                        content={"error": "CSRF token validation failed", "code": "CSRF_INVALID"}
+                    )
+
             # Check referer as additional protection
             if not self.csrf.check_referer(request):
                 logger.warning(f"Invalid referer from {request.client.host}")
                 # Don't block for referer issues in development, just log
-                if request.headers.get('host') not in ['localhost:8888', '127.0.0.1:8888']:
+                if not is_development:
                     return JSONResponse(
                         status_code=403,
                         content={"error": "Invalid request origin", "code": "INVALID_ORIGIN"}
                     )
-            
+
             # Process the request
             response = await call_next(request)
             return response

@@ -170,10 +170,14 @@
                 <div class="pt-6">
                   <button
                     type="submit"
-                    :disabled="!isFormValid"
-                    class="w-full bg-gradient-to-r from-orange-500 to-orange-600 text-white font-bold py-4 px-8 rounded-xl hover:from-orange-600 hover:to-orange-700 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed transform hover:scale-105"
+                    :disabled="!isFormValid || isConnecting"
+                    class="w-full bg-gradient-to-r from-orange-500 to-orange-600 text-white font-bold py-4 px-8 rounded-xl hover:from-orange-600 hover:to-orange-700 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed transform hover:scale-105 flex items-center justify-center gap-2"
                   >
-                    Connect Your YouTube Channel
+                    <svg v-if="isConnecting" class="animate-spin h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                      <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                      <path class="opacity-75" fill="currentColor" d="m4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                    {{ isConnecting ? 'Connecting to YouTube...' : 'Connect Your YouTube Channel' }}
                   </button>
                 </div>
               </form>
@@ -290,6 +294,9 @@ const formData = ref({
   additionalNotes: '',
 })
 
+// Loading state for YouTube connection
+const isConnecting = ref(false)
+
 // Form validation
 const isFormValid = computed(() => {
   return formData.value.agentName.trim() !== '' &&
@@ -304,14 +311,30 @@ const selectAgent = (agentId) => {
 }
 
 // Handle form submission
-const handleSubmit = () => {
-  if (isFormValid.value) {
+const handleSubmit = async () => {
+  if (isFormValid.value && !isConnecting.value) {
     console.log('Form data:', {
       ...formData.value,
       selectedAgent: selectedAgent.value
     })
-    // Navigate to dashboard after setup
-    navigateTo('/dashboard')
+
+    // Save profile data (you might want to save this to a store or API)
+    // For now, we'll just log it and proceed to YouTube connection
+
+    try {
+      isConnecting.value = true
+
+      // Import and use the YouTube connection function
+      const { connectYouTube } = await import('~/composables/useYouTubeChannel')
+      await connectYouTube()
+      // Note: connectYouTube will redirect to YouTube OAuth, then back to dashboard
+    } catch (error) {
+      console.error('Failed to connect YouTube:', error)
+      // Fallback: navigate to dashboard anyway
+      navigateTo('/dashboard')
+    } finally {
+      isConnecting.value = false
+    }
   }
 }
 </script>

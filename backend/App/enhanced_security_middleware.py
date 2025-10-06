@@ -63,65 +63,85 @@ class EnhancedSecurityMiddleware(BaseHTTPMiddleware):
     
     async def dispatch(self, request: Request, call_next: Callable) -> Response:
         """Process request and add security headers to response"""
-        
-        # Generate request ID for tracking
-        request_id = secrets.token_urlsafe(16)
-        request.state.request_id = request_id
-        
-        # Log security-relevant request information
-        self._log_security_event(request, request_id)
-        
-        # Add timing attack prevention delay for auth endpoints
-        if request.url.path.startswith("/auth"):
-            await self._add_timing_protection()
-        
-        # Process request
-        start_time = time.time()
-        response = await call_next(request)
-        process_time = time.time() - start_time
-        
-        # Add comprehensive security headers
-        response.headers["X-Request-ID"] = request_id
-        response.headers["X-Process-Time"] = str(process_time)
-        
-        # Security headers
-        response.headers["X-Content-Type-Options"] = "nosniff"
-        response.headers["X-Frame-Options"] = "DENY"
-        response.headers["X-XSS-Protection"] = "1; mode=block"
-        response.headers["Referrer-Policy"] = "strict-origin-when-cross-origin"
-        response.headers["Permissions-Policy"] = (
-            "accelerometer=(), camera=(), geolocation=(), "
-            "gyroscope=(), magnetometer=(), microphone=(), "
-            "payment=(), usb=()"
-        )
-        
-        # HSTS (HTTP Strict Transport Security)
-        if self.strict_mode:
-            response.headers["Strict-Transport-Security"] = (
-                "max-age=31536000; includeSubDomains; preload"
+
+        try:
+            logger.info(f"🔄 EnhancedSecurityMiddleware: Starting dispatch for {request.url.path}")
+
+            # Generate request ID for tracking
+            request_id = secrets.token_urlsafe(16)
+            request.state.request_id = request_id
+            logger.info(f"🔄 EnhancedSecurityMiddleware: Generated request ID: {request_id}")
+
+            # Log security-relevant request information
+            self._log_security_event(request, request_id)
+            logger.info(f"🔄 EnhancedSecurityMiddleware: Security event logged")
+
+            # Add timing attack prevention delay for auth endpoints
+            if request.url.path.startswith("/auth"):
+                logger.info(f"🔄 EnhancedSecurityMiddleware: Adding timing protection for auth endpoint")
+                await self._add_timing_protection()
+                logger.info(f"🔄 EnhancedSecurityMiddleware: Timing protection completed")
+            else:
+                logger.info(f"🔄 EnhancedSecurityMiddleware: No timing protection needed for {request.url.path}")
+
+            # Process request
+            logger.info(f"✅ EnhancedSecurityMiddleware: Calling next middleware for {request.url.path}")
+            start_time = time.time()
+            response = await call_next(request)
+            process_time = time.time() - start_time
+            logger.info(f"✅ EnhancedSecurityMiddleware: Got response from next middleware, process time: {process_time:.3f}s")
+
+            # Add comprehensive security headers
+            response.headers["X-Request-ID"] = request_id
+            response.headers["X-Process-Time"] = str(process_time)
+
+            # Security headers
+            response.headers["X-Content-Type-Options"] = "nosniff"
+            response.headers["X-Frame-Options"] = "DENY"
+            response.headers["X-XSS-Protection"] = "1; mode=block"
+            response.headers["Referrer-Policy"] = "strict-origin-when-cross-origin"
+            response.headers["Permissions-Policy"] = (
+                "accelerometer=(), camera=(), geolocation=(), "
+                "gyroscope=(), magnetometer=(), microphone=(), "
+                "payment=(), usb=()"
             )
-        
-        # Content Security Policy
-        response.headers["Content-Security-Policy"] = self.csp_policy
 
-        # Additional security headers
-        response.headers["Cross-Origin-Embedder-Policy"] = "require-corp"
-        response.headers["Cross-Origin-Opener-Policy"] = "same-origin"
-        response.headers["Cross-Origin-Resource-Policy"] = "same-origin"
-        response.headers["X-DNS-Prefetch-Control"] = "off"
-        response.headers["Expect-CT"] = "max-age=86400, enforce"
+            # HSTS (HTTP Strict Transport Security)
+            if self.strict_mode:
+                response.headers["Strict-Transport-Security"] = (
+                    "max-age=31536000; includeSubDomains; preload"
+                )
 
-        # Remove server identification headers
-        # Use del instead of pop() since MutableHeaders doesn't support pop()
-        headers_to_remove = ["Server", "X-Powered-By", "X-AspNet-Version", "X-AspNetMvc-Version"]
-        for header in headers_to_remove:
-            if header in response.headers:
-                del response.headers[header]
+            # Content Security Policy
+            response.headers["Content-Security-Policy"] = self.csp_policy
 
-        # Add security monitoring headers
-        response.headers["X-Security-Mode"] = "strict" if self.strict_mode else "standard"
-        
-        return response
+            # Additional security headers
+            response.headers["Cross-Origin-Embedder-Policy"] = "require-corp"
+            response.headers["Cross-Origin-Opener-Policy"] = "same-origin"
+
+            # Additional security headers
+            response.headers["Cross-Origin-Resource-Policy"] = "same-origin"
+            response.headers["X-DNS-Prefetch-Control"] = "off"
+            response.headers["Expect-CT"] = "max-age=86400, enforce"
+
+            # Remove server identification headers
+            # Use del instead of pop() since MutableHeaders doesn't support pop()
+            headers_to_remove = ["Server", "X-Powered-By", "X-AspNet-Version", "X-AspNetMvc-Version"]
+            for header in headers_to_remove:
+                if header in response.headers:
+                    del response.headers[header]
+
+            # Add security monitoring headers
+            response.headers["X-Security-Mode"] = "strict" if self.strict_mode else "standard"
+
+            logger.info(f"✅ EnhancedSecurityMiddleware: Request completed successfully for {request.url.path}")
+            return response
+
+        except Exception as e:
+            logger.error(f"❌ EnhancedSecurityMiddleware: Error processing request for {request.url.path}: {str(e)}")
+            # Return a basic error response
+            from fastapi import HTTPException
+            raise HTTPException(status_code=500, detail="Internal server error")
     
     def _log_security_event(self, request: Request, request_id: str):
         """Log security-relevant request information"""
@@ -153,40 +173,57 @@ class RateLimitMiddleware(BaseHTTPMiddleware):
     
     async def dispatch(self, request: Request, call_next: Callable) -> Response:
         """Implement rate limiting"""
-        
-        # Get client IP
-        client_ip = request.client.host if request.client else "unknown"
-        
-        # Cleanup old entries periodically
-        current_time = time.time()
-        if current_time - self.last_cleanup > self.cleanup_interval:
-            self._cleanup_old_entries(current_time)
-            self.last_cleanup = current_time
-        
-        # Check rate limit
-        if not self._check_rate_limit(client_ip, current_time):
-            response = Response(
-                content="Rate limit exceeded. Please try again later.",
-                status_code=429,
-                headers={
-                    "Retry-After": "60",
-                    "X-RateLimit-Limit": str(self.requests_per_minute),
-                    "X-RateLimit-Remaining": "0",
-                    "X-RateLimit-Reset": str(int(current_time + 60))
-                }
-            )
+
+        try:
+            logger.info(f"🔄 RateLimitMiddleware: Processing request for {request.url.path}")
+
+            # Get client IP
+            client_ip = request.client.host if request.client else "unknown"
+            logger.info(f"🔄 RateLimitMiddleware: Client IP: {client_ip}")
+
+            # Cleanup old entries periodically
+            current_time = time.time()
+            if current_time - self.last_cleanup > self.cleanup_interval:
+                logger.info(f"🔄 RateLimitMiddleware: Cleaning up old entries")
+                self._cleanup_old_entries(current_time)
+                self.last_cleanup = current_time
+
+            # Check rate limit
+            logger.info(f"🔄 RateLimitMiddleware: Checking rate limit for {client_ip}")
+            if not self._check_rate_limit(client_ip, current_time):
+                logger.warning(f"🚫 RateLimitMiddleware: Rate limit exceeded for {client_ip}")
+                response = Response(
+                    content="Rate limit exceeded. Please try again later.",
+                    status_code=429,
+                    headers={
+                        "Retry-After": "60",
+                        "X-RateLimit-Limit": str(self.requests_per_minute),
+                        "X-RateLimit-Remaining": "0",
+                        "X-RateLimit-Reset": str(int(current_time + 60))
+                    }
+                )
+                return response
+
+            logger.info(f"✅ RateLimitMiddleware: Rate limit OK, calling next middleware")
+            # Process request
+            response = await call_next(request)
+            logger.info(f"✅ RateLimitMiddleware: Got response from next middleware")
+
+            # Add rate limit headers
+            remaining = self._get_remaining_requests(client_ip, current_time)
+            response.headers["X-RateLimit-Limit"] = str(self.requests_per_minute)
+            response.headers["X-RateLimit-Remaining"] = str(remaining)
+            response.headers["X-RateLimit-Reset"] = str(int(current_time + 60))
+
+            logger.info(f"✅ RateLimitMiddleware: Request completed for {request.url.path}")
             return response
-        
-        # Process request
-        response = await call_next(request)
-        
-        # Add rate limit headers
-        remaining = self._get_remaining_requests(client_ip, current_time)
-        response.headers["X-RateLimit-Limit"] = str(self.requests_per_minute)
-        response.headers["X-RateLimit-Remaining"] = str(remaining)
-        response.headers["X-RateLimit-Reset"] = str(int(current_time + 60))
-        
-        return response
+
+        except Exception as e:
+            import traceback
+            error_details = traceback.format_exc()
+            logger.error(f"❌ RateLimitMiddleware: Error processing {request.url.path}: {str(e)}")
+            logger.error(f"❌ RateLimitMiddleware: Full traceback: {error_details}")
+            raise
     
     def _check_rate_limit(self, client_ip: str, current_time: float) -> bool:
         """Check if request is within rate limit"""

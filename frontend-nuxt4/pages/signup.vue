@@ -220,6 +220,7 @@
 
 <script setup>
 import { ref } from 'vue'
+import { useAuthStore } from '../stores/auth'
 
 // Page metadata
 definePageMeta({
@@ -227,6 +228,9 @@ definePageMeta({
   description: 'Join MYTA and transform your YouTube channel with AI-powered growth strategies',
   layout: false
 })
+
+// Auth store
+const authStore = useAuthStore()
 
 // Form state
 const form = ref({
@@ -244,36 +248,40 @@ const error = ref('')
 // Handle signup
 const handleSignup = async () => {
   error.value = ''
-  
+
   // Validation
   if (form.value.password !== form.value.confirmPassword) {
     error.value = 'Passwords do not match'
     return
   }
-  
+
   if (form.value.password.length < 8) {
     error.value = 'Password must be at least 8 characters long'
     return
   }
-  
+
   if (!form.value.acceptTerms) {
     error.value = 'Please accept the terms and conditions'
     return
   }
-  
+
   loading.value = true
-  
+
   try {
-    // TODO: Implement actual signup logic
-    console.log('Signup form data:', form.value)
-    
-    // Simulate API call
-    await new Promise(resolve => setTimeout(resolve, 2000))
-    
+    // Call the register function from auth store
+    await authStore.register(
+      form.value.name,
+      form.value.email,
+      form.value.password,
+      form.value.confirmPassword
+    )
+
+    console.log('Registration successful!')
+
     // Redirect to onboarding/profile setup
     await navigateTo('/create-profile')
   } catch (err) {
-    error.value = 'Something went wrong. Please try again.'
+    error.value = err.message || 'Something went wrong. Please try again.'
     console.error('Signup error:', err)
   } finally {
     loading.value = false

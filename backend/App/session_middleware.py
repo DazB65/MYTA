@@ -39,31 +39,40 @@ class SessionMiddleware(BaseHTTPMiddleware):
     async def dispatch(self, request: Request, call_next: Callable) -> Response:
         """Process request with session handling"""
         start_time = time.time()
-        
+
         # Extract session information
         session_data = None
         session_id = None
-        
+
         try:
+            self.logger.info(f"🔄 SessionMiddleware: Processing request for {request.url.path}")
+
             # Try to get session from cookie first
             session_id = request.cookies.get(self.cookie_name)
-            
+            self.logger.info(f"🔄 SessionMiddleware: Session ID from cookie: {session_id[:8] + '...' if session_id else 'None'}")
+
             # If no cookie, try Authorization header
             if not session_id:
+                self.logger.info(f"🔄 SessionMiddleware: No session cookie, checking Authorization header")
                 session_id = await self._extract_session_from_header(request)
-            
+                self.logger.info(f"🔄 SessionMiddleware: Session ID from header: {session_id[:8] + '...' if session_id else 'None'}")
+
             # Get session data if session ID exists
             if session_id:
+                self.logger.info(f"🔄 SessionMiddleware: Getting session data for {session_id[:8]}...")
                 session_data = await self.session_manager.get_session(session_id)
-                
+                self.logger.info(f"🔄 SessionMiddleware: Session data retrieved: {'Found' if session_data else 'Not found'}")
+
                 if session_data:
+                    self.logger.info(f"🔄 SessionMiddleware: Validating session security...")
                     # Validate session security
                     if not await self._validate_session_security(request, session_data):
+                        self.logger.warning(f"🚫 SessionMiddleware: Session security validation failed")
                         # Security violation - revoke session
                         await self.session_manager.revoke_session(session_id)
                         session_data = None
                         session_id = None
-                        
+
                         log_security_event(
                             'session_security_violation',
                             'Session security validation failed',
@@ -74,16 +83,23 @@ class SessionMiddleware(BaseHTTPMiddleware):
                                 'user_agent': request.headers.get('user-agent', 'unknown')
                             }
                         )
-            
+                    else:
+                        self.logger.info(f"✅ SessionMiddleware: Session security validation passed")
+            else:
+                self.logger.info(f"🔄 SessionMiddleware: No session ID found, proceeding without session")
+
             # Attach session data to request state
+            self.logger.info(f"🔄 SessionMiddleware: Attaching session data to request state")
             request.state.session_data = session_data
             request.state.session_id = session_id
             request.state.is_authenticated = session_data is not None
             request.state.user_id = session_data.user_id if session_data else None
-            
+
             # Process request
+            self.logger.info(f"✅ SessionMiddleware: Calling next middleware for {request.url.path}")
             response = await call_next(request)
-            
+            self.logger.info(f"✅ SessionMiddleware: Got response from next middleware")
+
             # Handle session cookie in response
             if session_data:
                 # Refresh session cookie if needed
@@ -91,10 +107,11 @@ class SessionMiddleware(BaseHTTPMiddleware):
             elif session_id:
                 # Clear invalid session cookie
                 self._clear_session_cookie(response)
-            
+
             # Log session activity
             self._log_session_activity(request, session_data, time.time() - start_time)
-            
+
+            self.logger.info(f"✅ SessionMiddleware: Request completed for {request.url.path}")
             return response
             
         except Exception as e:

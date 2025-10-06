@@ -15,7 +15,7 @@ from .auth_models import (
     UserRegistration, UserLogin, UserResponse, PasswordReset, 
     PasswordResetConfirm, ChangePassword
 )
-from .user_service import user_service
+from .supabase_user_service import supabase_user_service as user_service
 from .auth_middleware import auth_middleware, get_current_user, AuthToken
 from .rate_limiter import limiter, get_rate_limit
 from .enhanced_jwt import enhanced_jwt_service
@@ -23,6 +23,43 @@ from .enhanced_jwt import enhanced_jwt_service
 logger = logging.getLogger(__name__)
 router = APIRouter(prefix="/api/auth", tags=["authentication"])
 security = HTTPBearer(auto_error=False)
+
+# Simple test endpoint without middleware complexity
+@router.post("/test-register", response_model=dict)
+async def test_register_user(registration: UserRegistration):
+    """
+    Simple test registration endpoint without complex middleware
+    """
+    try:
+        logger.info(f"Test registration attempt for: {registration.email}")
+
+        # Create user account directly
+        user = user_service.create_user(registration)
+
+        logger.info(f"Test user created successfully: {user.email}")
+
+        return {
+            "status": "success",
+            "message": "Test user registered successfully",
+            "user": {
+                "id": user.id,
+                "email": user.email,
+                "name": user.name
+            }
+        }
+
+    except ValueError as e:
+        logger.warning(f"Test registration failed: {e}")
+        return {
+            "status": "error",
+            "message": str(e)
+        }
+    except Exception as e:
+        logger.error(f"Test registration error: {e}")
+        return {
+            "status": "error",
+            "message": f"Registration failed: {str(e)}"
+        }
 
 @router.post("/register", response_model=dict)
 @limiter.limit("5/minute")  # Strict rate limiting for registration
@@ -32,7 +69,7 @@ async def register_user(
 ):
     """
     Register a new user account
-    
+
     - **email**: Valid email address
     - **password**: Strong password (8+ chars, uppercase, lowercase, digit, special char)
     - **name**: User's full name
@@ -45,7 +82,7 @@ async def register_user(
             ip_address=request.client.host,
             user_agent=request.headers.get("user-agent")
         )
-        
+
         # Generate authentication token
         session_id = f"session_{user.id}_{datetime.utcnow().timestamp()}"
         token = auth_middleware.generate_auth_token(
@@ -53,18 +90,12 @@ async def register_user(
             session_id=session_id,
             permissions=['read', 'write']
         )
-        
+
         # Log registration
-        user_service._log_user_action(
-            user.id, 
-            "user_registered", 
-            {"email": user.email},
-            ip_address=request.client.host,
-            user_agent=request.headers.get("user-agent")
-        )
-        
+        logger.info(f"User registered: {user.email} from {request.client.host}")
+
         logger.info(f"User registered successfully: {user.email}")
-        
+
         return {
             "status": "success",
             "message": "User registered successfully",
@@ -72,7 +103,7 @@ async def register_user(
             "token": token,
             "expires_in": 28800  # 8 hours in seconds
         }
-        
+
     except ValueError as e:
         logger.warning(f"Registration failed: {e}")
         raise HTTPException(
@@ -155,13 +186,7 @@ async def login_user(
         )
         
         # Log successful login
-        user_service._log_user_action(
-            user.id,
-            "login_success",
-            {"email": user.email, "remember_me": login.remember_me},
-            ip_address=request.client.host,
-            user_agent=request.headers.get("user-agent")
-        )
+        logger.info(f"User logged in: {user.email} from {request.client.host}")
         
         logger.info(f"User logged in successfully: {user.email}")
         
@@ -219,13 +244,7 @@ async def logout_user(
         )
         
         # Log logout
-        user_service._log_user_action(
-            current_user.user_id,
-            "logout",
-            {},
-            ip_address=request.client.host,
-            user_agent=request.headers.get("user-agent")
-        )
+        logger.info(f"User logged out: {current_user.user_id} from {request.client.host}")
         
         logger.info(f"User logged out: {current_user.user_id}")
         
@@ -297,13 +316,7 @@ async def change_password(
         user_service.update_user(user)
         
         # Log password change
-        user_service._log_user_action(
-            user.id,
-            "password_changed",
-            {},
-            ip_address=request.client.host,
-            user_agent=request.headers.get("user-agent")
-        )
+        logger.info(f"Password changed for user: {user.email} from {request.client.host}")
         
         logger.info(f"Password changed for user: {user.email}")
         

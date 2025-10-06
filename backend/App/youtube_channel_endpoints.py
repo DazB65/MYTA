@@ -183,15 +183,30 @@ async def oauth_callback(code: str, state: str):
     try:
         # Exchange code for tokens
         token_data = await oauth_manager.exchange_code_for_token(code, state)
-        
+
         if token_data:
-            return {"message": "YouTube account connected successfully"}
+            # Redirect to dashboard with success message
+            from fastapi.responses import RedirectResponse
+            return RedirectResponse(
+                url="http://localhost:3000/dashboard?youtube_connected=true",
+                status_code=302
+            )
         else:
-            raise HTTPException(status_code=400, detail="Failed to connect YouTube account")
-            
+            # Redirect to dashboard with error message
+            from fastapi.responses import RedirectResponse
+            return RedirectResponse(
+                url="http://localhost:3000/dashboard?youtube_error=connection_failed",
+                status_code=302
+            )
+
     except Exception as e:
         logger.error(f"OAuth callback error: {e}")
-        raise HTTPException(status_code=500, detail="OAuth callback failed")
+        # Redirect to dashboard with error message
+        from fastapi.responses import RedirectResponse
+        return RedirectResponse(
+            url="http://localhost:3000/dashboard?youtube_error=callback_failed",
+            status_code=302
+        )
 
 # Health check endpoint
 @router.get("/health")

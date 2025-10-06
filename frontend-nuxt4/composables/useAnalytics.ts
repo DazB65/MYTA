@@ -5,6 +5,7 @@
 import { computed } from 'vue'
 import { useAnalyticsStore } from '../stores/analytics'
 import { usePerformance } from './usePerformance'
+import { useYouTubeChannel } from './useYouTubeChannel'
 
 export const useAnalytics = () => {
   const analyticsStore = useAnalyticsStore()
@@ -122,7 +123,7 @@ export const useAnalytics = () => {
 
   // YouTube connection function (delegated to YouTube channel composable)
   const connectYouTube = async (userId: string = 'default_user') => {
-    const { connectYouTube: connectYT } = await import('./useYouTubeChannel')
+    const { connectYouTube: connectYT } = useYouTubeChannel()
     return connectYT()
   }
 

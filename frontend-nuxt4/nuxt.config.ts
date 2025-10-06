@@ -71,7 +71,7 @@ export default defineNuxtConfig({
 
     // Public keys (exposed to client-side)
     public: {
-      apiBase: process.env.NUXT_PUBLIC_API_BASE_URL || 'https://myta-backend-5e466lpdm-mytas-projects.vercel.app',
+      apiBase: process.env.NUXT_PUBLIC_API_BASE_URL || 'http://localhost:8000',
       wsUrl: process.env.NUXT_PUBLIC_WS_URL || 'wss://myta-backend-5e466lpdm-mytas-projects.vercel.app',
       environment: process.env.NODE_ENV || 'development',
       enablePerformanceMonitor: process.env.ENABLE_PERFORMANCE_MONITOR === 'true',

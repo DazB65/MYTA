@@ -1,14 +1,20 @@
 {
+  "version": 2,
   "builds": [
     {
-      "src": "api/index.py",
+      "src": "production_main.py",
       "use": "@vercel/python"
     }
   ],
   "routes": [
     {
       "src": "/(.*)",
-      "dest": "/api/index.py"
+      "dest": "/production_main.py"
     }
-  ]
+  ],
+  "functions": {
+    "production_main.py": {
+      "maxDuration": 30
+    }
+  }
 }

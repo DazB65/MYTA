@@ -8,7 +8,14 @@ from pydantic import BaseModel
 from typing import Dict, Any, List
 import time
 
+# Import middleware for testing
+from App.enhanced_security_middleware import EnhancedSecurityMiddleware, RateLimitMiddleware
+
 app = FastAPI(title="MYTA Simple Backend", version="1.0.0")
+
+# Add security middleware for testing
+app.add_middleware(EnhancedSecurityMiddleware, strict_mode=False)
+app.add_middleware(RateLimitMiddleware, requests_per_minute=60, burst_size=10)
 
 # Add CORS middleware
 app.add_middleware(
@@ -18,6 +25,10 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+# Import and include auth router for testing
+from api.simple_routers import auth_router
+app.include_router(auth_router)  # Remove prefix since router already has /api
 
 # Request models
 class PreProductionAnalysisRequest(BaseModel):
@@ -198,6 +209,67 @@ async def pre_production_analysis(request: PreProductionAnalysisRequest):
         
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Analysis failed: {str(e)}")
+
+# Add health check endpoint
+@app.get("/health")
+async def health_check():
+    """Health check endpoint"""
+    return {"status": "healthy", "timestamp": time.time()}
+
+# Add login endpoint for testing
+@app.post("/api/auth/login")
+async def login(user_data: Dict[str, str]):
+    """Simplified login for testing"""
+    email = user_data.get("email")
+    password = user_data.get("password")
+
+    if not all([email, password]):
+        raise HTTPException(status_code=400, detail="Email and password required")
+
+    # Mock successful login
+    return {
+        "status": "success",
+        "message": "Login successful",
+        "data": {
+            "user_id": "mock_user_123",
+            "email": email,
+            "token": "mock_jwt_token_12345",
+            "expires_in": 28800
+        }
+    }
+
+# Add YouTube OAuth endpoints for testing
+@app.post("/api/youtube/auth-url")
+async def youtube_auth_url(request_data: Dict[str, str]):
+    """Mock YouTube OAuth URL generation"""
+    user_id = request_data.get("userId", "default_user")
+
+    # Mock OAuth URL
+    mock_auth_url = f"https://accounts.google.com/o/oauth2/auth?client_id=mock&redirect_uri=http://localhost:8000/api/youtube/oauth/callback&scope=youtube.readonly&state=mock_state_{user_id}&response_type=code"
+
+    return {
+        "status": "success",
+        "authUrl": mock_auth_url,
+        "state": f"mock_state_{user_id}"
+    }
+
+@app.get("/api/youtube/oauth/callback")
+async def youtube_oauth_callback(code: str = None, state: str = None):
+    """Mock YouTube OAuth callback"""
+    from fastapi.responses import RedirectResponse
+
+    if code and state:
+        # Mock successful OAuth
+        return RedirectResponse(
+            url="http://localhost:3000/dashboard?youtube_connected=true",
+            status_code=302
+        )
+    else:
+        # Mock failed OAuth
+        return RedirectResponse(
+            url="http://localhost:3000/dashboard?youtube_error=connection_failed",
+            status_code=302
+        )
 
 if __name__ == "__main__":
     import uvicorn

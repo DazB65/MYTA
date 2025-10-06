@@ -10,12 +10,12 @@ import traceback
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 try:
-    # Try to import the full FastAPI app
-    from App.main import app
-    print("✅ Successfully imported full MYTA FastAPI app")
+    # Import the production FastAPI app
+    from production_main import app
+    print("✅ Successfully imported production MYTA FastAPI app")
 
 except Exception as e:
-    print(f"⚠️ Failed to import full app, falling back to enhanced simple app: {e}")
+    print(f"⚠️ Failed to import production app, falling back to enhanced simple app: {e}")
     traceback.print_exc()
 
     # Fallback to enhanced simple FastAPI app with basic functionality

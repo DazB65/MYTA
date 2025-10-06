@@ -13,7 +13,11 @@ from google.oauth2.credentials import Credentials
 from googleapiclient.discovery import build
 from googleapiclient.errors import HttpError
 
-from backend.oauth_manager import OAuthManager
+# Import from parent directory for production deployment
+import sys
+import os
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+from oauth_manager import OAuthManager
 
 logger = logging.getLogger(__name__)
 
