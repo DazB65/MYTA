@@ -78,7 +78,7 @@
 
 <script setup>
 import { ref } from 'vue'
-import { useAnalytics } from '../../composables/useAnalytics'
+import { useYouTubeChannel } from '../../composables/useYouTubeChannel'
 
 // Define emits
 const emit = defineEmits(['close', 'connect'])
@@ -87,8 +87,8 @@ const emit = defineEmits(['close', 'connect'])
 const connecting = ref(false)
 const error = ref(null)
 
-// Analytics composable
-const { connectYouTube } = useAnalytics()
+// YouTube channel composable
+const { connectYouTube } = useYouTubeChannel()
 
 // Event handlers
 const handleOverlayClick = () => {
@@ -100,11 +100,10 @@ const handleConnect = async () => {
   error.value = null
 
   try {
-    // Use a default user ID for now - in production this would come from auth
-    const userId = 'default_user'
+    console.log('🔗 YouTubeConnectModal: Starting connection...')
 
-    // Connect to YouTube using real OAuth
-    await connectYouTube(userId)
+    // Connect to YouTube using real OAuth (no parameters needed)
+    await connectYouTube()
 
     // Emit connect event
     emit('connect')
@@ -112,7 +111,7 @@ const handleConnect = async () => {
     // Note: Modal will close when OAuth redirects back
   } catch (err) {
     console.error('Failed to connect YouTube:', err)
-    error.value = err.message
+    error.value = err.message || 'Failed to connect to YouTube'
     connecting.value = false
   }
 }

@@ -11,10 +11,5 @@
       "src": "/(.*)",
       "dest": "/production_main.py"
     }
-  ],
-  "functions": {
-    "production_main.py": {
-      "maxDuration": 30
-    }
-  }
+  ]
 }

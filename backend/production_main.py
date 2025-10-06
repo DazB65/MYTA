@@ -12,6 +12,7 @@ import secrets
 import hashlib
 from datetime import datetime, timedelta
 import logging
+import requests
 
 # Import security middleware
 from App.enhanced_security_middleware import EnhancedSecurityMiddleware, RateLimitMiddleware
@@ -213,36 +214,115 @@ async def login_user(login: UserLogin, request: Request):
         logger.error(f"Login error: {e}")
         raise HTTPException(status_code=500, detail="Login failed")
 
-# YouTube OAuth endpoints (mock for now)
+# YouTube OAuth endpoints (real implementation)
 @app.post("/api/youtube/auth-url")
 async def youtube_auth_url(request_data: Dict[str, str]):
     """Generate YouTube OAuth URL"""
     user_id = request_data.get("userId", "default_user")
-    
-    # In production, use real OAuth
-    mock_auth_url = f"https://accounts.google.com/o/oauth2/auth?client_id=mock&redirect_uri=https://myta-backend.vercel.app/api/youtube/oauth/callback&scope=youtube.readonly&state=mock_state_{user_id}&response_type=code"
-    
+
+    # Real Google OAuth configuration for LIVE deployment
+    # TODO: Replace with your actual Google OAuth credentials
+    client_id = "DEMO_CLIENT_ID"  # Replace with actual client ID from Google Cloud Console
+    redirect_uri = "https://myta-backend-82fup6q44-mytas-projects.vercel.app/api/youtube/oauth/callback"  # Production backend
+    scope = "https://www.googleapis.com/auth/youtube.readonly"
+    state = f"user_{user_id}_{secrets.token_urlsafe(16)}"
+
+    # Real Google OAuth URL
+    auth_url = f"https://accounts.google.com/o/oauth2/v2/auth?client_id={client_id}&redirect_uri={redirect_uri}&scope={scope}&response_type=code&access_type=offline&state={state}"
+
+    logger.info(f"🔗 Generated YouTube OAuth URL for user {user_id}")
+    logger.info(f"🔗 OAuth URL: {auth_url}")
+
     return {
         "status": "success",
-        "authUrl": mock_auth_url,
-        "state": f"mock_state_{user_id}"
+        "authUrl": auth_url,
+        "state": state
     }
 
 @app.get("/api/youtube/oauth/callback")
-async def youtube_oauth_callback(code: str = None, state: str = None):
+async def youtube_oauth_callback(code: str = None, state: str = None, error: str = None):
     """Handle YouTube OAuth callback"""
     from fastapi.responses import RedirectResponse
-    
-    if code and state:
-        # Mock successful OAuth
+    import requests
+
+    if error:
+        # User denied access
         return RedirectResponse(
-            url="https://myytagent.app/dashboard?youtube_connected=true",
+            url="https://myytagent.app/dashboard?youtube_error=access_denied",
             status_code=302
         )
+
+    if code and state:
+        try:
+            # Exchange code for access token
+            client_id = "YOUR_GOOGLE_CLIENT_ID"  # Replace with actual client ID
+            client_secret = "YOUR_GOOGLE_CLIENT_SECRET"  # Replace with actual client secret
+            redirect_uri = "https://myta-backend-82fup6q44-mytas-projects.vercel.app/api/youtube/oauth/callback"
+
+            token_data = {
+                "client_id": client_id,
+                "client_secret": client_secret,
+                "code": code,
+                "grant_type": "authorization_code",
+                "redirect_uri": redirect_uri
+            }
+
+            # Get access token from Google
+            token_response = requests.post(
+                "https://oauth2.googleapis.com/token",
+                data=token_data
+            )
+
+            if token_response.status_code == 200:
+                token_info = token_response.json()
+                access_token = token_info.get("access_token")
+
+                # Get YouTube channel info
+                youtube_response = requests.get(
+                    "https://www.googleapis.com/youtube/v3/channels",
+                    params={
+                        "part": "snippet,statistics",
+                        "mine": "true"
+                    },
+                    headers={
+                        "Authorization": f"Bearer {access_token}"
+                    }
+                )
+
+                if youtube_response.status_code == 200:
+                    channel_data = youtube_response.json()
+
+                    # Store the connection (in production, save to database)
+                    logger.info(f"YouTube connected successfully for state: {state}")
+                    logger.info(f"Channel data: {channel_data}")
+
+                    return RedirectResponse(
+                        url="https://myytagent.app/dashboard?youtube_connected=true",
+                        status_code=302
+                    )
+                else:
+                    logger.error(f"Failed to get YouTube channel data: {youtube_response.text}")
+                    return RedirectResponse(
+                        url="https://myytagent.app/dashboard?youtube_error=channel_fetch_failed",
+                        status_code=302
+                    )
+            else:
+                logger.error(f"Failed to exchange code for token: {token_response.text}")
+                return RedirectResponse(
+                    url="https://myytagent.app/dashboard?youtube_error=token_exchange_failed",
+                    status_code=302
+                )
+
+        except Exception as e:
+            logger.error(f"OAuth callback error: {e}")
+            return RedirectResponse(
+                url="https://myytagent.app/dashboard?youtube_error=callback_error",
+                status_code=302
+            )
     else:
-        # Mock failed OAuth
+        # Missing required parameters
         return RedirectResponse(
-            url="https://myytagent.app/dashboard?youtube_error=connection_failed",
+            url="https://myytagent.app/dashboard?youtube_error=missing_parameters",
             status_code=302
         )
 
