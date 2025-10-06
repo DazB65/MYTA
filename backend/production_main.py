@@ -223,7 +223,7 @@ async def youtube_auth_url(request_data: Dict[str, str]):
     # Real Google OAuth configuration for LIVE deployment
     # TODO: Replace with your actual Google OAuth credentials
     client_id = "DEMO_CLIENT_ID"  # Replace with actual client ID from Google Cloud Console
-    redirect_uri = "https://myta-backend-82fup6q44-mytas-projects.vercel.app/api/youtube/oauth/callback"  # Production backend
+    redirect_uri = "https://myta-backend-6smgt85sc-mytas-projects.vercel.app/api/youtube/oauth/callback"  # Production backend
     scope = "https://www.googleapis.com/auth/youtube.readonly"
     state = f"user_{user_id}_{secrets.token_urlsafe(16)}"
 
@@ -257,7 +257,7 @@ async def youtube_oauth_callback(code: str = None, state: str = None, error: str
             # Exchange code for access token
             client_id = "YOUR_GOOGLE_CLIENT_ID"  # Replace with actual client ID
             client_secret = "YOUR_GOOGLE_CLIENT_SECRET"  # Replace with actual client secret
-            redirect_uri = "https://myta-backend-82fup6q44-mytas-projects.vercel.app/api/youtube/oauth/callback"
+            redirect_uri = "https://myta-backend-6smgt85sc-mytas-projects.vercel.app/api/youtube/oauth/callback"
 
             token_data = {
                 "client_id": client_id,
