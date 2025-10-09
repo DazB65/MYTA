@@ -1,23 +1,27 @@
 """
-Simple Vercel serverless function test
+FastAPI test endpoint for Vercel serverless
 """
 
-from http.server import BaseHTTPRequestHandler
-import json
+from fastapi import FastAPI
+from mangum import Mangum
 
+app = FastAPI(title="MYTA Backend Test")
 
-class handler(BaseHTTPRequestHandler):
-    def do_GET(self):
-        self.send_response(200)
-        self.send_header('Content-type', 'application/json')
-        self.end_headers()
+@app.get("/")
+def read_root():
+    return {
+        "status": "ok",
+        "message": "MYTA Backend with FastAPI is running on Vercel!",
+        "framework": "FastAPI"
+    }
 
-        response = {
-            "status": "ok",
-            "message": "MYTA Backend is running on Vercel!",
-            "path": self.path
-        }
+@app.get("/health")
+def health():
+    return {
+        "status": "healthy",
+        "service": "MYTA Backend"
+    }
 
-        self.wfile.write(json.dumps(response).encode())
-        return
+# Mangum handler for Vercel
+handler = Mangum(app, lifespan="off")
 
