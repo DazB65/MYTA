@@ -1,27 +1,28 @@
 """
 Minimal test endpoint to verify Vercel deployment works
+Using Vercel's Python ASGI handler
 """
 
 from fastapi import FastAPI
-from fastapi.responses import JSONResponse
+from mangum import Mangum
 
 app = FastAPI()
 
 @app.get("/")
 def read_root():
-    return JSONResponse({
+    return {
         "status": "ok",
         "message": "MYTA Backend is running!",
         "service": "test-endpoint"
-    })
+    }
 
 @app.get("/health")
 def health():
-    return JSONResponse({
+    return {
         "status": "healthy",
         "service": "MYTA Backend Test"
-    })
+    }
 
-# Export for Vercel
-handler = app
+# Mangum adapter for AWS Lambda/Vercel
+handler = Mangum(app)
 
