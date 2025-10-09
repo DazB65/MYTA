@@ -6,11 +6,11 @@ API endpoints for agent-specific tools and capabilities
 from fastapi import APIRouter, Depends, Request, HTTPException
 from typing import Dict, List, Optional, Any
 
-from backend.App.agent_tools import get_agent_tools, AnalysisResult
-from backend.App.channel_analyzer import get_channel_analyzer
-from backend.App.auth_middleware import get_current_user
-from backend.App.api_models import create_success_response, create_error_response
-from backend.logging_config import get_logger, LogCategory
+from .agent_tools import get_agent_tools, AnalysisResult
+from .channel_analyzer import get_channel_analyzer
+from .auth_middleware import get_current_user
+from .api_models import create_success_response, create_error_response
+from .logging_config import get_logger, LogCategory
 
 logger = get_logger(__name__, LogCategory.API)
 router = APIRouter(prefix="/api/agent-tools", tags=["agent_tools"])
@@ -29,7 +29,7 @@ async def get_available_tools(
         available_tools = agent_tools.get_available_tools(agent_id)
         
         # Get agent info
-        from backend.App.agent_personalities import get_agent_personality
+        from .agent_personalities import get_agent_personality
         agent = get_agent_personality(agent_id)
         
         # Tool descriptions
@@ -219,7 +219,7 @@ async def get_analysis_history(
         # In a real implementation, this would fetch from database
         # For now, return mock data structure
         
-        from backend.App.agent_personalities import get_agent_personality
+        from .agent_personalities import get_agent_personality
         agent = get_agent_personality(agent_id)
         
         # Mock analysis history

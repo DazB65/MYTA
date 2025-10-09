@@ -9,11 +9,11 @@ from typing import Dict, List, Optional, Any
 import json
 from datetime import datetime
 
-from backend.App.lemonsqueezy_service import get_lemonsqueezy_service
-from backend.App.auth_middleware import get_current_user
-from backend.App.api_models import create_success_response, create_error_response
-from backend.App.usage_tracking_service import get_usage_tracking_service, UsageType
-from backend.logging_config import get_logger, LogCategory
+from .lemonsqueezy_service import get_lemonsqueezy_service
+from .auth_middleware import get_current_user
+from .api_models import create_success_response, create_error_response
+from .usage_tracking_service import get_usage_tracking_service, UsageType
+from .logging_config import get_logger, LogCategory
 
 logger = get_logger(__name__, LogCategory.API)
 router = APIRouter(prefix="/api/subscription", tags=["subscription"])

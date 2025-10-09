@@ -16,7 +16,7 @@ from google_auth_oauthlib.flow import Flow
 from google.auth.transport.requests import Request
 from googleapiclient.discovery import build
 
-from backend.App.security_config import get_oauth_config
+from .security_config import get_oauth_config
 
 # Configure logging
 logger = logging.getLogger(__name__)
@@ -309,7 +309,7 @@ class OAuthManager:
                 avg_view_count = view_count // video_count if video_count > 0 else 0
                 
                 # Update channel info in database
-                from backend.App.ai_services import update_user_context
+                from .ai_services import update_user_context
                 
                 channel_info = {
                     "name": channel_title,  # Real channel name

@@ -14,8 +14,8 @@ import time
 from googleapiclient.errors import HttpError
 from dataclasses import dataclass
 import re
-from backend.App.boss_agent_auth import SpecializedAgentAuthMixin
-from backend.App.connection_pool import get_youtube_client
+from .boss_agent_auth import SpecializedAgentAuthMixin
+from .connection_pool import get_youtube_client
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -477,7 +477,7 @@ class ClaudeHaikuSEOEngine:
         
         try:
             # Use centralized model integration
-            from backend.App.model_integrations import create_agent_call_to_integration
+            from .model_integrations import create_agent_call_to_integration
             result = await create_agent_call_to_integration(
                 agent_type="seo_discoverability",
                 use_case="seo_analysis",

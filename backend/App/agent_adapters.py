@@ -7,11 +7,11 @@ from typing import Dict, Any
 import logging
 
 # Import agent factories
-from backend.App.content_analysis_agent import get_content_analysis_agent
-from backend.App.audience_insights_agent import get_audience_insights_agent
-from backend.App.seo_discoverability_agent import get_seo_discoverability_agent
-from backend.App.competitive_analysis_agent import get_competitive_analysis_agent
-from backend.App.monetization_strategy_agent import get_monetization_strategy_agent
+from .content_analysis_agent import get_content_analysis_agent
+from .audience_insights_agent import get_audience_insights_agent
+from .seo_discoverability_agent import get_seo_discoverability_agent
+from .competitive_analysis_agent import get_competitive_analysis_agent
+from .monetization_strategy_agent import get_monetization_strategy_agent
 
 logger = logging.getLogger(__name__)
 

@@ -11,7 +11,7 @@ import json
 from fastapi import HTTPException, status
 
 try:
-    from backend.logging_config import get_logger, LogCategory
+    from .logging_config import get_logger, LogCategory
 except ImportError:
     # Fallback for when running from backend directory
     from logging_config import get_logger, LogCategory

@@ -5,7 +5,7 @@ This is the new modular implementation - the original boss_agent.py will be depr
 
 # Import all functionality from the new modular structure
 from boss_agent_core import BossAgent, get_boss_agent, process_user_message
-from backend.App.agent_models import QueryType, Priority, Context, TokenBudget, AgentRequest, AgentResponse
+from .agent_models import QueryType, Priority, Context, TokenBudget, AgentRequest, AgentResponse
 from intent_classifier import IntentClassifier, get_intent_classifier  
 from voice_analyzer import VoiceAnalyzer, get_voice_analyzer
 from agent_coordinators import get_agent_coordinators

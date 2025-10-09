@@ -10,8 +10,8 @@ from typing import Dict, List, Any, Set
 from dataclasses import dataclass
 import sqlite3
 
-from backend.App.analytics_service import get_analytics_service
-from backend.oauth_manager import OAuthManager
+from .analytics_service import get_analytics_service
+from .oauth_manager import OAuthManager
 
 logger = logging.getLogger(__name__)
 

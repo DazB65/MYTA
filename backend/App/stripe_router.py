@@ -11,10 +11,10 @@ import json
 import stripe
 from datetime import datetime
 
-from backend.App.stripe_service import get_stripe_service
-from backend.App.auth_middleware import get_current_user, get_optional_user
-from backend.App.api_models import create_success_response, create_error_response
-from backend.logging_config import get_logger, LogCategory
+from .stripe_service import get_stripe_service
+from .auth_middleware import get_current_user, get_optional_user
+from .api_models import create_success_response, create_error_response
+from .logging_config import get_logger, LogCategory
 
 # Configure logging
 logger = get_logger(__name__, LogCategory.API)

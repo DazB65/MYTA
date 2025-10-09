@@ -6,11 +6,11 @@ Manages user's channel data and analytics for personalized AI responses
 from fastapi import APIRouter, Depends, Request, HTTPException
 from typing import Dict, List, Optional, Any
 
-from backend.App.channel_analyzer import get_channel_analyzer
-from backend.App.personalized_responses import get_response_generator
-from backend.App.auth_middleware import get_current_user
-from backend.App.api_models import create_success_response, create_error_response
-from backend.logging_config import get_logger, LogCategory
+from .channel_analyzer import get_channel_analyzer
+from .personalized_responses import get_response_generator
+from .auth_middleware import get_current_user
+from .api_models import create_success_response, create_error_response
+from .logging_config import get_logger, LogCategory
 
 logger = get_logger(__name__, LogCategory.API)
 router = APIRouter(prefix="/api/channel", tags=["channel_data"])
@@ -68,7 +68,7 @@ async def update_channel_profile(
         body = await request.json()
         
         # Update user settings with channel data
-        from backend.App.supabase_client import get_supabase_service
+        from .supabase_client import get_supabase_service
         supabase = get_supabase_service()
         
         update_data = {}
@@ -130,7 +130,7 @@ async def get_agent_suggestions(
         suggestions = await response_generator.get_response_suggestions(profile, agent_id)
         
         # Get agent info
-        from backend.App.agent_personalities import get_agent_personality
+        from .agent_personalities import get_agent_personality
         agent = get_agent_personality(agent_id)
         
         result = {

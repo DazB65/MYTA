@@ -149,7 +149,7 @@ async def sync_video(
     try:
         user_id = current_user.get("id", "default_user")
         
-        from ..video_data_service import SyncPriority
+        from .video_data_service import SyncPriority
         await video_service._queue_video_sync(
             video_id, user_id, sync_type, SyncPriority.URGENT
         )

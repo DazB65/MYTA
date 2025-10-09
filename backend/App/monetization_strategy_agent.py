@@ -14,7 +14,7 @@ import time
 from googleapiclient.discovery import build
 from googleapiclient.errors import HttpError
 from dataclasses import dataclass
-from backend.App.boss_agent_auth import SpecializedAgentAuthMixin
+from .boss_agent_auth import SpecializedAgentAuthMixin
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)

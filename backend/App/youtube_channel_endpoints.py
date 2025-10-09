@@ -7,8 +7,8 @@ import logging
 from typing import Dict, Any, Optional
 from fastapi import APIRouter, HTTPException, Depends
 from pydantic import BaseModel
-from backend.App.oauth_manager import get_oauth_manager
-from backend.App.youtube_api_integration import get_youtube_integration
+from .oauth_manager import get_oauth_manager
+from .youtube_api_integration import get_youtube_integration
 
 logger = logging.getLogger(__name__)
 

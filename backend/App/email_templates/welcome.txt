@@ -1,0 +1,57 @@
+🎬 Welcome to MYTA!
+================================
+
+Hi {{ user_name }},
+
+🎉 Congratulations! Your MYTA account is now active. You're about to experience a revolutionary way to grow your YouTube channel with the power of AI.
+
+READY TO GET STARTED?
+---------------------
+Connect your YouTube channel and let your AI team get to work!
+
+Go to Dashboard: {{ dashboard_url }}
+
+👥 MEET YOUR AI AGENT TEAM
+--------------------------
+You now have access to 6 specialized AI agents, each an expert in their field:
+
+🎯 Boss Agent - Strategic Coordinator
+📊 Alex - Analytics Expert
+🎨 Levi - Strategy Coordinator
+⚡ Maya - Performance Specialist
+💬 Zara - Community Manager
+📈 Kai - Trend Analyst
+
+✨ WHAT YOU CAN DO NOW
+----------------------
+✓ Connect your YouTube channel with one click
+✓ Get AI-powered content insights and recommendations
+✓ Organize content with intelligent pillars
+✓ Track performance with advanced analytics
+✓ Chat with your AI team for instant advice
+✓ Plan and schedule content strategically
+
+🚀 QUICK START GUIDE
+--------------------
+1. Connect YouTube: Link your channel in Settings
+2. Set Up Pillars: Define your content categories
+3. Chat with Boss Agent: Get strategic insights
+4. Explore Analytics: See what's working
+5. Plan Content: Use the Content Studio
+
+STAY CONNECTED
+--------------
+Follow us on X: https://x.com/myytagent
+Subscribe on YouTube: https://youtube.com/@myytagent
+
+Need help? We're here for you! Just reply to this email or check out our Help Center: {{ help_url }}
+
+Let's grow your channel together! 🚀
+
+Best regards,
+The MYTA Team
+
+---
+MYTA - Your AI-Powered YouTube Agent Team
+© {{ current_year }} MYTA. All rights reserved.
+

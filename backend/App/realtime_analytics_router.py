@@ -7,10 +7,10 @@ from fastapi import APIRouter, Depends, Request, HTTPException, BackgroundTasks
 from typing import Dict, List, Optional, Any
 import asyncio
 
-from backend.App.youtube_analytics_service import get_youtube_analytics_service
-from backend.App.auth_middleware import get_current_user
-from backend.App.api_models import create_success_response, create_error_response
-from backend.logging_config import get_logger, LogCategory
+from .youtube_analytics_service import get_youtube_analytics_service
+from .auth_middleware import get_current_user
+from .api_models import create_success_response, create_error_response
+from .logging_config import get_logger, LogCategory
 
 logger = get_logger(__name__, LogCategory.API)
 router = APIRouter(prefix="/api/realtime-analytics", tags=["realtime_analytics"])

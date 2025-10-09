@@ -13,8 +13,8 @@ from pydantic import BaseModel, EmailStr, validator
 import httpx
 import user_agents
 
-from backend.App.supabase_client import get_supabase_service
-from backend.logging_config import get_logger, LogCategory
+from .supabase_client import get_supabase_service
+from .logging_config import get_logger, LogCategory
 
 logger = get_logger(__name__, LogCategory.API)
 

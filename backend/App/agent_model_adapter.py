@@ -6,8 +6,8 @@ Bridges individual agents with the centralized model_integrations system
 import asyncio
 import logging
 from typing import Dict, Any, List, Optional
-from backend.model_integrations import get_model_integration, ModelResponse
-from backend.connection_pool import get_openai_client
+from .model_integrations import get_model_integration, ModelResponse
+from .connection_pool import get_openai_client
 
 logger = logging.getLogger(__name__)
 

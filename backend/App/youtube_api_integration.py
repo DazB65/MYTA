@@ -14,8 +14,8 @@ import hashlib
 import json
 from googleapiclient.discovery import build
 from googleapiclient.errors import HttpError
-from backend.App.oauth_manager import get_oauth_manager
-from backend.App.security_config import get_api_key
+from .oauth_manager import get_oauth_manager
+from .security_config import get_api_key
 
 # Configure logging
 logger = logging.getLogger(__name__)

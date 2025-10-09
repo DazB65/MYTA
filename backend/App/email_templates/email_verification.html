@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Verify Your Email - MYTA</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            line-height: 1.6;
+            color: #ffffff;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #0f1419;
+        }
+        .container {
+            background: linear-gradient(135deg, #1a2f23 0%, #0f1f17 100%);
+            border-radius: 12px;
+            padding: 40px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+            border: 1px solid #2d4a37;
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .logo {
+            font-size: 48px;
+            margin-bottom: 10px;
+        }
+        .title {
+            font-size: 28px;
+            font-weight: 600;
+            color: #ffffff;
+            margin-bottom: 10px;
+        }
+        .subtitle {
+            font-size: 16px;
+            color: #94a3b8;
+        }
+        .content {
+            margin: 30px 0;
+            color: #e2e8f0;
+        }
+        .verification-box {
+            background: #2d4a37;
+            border-radius: 8px;
+            padding: 30px;
+            margin: 30px 0;
+            text-align: center;
+            border-left: 4px solid #f97316;
+        }
+        .button {
+            display: inline-block;
+            background: linear-gradient(135deg, #f97316 0%, #ea580c 100%);
+            color: #ffffff;
+            padding: 16px 32px;
+            text-decoration: none;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 16px;
+            margin: 20px 0;
+            box-shadow: 0 4px 6px rgba(249, 115, 22, 0.3);
+            transition: transform 0.2s;
+        }
+        .button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 8px rgba(249, 115, 22, 0.4);
+        }
+        .code {
+            font-family: 'Courier New', monospace;
+            font-size: 32px;
+            font-weight: bold;
+            color: #f97316;
+            letter-spacing: 8px;
+            margin: 20px 0;
+            padding: 20px;
+            background: #0f1419;
+            border-radius: 8px;
+            border: 2px dashed #f97316;
+        }
+        .info-box {
+            background: #1e3a2f;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+            border-left: 4px solid #3b82f6;
+        }
+        .footer {
+            text-align: center;
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 1px solid #2d4a37;
+            color: #64748b;
+            font-size: 14px;
+        }
+        .warning {
+            background: #3d1f1f;
+            border-left: 4px solid #ef4444;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 20px 0;
+            color: #fca5a5;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="logo">🎬</div>
+            <h1 class="title">Verify Your Email</h1>
+            <p class="subtitle">Welcome to MYTA - Your AI YouTube Agent Team</p>
+        </div>
+
+        <div class="content">
+            <p>Hi {{ user_name }},</p>
+            
+            <p>Thanks for signing up for MYTA! We're excited to have you on board. To get started, please verify your email address.</p>
+
+            <div class="verification-box">
+                <p style="margin-top: 0; color: #94a3b8;">Click the button below to verify your email:</p>
+                <a href="{{ verification_url }}" class="button">Verify Email Address</a>
+                <p style="margin-bottom: 0; color: #64748b; font-size: 14px;">This link expires in 24 hours</p>
+            </div>
+
+            <div class="info-box">
+                <p style="margin-top: 0;"><strong>🔐 Or use this verification code:</strong></p>
+                <div class="code">{{ verification_code }}</div>
+                <p style="margin-bottom: 0; font-size: 14px; color: #94a3b8;">Enter this code on the verification page</p>
+            </div>
+
+            <p><strong>What happens after verification?</strong></p>
+            <ul style="color: #e2e8f0;">
+                <li>Connect your YouTube channel</li>
+                <li>Get AI-powered content insights</li>
+                <li>Access your team of 6 specialized AI agents</li>
+                <li>Start optimizing your content strategy</li>
+            </ul>
+
+            <div class="warning">
+                <strong>⚠️ Didn't sign up for MYTA?</strong><br>
+                If you didn't create this account, you can safely ignore this email. The account will be automatically deleted if not verified within 7 days.
+            </div>
+        </div>
+
+        <div class="footer">
+            <p><strong>MYTA</strong> - Your AI-Powered YouTube Agent Team</p>
+            <p>© {{ current_year }} MYTA. All rights reserved.</p>
+            <p style="font-size: 12px; color: #475569;">
+                If the button doesn't work, copy and paste this link into your browser:<br>
+                <span style="color: #f97316;">{{ verification_url }}</span>
+            </p>
+        </div>
+    </div>
+</body>
+</html>
+

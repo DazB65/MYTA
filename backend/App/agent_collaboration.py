@@ -9,11 +9,11 @@ from dataclasses import dataclass
 import json
 import asyncio
 
-from backend.App.channel_analyzer import ChannelProfile
-from backend.App.agent_tools import get_agent_tools, AnalysisResult
-from backend.App.dynamic_response_engine import get_dynamic_response_engine, ResponseContext
-from backend.App.agent_personalities import get_agent_personality
-from backend.logging_config import get_logger, LogCategory
+from .channel_analyzer import ChannelProfile
+from .agent_tools import get_agent_tools, AnalysisResult
+from .dynamic_response_engine import get_dynamic_response_engine, ResponseContext
+from .agent_personalities import get_agent_personality
+from .logging_config import get_logger, LogCategory
 
 logger = get_logger(__name__, LogCategory.AGENT)
 

@@ -10,7 +10,7 @@ from typing import Dict, List, Optional, Any, Union
 import logging
 from datetime import datetime
 
-from backend.logging_config import get_logger, LogCategory
+from .logging_config import get_logger, LogCategory
 
 logger = get_logger(__name__, LogCategory.DATABASE)
 

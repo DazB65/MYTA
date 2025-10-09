@@ -1,0 +1,37 @@
+📧 MYTA - Confirm Email Change
+================================
+
+Hi {{ user_name }},
+
+We received a request to change the email address for your MYTA account.
+
+📋 EMAIL CHANGE DETAILS
+-----------------------
+Current Email: {{ old_email }}
+New Email: {{ new_email }}
+
+CONFIRM YOUR NEW EMAIL
+----------------------
+To complete this change and verify your new email address, click this link:
+{{ confirmation_url }}
+
+This link expires in 24 hours.
+
+🔒 WHAT HAPPENS NEXT?
+---------------------
+• Your login email will be updated to the new address
+• All future notifications will be sent to the new email
+• You'll use the new email to sign in to MYTA
+
+⚠️ DIDN'T REQUEST THIS CHANGE?
+If you didn't request to change your email address, please ignore this email and contact our support team immediately. Your email address will remain unchanged if you don't click the confirmation link.
+
+---
+MYTA - Your AI-Powered YouTube Agent Team
+© {{ current_year }} MYTA. All rights reserved.
+
+If the link doesn't work, copy and paste this URL into your browser:
+{{ confirmation_url }}
+
+Need help? Contact us at support@myta.app
+

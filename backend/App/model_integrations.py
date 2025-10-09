@@ -11,8 +11,8 @@ from enum import Enum
 from openai import OpenAI
 import time
 
-from backend.App.config import get_settings
-from backend.App.constants import DEFAULT_TEMPERATURE
+from .config import get_settings
+from .constants import DEFAULT_TEMPERATURE
 
 
 def get_api_key(provider: str) -> str:

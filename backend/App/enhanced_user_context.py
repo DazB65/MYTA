@@ -809,7 +809,7 @@ class EnhancedUserContextManager:
     async def _get_pillar_performance(self, user_id: str) -> List[Dict[str, Any]]:
         """Get simple pillar performance data using real YouTube metrics"""
         try:
-            from backend.App.database import db_manager
+            from .database import db_manager
             pillars = db_manager.get_content_pillars(user_id)
             
             pillar_data = []

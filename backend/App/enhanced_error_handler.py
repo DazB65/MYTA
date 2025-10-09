@@ -11,14 +11,14 @@ from fastapi.exceptions import RequestValidationError
 from starlette.exceptions import HTTPException as StarletteHTTPException
 import logging
 
-from backend.App.exceptions import (
+from .exceptions import (
     VidalyticsException, ErrorCategory, ErrorSeverity,
     AuthenticationError, AuthorizationError, ValidationError,
     ExternalAPIError, DatabaseError, AgentCommunicationError,
     RateLimitError, CacheError, ConfigurationError,
     BusinessLogicError, SystemError
 )
-from backend.logging_config import get_logger, LogCategory
+from .logging_config import get_logger, LogCategory
 
 
 logger = get_logger(__name__, LogCategory.ERROR)

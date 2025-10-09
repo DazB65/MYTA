@@ -25,7 +25,7 @@ except ImportError:
     SQLALCHEMY_ASYNC_AVAILABLE = False
 
 from exceptions import DatabaseError, DatabaseConnectionError
-from backend.App.circuit_breaker import circuit_breaker, CircuitBreakerConfig
+from .circuit_breaker import circuit_breaker, CircuitBreakerConfig
 from logging_config import get_logger, LogCategory
 
 

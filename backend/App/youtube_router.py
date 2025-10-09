@@ -9,13 +9,13 @@ import logging
 import traceback
 
 # Import models
-from backend.App.api_models import (
+from .api_models import (
     YouTubeAnalyticsRequest, StandardResponse, create_error_response, create_success_response
 )
 
 # Import services
-from backend.App.youtube_api_integration import get_youtube_integration
-from backend.App.enhanced_user_context import get_user_context
+from .youtube_api_integration import get_youtube_integration
+from .enhanced_user_context import get_user_context
 
 
 # Configure logging
@@ -56,7 +56,7 @@ async def _resolve_channel_id(provided_channel_id: str, user_id: str) -> str:
     
     # Strategy 3: Try to get from OAuth token and auto-fetch
     try:
-        from backend.App.oauth_manager import get_oauth_manager
+        from .oauth_manager import get_oauth_manager
         oauth_manager = get_oauth_manager()
         token = await oauth_manager.get_token(user_id)
         
@@ -97,7 +97,7 @@ async def _ensure_channel_id_stored(user_id: str, channel_id: str):
             current_channel_id = user_context['channel_info'].get('channel_id')
             if not current_channel_id or current_channel_id in ["", "Unknown", "null"]:
                 # Update the user context with the resolved channel_id
-                from backend.App.ai_services import update_user_context
+                from .ai_services import update_user_context
                 
                 channel_info = user_context['channel_info'].copy()
                 channel_info['channel_id'] = channel_id
@@ -420,7 +420,7 @@ async def get_channel_status(user_id: str):
 async def get_oauth_status(user_id: str):
     """Get OAuth authentication status for frontend"""
     try:
-        from backend.App.oauth_manager import get_oauth_manager
+        from .oauth_manager import get_oauth_manager
         
         oauth_manager = get_oauth_manager()
         token = await oauth_manager.get_token(user_id)
@@ -557,7 +557,7 @@ async def analyze_channel_categories(channel_id: str, user_id: str = "default_us
 async def debug_oauth_status(user_id: str):
     """Debug OAuth status for a user"""
     try:
-        from backend.App.oauth_manager import get_oauth_manager
+        from .oauth_manager import get_oauth_manager
         
         oauth_manager = get_oauth_manager()
         token = await oauth_manager.get_token(user_id)
@@ -594,7 +594,7 @@ async def debug_oauth_status(user_id: str):
 async def test_oauth_setup():
     """Test if OAuth is properly configured"""
     try:
-        from backend.App.oauth_manager import get_oauth_manager
+        from .oauth_manager import get_oauth_manager
         
         oauth_manager = get_oauth_manager()
         
@@ -632,7 +632,7 @@ async def test_oauth_setup():
 async def test_oauth_flow(user_id: str):
     """Test OAuth flow for a user"""
     try:
-        from backend.App.oauth_manager import get_oauth_manager
+        from .oauth_manager import get_oauth_manager
         
         oauth_manager = get_oauth_manager()
         
@@ -661,7 +661,7 @@ async def test_oauth_flow(user_id: str):
 async def oauth_redirect(user_id: str):
     """Redirect to OAuth flow"""
     try:
-        from backend.App.oauth_manager import get_oauth_manager
+        from .oauth_manager import get_oauth_manager
         
         oauth_manager = get_oauth_manager()
         auth_url, state = oauth_manager.generate_authorization_url(user_id)
@@ -676,7 +676,7 @@ async def oauth_redirect(user_id: str):
 async def fetch_channel_info(user_id: str):
     """Manually fetch and store channel info for a user"""
     try:
-        from backend.App.oauth_manager import get_oauth_manager
+        from .oauth_manager import get_oauth_manager
         
         oauth_manager = get_oauth_manager()
         token = await oauth_manager.get_token(user_id)
@@ -710,7 +710,7 @@ async def fetch_channel_info(user_id: str):
 async def debug_refresh_token(user_id: str):
     """Debug token refresh for a user"""
     try:
-        from backend.App.oauth_manager import get_oauth_manager
+        from .oauth_manager import get_oauth_manager
         
         oauth_manager = get_oauth_manager()
         

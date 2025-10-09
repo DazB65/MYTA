@@ -6,9 +6,9 @@ Creates user-specific, data-driven responses based on channel analysis
 from typing import Dict, List, Any, Optional
 from datetime import datetime
 
-from backend.App.channel_analyzer import get_channel_analyzer, ChannelProfile
-from backend.App.agent_personalities import get_agent_personality
-from backend.logging_config import get_logger, LogCategory
+from .channel_analyzer import get_channel_analyzer, ChannelProfile
+from .agent_personalities import get_agent_personality
+from .logging_config import get_logger, LogCategory
 
 logger = get_logger(__name__, LogCategory.AGENT)
 
@@ -40,7 +40,7 @@ class PersonalizedResponseGenerator:
             )
 
             # Enhance with YouTube knowledge
-            from backend.App.knowledge_integration import get_knowledge_integration
+            from .knowledge_integration import get_knowledge_integration
             knowledge_integration = get_knowledge_integration()
 
             enhanced_prompt = knowledge_integration.enhance_prompt_with_knowledge(
@@ -48,8 +48,8 @@ class PersonalizedResponseGenerator:
             )
 
             # Apply dynamic response adaptations
-            from backend.App.dynamic_response_engine import get_dynamic_response_engine, ResponseContext
-            from backend.App.context_analyzer import get_context_analyzer
+            from .dynamic_response_engine import get_dynamic_response_engine, ResponseContext
+            from .context_analyzer import get_context_analyzer
 
             try:
                 # Analyze conversation context
@@ -304,7 +304,7 @@ class PersonalizedResponseGenerator:
             agent = get_agent_personality(agent_id)
 
             # Get agent tools for enhanced suggestions
-            from backend.App.agent_tools import get_agent_tools
+            from .agent_tools import get_agent_tools
             agent_tools = get_agent_tools()
             available_tools = agent_tools.get_available_tools(agent_id)
 
@@ -359,7 +359,7 @@ class PersonalizedResponseGenerator:
         """Get tool-enhanced suggestions based on user message"""
 
         try:
-            from backend.App.agent_tools import get_agent_tools
+            from .agent_tools import get_agent_tools
             agent_tools = get_agent_tools()
 
             # Suggest best tool for the message

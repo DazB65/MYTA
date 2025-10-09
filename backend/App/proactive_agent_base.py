@@ -9,7 +9,7 @@ from abc import ABC, abstractmethod
 from typing import Dict, List, Any, Optional
 from datetime import datetime
 
-from backend.App.proactive_agent_collaboration import (
+from .proactive_agent_collaboration import (
     analyze_for_collaboration_opportunities,
     generate_proactive_insights,
     get_relevant_insights_for_agent,

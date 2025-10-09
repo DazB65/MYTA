@@ -15,7 +15,7 @@ from fastapi.responses import JSONResponse
 from starlette.middleware.base import BaseHTTPMiddleware
 from starlette.types import ASGIApp
 
-from backend.App.logging_config import (
+from .logging_config import (
     get_logging_manager, 
     LogCategory,
     user_id_context,

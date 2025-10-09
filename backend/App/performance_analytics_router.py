@@ -9,7 +9,7 @@ from typing import Dict, List, Any, Optional
 import logging
 from datetime import datetime
 
-from backend.App.agent_performance_analytics import (
+from .agent_performance_analytics import (
     record_agent_performance,
     record_collaboration_metrics,
     get_agent_analytics,
@@ -19,7 +19,7 @@ from backend.App.agent_performance_analytics import (
     update_user_feedback,
     AnalyticsTimeframe
 )
-from backend.App.auth_middleware import get_current_user
+from .auth_middleware import get_current_user
 
 logger = logging.getLogger(__name__)
 

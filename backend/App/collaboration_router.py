@@ -6,11 +6,11 @@ API endpoints for multi-agent collaboration and analysis
 from fastapi import APIRouter, Depends, Request, HTTPException
 from typing import Dict, List, Optional, Any
 
-from backend.App.agent_collaboration import get_collaboration_engine, CollaborationRequest
-from backend.App.channel_analyzer import get_channel_analyzer
-from backend.App.auth_middleware import get_current_user
-from backend.App.api_models import create_success_response, create_error_response
-from backend.logging_config import get_logger, LogCategory
+from .agent_collaboration import get_collaboration_engine, CollaborationRequest
+from .channel_analyzer import get_channel_analyzer
+from .auth_middleware import get_current_user
+from .api_models import create_success_response, create_error_response
+from .logging_config import get_logger, LogCategory
 
 logger = get_logger(__name__, LogCategory.API)
 router = APIRouter(prefix="/api/collaboration", tags=["agent_collaboration"])
@@ -348,7 +348,7 @@ async def simulate_collaboration(
 
 def _get_agent_name(agent_id: str) -> str:
     """Get agent name by ID"""
-    from backend.App.agent_personalities import get_agent_personality
+    from .agent_personalities import get_agent_personality
     try:
         agent = get_agent_personality(agent_id)
         return agent["name"]

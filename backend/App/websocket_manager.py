@@ -10,8 +10,8 @@ from datetime import datetime
 from fastapi import WebSocket, WebSocketDisconnect
 import asyncio
 
-from backend.App.supabase_client import get_supabase_service
-from backend.logging_config import get_logger, LogCategory
+from .supabase_client import get_supabase_service
+from .logging_config import get_logger, LogCategory
 
 logger = get_logger(__name__, LogCategory.WEBSOCKET)
 
@@ -247,8 +247,8 @@ async def handle_chat_message(user_id: str, session_id: str, message_data: Dict)
 async def generate_ai_response(user_id: str, session_id: str, agent_id: str, user_message: str):
     """Generate AI response using real AI service"""
     try:
-        from backend.App.ai_service import get_ai_service
-        from backend.App.agent_personalities import get_agent_personality
+        from .ai_service import get_ai_service
+        from .agent_personalities import get_agent_personality
 
         # Get conversation history for context
         supabase = get_supabase_service()
@@ -277,7 +277,7 @@ async def generate_ai_response(user_id: str, session_id: str, agent_id: str, use
         })
 
         # Get agent memory and context
-        from backend.App.agent_memory import get_agent_memory
+        from .agent_memory import get_agent_memory
         agent_memory = get_agent_memory()
         context = await agent_memory.get_conversation_context(user_id, session_id, agent_id)
 
@@ -359,7 +359,7 @@ async def generate_ai_response(user_id: str, session_id: str, agent_id: str, use
 async def handle_agent_switch(user_id: str, session_id: str, message_data: Dict):
     """Handle agent switching with memory transfer"""
     try:
-        from backend.App.agent_memory import get_agent_memory
+        from .agent_memory import get_agent_memory
 
         new_agent_id = message_data.get("agent_id")
 
@@ -379,7 +379,7 @@ async def handle_agent_switch(user_id: str, session_id: str, message_data: Dict)
 
             if handoff_result["success"]:
                 # Send handoff message from new agent
-                from backend.App.agent_personalities import get_agent_personality
+                from .agent_personalities import get_agent_personality
                 new_agent = get_agent_personality(new_agent_id)
 
                 # Store handoff message in database

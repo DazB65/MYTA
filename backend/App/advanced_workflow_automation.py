@@ -12,8 +12,8 @@ from enum import Enum
 import json
 import uuid
 
-from backend.App.intelligent_agent_workflows import create_intelligent_workflow, execute_intelligent_workflow
-from backend.App.proactive_agent_collaboration import create_collaboration_session
+from .intelligent_agent_workflows import create_intelligent_workflow, execute_intelligent_workflow
+from .proactive_agent_collaboration import create_collaboration_session
 
 logger = logging.getLogger(__name__)
 

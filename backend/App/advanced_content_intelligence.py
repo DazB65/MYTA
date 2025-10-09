@@ -13,7 +13,7 @@ from dataclasses import dataclass, asdict
 from enum import Enum
 import numpy as np
 
-from backend.App.enhanced_user_context import EnhancedUserContextManager
+from .enhanced_user_context import EnhancedUserContextManager
 # AI services integration would go here in production
 
 logger = logging.getLogger(__name__)

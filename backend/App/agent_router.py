@@ -183,7 +183,7 @@ async def chat(request: Request, message: ChatMessage):
 def agent_status(request: Request):
     """Endpoint to check if the AI agent system is running"""
     try:
-        from backend.App.api_startup import get_system_status
+        from .api_startup import get_system_status
         system_status = get_system_status()
         
         return {
@@ -246,8 +246,8 @@ async def quick_action(request: Request, action_request: QuickActionRequest):
 async def handle_enhanced_content_action(action_request: QuickActionRequest, context: Dict) -> StandardResponse:
     """Handle content-related actions with multi-agent coordination"""
     try:
-        from backend.boss_agent import get_boss_agent
-        from backend.App.enhanced_user_context import get_enhanced_context_manager
+        from .boss_agent import get_boss_agent
+        from .enhanced_user_context import get_enhanced_context_manager
         
         # Get enhanced context with real-time data
         enhanced_context_manager = get_enhanced_context_manager()

@@ -9,7 +9,7 @@ from typing import Dict, List, Any, Optional
 import logging
 from datetime import datetime
 
-from backend.App.advanced_workflow_automation import (
+from .advanced_workflow_automation import (
     execute_one_click_workflow,
     create_automated_workflow,
     check_and_execute_automated_workflows,
@@ -18,7 +18,7 @@ from backend.App.advanced_workflow_automation import (
     WorkflowCategory,
     AutomationTrigger
 )
-from backend.App.auth_middleware import get_current_user
+from .auth_middleware import get_current_user
 
 logger = logging.getLogger(__name__)
 

@@ -5,7 +5,7 @@ Provides authentication and authorization for specialized agents
 
 import logging
 from typing import Dict, Any, Optional
-from backend.App.security_config import get_boss_agent_secret
+from .security_config import get_boss_agent_secret
 
 logger = logging.getLogger(__name__)
 

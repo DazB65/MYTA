@@ -122,7 +122,7 @@ class SystemMigration:
     def setup_health_checks(self):
         """Initialize the health check system"""
         try:
-            from backend.App.comprehensive_health_checks import get_health_checker
+            from .comprehensive_health_checks import get_health_checker
             
             health_checker = get_health_checker()
             self.log_step("Initialize health checks", True, "Health check system ready")
@@ -133,7 +133,7 @@ class SystemMigration:
     def verify_agent_system(self):
         """Verify the new agent system works"""
         try:
-            from backend.App.boss_agent_core import get_boss_agent
+            from .boss_agent_core import get_boss_agent
             from agent_coordinators import get_agent_coordinators
             from intent_classifier import get_intent_classifier
             

@@ -6,7 +6,7 @@ Analyzes user messages to determine appropriate specialized agent routing
 import json
 import logging
 from typing import Dict, Tuple
-from backend.App.agent_models import QueryType
+from .agent_models import QueryType
 from backend import migrate_openai_call_to_integration
 
 logger = logging.getLogger(__name__)

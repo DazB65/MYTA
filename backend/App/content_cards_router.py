@@ -11,7 +11,7 @@ from typing import Optional
 import os
 
 # Import models
-from backend.App.api_models import (
+from .api_models import (
     ContentCardCreate, ContentCardUpdate, ContentCardStatusUpdate,
     ContentCardResponse, ContentCardsListResponse, StandardResponse,
     create_success_response
@@ -40,7 +40,7 @@ except Exception as e:
     logger.info("Supabase not configured, using local SQLite storage")
 
 # Import local storage as fallback
-from backend.App.content_cards_local import get_local_content_cards_db
+from .content_cards_local import get_local_content_cards_db
 
 # Initialize Supabase client
 def get_supabase_client():

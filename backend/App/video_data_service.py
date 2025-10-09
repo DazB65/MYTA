@@ -91,7 +91,9 @@ class VideoDataService:
         """Initialize database with optimized schema"""
         try:
             # Run the migration to create tables
-            migration_path = "backend/database/migrations/create_optimized_video_storage.sql"
+            import os
+            base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+            migration_path = os.path.join(base_dir, "database", "migrations", "create_optimized_video_storage.sql")
             with open(migration_path, 'r') as f:
                 migration_sql = f.read()
             

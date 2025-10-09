@@ -12,7 +12,7 @@ from typing import Dict, List, Optional, Any
 from datetime import datetime
 import logging
 
-from backend.logging_config import get_logger, LogCategory
+from .logging_config import get_logger, LogCategory
 
 logger = get_logger(__name__, LogCategory.PAYMENT)
 

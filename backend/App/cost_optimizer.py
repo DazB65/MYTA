@@ -9,10 +9,10 @@ from dataclasses import dataclass
 from enum import Enum
 import statistics
 
-from backend.App.agent_performance_models import (
+from .agent_performance_models import (
     CostOptimizationRecommendation, AgentType, ModelProvider
 )
-from backend.App.agent_performance_tracker import get_performance_tracker
+from .agent_performance_tracker import get_performance_tracker
 from database import get_db_connection
 from logging_config import get_logger, LogCategory
 

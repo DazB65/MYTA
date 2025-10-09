@@ -11,19 +11,19 @@ import uuid
 from typing import List
 
 # Import models
-from backend.App.api_models import (
+from .api_models import (
     ContentPillarsRequest, CreatePillarRequest, UpdatePillarRequest,
     PillarResponse, VideoAllocationRequest, VideoAllocationResponse,
     StandardResponse, create_success_response
 )
 
 # Import services
-from backend.App.youtube_api_integration import get_youtube_integration
+from .youtube_api_integration import get_youtube_integration
 # Try main module, fallback to compatibility layer
 try:
-    from backend.App.boss_agent_auth import get_boss_agent_authenticator
+    from .boss_agent_auth import get_boss_agent_authenticator
 except ImportError:  # pragma: no cover
-    from backend.App.boss_agent_auth_compat import get_boss_agent_authenticator
+    from .boss_agent_auth_compat import get_boss_agent_authenticator
 
 # Configure logging
 logger = logging.getLogger(__name__)
@@ -54,7 +54,7 @@ async def analyze_content_pillars(request: ContentPillarsRequest):
             raise HTTPException(status_code=404, detail="No video data found for analysis")
         
         # Use Content Analysis Agent to analyze content pillars
-        from backend.App.content_analysis_agent import get_content_analysis_agent
+        from .content_analysis_agent import get_content_analysis_agent
         content_agent = get_content_analysis_agent()
         
         # Prepare request for content analysis agent
@@ -112,7 +112,7 @@ async def analyze_content_pillars(request: ContentPillarsRequest):
 async def create_pillar(request: CreatePillarRequest):
     """Create a new content pillar"""
     try:
-        from backend.App.database import db_manager
+        from .database import db_manager
         
         # Generate unique ID
         pillar_id = f"pillar-{uuid.uuid4()}"
@@ -150,7 +150,7 @@ async def create_pillar(request: CreatePillarRequest):
 async def get_user_pillars(user_id: str):
     """Get all content pillars for a user"""
     try:
-        from backend.App.database import db_manager
+        from .database import db_manager
         
         pillars = db_manager.get_user_content_pillars(user_id)
         return [PillarResponse(**pillar) for pillar in pillars]
@@ -164,7 +164,7 @@ async def get_user_pillars(user_id: str):
 async def update_pillar(pillar_id: str, request: UpdatePillarRequest):
     """Update a content pillar"""
     try:
-        from backend.App.database import db_manager
+        from .database import db_manager
         
         # Update pillar in database
         success = db_manager.update_content_pillar(
@@ -196,7 +196,7 @@ async def update_pillar(pillar_id: str, request: UpdatePillarRequest):
 async def delete_pillar(pillar_id: str):
     """Delete a content pillar"""
     try:
-        from backend.App.database import db_manager
+        from .database import db_manager
         
         success = db_manager.delete_content_pillar(pillar_id)
         
@@ -220,7 +220,7 @@ async def delete_pillar(pillar_id: str):
 async def allocate_video_to_pillar(request: VideoAllocationRequest):
     """Allocate a video to a content pillar"""
     try:
-        from backend.App.database import db_manager
+        from .database import db_manager
         
         # Allocate video to pillar
         success = db_manager.allocate_video_to_pillar(
@@ -260,7 +260,7 @@ async def allocate_video_to_pillar(request: VideoAllocationRequest):
 async def get_video_pillar(video_id: str, user_id: str = "default_user"):
     """Get the pillar allocation for a specific video"""
     try:
-        from backend.App.database import db_manager
+        from .database import db_manager
         
         allocation = db_manager.get_pillar_for_video(user_id, video_id)
         if not allocation:
@@ -285,7 +285,7 @@ async def get_video_pillar(video_id: str, user_id: str = "default_user"):
 async def remove_video_allocation(video_id: str, user_id: str = "default_user"):
     """Remove video allocation from any pillar"""
     try:
-        from backend.App.database import db_manager
+        from .database import db_manager
         
         success = db_manager.remove_video_allocation(user_id, video_id)
         if not success:
@@ -304,7 +304,7 @@ async def remove_video_allocation(video_id: str, user_id: str = "default_user"):
 async def get_pillar_videos(pillar_id: str, user_id: str = "default_user"):
     """Get all videos allocated to a specific pillar"""
     try:
-        from backend.App.database import db_manager
+        from .database import db_manager
         
         videos = db_manager.get_videos_for_pillar(user_id, pillar_id)
         
@@ -326,7 +326,7 @@ async def get_pillar_videos(pillar_id: str, user_id: str = "default_user"):
 async def get_pillar_analytics(pillar_id: str, user_id: str = "default_user"):
     """Get analytics for a specific content pillar"""
     try:
-        from backend.App.database import db_manager
+        from .database import db_manager
         
         # Get pillar info
         pillar = db_manager.get_content_pillar_by_id(pillar_id)
@@ -409,7 +409,7 @@ async def get_pillar_analytics(pillar_id: str, user_id: str = "default_user"):
 async def get_pillars_overview(user_id: str):
     """Get overview of all pillars for a user with analytics"""
     try:
-        from backend.App.database import db_manager
+        from .database import db_manager
         
         # Get all pillars for user
         pillars = db_manager.get_user_content_pillars(user_id)
@@ -460,7 +460,7 @@ async def get_pillars_overview(user_id: str):
 async def suggest_pillar_for_video(video_title: str, user_id: str = "default_user"):
     """Simple AI suggestion for which pillar a video belongs to based on title keywords"""
     try:
-        from backend.App.database import db_manager
+        from .database import db_manager
         
         # Get user's existing pillars
         pillars = db_manager.get_content_pillars(user_id)

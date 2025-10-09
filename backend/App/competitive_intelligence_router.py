@@ -9,7 +9,7 @@ from pydantic import BaseModel, Field
 from datetime import datetime
 import logging
 
-from backend.App.competitive_intelligence_2 import get_competitive_intelligence_engine
+from .competitive_intelligence_2 import get_competitive_intelligence_engine
 
 logger = logging.getLogger(__name__)
 

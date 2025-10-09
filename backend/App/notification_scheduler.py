@@ -9,9 +9,9 @@ from datetime import datetime, timedelta
 import logging
 from dataclasses import dataclass
 
-from backend.App.smart_notification_engine import get_notification_engine
-from backend.App.supabase_client import get_supabase_service
-from backend.logging_config import get_logger, LogCategory
+from .smart_notification_engine import get_notification_engine
+from .supabase_client import get_supabase_service
+from .logging_config import get_logger, LogCategory
 
 logger = get_logger(__name__, LogCategory.SCHEDULER)
 

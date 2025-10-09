@@ -10,10 +10,10 @@ from typing import Dict, Any, List, Optional
 from fastapi import APIRouter, HTTPException, Depends, BackgroundTasks
 from pydantic import BaseModel, Field
 
-from backend.App.advanced_prediction_engine import get_prediction_engine, ContentPrediction
-from backend.App.learning_adaptation_engine import get_learning_engine, AdaptationRecommendation
-from backend.App.realtime_optimization_engine import get_optimization_engine
-from backend.App.user_context import get_user_context
+from .advanced_prediction_engine import get_prediction_engine, ContentPrediction
+from .learning_adaptation_engine import get_learning_engine, AdaptationRecommendation
+from .realtime_optimization_engine import get_optimization_engine
+from .user_context import get_user_context
 
 logger = logging.getLogger(__name__)
 

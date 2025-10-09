@@ -1,7 +1,7 @@
 # Provide legacy functions expected by agent_router and tests
 from dataclasses import dataclass
 from typing import Optional
-from backend.App.security_config import get_boss_agent_secret
+from App.security_config import get_boss_agent_secret
 
 @dataclass
 class AuthResult:

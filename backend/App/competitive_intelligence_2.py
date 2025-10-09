@@ -12,8 +12,8 @@ from enum import Enum
 import json
 import statistics
 
-from backend.App.enhanced_user_context import EnhancedUserContextManager
-from backend.App.advanced_prediction_engine import get_prediction_engine
+from .enhanced_user_context import EnhancedUserContextManager
+from .advanced_prediction_engine import get_prediction_engine
 
 logger = logging.getLogger(__name__)
 

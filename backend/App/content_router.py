@@ -10,13 +10,13 @@ import logging
 from datetime import datetime
 
 # Import authentication and utilities
-from backend.App.auth_middleware import get_current_user
-from backend.App.rate_limiter import limiter, get_rate_limit
-from backend.App.api_models import create_success_response, create_error_response
+from .auth_middleware import get_current_user
+from .rate_limiter import limiter, get_rate_limit
+from .api_models import create_success_response, create_error_response
 
 # Import AI services
-from backend.App.model_integrations import create_agent_call_to_integration, generate_agent_response
-from backend.App.agent_personalities import get_agent_personality
+from .model_integrations import create_agent_call_to_integration, generate_agent_response
+from .agent_personalities import get_agent_personality
 
 logger = logging.getLogger(__name__)
 router = APIRouter(prefix="/api/content", tags=["content"])
@@ -156,10 +156,10 @@ async def generate_script(
 
         # Import enhanced context services
         try:
-            from backend.App.enhanced_user_context import EnhancedUserContextService
-            from backend.App.audience_insights_agent import AudienceInsightsAgent
-            from backend.App.voice_analyzer import get_voice_analyzer
-            from backend.App.competitive_analysis_agent import CompetitiveAnalysisAgent
+            from .enhanced_user_context import EnhancedUserContextService
+            from .audience_insights_agent import AudienceInsightsAgent
+            from .voice_analyzer import get_voice_analyzer
+            from .competitive_analysis_agent import CompetitiveAnalysisAgent
 
             # Get enhanced user context with performance data
             context_service = EnhancedUserContextService()
@@ -445,9 +445,9 @@ async def generate_title(
         # Get enhanced user context for title personalization
         user_id = current_user["id"]
         try:
-            from backend.App.enhanced_user_context import EnhancedUserContextService
-            from backend.App.audience_insights_agent import AudienceInsightsAgent
-            from backend.App.voice_analyzer import get_voice_analyzer
+            from .enhanced_user_context import EnhancedUserContextService
+            from .audience_insights_agent import AudienceInsightsAgent
+            from .voice_analyzer import get_voice_analyzer
 
             context_service = EnhancedUserContextService()
             enhanced_context = await context_service.get_enhanced_context(user_id)
@@ -593,9 +593,9 @@ async def generate_description(
         # Get enhanced user context for description personalization
         user_id = current_user["id"]
         try:
-            from backend.App.enhanced_user_context import EnhancedUserContextService
-            from backend.App.audience_insights_agent import AudienceInsightsAgent
-            from backend.App.voice_analyzer import get_voice_analyzer
+            from .enhanced_user_context import EnhancedUserContextService
+            from .audience_insights_agent import AudienceInsightsAgent
+            from .voice_analyzer import get_voice_analyzer
 
             context_service = EnhancedUserContextService()
             enhanced_context = await context_service.get_enhanced_context(user_id)

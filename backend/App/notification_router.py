@@ -7,7 +7,7 @@ from fastapi import APIRouter, Depends, Request, HTTPException, BackgroundTasks
 from typing import Dict, List, Optional, Any
 import asyncio
 
-from backend.App.smart_notification_engine import (
+from .smart_notification_engine import (
     get_notification_engine, 
     NotificationPreferences, 
     NotificationChannel, 
@@ -15,9 +15,9 @@ from backend.App.smart_notification_engine import (
     NotificationType,
     NotificationRule
 )
-from backend.App.auth_middleware import get_current_user
-from backend.App.api_models import create_success_response, create_error_response
-from backend.logging_config import get_logger, LogCategory
+from .auth_middleware import get_current_user
+from .api_models import create_success_response, create_error_response
+from .logging_config import get_logger, LogCategory
 
 logger = get_logger(__name__, LogCategory.API)
 router = APIRouter(prefix="/api/notifications", tags=["notifications"])
@@ -318,7 +318,7 @@ async def test_notification(
         message = body.get("message", "This is a test notification from MYTA")
         
         # Create test notification
-        from backend.App.smart_notification_engine import Notification
+        from .smart_notification_engine import Notification
         from datetime import datetime
         
         test_notification = Notification(

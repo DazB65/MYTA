@@ -16,8 +16,8 @@ from googleapiclient.discovery import build
 from googleapiclient.errors import HttpError
 from dataclasses import dataclass
 import statistics
-from backend.boss_agent_auth import SpecializedAgentAuthMixin
-from backend.connection_pool import get_youtube_client
+from .boss_agent_auth import SpecializedAgentAuthMixin
+from .connection_pool import get_youtube_client
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)

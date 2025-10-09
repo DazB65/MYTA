@@ -16,9 +16,9 @@ from googleapiclient.discovery import build
 from googleapiclient.errors import HttpError
 from dataclasses import dataclass
 import statistics
-from backend.base_agent import BaseSpecializedAgent, AgentType, AgentRequest, AgentAnalysis, AgentInsight, AgentRecommendation
-from backend.boss_agent_auth import SpecializedAgentAuthMixin
-from backend.connection_pool import get_youtube_client
+from .base_agent import BaseSpecializedAgent, AgentType, AgentRequest, AgentAnalysis, AgentInsight, AgentRecommendation
+from .boss_agent_auth import SpecializedAgentAuthMixin
+from .connection_pool import get_youtube_client
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -1326,7 +1326,7 @@ class AudienceInsightsAgent(SpecializedAgentAuthMixin, BaseSpecializedAgent):
         """Get simplified audience context for content generation"""
         try:
             # Get basic user context
-            from backend.App.user_context import get_user_context
+            from .user_context import get_user_context
             user_context = get_user_context(user_id)
 
             # Extract relevant audience insights for content generation

@@ -7,10 +7,10 @@ import json
 from typing import Dict, List, Optional, Any
 from datetime import datetime, timedelta
 
-from backend.App.redis_service import get_redis_service
-from backend.App.supabase_client import get_supabase_service
-from backend.App.agent_personalities import get_agent_personality
-from backend.logging_config import get_logger, LogCategory
+from .redis_service import get_redis_service
+from .supabase_client import get_supabase_service
+from .agent_personalities import get_agent_personality
+from .logging_config import get_logger, LogCategory
 
 logger = get_logger(__name__, LogCategory.AGENT)
 

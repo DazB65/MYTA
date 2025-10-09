@@ -25,7 +25,7 @@ from .advanced_workflow_automation import execute_one_click_workflow, get_availa
 from .agent_performance_analytics import record_agent_performance, record_collaboration_metrics
 
 # Configure advanced logging
-from backend.logging_config import get_logger, LogCategory
+from .logging_config import get_logger, LogCategory
 
 logger = get_logger(__name__, LogCategory.AGENT)
 
@@ -1190,7 +1190,7 @@ class BossAgent:
                 return []
             
             # Import YouTube integration
-            from backend.youtube_api_integration import get_youtube_integration
+            from .youtube_api_integration import get_youtube_integration
             youtube_service = get_youtube_integration()
             
             # Get recent videos with transcripts
@@ -1339,7 +1339,7 @@ class BossAgent:
                 await self.monitor.log_event(user_id, 'oauth_check', 'boss_agent', 'start')
                 
                 # Check OAuth status before attempting enhanced context
-                from backend.oauth_manager import get_oauth_manager
+                from .oauth_manager import get_oauth_manager
                 oauth_manager = get_oauth_manager()
                 oauth_status = oauth_manager.get_oauth_status(user_id)
                 
@@ -1371,9 +1371,9 @@ class BossAgent:
 
                     # Get additional enhanced context services for chat
                     try:
-                        from backend.App.enhanced_user_context import EnhancedUserContextService
-                        from backend.App.audience_insights_agent import AudienceInsightsAgent
-                        from backend.App.voice_analyzer import get_voice_analyzer
+                        from .enhanced_user_context import EnhancedUserContextService
+                        from .audience_insights_agent import AudienceInsightsAgent
+                        from .voice_analyzer import get_voice_analyzer
 
                         # Get enhanced user context with performance data
                         context_service = EnhancedUserContextService()
@@ -1517,7 +1517,7 @@ class BossAgent:
                     if channel_id:
                         try:
                             # Import and use YouTube API integration to get fresh data
-                            from backend.youtube_api_integration import get_youtube_integration
+                            from .youtube_api_integration import get_youtube_integration
                             youtube_service = get_youtube_integration()
                             
                             # Get fresh channel data
@@ -1529,7 +1529,7 @@ class BossAgent:
                             
                             if fresh_channel_data and fresh_channel_data.view_count > 0:
                                 # Update database with fresh data
-                                from backend.App.ai_services import update_user_context
+                                from .ai_services import update_user_context
                                 channel_info['total_view_count'] = fresh_channel_data.view_count
                                 channel_info['subscriber_count'] = fresh_channel_data.subscriber_count
                                 channel_info['video_count'] = fresh_channel_data.video_count

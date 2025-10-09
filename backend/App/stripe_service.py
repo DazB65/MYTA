@@ -17,7 +17,7 @@ class StripeService:
 
     def __init__(self):
         # Use MYTA logging system
-        from backend.logging_config import get_logger, LogCategory
+        from .logging_config import get_logger, LogCategory
         self.logger = get_logger(__name__, LogCategory.API)
 
         self.logger.info("🔄 Initializing StripeService...")

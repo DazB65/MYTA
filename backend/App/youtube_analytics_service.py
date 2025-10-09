@@ -16,14 +16,14 @@ from google.auth.exceptions import RefreshError
 import sqlite3
 
 try:
-    from backend.App.config import get_settings
-    from backend.App.oauth_manager import get_oauth_manager
-    from backend.App.cache_service import get_cache_service, analytics_cached
+    from .config import get_settings
+    from .oauth_manager import get_oauth_manager
+    from .cache_service import get_cache_service, analytics_cached
 except ImportError:
     # Fallback for direct execution
-    from backend.App.config import get_settings
-    from backend.App.oauth_manager import get_oauth_manager
-    from backend.App.cache_service import get_cache_service, analytics_cached
+    from .config import get_settings
+    from .oauth_manager import get_oauth_manager
+    from .cache_service import get_cache_service, analytics_cached
 
 logger = logging.getLogger(__name__)
 

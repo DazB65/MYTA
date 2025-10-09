@@ -12,9 +12,9 @@ from dataclasses import dataclass, asdict
 from enum import Enum
 import numpy as np
 
-from backend.App.enhanced_user_context import EnhancedUserContextManager
-from backend.App.youtube_analytics_service import YouTubeAnalyticsService
-from backend.App.advanced_prediction_engine import get_prediction_engine
+from .enhanced_user_context import EnhancedUserContextManager
+from .youtube_analytics_service import YouTubeAnalyticsService
+from .advanced_prediction_engine import get_prediction_engine
 
 logger = logging.getLogger(__name__)
 

@@ -6,7 +6,7 @@ Analyzes and matches channel voice and writing style for content generation
 import json
 import logging
 from typing import Dict, List, Any
-from backend.App.model_integrations import create_agent_call_to_integration
+from .model_integrations import create_agent_call_to_integration
 
 logger = logging.getLogger(__name__)
 

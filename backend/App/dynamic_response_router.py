@@ -6,12 +6,12 @@ API endpoints for dynamic response system and context analysis
 from fastapi import APIRouter, Depends, Request, HTTPException
 from typing import Dict, List, Optional, Any
 
-from backend.App.dynamic_response_engine import get_dynamic_response_engine, ResponseContext
-from backend.App.context_analyzer import get_context_analyzer
-from backend.App.channel_analyzer import get_channel_analyzer
-from backend.App.auth_middleware import get_current_user
-from backend.App.api_models import create_success_response, create_error_response
-from backend.logging_config import get_logger, LogCategory
+from .dynamic_response_engine import get_dynamic_response_engine, ResponseContext
+from .context_analyzer import get_context_analyzer
+from .channel_analyzer import get_channel_analyzer
+from .auth_middleware import get_current_user
+from .api_models import create_success_response, create_error_response
+from .logging_config import get_logger, LogCategory
 
 logger = get_logger(__name__, LogCategory.API)
 router = APIRouter(prefix="/api/dynamic-response", tags=["dynamic_response"])
@@ -117,7 +117,7 @@ async def generate_dynamic_response(
         dynamic_response = await dynamic_engine.generate_dynamic_response(response_context)
         
         # Get agent info
-        from backend.App.agent_personalities import get_agent_personality
+        from .agent_personalities import get_agent_personality
         agent = get_agent_personality(agent_id)
         
         result = {

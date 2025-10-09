@@ -314,7 +314,7 @@ class DataAccessMonitor:
     async def _debug_oauth(self, user_id: str) -> Dict[str, Any]:
         """Debug OAuth status"""
         try:
-            from backend.oauth_manager import get_oauth_manager
+            from .oauth_manager import get_oauth_manager
             oauth_manager = get_oauth_manager()
             
             async with self.monitor_operation(user_id, 'status_check', 'oauth_manager'):
@@ -335,7 +335,7 @@ class DataAccessMonitor:
     async def _debug_database_access(self, user_id: str) -> Dict[str, Any]:
         """Debug database access"""
         try:
-            from backend.database import get_database_manager
+            from .database import get_database_manager
             db_manager = get_database_manager()
             
             async with self.monitor_operation(user_id, 'user_context_read', 'database'):
@@ -357,7 +357,7 @@ class DataAccessMonitor:
     async def _debug_analytics_service(self, user_id: str) -> Dict[str, Any]:
         """Debug analytics service access"""
         try:
-            from backend.App.analytics_service import get_analytics_service
+            from .analytics_service import get_analytics_service
             analytics_service = get_analytics_service()
             
             async with self.monitor_operation(user_id, 'analytics_fetch', 'analytics_service'):
@@ -380,7 +380,7 @@ class DataAccessMonitor:
     async def _debug_enhanced_context(self, user_id: str) -> Dict[str, Any]:
         """Debug enhanced context system"""
         try:
-            from backend.App.enhanced_user_context import get_enhanced_context_manager
+            from .enhanced_user_context import get_enhanced_context_manager
             context_manager = get_enhanced_context_manager()
             
             async with self.monitor_operation(user_id, 'context_build', 'enhanced_context'):

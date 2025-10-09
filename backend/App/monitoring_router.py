@@ -7,14 +7,14 @@ from fastapi import APIRouter, HTTPException, Depends, Query
 from typing import Optional
 from datetime import datetime, timedelta
 
-from backend.App.agent_performance_tracker import get_performance_tracker
-from backend.App.agent_performance_models import (
+from .agent_performance_tracker import get_performance_tracker
+from .agent_performance_models import (
     AgentType
 )
-from backend.App.auth_middleware import get_current_user, AuthToken
-from backend.App.api_models import create_success_response
-from backend.App.redis_service import get_redis_service
-from backend.App.logging_config import get_logger, LogCategory
+from .auth_middleware import get_current_user, AuthToken
+from .api_models import create_success_response
+from .redis_service import get_redis_service
+from .logging_config import get_logger, LogCategory
 
 logger = get_logger(__name__, LogCategory.PERFORMANCE)
 
@@ -194,7 +194,7 @@ async def get_performance_alerts(
 ):
     """Get performance alerts"""
     try:
-        from backend.App.database import get_db_connection
+        from .database import get_db_connection
         
         # Build query
         query = """
@@ -277,7 +277,7 @@ async def acknowledge_alert(
 ):
     """Acknowledge a performance alert"""
     try:
-        from backend.App.database import get_db_connection
+        from .database import get_db_connection
         
         with get_db_connection() as conn:
             cursor = conn.cursor()
@@ -321,7 +321,7 @@ async def get_cost_analysis(
 ):
     """Get cost analysis and breakdown"""
     try:
-        from backend.App.database import get_db_connection
+        from .database import get_db_connection
         
         start_time = datetime.now() - timedelta(hours=time_window_hours)
         
@@ -451,7 +451,7 @@ async def get_performance_trends(
 ):
     """Get performance trends over time"""
     try:
-        from backend.App.database import get_db_connection
+        from .database import get_db_connection
         
         start_time = datetime.now() - timedelta(hours=time_window_hours)
         
@@ -625,7 +625,7 @@ async def get_optimization_recommendations(
 ):
     """Get cost optimization recommendations"""
     try:
-        from backend.App.cost_optimizer import get_cost_optimizer
+        from .cost_optimizer import get_cost_optimizer
         
         cost_optimizer = get_cost_optimizer()
         recommendations = await cost_optimizer.generate_recommendations(time_window_hours)
@@ -681,7 +681,7 @@ async def get_cost_analysis(
 ):
     """Get detailed cost analysis by agent"""
     try:
-        from backend.App.cost_optimizer import get_cost_optimizer
+        from .cost_optimizer import get_cost_optimizer
         
         cost_optimizer = get_cost_optimizer()
         cost_analyses = await cost_optimizer.analyze_costs(time_window_hours)

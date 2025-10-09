@@ -9,9 +9,9 @@ import json
 import re
 from dataclasses import dataclass
 
-from backend.App.channel_analyzer import ChannelProfile, ChannelMetrics
-from backend.App.youtube_knowledge import get_youtube_knowledge
-from backend.logging_config import get_logger, LogCategory
+from .channel_analyzer import ChannelProfile, ChannelMetrics
+from .youtube_knowledge import get_youtube_knowledge
+from .logging_config import get_logger, LogCategory
 
 logger = get_logger(__name__, LogCategory.AGENT)
 

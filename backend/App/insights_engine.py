@@ -5,7 +5,7 @@ Generates dynamic insights based on user context and channel data
 
 from typing import List, Dict
 import random
-from backend.App.database import db_manager
+from .database import db_manager
 import logging
 
 logger = logging.getLogger(__name__)

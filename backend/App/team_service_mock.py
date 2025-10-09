@@ -9,14 +9,14 @@ from datetime import datetime, timedelta
 
 from fastapi import HTTPException, status
 
-from backend.App.team_models import (
+from .team_models import (
     Team, TeamMember, TeamInvitation, TeamRole, TeamPermissions,
     TeamCreateRequest, TeamUpdateRequest, TeamInviteRequest,
     TeamMemberUpdateRequest, InvitationResponseRequest,
     InvitationStatus, TeamMemberStatus,
     generate_invitation_token, get_invitation_expiry
 )
-from backend.logging_config import get_logger, LogCategory
+from .logging_config import get_logger, LogCategory
 
 logger = get_logger(__name__, LogCategory.API)
 

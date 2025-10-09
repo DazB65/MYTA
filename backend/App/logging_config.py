@@ -17,7 +17,7 @@ import time
 from dataclasses import dataclass, asdict
 from enum import Enum
 
-from backend.App.config import get_settings
+from .config import get_settings
 
 
 class LogLevel(Enum):

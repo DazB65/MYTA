@@ -8,8 +8,8 @@ from datetime import datetime, timedelta
 from dataclasses import dataclass
 import re
 
-from backend.App.channel_analyzer import ChannelProfile
-from backend.logging_config import get_logger, LogCategory
+from .channel_analyzer import ChannelProfile
+from .logging_config import get_logger, LogCategory
 
 logger = get_logger(__name__, LogCategory.AGENT)
 

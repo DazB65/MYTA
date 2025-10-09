@@ -11,16 +11,16 @@ from uuid import UUID, uuid4
 import asyncpg
 from fastapi import HTTPException, status
 
-from backend.App.team_models import (
+from .team_models import (
     Team, TeamMember, TeamInvitation, TeamRole, TeamPermissions,
     TeamCreateRequest, TeamUpdateRequest, TeamInviteRequest,
     TeamMemberUpdateRequest, InvitationResponseRequest,
     InvitationStatus, TeamMemberStatus,
     generate_invitation_token, get_invitation_expiry
 )
-from backend.App.supabase_client import get_supabase_service
-from backend.App.email_service import send_team_invitation_email, notify_invitation_accepted, send_welcome_email
-from backend.logging_config import get_logger, LogCategory
+from .supabase_client import get_supabase_service
+from .email_service import send_team_invitation_email, notify_invitation_accepted, send_welcome_email
+from .logging_config import get_logger, LogCategory
 
 logger = get_logger(__name__, LogCategory.BUSINESS_LOGIC)
 

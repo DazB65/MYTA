@@ -72,28 +72,28 @@ class SupabaseUserService:
             logger.error(f"Failed to create user: {e}")
             raise
     
-    def get_user_by_email(self, email: str) -> Optional[User]:
-        """Get user by email address"""
+    async def get_user_by_email(self, email: str) -> Optional[dict]:
+        """Get user by email address - returns dict"""
         try:
             result = self.supabase.table("users").select("*").eq("email", email).execute()
-            
+
             if result.data and len(result.data) > 0:
-                return self._row_to_user(result.data[0])
+                return result.data[0]
             return None
-                
+
         except Exception as e:
             logger.error(f"Failed to get user by email: {e}")
             raise
-    
-    def get_user_by_id(self, user_id: str) -> Optional[User]:
-        """Get user by ID"""
+
+    async def get_user_by_id(self, user_id: str) -> Optional[dict]:
+        """Get user by ID - returns dict"""
         try:
             result = self.supabase.table("users").select("*").eq("id", user_id).execute()
-            
+
             if result.data and len(result.data) > 0:
-                return self._row_to_user(result.data[0])
+                return result.data[0]
             return None
-                
+
         except Exception as e:
             logger.error(f"Failed to get user by ID: {e}")
             raise
@@ -146,6 +146,51 @@ class SupabaseUserService:
             logger.error(f"Failed to update user: {e}")
             raise
     
+    async def get_user_by_verification_token(self, token: str) -> Optional[dict]:
+        """Get user by verification token"""
+        try:
+            result = self.supabase.table("users").select("*").eq("verification_token", token).execute()
+
+            if result.data and len(result.data) > 0:
+                return result.data[0]
+            return None
+        except Exception as e:
+            logger.error(f"Error getting user by verification token: {e}")
+            return None
+
+    async def get_user_by_verification_code(self, code: str) -> Optional[dict]:
+        """Get user by verification code"""
+        try:
+            result = self.supabase.table("users").select("*").eq("verification_code", code).execute()
+
+            if result.data and len(result.data) > 0:
+                return result.data[0]
+            return None
+        except Exception as e:
+            logger.error(f"Error getting user by verification code: {e}")
+            return None
+
+    async def get_user_by_reset_token(self, token: str) -> Optional[dict]:
+        """Get user by password reset token"""
+        try:
+            result = self.supabase.table("users").select("*").eq("reset_token", token).execute()
+
+            if result.data and len(result.data) > 0:
+                return result.data[0]
+            return None
+        except Exception as e:
+            logger.error(f"Error getting user by reset token: {e}")
+            return None
+
+    async def update_user(self, user_id: str, updates: dict) -> bool:
+        """Update user fields"""
+        try:
+            result = self.supabase.table("users").update(updates).eq("id", user_id).execute()
+            return bool(result.data)
+        except Exception as e:
+            logger.error(f"Error updating user: {e}")
+            return False
+
     def _row_to_user(self, row: dict) -> User:
         """Convert database row to User object"""
         return User(
@@ -158,9 +203,9 @@ class SupabaseUserService:
             youtube_connected=bool(row['youtube_connected']) if row['youtube_connected'] is not None else False,
             created_at=datetime.fromisoformat(row['created_at'].replace('Z', '+00:00')) if row['created_at'] else None,
             last_login=datetime.fromisoformat(row['last_login'].replace('Z', '+00:00')) if row['last_login'] else None,
-            verification_token=row['verification_token'],
-            reset_token=row['reset_token'],
-            reset_token_expires=datetime.fromisoformat(row['reset_token_expires'].replace('Z', '+00:00')) if row['reset_token_expires'] else None
+            verification_token=row.get('verification_token'),
+            reset_token=row.get('reset_token'),
+            reset_token_expires=datetime.fromisoformat(row['reset_token_expires'].replace('Z', '+00:00')) if row.get('reset_token_expires') else None
         )
 
 # Global user service instance

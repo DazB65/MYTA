@@ -11,12 +11,12 @@ from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from starlette.middleware.base import BaseHTTPMiddleware
 from starlette.types import ASGIApp
 
-from backend.App.redis_session_manager import (
+from .redis_session_manager import (
     get_session_manager, 
     SessionData
 )
-from backend.App.logging_config import get_logger, LogCategory, log_security_event
-from backend.App.config import get_settings
+from .logging_config import get_logger, LogCategory, log_security_event
+from .config import get_settings
 
 
 class SessionMiddleware(BaseHTTPMiddleware):

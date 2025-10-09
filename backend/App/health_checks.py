@@ -16,7 +16,7 @@ import redis
 import sqlite3
 import httpx
 
-from backend.App.config import get_settings
+from .config import get_settings
 from logging_config import get_logger, LogCategory
 
 
@@ -859,7 +859,7 @@ class HealthChecker:
         start_time = time.time()
         
         try:
-            from backend.App.backup_service import get_backup_service, BackupHealthChecker
+            from .backup_service import get_backup_service, BackupHealthChecker
             
             # Get database path from settings
             db_path = self.settings.database_url.replace("sqlite:///", "").replace("./", "")

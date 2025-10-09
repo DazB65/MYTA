@@ -11,7 +11,7 @@ from datetime import datetime, timedelta
 import pickle
 import hashlib
 
-from backend.logging_config import get_logger, LogCategory
+from .logging_config import get_logger, LogCategory
 
 logger = get_logger(__name__, LogCategory.CACHE)
 

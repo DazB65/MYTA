@@ -4,9 +4,9 @@ Integrates YouTube knowledge base with personalized responses
 """
 
 from typing import Dict, List, Any, Optional
-from backend.App.youtube_knowledge import get_youtube_knowledge
-from backend.App.channel_analyzer import ChannelProfile
-from backend.logging_config import get_logger, LogCategory
+from .youtube_knowledge import get_youtube_knowledge
+from .channel_analyzer import ChannelProfile
+from .logging_config import get_logger, LogCategory
 
 logger = get_logger(__name__, LogCategory.AGENT)
 

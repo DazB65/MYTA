@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Confirm Email Change - MYTA</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            line-height: 1.6;
+            color: #ffffff;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #0f1419;
+        }
+        .container {
+            background: linear-gradient(135deg, #1a2f23 0%, #0f1f17 100%);
+            border-radius: 12px;
+            padding: 40px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+            border: 1px solid #2d4a37;
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .logo {
+            font-size: 48px;
+            margin-bottom: 10px;
+        }
+        .title {
+            font-size: 28px;
+            font-weight: 600;
+            color: #ffffff;
+            margin-bottom: 10px;
+        }
+        .subtitle {
+            font-size: 16px;
+            color: #94a3b8;
+        }
+        .content {
+            margin: 30px 0;
+            color: #e2e8f0;
+        }
+        .confirmation-box {
+            background: #2d4a37;
+            border-radius: 8px;
+            padding: 30px;
+            margin: 30px 0;
+            text-align: center;
+            border-left: 4px solid #f97316;
+        }
+        .button {
+            display: inline-block;
+            background: linear-gradient(135deg, #f97316 0%, #ea580c 100%);
+            color: #ffffff;
+            padding: 16px 32px;
+            text-decoration: none;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 16px;
+            margin: 20px 0;
+            box-shadow: 0 4px 6px rgba(249, 115, 22, 0.3);
+            transition: transform 0.2s;
+        }
+        .button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 8px rgba(249, 115, 22, 0.4);
+        }
+        .info-box {
+            background: #1e3a2f;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+            border-left: 4px solid #3b82f6;
+        }
+        .email-display {
+            background: #0f1419;
+            padding: 15px;
+            border-radius: 6px;
+            font-family: monospace;
+            color: #f97316;
+            margin: 10px 0;
+        }
+        .footer {
+            text-align: center;
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 1px solid #2d4a37;
+            color: #64748b;
+            font-size: 14px;
+        }
+        .warning {
+            background: #3d1f1f;
+            border-left: 4px solid #ef4444;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 20px 0;
+            color: #fca5a5;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="logo">📧</div>
+            <h1 class="title">Confirm Email Change</h1>
+            <p class="subtitle">MYTA Account Security</p>
+        </div>
+
+        <div class="content">
+            <p>Hi {{ user_name }},</p>
+            
+            <p>We received a request to change the email address for your MYTA account.</p>
+
+            <div class="info-box">
+                <p style="margin-top: 0;"><strong>📋 Email Change Details</strong></p>
+                <p><strong>Current Email:</strong></p>
+                <div class="email-display">{{ old_email }}</div>
+                <p><strong>New Email:</strong></p>
+                <div class="email-display">{{ new_email }}</div>
+            </div>
+
+            <p>To complete this change and verify your new email address, please click the button below:</p>
+
+            <div class="confirmation-box">
+                <p style="margin-top: 0; color: #94a3b8;">Click to confirm your new email address:</p>
+                <a href="{{ confirmation_url }}" class="button">Confirm Email Change</a>
+                <p style="margin-bottom: 0; color: #64748b; font-size: 14px;">This link expires in 24 hours</p>
+            </div>
+
+            <div class="info-box">
+                <p style="margin-top: 0;"><strong>🔒 What Happens Next?</strong></p>
+                <ul style="margin: 10px 0; padding-left: 20px;">
+                    <li>Your login email will be updated to the new address</li>
+                    <li>All future notifications will be sent to the new email</li>
+                    <li>You'll use the new email to sign in to MYTA</li>
+                </ul>
+            </div>
+
+            <div class="warning">
+                <strong>⚠️ Didn't request this change?</strong><br>
+                If you didn't request to change your email address, please ignore this email and contact our support team immediately. Your email address will remain unchanged if you don't click the confirmation link.
+            </div>
+        </div>
+
+        <div class="footer">
+            <p><strong>MYTA</strong> - Your AI-Powered YouTube Agent Team</p>
+            <p>© {{ current_year }} MYTA. All rights reserved.</p>
+            <p style="font-size: 12px; color: #475569;">
+                If the button doesn't work, copy and paste this link into your browser:<br>
+                <span style="color: #f97316;">{{ confirmation_url }}</span>
+            </p>
+            <p style="font-size: 12px; color: #475569; margin-top: 20px;">
+                Need help? Contact us at <a href="mailto:support@myta.app" style="color: #f97316;">support@myta.app</a>
+            </p>
+        </div>
+    </div>
+</body>
+</html>
+

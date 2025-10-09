@@ -10,9 +10,9 @@ import logging
 from datetime import datetime
 
 # Import authentication and utilities
-from backend.App.auth_middleware import get_current_user
-from backend.App.api_models import create_success_response, create_error_response
-from backend.App.usage_tracking_service import UsageTrackingService
+from .auth_middleware import get_current_user
+from .api_models import create_success_response, create_error_response
+from .usage_tracking_service import UsageTrackingService
 
 # Configure logging
 logger = logging.getLogger(__name__)

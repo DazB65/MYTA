@@ -7,14 +7,14 @@ import logging
 import asyncio
 
 try:
-    from backend.App.youtube_analytics_service import get_youtube_analytics_service
-    from backend.App.auth_middleware import get_current_user, AuthToken
-    from backend.App.cache_service import get_cache_service
+    from .youtube_analytics_service import get_youtube_analytics_service
+    from .auth_middleware import get_current_user, AuthToken
+    from .cache_service import get_cache_service
 except ImportError:
     # Fallback for direct execution
-    from backend.App.youtube_analytics_service import get_youtube_analytics_service
-    from backend.App.auth_middleware import get_current_user, AuthToken
-    from backend.App.cache_service import get_cache_service
+    from .youtube_analytics_service import get_youtube_analytics_service
+    from .auth_middleware import get_current_user, AuthToken
+    from .cache_service import get_cache_service
 
 router = APIRouter(prefix="/api/analytics", tags=["analytics"])
 logger = logging.getLogger(__name__)

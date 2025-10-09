@@ -11,8 +11,8 @@ from typing import Dict, Any, Optional
 import json
 from uuid import UUID
 
-from backend.App.usage_tracking_service import get_usage_tracking_service, UsageType
-from backend.logging_config import get_logger, LogCategory
+from .usage_tracking_service import get_usage_tracking_service, UsageType
+from .logging_config import get_logger, LogCategory
 
 logger = get_logger(__name__, LogCategory.API)
 

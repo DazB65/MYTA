@@ -11,10 +11,10 @@ import json
 import asyncio
 from collections import defaultdict
 
-from backend.App.youtube_analytics_service import get_youtube_analytics_service
-from backend.App.agent_collaboration import get_collaboration_engine
-from backend.App.channel_analyzer import get_channel_analyzer
-from backend.logging_config import get_logger, LogCategory
+from .youtube_analytics_service import get_youtube_analytics_service
+from .agent_collaboration import get_collaboration_engine
+from .channel_analyzer import get_channel_analyzer
+from .logging_config import get_logger, LogCategory
 
 logger = get_logger(__name__, LogCategory.NOTIFICATIONS)
 

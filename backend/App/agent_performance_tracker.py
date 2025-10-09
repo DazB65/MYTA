@@ -15,14 +15,14 @@ import sqlite3
 from threading import Lock
 import logging
 
-from backend.App.agent_performance_models import (
+from .agent_performance_models import (
     AgentPerformanceMetric, AgentHealthSnapshot, SystemPerformanceSnapshot,
     PerformanceAlert, AgentType, ModelProvider, RequestStatus, AlertSeverity,
     ModelUsage, MonitoringConfiguration, get_performance_tables_schema
 )
-from backend.App.database import get_database_manager
+from .database import get_database_manager
 import sqlite3
-from backend.App.logging_config import get_logger, LogCategory
+from .logging_config import get_logger, LogCategory
 
 logger = get_logger(__name__, LogCategory.PERFORMANCE)
 

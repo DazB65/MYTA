@@ -18,7 +18,7 @@ import os
 from .content_analysis_agent import ContentAnalysisAgent
 from .youtube_analytics_service import YouTubeAnalyticsService
 from .enhanced_user_context import EnhancedUserContextManager
-from backend.App.audience_insights_agent import AudienceInsightsAgent
+from .audience_insights_agent import AudienceInsightsAgent
 
 logger = logging.getLogger(__name__)
 

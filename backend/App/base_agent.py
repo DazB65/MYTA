@@ -15,8 +15,8 @@ from enum import Enum
 import logging
 
 # Import performance tracking
-from backend.App.agent_performance_tracker import get_performance_tracker
-from backend.App.agent_performance_models import AgentType as PerfAgentType, ModelProvider
+from .agent_performance_tracker import get_performance_tracker
+from .agent_performance_models import AgentType as PerfAgentType, ModelProvider
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)

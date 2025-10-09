@@ -14,8 +14,8 @@ from enum import Enum
 import redis
 from redis.exceptions import ConnectionError as RedisConnectionError
 
-from backend.App.config import get_settings
-from backend.App.logging_config import get_logger, LogCategory, log_performance_metrics
+from .config import get_settings
+from .logging_config import get_logger, LogCategory, log_performance_metrics
 
 
 class SessionStatus(Enum):

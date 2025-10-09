@@ -1,7 +1,7 @@
 # Shim module to maintain test import compatibility
-# Re-exports Settings and helpers from backend.App.config and dotenv loaders for tests
+# Re-exports Settings and helpers from App.config and dotenv loaders for tests
 
-from backend.App.config import (
+from App.config import (
     Settings,
     Environment,
     get_settings,

@@ -326,7 +326,7 @@ def setup_api_documentation(app: FastAPI):
 # Example usage in main.py:
 """
 from fastapi import FastAPI
-from backend.App.api_documentation import setup_api_documentation
+from .api_documentation import setup_api_documentation
 
 app = FastAPI()
 setup_api_documentation(app)

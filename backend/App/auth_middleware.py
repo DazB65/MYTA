@@ -13,7 +13,7 @@ from fastapi import Request, HTTPException, Depends, Response
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from pydantic.v1 import BaseModel
 
-from backend.App.security_config import get_security_config
+from .security_config import get_security_config
 from .enhanced_jwt import enhanced_jwt_service
 
 logger = logging.getLogger(__name__)

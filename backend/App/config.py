@@ -50,7 +50,7 @@ class Settings(BaseSettings):
     database_echo: bool = Field(default=False, description="Echo SQL queries")
     
     # Security Configuration
-    cors_origins: List[str] = Field(default_factory=lambda: [], description="CORS allowed origins")
+    cors_origins: Union[str, List[str]] = Field(default_factory=lambda: [], description="CORS allowed origins")
     security_headers_strict: bool = Field(default=True, description="Strict security headers")
     csrf_protection_strict: bool = Field(default=True, description="Strict CSRF protection")
 

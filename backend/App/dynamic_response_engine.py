@@ -8,10 +8,10 @@ from datetime import datetime, timedelta
 from dataclasses import dataclass
 import json
 
-from backend.App.channel_analyzer import ChannelProfile
-from backend.App.agent_tools import get_agent_tools
-from backend.App.youtube_knowledge import get_youtube_knowledge
-from backend.logging_config import get_logger, LogCategory
+from .channel_analyzer import ChannelProfile
+from .agent_tools import get_agent_tools
+from .youtube_knowledge import get_youtube_knowledge
+from .logging_config import get_logger, LogCategory
 
 logger = get_logger(__name__, LogCategory.AGENT)
 

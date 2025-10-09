@@ -9,14 +9,14 @@ from typing import Dict, List, Optional, Any
 from datetime import datetime, timedelta
 from fastapi import APIRouter, WebSocket, WebSocketDisconnect, Depends, Query, Request, HTTPException
 
-from backend.App.websocket_manager import (
+from .websocket_manager import (
     connection_manager, 
     handle_websocket_message
 )
-from backend.App.supabase_client import get_supabase_service
-from backend.App.auth_middleware import get_current_user
-from backend.App.api_models import create_success_response, create_error_response
-from backend.logging_config import get_logger, LogCategory
+from .supabase_client import get_supabase_service
+from .auth_middleware import get_current_user
+from .api_models import create_success_response, create_error_response
+from .logging_config import get_logger, LogCategory
 
 logger = get_logger(__name__, LogCategory.API)
 router = APIRouter(prefix="/api/chat", tags=["chat"])

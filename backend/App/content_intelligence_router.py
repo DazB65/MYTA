@@ -10,7 +10,7 @@ from typing import Dict, Any, List, Optional
 from fastapi import APIRouter, HTTPException, Depends, UploadFile, File
 from pydantic import BaseModel, Field
 
-from backend.App.advanced_content_intelligence import get_content_intelligence, ThumbnailAnalysis, HookAnalysis, ContentStructureAnalysis
+from .advanced_content_intelligence import get_content_intelligence, ThumbnailAnalysis, HookAnalysis, ContentStructureAnalysis
 
 logger = logging.getLogger(__name__)
 

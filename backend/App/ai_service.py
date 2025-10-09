@@ -24,14 +24,14 @@ try:
 except ImportError:
     ANTHROPIC_AVAILABLE = False
 
-from backend.App.redis_service import get_redis_service
-from backend.App.error_handler import MYTAError, ErrorCode, ErrorCategory, ErrorSeverity
-from backend.App.enhanced_caching_service import (
+from .redis_service import get_redis_service
+from .error_handler import MYTAError, ErrorCode, ErrorCategory, ErrorSeverity
+from .enhanced_caching_service import (
     get_cache_service, cache_ai_response, get_cached_ai_response,
     CacheType, cached
 )
-from backend.App.circuit_breaker import get_openai_circuit_breaker, CircuitBreakerError
-from backend.logging_config import get_logger, LogCategory
+from .circuit_breaker import get_openai_circuit_breaker, CircuitBreakerError
+from .logging_config import get_logger, LogCategory
 
 logger = get_logger(__name__, LogCategory.AGENT)
 

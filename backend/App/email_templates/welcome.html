@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Welcome to MYTA!</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            line-height: 1.6;
+            color: #ffffff;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #0f1419;
+        }
+        .container {
+            background: linear-gradient(135deg, #1a2f23 0%, #0f1f17 100%);
+            border-radius: 12px;
+            padding: 40px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+            border: 1px solid #2d4a37;
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .logo {
+            font-size: 64px;
+            margin-bottom: 10px;
+        }
+        .title {
+            font-size: 32px;
+            font-weight: 700;
+            background: linear-gradient(135deg, #f97316 0%, #ea580c 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 10px;
+        }
+        .subtitle {
+            font-size: 18px;
+            color: #94a3b8;
+        }
+        .content {
+            margin: 30px 0;
+            color: #e2e8f0;
+        }
+        .agent-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            margin: 30px 0;
+        }
+        .agent-card {
+            background: #2d4a37;
+            border-radius: 8px;
+            padding: 20px;
+            text-align: center;
+            border: 1px solid #3d5a47;
+        }
+        .agent-icon {
+            font-size: 32px;
+            margin-bottom: 10px;
+        }
+        .agent-name {
+            font-weight: 600;
+            color: #ffffff;
+            margin-bottom: 5px;
+        }
+        .agent-role {
+            font-size: 13px;
+            color: #94a3b8;
+        }
+        .cta-box {
+            background: linear-gradient(135deg, #f97316 0%, #ea580c 100%);
+            border-radius: 8px;
+            padding: 30px;
+            margin: 30px 0;
+            text-align: center;
+        }
+        .button {
+            display: inline-block;
+            background: #ffffff;
+            color: #f97316;
+            padding: 16px 32px;
+            text-decoration: none;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 16px;
+            margin: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+            transition: transform 0.2s;
+        }
+        .button:hover {
+            transform: translateY(-2px);
+        }
+        .feature-list {
+            background: #1e3a2f;
+            border-radius: 8px;
+            padding: 25px;
+            margin: 20px 0;
+            border-left: 4px solid #3b82f6;
+        }
+        .feature-item {
+            margin: 15px 0;
+            padding-left: 30px;
+            position: relative;
+        }
+        .feature-item:before {
+            content: "✓";
+            position: absolute;
+            left: 0;
+            color: #10b981;
+            font-weight: bold;
+            font-size: 20px;
+        }
+        .footer {
+            text-align: center;
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 1px solid #2d4a37;
+            color: #64748b;
+            font-size: 14px;
+        }
+        .social-links {
+            margin: 20px 0;
+        }
+        .social-links a {
+            color: #f97316;
+            text-decoration: none;
+            margin: 0 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="logo">🎬</div>
+            <h1 class="title">Welcome to MYTA!</h1>
+            <p class="subtitle">Your AI-Powered YouTube Agent Team is Ready</p>
+        </div>
+
+        <div class="content">
+            <p>Hi {{ user_name }},</p>
+            
+            <p>🎉 Congratulations! Your MYTA account is now active. You're about to experience a revolutionary way to grow your YouTube channel with the power of AI.</p>
+
+            <div class="cta-box">
+                <h2 style="margin-top: 0; color: #ffffff;">Ready to Get Started?</h2>
+                <p style="color: #ffffff; opacity: 0.9;">Connect your YouTube channel and let your AI team get to work!</p>
+                <a href="{{ dashboard_url }}" class="button">Go to Dashboard</a>
+            </div>
+
+            <h3 style="color: #f97316;">👥 Meet Your AI Agent Team</h3>
+            <p>You now have access to 6 specialized AI agents, each an expert in their field:</p>
+
+            <div class="agent-grid">
+                <div class="agent-card">
+                    <div class="agent-icon">🎯</div>
+                    <div class="agent-name">Boss Agent</div>
+                    <div class="agent-role">Strategic Coordinator</div>
+                </div>
+                <div class="agent-card">
+                    <div class="agent-icon">📊</div>
+                    <div class="agent-name">Alex</div>
+                    <div class="agent-role">Analytics Expert</div>
+                </div>
+                <div class="agent-card">
+                    <div class="agent-icon">🎨</div>
+                    <div class="agent-name">Levi</div>
+                    <div class="agent-role">Strategy Coordinator</div>
+                </div>
+                <div class="agent-card">
+                    <div class="agent-icon">⚡</div>
+                    <div class="agent-name">Maya</div>
+                    <div class="agent-role">Performance Specialist</div>
+                </div>
+                <div class="agent-card">
+                    <div class="agent-icon">💬</div>
+                    <div class="agent-name">Zara</div>
+                    <div class="agent-role">Community Manager</div>
+                </div>
+                <div class="agent-card">
+                    <div class="agent-icon">📈</div>
+                    <div class="agent-name">Kai</div>
+                    <div class="agent-role">Trend Analyst</div>
+                </div>
+            </div>
+
+            <div class="feature-list">
+                <h3 style="margin-top: 0; color: #ffffff;">✨ What You Can Do Now</h3>
+                <div class="feature-item">Connect your YouTube channel with one click</div>
+                <div class="feature-item">Get AI-powered content insights and recommendations</div>
+                <div class="feature-item">Organize content with intelligent pillars</div>
+                <div class="feature-item">Track performance with advanced analytics</div>
+                <div class="feature-item">Chat with your AI team for instant advice</div>
+                <div class="feature-item">Plan and schedule content strategically</div>
+            </div>
+
+            <h3 style="color: #f97316;">🚀 Quick Start Guide</h3>
+            <ol style="color: #e2e8f0;">
+                <li><strong>Connect YouTube:</strong> Link your channel in Settings</li>
+                <li><strong>Set Up Pillars:</strong> Define your content categories</li>
+                <li><strong>Chat with Boss Agent:</strong> Get strategic insights</li>
+                <li><strong>Explore Analytics:</strong> See what's working</li>
+                <li><strong>Plan Content:</strong> Use the Content Studio</li>
+            </ol>
+
+            <div class="social-links">
+                <p><strong>Stay Connected:</strong></p>
+                <a href="https://x.com/myytagent">Follow us on X</a> •
+                <a href="https://youtube.com/@myytagent">Subscribe on YouTube</a>
+            </div>
+
+            <p>Need help? We're here for you! Just reply to this email or check out our <a href="{{ help_url }}" style="color: #f97316;">Help Center</a>.</p>
+
+            <p style="margin-top: 30px;">Let's grow your channel together! 🚀</p>
+            
+            <p>Best regards,<br><strong>The MYTA Team</strong></p>
+        </div>
+
+        <div class="footer">
+            <p><strong>MYTA</strong> - Your AI-Powered YouTube Agent Team</p>
+            <p>© {{ current_year }} MYTA. All rights reserved.</p>
+        </div>
+    </div>
+</body>
+</html>
+

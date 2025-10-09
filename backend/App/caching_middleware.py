@@ -10,8 +10,8 @@ from datetime import datetime, timedelta
 from fastapi import Request, Response
 from fastapi.responses import JSONResponse
 
-from backend.App.redis_service import get_redis_service
-from backend.logging_config import get_logger, LogCategory
+from .redis_service import get_redis_service
+from .logging_config import get_logger, LogCategory
 
 logger = get_logger(__name__, LogCategory.CACHE)
 

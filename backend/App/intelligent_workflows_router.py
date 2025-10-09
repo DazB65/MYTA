@@ -9,13 +9,13 @@ from typing import Dict, List, Any, Optional
 import logging
 from datetime import datetime
 
-from backend.App.intelligent_agent_workflows import (
+from .intelligent_agent_workflows import (
     create_intelligent_workflow, 
     execute_intelligent_workflow, 
     get_workflow_status,
     workflow_engine
 )
-from backend.App.auth_middleware import get_current_user
+from .auth_middleware import get_current_user
 
 logger = logging.getLogger(__name__)
 

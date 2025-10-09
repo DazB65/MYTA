@@ -9,7 +9,7 @@ from uuid import UUID
 from fastapi import APIRouter, Depends, HTTPException, status, Query
 from fastapi.responses import JSONResponse
 
-from backend.App.team_models import (
+from .team_models import (
     Team, TeamMember, TeamInvitation, TeamPermissions,
     TeamCreateRequest, TeamUpdateRequest, TeamInviteRequest,
     TeamMemberUpdateRequest, InvitationResponseRequest,
@@ -17,10 +17,10 @@ from backend.App.team_models import (
     TeamInvitationResponse, TeamPermissionsResponse,
     TeamSummary, TeamRole
 )
-from backend.App.team_service_mock import team_service
-from backend.App.auth_middleware import get_current_user
-from backend.App.api_models import create_success_response, create_error_response
-from backend.logging_config import get_logger, LogCategory
+from .team_service_mock import team_service
+from .auth_middleware import get_current_user
+from .api_models import create_success_response, create_error_response
+from .logging_config import get_logger, LogCategory
 
 logger = get_logger(__name__, LogCategory.API)
 router = APIRouter(prefix="/api/teams", tags=["teams"])

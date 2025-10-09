@@ -243,7 +243,7 @@ class VidalyticsStartup:
         logger.info("Initializing cache system...")
         
         try:
-            from backend.backups import get_agent_cache
+            from .backups import get_agent_cache
             
             cache = get_agent_cache()
             cache_stats = cache.get_stats()
@@ -404,7 +404,7 @@ class VidalyticsStartup:
                 health_status["status"] = "degraded"
             
             try:
-                from backend.backups import get_agent_cache
+                from .backups import get_agent_cache
                 cache = get_agent_cache()
                 cache.get_stats()  # Test cache access
                 health_status["cache_system"] = "available"

@@ -542,7 +542,7 @@ class AnalyticsService:
         """Get the user's channel ID"""
         try:
             # First check if we have it in user context
-            from backend.ai_services import get_user_context
+            from .ai_services import get_user_context
             context = get_user_context(user_id)
             channel_info = context.get('channel_info', {})
 
@@ -561,7 +561,7 @@ class AnalyticsService:
 
                 # Store for future use
                 channel_info['channel_id'] = channel_id
-                from backend.ai_services import update_user_context
+                from .ai_services import update_user_context
                 update_user_context(user_id, "channel_info", channel_info)
 
                 return channel_id
@@ -972,7 +972,7 @@ def get_analytics_service() -> AnalyticsService:
     """Get global analytics service instance"""
     global _analytics_service
     if _analytics_service is None:
-        from backend.oauth_manager import get_oauth_manager
+        from .oauth_manager import get_oauth_manager
         oauth_manager = get_oauth_manager()  # Use global OAuth manager
         _analytics_service = AnalyticsService(oauth_manager)
     return _analytics_service

@@ -733,25 +733,25 @@ class IntelligentWorkflowEngine:
         try:
             # Import and use the appropriate agent
             if agent_id == "content_analysis":
-                from backend.App.agent_coordinators import ContentAnalysisAgent
+                from .agent_coordinators import ContentAnalysisAgent
                 agent = ContentAnalysisAgent()
             elif agent_id == "audience_insights":
-                from backend.App.agent_coordinators import AudienceInsightsAgent
+                from .agent_coordinators import AudienceInsightsAgent
                 agent = AudienceInsightsAgent()
             elif agent_id == "seo_optimization":
-                from backend.App.seo_agent import get_seo_agent
+                from .seo_agent import get_seo_agent
                 agent = get_seo_agent()
             elif agent_id == "competitive_analysis":
-                from backend.App.competitive_intelligence_2 import CompetitiveIntelligence2Engine
+                from .competitive_intelligence_2 import CompetitiveIntelligence2Engine
                 agent = CompetitiveIntelligence2Engine()
             elif agent_id == "monetization":
-                from backend.App.monetization_agent import get_monetization_agent
+                from .monetization_agent import get_monetization_agent
                 agent = get_monetization_agent()
             else:
                 raise ValueError(f"Unknown agent: {agent_id}")
 
             # Create agent request
-            from backend.App.agent_models import AgentRequest
+            from .agent_models import AgentRequest
             agent_request = AgentRequest(
                 user_id=workflow.user_id,
                 message=task.description,
@@ -840,7 +840,7 @@ class IntelligentWorkflowEngine:
     def _map_task_type_to_query_type(self, task_type: TaskType):
         """Map workflow task types to agent query types"""
 
-        from backend.App.agent_models import QueryType
+        from .agent_models import QueryType
 
         mapping = {
             TaskType.ANALYSIS: QueryType.CONTENT_ANALYSIS,
