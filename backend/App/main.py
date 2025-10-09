@@ -218,6 +218,11 @@ app.add_exception_handler(RateLimitExceeded, custom_rate_limit_handler)
 @app.on_event("startup")
 async def startup_event():
     """Initialize the Vidalytics multi-agent system"""
+    # Skip startup in serverless environments (Vercel)
+    if os.environ.get('VERCEL_SERVERLESS') == 'true':
+        logger.info("Serverless environment detected - skipping startup initialization")
+        return
+
     try:
         # Validate environment variables first
         logger.info("Validating environment variables...")
@@ -353,6 +358,11 @@ async def startup_event():
 @app.on_event("shutdown")
 async def shutdown_event():
     """Clean up resources on shutdown"""
+    # Skip shutdown in serverless environments (Vercel)
+    if os.environ.get('VERCEL_SERVERLESS') == 'true':
+        logger.info("Serverless environment detected - skipping shutdown cleanup")
+        return
+
     try:
         logger.info("Shutting down Vidalytics Multi-Agent System")
         
