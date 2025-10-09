@@ -1,5 +1,2 @@
-# FastAPI with Mangum for Vercel serverless
-fastapi==0.104.1
-pydantic==2.5.0
-starlette==0.27.0
-mangum==0.17.0
+# No external dependencies needed for basic HTTP handler
+# FastAPI integration will be added once we resolve Vercel compatibility issues
